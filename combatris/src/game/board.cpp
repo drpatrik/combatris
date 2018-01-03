@@ -1,11 +1,8 @@
-#include "game/play_field.h"
-#include "game/constants.h"
+#include "game/board.h"
 
 #include <iostream>
 
-const SDL_Rect kClipRect { 0, kBoardStartY, kWidth, kHeight }; // We only care about Y position
-
-PlayField::PlayField() {
+Board::Board() {
   window_ = SDL_CreateWindow("Combatris", SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED, kWidth, kHeight, SDL_WINDOW_RESIZABLE);
   if (nullptr == window_) {
@@ -19,16 +16,34 @@ PlayField::PlayField() {
   }
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
   SDL_RenderSetLogicalSize(renderer_, kWidth, kHeight);
+
+  asset_manager_ = std::make_shared<AssetManager>(renderer_);
 }
 
-PlayField::~PlayField() noexcept {
+Board::~Board() noexcept {
   SDL_DestroyRenderer(renderer_);
   SDL_DestroyWindow(window_);
 }
 
-void PlayField::Render(double /*delta_time*/) {
+void Board::Render(double /*delta_time*/) {
+  SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 0);
   SDL_RenderClear(renderer_);
-  SDL_RenderSetClipRect(renderer_, &kClipRect);
+
+  auto sprite = asset_manager_->GetSprite(SpriteID::O_Block);
+
+  SDL_Rect rc { 0, 0,  sprite->width(), sprite->height() };
+
+  SDL_RenderCopy(renderer_, (*sprite)(), nullptr, &rc);
+
+  sprite = asset_manager_->GetSprite(SpriteID::I_Block);
+
+  rc =  { BlockWidth * 2, BlockHeight * 2,  sprite->width(), sprite->height() };
+
+  SDL_RenderCopy(renderer_, (*sprite)(), nullptr, &rc);
+
+  rc =  { BlockWidth * 6, BlockHeight * 3,  sprite->width(), sprite->height() };
+
+  SDL_RenderCopy(renderer_, (*sprite)(), nullptr, &rc);
 
   SDL_RenderPresent(renderer_);
 }

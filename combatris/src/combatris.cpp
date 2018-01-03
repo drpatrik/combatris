@@ -1,6 +1,6 @@
-#include "tool/timer.h"
+#include "tools/timer.h"
 #include "game/coordinates.h"
-#include "game/play_field.h"
+#include "game/board.h"
 
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
@@ -37,7 +37,7 @@ class Combatris {
   static void Play() {
     bool quit = false;
     DeltaTimer delta_timer;
-    PlayField play_field;
+    Board board;
 
     while (!quit) {
       SDL_Event event;
@@ -64,7 +64,7 @@ class Combatris {
             std::stringstream ss;
             ss << "X: " << mouseX << " Y: " << mouseY << " Row: " <<  row << " Col: " << col;
 
-            SDL_SetWindowTitle(play_field, ss.str().c_str());
+            SDL_SetWindowTitle(board, ss.str().c_str());
           } break;
 #endif
           case SDL_MOUSEBUTTONDOWN:
@@ -74,7 +74,7 @@ class Combatris {
             }
         }
       }
-      play_field.Render(delta_timer.GetDelta());
+      board.Render(delta_timer.GetDelta());
     }
   }
 };
