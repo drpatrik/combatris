@@ -1,4 +1,5 @@
 #include "asset_manager.h"
+#include "tools/text.h"
 
 #include <iostream>
 
@@ -43,13 +44,13 @@ void DeleteTexture(SDL_Texture* texture) {
 }
 
 AssetManager::AssetManager(SDL_Renderer *renderer) {
-  std::vector<SpriteID> sprite_ids {  SpriteID::I_Block, SpriteID::J_Block, SpriteID::L_Block, SpriteID::O_Block, SpriteID::S_Block, SpriteID::T_Block, SpriteID::Z_Block };
-  std::vector<std::string> sprites { "I-Block.bmp", "J-Block.bmp", "L-Block.bmp", "O-Block.bmp", "S-Block.bmp", "T-Block.bmp", "Z-Block.bmp" };
+  std::vector<Tetromino::Type> types {  Tetromino::Type::I_Block, Tetromino::Type::J_Block, Tetromino::Type::L_Block, Tetromino::Type::O_Block, Tetromino::Type::S_Block, Tetromino::Type::T_Block, Tetromino::Type::Z_Block };
+  std::vector<std::string> tetrominos { "I-Block.bmp", "J-Block.bmp", "L-Block.bmp", "O-Block.bmp", "S-Block.bmp", "T-Block.bmp", "Z-Block.bmp" };
 
-  for (size_t i = 0; i < sprites.size(); ++i) {
-    auto texture = std::shared_ptr<SDL_Texture>(LoadTexture(renderer, sprites[i]), DeleteTexture);
+  for (size_t i = 0; i < tetrominos.size(); ++i) {
+    auto texture = std::shared_ptr<SDL_Texture>(LoadTexture(renderer, tetrominos[i]), DeleteTexture);
 
-    sprites_.push_back(std::make_shared<Sprite>(sprite_ids[i], texture));
+    sprites_.push_back(std::make_shared<Tetromino>(renderer, types[i], texture));
   }
   std::vector<std::pair<std::string, int>> fonts {
     std::make_pair("Cabin-Regular.ttf", kNormalFontSize),

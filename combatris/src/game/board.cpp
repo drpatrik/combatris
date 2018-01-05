@@ -29,21 +29,23 @@ void Board::Render(double /*delta_time*/) {
   SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 0);
   SDL_RenderClear(renderer_);
 
-  auto sprite = asset_manager_->GetSprite(SpriteID::O_Block);
+  auto sprite = asset_manager_->GetTetromino(Tetromino::Type::T_Block);
 
-  SDL_Rect rc { 0, 0,  sprite->width(), sprite->height() };
+  int x = BlockWidth;;
+  int y = 0;
 
-  SDL_RenderCopy(renderer_, (*sprite)(), nullptr, &rc);
+  sprite->Render(x, y);
 
-  sprite = asset_manager_->GetSprite(SpriteID::I_Block);
+  x = 0;
+  y = BlockHeight;
+  sprite->Render(x, y);
 
-  rc =  { BlockWidth * 2, BlockHeight * 2,  sprite->width(), sprite->height() };
+  x += BlockWidth;
+  sprite->Render(x, y);
 
-  SDL_RenderCopy(renderer_, (*sprite)(), nullptr, &rc);
 
-  rc =  { BlockWidth * 6, BlockHeight * 3,  sprite->width(), sprite->height() };
-
-  SDL_RenderCopy(renderer_, (*sprite)(), nullptr, &rc);
+  x += BlockWidth;
+  sprite->Render(x, y);
 
   SDL_RenderPresent(renderer_);
 }

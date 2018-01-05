@@ -4,8 +4,8 @@
 
 const int kWidth = 530;
 const int kHeight = 1060;
-const int BlockWidth = 53;
-const int BlockHeight = 53;
+const int BlockWidth = 54;
+const int BlockHeight = 54;
 const int kBlackAreaX = 268;
 const int kBlackAreaY = 97;
 const int kBlackAreadWidth = 461;
