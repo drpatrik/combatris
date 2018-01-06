@@ -1,6 +1,7 @@
 #include "asset_manager.h"
 #include "tools/text.h"
 
+#include <string>
 #include <iostream>
 
 namespace {
@@ -51,13 +52,13 @@ struct TetrominoAssetData {
 };
 
 std::vector<TetrominoAssetData> kTetrominoAssetData {
-  TetrominoAssetData(Tetromino::Type::I_Block, "I-Block.bmp", kTetrominoI_Blocks),
-  TetrominoAssetData(Tetromino::Type::J_Block, "J-Block.bmp", kTetrominoJ_Blocks),
-  TetrominoAssetData(Tetromino::Type::L_Block, "L-Block.bmp", kTetrominoL_Blocks),
-  TetrominoAssetData(Tetromino::Type::O_Block, "O-Block.bmp", kTetrominoO_Blocks),
-  TetrominoAssetData(Tetromino::Type::S_Block, "S-Block.bmp", kTetrominoS_Blocks),
-  TetrominoAssetData(Tetromino::Type::T_Block, "T-Block.bmp", kTetrominoT_Blocks),
-  TetrominoAssetData(Tetromino::Type::Z_Block, "Z-Block.bmp", kTetrominoZ_Blocks),
+  TetrominoAssetData(Tetromino::Type::I, "I.bmp", kTetromino_I_Rotations),
+  TetrominoAssetData(Tetromino::Type::J, "J.bmp", kTetromino_J_Rotations),
+  TetrominoAssetData(Tetromino::Type::L, "L.bmp", kTetromino_L_Rotations),
+  TetrominoAssetData(Tetromino::Type::O, "O.bmp", kTetromino_O_Rotations),
+  TetrominoAssetData(Tetromino::Type::S, "S.bmp", kTetromino_S_Rotations),
+  TetrominoAssetData(Tetromino::Type::T, "T.bmp", kTetromino_T_Rotations),
+  TetrominoAssetData(Tetromino::Type::Z, "Z.bmp", kTetromino_Z_Rotations),
 };
 
 }

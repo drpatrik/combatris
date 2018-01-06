@@ -5,178 +5,176 @@
 #include <vector>
 
 struct TetrominoMetadata {
-  TetrominoMetadata(const std::vector<std::vector<int>> &shape,int renderer_hint, Color color) : shape_(shape), renderer_hint_(renderer_hint), color_(GetColor(color)) {}
-  TetrominoMetadata(const std::vector<std::vector<int>> &shape) : shape_(shape), renderer_hint_(0), color_(GetColor(Color::Black)) {}
+  TetrominoMetadata(const std::vector<std::vector<int>> &shape, Color color) : shape_(shape), color_(GetColor(color)) {}
   std::vector<std::vector<int>> shape_;
   int width() { return shape_.at(0).size(); }
   int height() { return shape_.size(); }
-  int renderer_hint_;
   SDL_Color color_;
 };
 
 // I_Block 1
 
-const TetrominoMetadata kTetrominoMetadataI_BlockA0({
+const TetrominoMetadata kTetrominoMetadata_I_0D({
     {1, 1, 1, 1}
-  }, 0, Color::Cyan);
+  }, Color::Cyan);
 
-const TetrominoMetadata kTetrominoMetadataI_BlockA90(
+const TetrominoMetadata kTetrominoMetadata_I_90D(
     {{1},
     {1},
     {1},
-    {1}});
+    {1}}, Color::Cyan);
 
-const std::vector<TetrominoMetadata> kTetrominoI_Blocks = {
-  kTetrominoMetadataI_BlockA0,
-  kTetrominoMetadataI_BlockA90,
-  kTetrominoMetadataI_BlockA0,
-  kTetrominoMetadataI_BlockA90
+const std::vector<TetrominoMetadata> kTetromino_I_Rotations = {
+  kTetrominoMetadata_I_0D,
+  kTetrominoMetadata_I_90D,
+  kTetrominoMetadata_I_0D,
+  kTetrominoMetadata_I_90D
 };
 
 // J_Block 2
 
-const TetrominoMetadata kTetrominoMetadataJ_BlockA0({
-    {2, 2, 2},
-    {0, 0, 2}
-  }, 1, Color::Blue);
-
-const TetrominoMetadata kTetrominoMetadataJ_BlockA90({
-    {0, 2},
-    {0, 2},
-    {2, 2}
-  });
-
-const TetrominoMetadata kTetrominoMetadataJ_BlockA180({
+const TetrominoMetadata kTetrominoMetadata_J_0D({
     {2, 0, 0},
     {2, 2, 2}
-  });
+  }, Color::Blue);
 
-const TetrominoMetadata kTetrominoMetadataJ_BlockA270({
+const TetrominoMetadata kTetrominoMetadata_J_90D({
     {2, 2},
     {2, 0},
     {2, 0}
-  });
+  }, Color::Blue);
 
-const std::vector<TetrominoMetadata> kTetrominoJ_Blocks = {
-  kTetrominoMetadataJ_BlockA0,
-  kTetrominoMetadataJ_BlockA90,
-  kTetrominoMetadataJ_BlockA180,
-  kTetrominoMetadataJ_BlockA270
+const TetrominoMetadata kTetrominoMetadata_J_180D({
+    {2, 2, 2},
+    {0, 0, 2}
+  }, Color::Blue);
+
+const TetrominoMetadata kTetrominoMetadata_J_270D({
+    {0, 2},
+    {0, 2},
+    {2, 2}
+  }, Color::Blue);
+
+const std::vector<TetrominoMetadata> kTetromino_J_Rotations = {
+  kTetrominoMetadata_J_0D,
+  kTetrominoMetadata_J_90D,
+  kTetrominoMetadata_J_180D,
+  kTetrominoMetadata_J_270D
 };
 
 // L_Block 3
 
-const TetrominoMetadata kTetrominoMetadataL_BlockA0({
-    {3, 3, 3},
-    {3, 0, 0}
-  }, 1, Color::Orange);
-
-const TetrominoMetadata kTetrominoMetadataL_BlockA90({
-    {3, 3},
-    {0, 3},
-    {0, 3}
-  });
-
-const TetrominoMetadata kTetrominoMetadataL_BlockA180({
+const TetrominoMetadata kTetrominoMetadata_L_0D({
     {0, 0, 3},
     {3, 3, 3}
-  });
+  }, Color::Orange);
 
-const TetrominoMetadata kTetrominoMetadataL_BlockA270({
+const TetrominoMetadata kTetrominoMetadata_L_90D({
     {3, 0},
     {3, 0},
     {3, 3}
-  });
+  }, Color::Orange);
 
-const std::vector<TetrominoMetadata> kTetrominoL_Blocks = {
-  kTetrominoMetadataL_BlockA0,
-  kTetrominoMetadataL_BlockA90,
-  kTetrominoMetadataL_BlockA180,
-  kTetrominoMetadataL_BlockA270
+const TetrominoMetadata kTetrominoMetadata_L_180D({
+    {3, 3, 3},
+    {3, 0, 0}
+  }, Color::Orange);
+
+const TetrominoMetadata kTetrominoMetadata_L_270D({
+    {3, 3},
+    {0, 3},
+    {0, 3}
+  }, Color::Orange);
+
+const std::vector<TetrominoMetadata> kTetromino_L_Rotations = {
+  kTetrominoMetadata_L_0D,
+  kTetrominoMetadata_L_90D,
+  kTetrominoMetadata_L_180D,
+  kTetrominoMetadata_L_270D
 };
 
 // O_Block 4
 
-const TetrominoMetadata kTetrominoMetadataO_BlockA0({
+const TetrominoMetadata kTetrominoMetadata_O_0D({
     {4, 4},
     {4, 4}
-  }, 0, Color::Yellow);
+  }, Color::Yellow);
 
-const std::vector<TetrominoMetadata> kTetrominoO_Blocks = {
-  kTetrominoMetadataO_BlockA0,
-  kTetrominoMetadataO_BlockA0,
-  kTetrominoMetadataO_BlockA0,
-  kTetrominoMetadataO_BlockA0
+const std::vector<TetrominoMetadata> kTetromino_O_Rotations = {
+  kTetrominoMetadata_O_0D,
+  kTetrominoMetadata_O_0D,
+  kTetrominoMetadata_O_0D,
+  kTetrominoMetadata_O_0D
 };
 
 // S_Block 5
 
-const TetrominoMetadata kTetrominoMetadataS_BlockA0({
+const TetrominoMetadata kTetrominoMetadata_S_0D({
     {0, 5, 5},
     {5, 5, 0}
-  }, 1, Color::Green);
+  }, Color::Green);
 
-const TetrominoMetadata kTetrominoMetadataS_BlockA90({
+const TetrominoMetadata kTetrominoMetadata_S_90D({
     {5, 0},
     {5, 5},
     {0, 5}
-  });
+  }, Color::Green);
 
-const std::vector<TetrominoMetadata> kTetrominoS_Blocks = {
-  kTetrominoMetadataS_BlockA0,
-  kTetrominoMetadataS_BlockA90,
-  kTetrominoMetadataS_BlockA0,
-  kTetrominoMetadataS_BlockA90
+const std::vector<TetrominoMetadata> kTetromino_S_Rotations = {
+  kTetrominoMetadata_S_0D,
+  kTetrominoMetadata_S_90D,
+  kTetrominoMetadata_S_0D,
+  kTetrominoMetadata_S_90D
 };
 
 
 // T_Block 6
 
-const TetrominoMetadata kTetrominoMetadataT_BlockA0({
-    {6, 6, 6},
-    {0, 6, 0}
-  }, 1, Color::Purple);
-
-const TetrominoMetadata kTetrominoMetadataT_BlockA90({
-    {0, 6},
-    {6, 6},
-    {0, 6}
-  });
-
-const TetrominoMetadata kTetrominoMetadataT_BlockA180({
+const TetrominoMetadata kTetrominoMetadata_T_0D({
     {0, 6, 0},
     {6, 6, 6}
-  });
+  }, Color::Purple);
 
-const TetrominoMetadata kTetrominoMetadataT_BlockA270({
+const TetrominoMetadata kTetrominoMetadata_T_90D({
     {6, 0},
     {6, 6},
     {6, 0}
-  });
+  }, Color::Purple);
 
-const std::vector<TetrominoMetadata> kTetrominoT_Blocks = {
-  kTetrominoMetadataT_BlockA0,
-  kTetrominoMetadataT_BlockA90,
-  kTetrominoMetadataT_BlockA180,
-  kTetrominoMetadataT_BlockA270
+const TetrominoMetadata kTetrominoMetadata_T_180D({
+    {6, 6, 6},
+    {0, 6, 0}
+  }, Color::Purple);
+
+const TetrominoMetadata kTetrominoMetadata_T_270D({
+    {0, 6},
+    {6, 6},
+    {0, 6}
+  }, Color::Purple);
+
+const std::vector<TetrominoMetadata> kTetromino_T_Rotations = {
+  kTetrominoMetadata_T_0D,
+  kTetrominoMetadata_T_90D,
+  kTetrominoMetadata_T_180D,
+  kTetrominoMetadata_T_270D
 };
 
 // Z_Block 7
 
-const TetrominoMetadata kTetrominoMetadataZ_BlockA0({
+const TetrominoMetadata kTetrominoMetadata_Z_0D({
     {7, 7, 0},
     {0, 7, 7}
-  }, 0, Color::Red);
+  }, Color::Red);
 
-const TetrominoMetadata kTetrominoMetadataZ_BlockA90({
+const TetrominoMetadata kTetrominoMetadata_Z_90D({
     {0, 7},
     {7, 7},
     {7, 0}
-  });
+  }, Color::Red);
 
-const std::vector<TetrominoMetadata> kTetrominoZ_Blocks = {
-  kTetrominoMetadataZ_BlockA0,
-  kTetrominoMetadataZ_BlockA90,
-  kTetrominoMetadataZ_BlockA0,
-  kTetrominoMetadataZ_BlockA90
+const std::vector<TetrominoMetadata> kTetromino_Z_Rotations = {
+  kTetrominoMetadata_Z_0D,
+  kTetrominoMetadata_Z_90D,
+  kTetrominoMetadata_Z_0D,
+  kTetrominoMetadata_Z_90D
 };

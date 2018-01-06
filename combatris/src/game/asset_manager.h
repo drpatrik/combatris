@@ -4,10 +4,9 @@
 #include "game/constants.h"
 #include "tools/function_caller.h"
 
-#include <string>
-#include <random>
 #include <memory>
 #include <exception>
+#include <random>
 
 #include <SDL_ttf.h>
 
@@ -24,8 +23,8 @@ class AssetManager final {
   virtual std::shared_ptr<const Tetromino> GetTetromino() const { return tetrominos_.at(distribution_(engine_)); }
 
   virtual std::shared_ptr<const Tetromino> GetTetromino(Tetromino::Type type) {
-    if (Tetromino::Type::NoBlock == type) {
-      throw std::invalid_argument("NoBlock not allowed");
+    if (type == Tetromino::Type::Invalid) {
+      throw std::invalid_argument("Type not allowed");
     }
     return tetrominos_.at(static_cast<int>(type) - 1); }
 

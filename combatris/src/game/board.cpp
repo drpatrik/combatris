@@ -2,12 +2,6 @@
 
 #include <iostream>
 
-namespace {
-
-const std::vector<Tetromino::Angle> kAngles = {Tetromino::Angle::A0, Tetromino::Angle::A90, Tetromino::Angle::A180, Tetromino::Angle::A270 };
-
-}
-
 Board::Board() {
   window_ = SDL_CreateWindow("Combatris", SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED, kWidth, kHeight, SDL_WINDOW_RESIZABLE);
@@ -24,6 +18,7 @@ Board::Board() {
   SDL_RenderSetLogicalSize(renderer_, kWidth, kHeight);
 
   asset_manager_ = std::make_shared<AssetManager>(renderer_);
+  tetromino_in_play_ = std::make_unique<TetrominoSprite>(*asset_manager_->GetTetromino(current_tetromino_));
 }
 
 Board::~Board() noexcept {
@@ -32,44 +27,52 @@ Board::~Board() noexcept {
 }
 
 void Board::Up() {
-  int i = static_cast<int>(current_angle_);
-
-  i++;
-  current_angle_ = static_cast<Tetromino::Angle>(i % kAngles.size());
+  if (!tetromino_in_play_) {
+    return;
+  }
+  tetromino_in_play_->Rotate();
 }
 
-void Board::Down() {}
+void Board::Down() {
+  if (!tetromino_in_play_) {
+    return;
+  }
+}
 
 void Board::Left() {
-  size_t i = static_cast<size_t>(current_tetromino_);
-
-  i++;
-  if (i > kNumTetrominos) {
-    i = 1;
+  if (!tetromino_in_play_) {
+    return;
   }
-  current_tetromino_ = static_cast<Tetromino::Type>(i);
+  int n = static_cast<int>(current_tetromino_) - 1;
+
+  if (n < 1) {
+    n = kNumTetrominos - 1;
+  }
+  current_tetromino_ = static_cast<Tetromino::Type>(n);
+  tetromino_in_play_ = std::make_unique<TetrominoSprite>(*asset_manager_->GetTetromino(current_tetromino_));
 }
 
 void Board::Right() {
-  int i = static_cast<int>(current_tetromino_);
-
-  i--;
-  if (i < 1) {
-    i = kNumTetrominos;
+  if (!tetromino_in_play_) {
+    return;
   }
-  current_tetromino_ = static_cast<Tetromino::Type>(i);
+  auto n = static_cast<size_t>(current_tetromino_) + 1;
+
+  if (n > kNumTetrominos - 1) {
+    n = 1;
+  }
+  current_tetromino_ = static_cast<Tetromino::Type>(n);
+  tetromino_in_play_ = std::make_unique<TetrominoSprite>(*asset_manager_->GetTetromino(current_tetromino_));
 }
 
 void Board::Render(double) {
   SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 0);
   SDL_RenderClear(renderer_);
 
-  auto sprite = asset_manager_->GetTetromino(current_tetromino_);
-
-  int x = kBlockWidth;
-  int y = kBlockHeight;
-
-  sprite->Render(x, y, current_angle_);
+  if (tetromino_in_play_) {
+    tetromino_in_play_->RenderOutline(8, 2);
+    tetromino_in_play_->Render(2, 2);
+  }
 
   SDL_RenderPresent(renderer_);
 }

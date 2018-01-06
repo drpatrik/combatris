@@ -8,7 +8,7 @@
 class Tetromino final {
  public:
   enum class Angle { A0, A90, A180, A270 };
-  enum class Type { NoBlock, I_Block, J_Block, L_Block, O_Block, S_Block, T_Block, Z_Block };
+  enum class Type { Invalid, I, J, L, O, S, T, Z };
 
   Tetromino(SDL_Renderer *renderer, Type type, const std::vector<TetrominoMetadata>& metadata,
             const std::shared_ptr<SDL_Texture> &tetromino)
@@ -27,6 +27,8 @@ class Tetromino final {
   void Render(int x, int y) const;
 
   void Render(int x, int y, Angle angle) const;
+
+  void RenderOutline(int x, int y, Angle angle) const;
 
   Type type() const { return type_; }
 
