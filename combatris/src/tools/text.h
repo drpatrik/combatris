@@ -1,15 +1,13 @@
 #pragma once
 
 #include "tools/function_caller.h"
+#include "tools/color.h"
 
 #include <tuple>
 #include <string>
 #include <memory>
 
-#include <SDL.h>
 #include <SDL_ttf.h>
-
-enum class Color { White, Blue, Red, Green, Black, Yellow, Cyan };
 
 using UniqueTexturePtr = std::unique_ptr<SDL_Texture, function_caller<void(SDL_Texture*), &SDL_DestroyTexture>>;
 

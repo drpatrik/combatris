@@ -1,27 +1,5 @@
 #include "tools/text.h"
 
-namespace {
-
-SDL_Color GetColor(Color color, uint8_t alpha = 0) {
-  if (color == Color::Blue) {
-    return { 0, 0, 255, alpha };
-  } else if (color == Color::Red) {
-    return { 255, 0, 0, alpha };
-  } else if (color == Color::Green) {
-    return  { 0, 255, 0, alpha };
-  } else if (color == Color::Black) {
-    return  { 0, 0, 0, alpha };
-  } else if (color == Color::Yellow) {
-    return { 255, 255, 0, alpha };
-  } else if (color == Color::Cyan) {
-    return { 153, 255, 255, alpha };
-  } else {
-    return { 255, 255, 255, alpha };
-  }
-}
-
-}
-
 std::tuple<UniqueTexturePtr, int, int> CreateTextureFromText(SDL_Renderer *renderer, TTF_Font *font, const std::string& text,
                                                          Color text_color) {
   SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), GetColor(text_color, 0));

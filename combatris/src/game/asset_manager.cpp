@@ -41,16 +41,32 @@ void DeleteTexture(SDL_Texture* texture) {
   }
 }
 
+struct TetrominoAssetData {
+  TetrominoAssetData(Tetromino::Type type, const std::string& image , const std::vector<TetrominoMetadata>& metadata) :
+      type_(type), image_(image), metadata_(metadata) {}
+
+  Tetromino::Type type_;
+  std::string image_;
+  std::vector<TetrominoMetadata> metadata_;
+};
+
+std::vector<TetrominoAssetData> kTetrominoAssetData {
+  TetrominoAssetData(Tetromino::Type::I_Block, "I-Block.bmp", kTetrominoI_Blocks),
+  TetrominoAssetData(Tetromino::Type::J_Block, "J-Block.bmp", kTetrominoJ_Blocks),
+  TetrominoAssetData(Tetromino::Type::L_Block, "L-Block.bmp", kTetrominoL_Blocks),
+  TetrominoAssetData(Tetromino::Type::O_Block, "O-Block.bmp", kTetrominoO_Blocks),
+  TetrominoAssetData(Tetromino::Type::S_Block, "S-Block.bmp", kTetrominoS_Blocks),
+  TetrominoAssetData(Tetromino::Type::T_Block, "T-Block.bmp", kTetrominoT_Blocks),
+  TetrominoAssetData(Tetromino::Type::Z_Block, "Z-Block.bmp", kTetrominoZ_Blocks),
+};
+
 }
 
 AssetManager::AssetManager(SDL_Renderer *renderer) {
-  std::vector<Tetromino::Type> types {  Tetromino::Type::I_Block, Tetromino::Type::J_Block, Tetromino::Type::L_Block, Tetromino::Type::O_Block, Tetromino::Type::S_Block, Tetromino::Type::T_Block, Tetromino::Type::Z_Block };
-  std::vector<std::string> tetrominos { "I-Block.bmp", "J-Block.bmp", "L-Block.bmp", "O-Block.bmp", "S-Block.bmp", "T-Block.bmp", "Z-Block.bmp" };
+  for (const auto asset : kTetrominoAssetData) {
+    auto texture = std::shared_ptr<SDL_Texture>(LoadTexture(renderer, asset.image_), DeleteTexture);
 
-  for (size_t i = 0; i < tetrominos.size(); ++i) {
-    auto texture = std::shared_ptr<SDL_Texture>(LoadTexture(renderer, tetrominos[i]), DeleteTexture);
-
-    sprites_.push_back(std::make_shared<Tetromino>(renderer, types[i], texture));
+    tetrominos_.push_back(std::make_shared<Tetromino>(renderer, asset.type_, asset.metadata_, texture));
   }
   std::vector<std::pair<std::string, int>> fonts {
     std::make_pair("Cabin-Regular.ttf", kNormalFontSize),

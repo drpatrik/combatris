@@ -5,9 +5,9 @@
 #include "tools/function_caller.h"
 
 #include <string>
-#include <vector>
 #include <random>
 #include <memory>
+#include <exception>
 
 #include <SDL_ttf.h>
 
@@ -21,9 +21,13 @@ class AssetManager final {
 
   virtual ~AssetManager() noexcept {};
 
-  virtual std::shared_ptr<const Tetromino> GetTetromino() const { return sprites_.at(distribution_(engine_)); }
+  virtual std::shared_ptr<const Tetromino> GetTetromino() const { return tetrominos_.at(distribution_(engine_)); }
 
-  virtual std::shared_ptr<const Tetromino> GetTetromino(Tetromino::Type type) { return sprites_.at(static_cast<int>(type)); }
+  virtual std::shared_ptr<const Tetromino> GetTetromino(Tetromino::Type type) {
+    if (Tetromino::Type::NoBlock == type) {
+      throw std::invalid_argument("NoBlock not allowed");
+    }
+    return tetrominos_.at(static_cast<int>(type) - 1); }
 
   virtual TTF_Font *GetFont(int id) const { return fonts_[id].get(); }
 
@@ -31,7 +35,7 @@ class AssetManager final {
   using UniqueFontPtr = std::unique_ptr<TTF_Font, function_caller<void(TTF_Font*), &TTF_CloseFont>>;
 
   std::vector<UniqueFontPtr> fonts_;
-  std::vector<std::shared_ptr<Tetromino>> sprites_;
+  std::vector<std::shared_ptr<Tetromino>> tetrominos_;
   mutable std::mt19937 engine_ {std::random_device{}()};
-  mutable std::uniform_int_distribution<int> distribution_{ 0, kNumSprites - 1 };
+  mutable std::uniform_int_distribution<int> distribution_{ 0, kNumTetrominos - 1 };
 };
