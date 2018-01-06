@@ -1,6 +1,9 @@
-        combatris
+        Combatris
 
         A new old take on the Tetris game where network concepts are introduced.
+
+        This is very much work in progress and right now focus is on getting the game
+        elements to work - after that work on the network capabilities will start.
 
         Dependencies:
         - C++17 compliant compiler (e.g. clang 4, clang-9.0.0, Visual Studio 2017.3 [P2])
