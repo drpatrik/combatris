@@ -9,7 +9,7 @@ Board::Board() {
     std::cout << "Failed to create window : " << SDL_GetError() << std::endl;
     exit(-1);
   }
-  renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
+  renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
   if (nullptr == renderer_) {
     std::cout << "Failed to create renderer : " << SDL_GetError() << std::endl;
     exit(-1);
@@ -37,25 +37,6 @@ void Board::Down() {
   if (!tetromino_in_play_) {
     return;
   }
-}
-
-void Board::Left() {
-  if (!tetromino_in_play_) {
-    return;
-  }
-  int n = static_cast<int>(current_tetromino_) - 1;
-
-  if (n < 1) {
-    n = kNumTetrominos - 1;
-  }
-  current_tetromino_ = static_cast<Tetromino::Type>(n);
-  tetromino_in_play_ = std::make_unique<TetrominoSprite>(*asset_manager_->GetTetromino(current_tetromino_));
-}
-
-void Board::Right() {
-  if (!tetromino_in_play_) {
-    return;
-  }
   auto n = static_cast<size_t>(current_tetromino_) + 1;
 
   if (n > kNumTetrominos - 1) {
@@ -65,13 +46,45 @@ void Board::Right() {
   tetromino_in_play_ = std::make_unique<TetrominoSprite>(*asset_manager_->GetTetromino(current_tetromino_));
 }
 
+void Board::Left() {
+  if (!tetromino_in_play_) {
+    return;
+  }
+  tetromino_in_play_->Left();
+}
+
+void Board::Right() {
+  if (!tetromino_in_play_) {
+    return;
+  }
+  tetromino_in_play_->Right();
+}
+
 void Board::Render(double) {
   SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 0);
   SDL_RenderClear(renderer_);
 
+  // Draw Grid
+  auto gray = GetColor(Color::Gray);
+
+  SDL_SetRenderDrawColor(renderer_, gray.r, gray.g, gray.b, gray.a);
+  SDL_Rect rc { 0, 0, kWidth, kHeight };
+  SDL_RenderFillRect(renderer_, &rc);
+
+  SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 0);
+  int y = 0;
+
+  for (int row = 0; row < kRows; ++row) {
+    int x = 0;
+    for (int col = 0; col < kCols; ++col) {
+      SDL_Rect rc = { x + 1, y + 1, kBlockWidth - 2, kBlockHeight - 2 };
+      SDL_RenderFillRect(renderer_, &rc);
+      x += kBlockWidth;
+    }
+    y += kBlockHeight;
+  }
   if (tetromino_in_play_) {
-    tetromino_in_play_->RenderOutline(8, 2);
-    tetromino_in_play_->Render(2, 2);
+    tetromino_in_play_->Render();
   }
 
   SDL_RenderPresent(renderer_);

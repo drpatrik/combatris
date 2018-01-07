@@ -2,6 +2,8 @@
 
 #include <cstddef>
 
+const int kFPS = 60;
+const double kFrameDelay(double(1000000.0) / double(kFPS));
 const int kRows = 20;
 const int kCols = 10;
 const int kBlockWidth = 54;

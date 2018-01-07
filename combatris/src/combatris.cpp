@@ -56,13 +56,14 @@ class Combatris {
           case SDL_KEYDOWN:
             if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
               delta_timer.Reset();
-            } if (event.key.keysym.scancode == SDL_SCANCODE_UP) {
+            } else if (event.key.keysym.scancode == SDL_SCANCODE_UP) {
               board.Up();
-            }
-            if (event.key.keysym.scancode == SDL_SCANCODE_LEFT) {
+            } else if (event.key.keysym.scancode == SDL_SCANCODE_LEFT) {
               board.Left();
             } else if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
               board.Right();
+            } else if (event.key.keysym.scancode == SDL_SCANCODE_DOWN) {
+              board.Down();
             }
             break;
 #if !defined(NDEBUG)
