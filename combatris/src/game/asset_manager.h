@@ -6,7 +6,7 @@
 
 #include <memory>
 #include <exception>
-#include <random>
+
 
 #include <SDL_ttf.h>
 
@@ -20,13 +20,7 @@ class AssetManager final {
 
   virtual ~AssetManager() noexcept {};
 
-  virtual std::shared_ptr<const Tetromino> GetTetromino() const { return tetrominos_.at(distribution_(engine_)); }
-
-  virtual std::shared_ptr<const Tetromino> GetTetromino(Tetromino::Type type) {
-    if (type == Tetromino::Type::Invalid) {
-      throw std::invalid_argument("Type not allowed");
-    }
-    return tetrominos_.at(static_cast<int>(type) - 1); }
+  virtual std::shared_ptr<SDL_Texture> GetSprite(int id) { return sprites_.at(id); }
 
   virtual TTF_Font *GetFont(int id) const { return fonts_[id].get(); }
 
@@ -34,7 +28,5 @@ class AssetManager final {
   using UniqueFontPtr = std::unique_ptr<TTF_Font, function_caller<void(TTF_Font*), &TTF_CloseFont>>;
 
   std::vector<UniqueFontPtr> fonts_;
-  std::vector<std::shared_ptr<Tetromino>> tetrominos_;
-  mutable std::mt19937 engine_ {std::random_device{}()};
-  mutable std::uniform_int_distribution<int> distribution_{ 0, kNumTetrominos - 1 };
+  std::vector<std::shared_ptr<SDL_Texture>> sprites_;
 };

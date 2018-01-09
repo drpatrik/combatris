@@ -18,7 +18,8 @@ Board::Board() {
   SDL_RenderSetLogicalSize(renderer_, kWidth, kHeight);
 
   asset_manager_ = std::make_shared<AssetManager>(renderer_);
-  tetromino_in_play_ = std::make_unique<TetrominoSprite>(*asset_manager_->GetTetromino(current_tetromino_));
+  tetromino_generator_ = std::make_shared<TetrominoGenerator>(renderer_, *asset_manager_);
+  tetromino_in_play_ = tetromino_generator_->Get(current_tetromino_);
 }
 
 Board::~Board() noexcept {
@@ -30,7 +31,7 @@ void Board::Up() {
   if (!tetromino_in_play_) {
     return;
   }
-  tetromino_in_play_->Rotate();
+  tetromino_in_play_->RotateRight();
 }
 
 void Board::Down() {
@@ -43,7 +44,7 @@ void Board::Down() {
     n = 1;
   }
   current_tetromino_ = static_cast<Tetromino::Type>(n);
-  tetromino_in_play_ = std::make_unique<TetrominoSprite>(*asset_manager_->GetTetromino(current_tetromino_));
+  tetromino_in_play_ = tetromino_generator_->Get(current_tetromino_);
 }
 
 void Board::Left() {

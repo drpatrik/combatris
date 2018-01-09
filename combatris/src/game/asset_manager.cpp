@@ -42,33 +42,14 @@ void DeleteTexture(SDL_Texture* texture) {
   }
 }
 
-struct TetrominoAssetData {
-  TetrominoAssetData(Tetromino::Type type, const std::string& image , Color color, const std::vector<TetrominoRotationData>& rotations) :
-      type_(type), image_(image), color_(GetColor(color)), rotations_(rotations) {}
-
-  Tetromino::Type type_;
-  std::string image_;
-  SDL_Color color_;
-  std::vector<TetrominoRotationData> rotations_;
-};
-
-std::vector<TetrominoAssetData> kTetrominoAssetData {
-  TetrominoAssetData(Tetromino::Type::I, "I.bmp", Color::Cyan, kTetromino_I_Rotations),
-  TetrominoAssetData(Tetromino::Type::J, "J.bmp", Color::Blue, kTetromino_J_Rotations),
-  TetrominoAssetData(Tetromino::Type::L, "L.bmp", Color::Orange, kTetromino_L_Rotations),
-  TetrominoAssetData(Tetromino::Type::O, "O.bmp", Color::Yellow, kTetromino_O_Rotations),
-  TetrominoAssetData(Tetromino::Type::S, "S.bmp", Color::Green, kTetromino_S_Rotations),
-  TetrominoAssetData(Tetromino::Type::T, "T.bmp", Color::Purple, kTetromino_T_Rotations),
-  TetrominoAssetData(Tetromino::Type::Z, "Z.bmp", Color::Red, kTetromino_Z_Rotations),
-};
-
 }
 
 AssetManager::AssetManager(SDL_Renderer *renderer) {
-  for (const auto asset : kTetrominoAssetData) {
-    auto texture = std::shared_ptr<SDL_Texture>(LoadTexture(renderer, asset.image_), DeleteTexture);
+  // Tetromino::Type - 1
+  const std::vector<std::string> kImageNames = {"I.bmp", "J.bmp", "L.bmp", "O.bmp", "S.bmp","T.bmp","Z.bmp"};
 
-    tetrominos_.push_back(std::make_shared<Tetromino>(renderer, asset.type_, asset.color_, asset.rotations_, texture));
+  for (const auto& image_name : kImageNames) {
+    sprites_.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, image_name), DeleteTexture));
   }
   std::vector<std::pair<std::string, int>> fonts {
     std::make_pair("Cabin-Regular.ttf", kNormalFontSize),

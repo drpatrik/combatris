@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game/asset_manager.h"
+#include "game/tetromino_generator.h"
 #include "game/tetromino_sprite.h"
 
 class Board final {
@@ -28,4 +28,5 @@ class Board final {
   Tetromino::Type current_tetromino_ = Tetromino::Type::I;
   std::unique_ptr<TetrominoSprite> tetromino_in_play_;
   std::shared_ptr<AssetManager> asset_manager_;
+  std::shared_ptr<TetrominoGenerator> tetromino_generator_;
 };
