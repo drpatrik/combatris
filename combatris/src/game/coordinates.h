@@ -5,9 +5,16 @@
 #include <iostream>
 
 inline int row_to_pixel(size_t row) { return static_cast<int>((row * kBlockHeight) + kMatrixStartY); }
+
 inline int col_to_pixel(size_t col) { return static_cast<int>((col * kBlockWidth) + kMatrixStartX); }
+
 inline int pixel_to_row(size_t y) { return static_cast<int>((y <= kMatrixStartY || y >= kMatrixEndY) ? -1 : (y - kMatrixStartY) / kBlockHeight); }
+
 inline int pixel_to_col(size_t x) { return static_cast<int>((x <= kMatrixStartX || x >= kMatrixEndX) ? -1 : (x - kMatrixStartX) / kBlockWidth); }
+
+inline int row_to_visible(int row) { return row - kVisibleRowStart; }
+
+inline int col_to_visible(int col) { return col - kVisibleColStart; }
 
 class Position final {
  public:

@@ -23,9 +23,13 @@ std::vector<TetrominoAssetData> kTetrominoAssetData {
 
 }
 
-TetrominoGenerator::TetrominoGenerator(SDL_Renderer *renderer, AssetManager& asset_manager) : renderer_(renderer), asset_manager_(asset_manager) {
-  for (const auto& data : kTetrominoAssetData) {
-    tetrominos_.push_back(std::make_shared<Tetromino>(renderer_,data.type_, data.color_, data.rotations_, asset_manager_.GetSprite(static_cast<int>(data.type_) - 1)));
+TetrominoGenerator::TetrominoGenerator(
+    SDL_Renderer *renderer, const std::shared_ptr<AssetManager> &asset_manager)
+    : renderer_(renderer), asset_manager_(asset_manager) {
+  for (const auto &data : kTetrominoAssetData) {
+    tetrominos_.push_back(std::make_shared<Tetromino>(
+        renderer_, data.type_, data.color_, data.rotations_,
+        asset_manager_->GetSprite(static_cast<int>(data.type_) - 1)));
   }
 }
 

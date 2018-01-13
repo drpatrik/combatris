@@ -11,28 +11,7 @@ void RenderWindowBackground(SDL_Renderer* renderer) {
   SDL_RenderFillRect(renderer, &rc);
 }
 
-void RenderMatrixGrid(SDL_Renderer* renderer) {
-  auto gray = GetColor(Color::Gray);
-
-  SDL_SetRenderDrawColor(renderer, gray.r, gray.g, gray.b, gray.a);
-  SDL_Rect rc { kMatrixStartX, kMatrixStartY, kMatrixWidth, kMatrixHeight };
-  SDL_RenderFillRect(renderer, &rc);
-
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-
-  rc = { 0, kMatrixStartY + 1, kBlockWidth - 2, kBlockHeight - 2 };
-
-  for (int row = 0; row < kVisibleRows; ++row) {
-    rc.x = kMatrixStartX + 1;
-    for (int col = 0; col < kVisibleCols; ++col) {
-      SDL_RenderFillRect(renderer, &rc);
-      rc.x += kBlockWidth;
-    }
-    rc.y += kBlockHeight;
-  }
-}
-
-void RenderMatrixFrame(SDL_Renderer* renderer, SDL_Texture* frame_texture) {
+void RenderBorder(SDL_Renderer* renderer, SDL_Texture* frame_texture) {
   const int kRightFrameRow = (kFrameRows - 1) * kBlockHeight;
   const int kLowerFrameCol = (kFrameCols - 1) * kBlockWidth;
 
@@ -73,8 +52,10 @@ Board::Board() {
   SDL_RenderSetLogicalSize(renderer_, kWidth, kHeight);
 
   asset_manager_ = std::make_shared<AssetManager>(renderer_);
-  tetromino_generator_ = std::make_shared<TetrominoGenerator>(renderer_, *asset_manager_);
+  tetromino_generator_ = std::make_unique<TetrominoGenerator>(renderer_, asset_manager_);
   tetromino_in_play_ = tetromino_generator_->Get(current_tetromino_);
+  matrix_ = std::make_shared<Matrix>(renderer_, *tetromino_generator_);
+  border_texture_ = asset_manager_->GetSprite(kBorderSpriteID).get();
 }
 
 Board::~Board() noexcept {
@@ -120,12 +101,8 @@ void Board::Render(double) {
   SDL_RenderClear(renderer_);
 
   RenderWindowBackground(renderer_);
-  RenderMatrixGrid(renderer_);
-  RenderMatrixFrame(renderer_, asset_manager_->GetSprite(kBorderSpriteID).get());
-
-  if (tetromino_in_play_) {
-    tetromino_in_play_->Render();
-  }
+  RenderBorder(renderer_, border_texture_);
+  matrix_->Render();
 
   SDL_RenderPresent(renderer_);
 }

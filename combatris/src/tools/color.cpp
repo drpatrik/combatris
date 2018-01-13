@@ -17,8 +17,6 @@ SDL_Color GetColor(Color color, uint8_t alpha) {
     return { 240, 160, 0, alpha };
   } else if (color == Color::Purple) {
     return { 160, 0, 240, alpha };
-  } else if (color == Color::Gray) {
-    return { 220, 220, 220, alpha };
   } else {
     return { 255, 255, 255, alpha };
   }

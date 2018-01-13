@@ -7,8 +7,6 @@ class TetrominoSprite {
  public:
   explicit TetrominoSprite(const Tetromino& tetromino) : tetromino_(tetromino), angle_(Tetromino::Angle::A0), rotation_(tetromino_.GetRotationData(angle_)), pos_(0, 0) {}
 
-  void Render();
-
   void RotateRight();
 
   void RotateLeft();

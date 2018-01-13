@@ -13,10 +13,10 @@ class Tetromino final {
   enum class Type { Invalid, I, J, L, O, S, T, Z };
 
   Tetromino(SDL_Renderer *renderer, Type type, SDL_Color color, const std::vector<TetrominoRotationData>& rotations,
-            const std::shared_ptr<SDL_Texture> &tetromino)
-      : renderer_(renderer), type_(type), color_(color), rotations_(rotations), tetromino_(tetromino) {}
+            const std::shared_ptr<SDL_Texture> &texture)
+      : renderer_(renderer), type_(type), color_(color), rotations_(rotations), texture_(texture) {}
 
-  Tetromino(const Tetromino &s) : renderer_(s.renderer_), type_(s.type_), color_(s.color_), rotations_(s.rotations_), tetromino_(s.tetromino_) {}
+  Tetromino(const Tetromino &s) : renderer_(s.renderer_), type_(s.type_), color_(s.color_), rotations_(s.rotations_), texture_(s.texture_) {}
 
   Tetromino(Tetromino&& other) noexcept { swap(*this, other); }
 
@@ -26,13 +26,13 @@ class Tetromino final {
     return *this;
   }
 
-  inline void Render(const Position& pos) const { RenderBlock(renderer_, pos.x(), pos.y(), tetromino_.get()); }
+  inline void Render(const Position& pos) const { RenderBlock(renderer_, pos.x(), pos.y(), texture_.get()); }
 
-  inline void Render(int x, int y) const { RenderBlock(renderer_, x, y, tetromino_.get()); }
+  inline void Render(int x, int y) const { RenderBlock(renderer_, x, y, texture_.get()); }
 
-  inline void RenderGhost(const Position& pos) const { ::RenderGhost(renderer_, color_, pos.x(), pos.y()); }
+  inline void RenderGhost(const Position& pos) const { ::RenderGhost(renderer_, pos.x(), pos.y(), color_); }
 
-  inline void RenderGhost(int x, int y) const { ::RenderGhost(renderer_, color_, x, y); }
+  inline void RenderGhost(int x, int y) const { ::RenderGhost(renderer_, x, y, color_); }
 
   const TetrominoRotationData& GetRotationData(Angle angle) const { return rotations_.at(static_cast<size_t>(angle)); }
 
@@ -43,7 +43,7 @@ class Tetromino final {
     swap(s1.type_, s2.type_);
     swap(s1.color_, s2.color_);
     swap(s1.rotations_, s2.rotations_);
-    swap(s1.tetromino_, s2.tetromino_);
+    swap(s1.texture_, s2.texture_);
   }
 
  private:
@@ -51,5 +51,5 @@ class Tetromino final {
   Type type_;
   SDL_Color color_;
   std::vector<TetrominoRotationData> rotations_;
-  std::shared_ptr<SDL_Texture> tetromino_;
+  std::shared_ptr<SDL_Texture> texture_;
 };

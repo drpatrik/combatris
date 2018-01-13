@@ -1,6 +1,6 @@
 #include "game/tetromino_sprite.h"
 
-void TetrominoSprite::Render() { // Just for test
+/*void TetrominoSprite::Render() { // Just for test
   int y = pos_.y();
 
   for (size_t row = 0; row < rotation_.data_.size(); ++row) {
@@ -17,7 +17,7 @@ void TetrominoSprite::Render() { // Just for test
     }
     y += kBlockHeight;
   }
-}
+  }*/
 
 void TetrominoSprite::RotateRight() {
     int angle = static_cast<int>(angle_) + 1;
