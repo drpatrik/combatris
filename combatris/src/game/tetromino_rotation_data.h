@@ -112,17 +112,17 @@ const std::vector<TetrominoRotationData> kTetromino_L_Rotations = {
 
 // O_Block 4
 
-const TetrominoRotationData kTetrominoRotationData_O_0D({
+const TetrominoRotationData kTetrominoRotationData_O({
     {0, 4, 4, 0},
     {0, 4, 4, 0},
     {0, 0, 0, 0}
   });
 
 const std::vector<TetrominoRotationData> kTetromino_O_Rotations = {
-  kTetrominoRotationData_O_0D,
-  kTetrominoRotationData_O_0D,
-  kTetrominoRotationData_O_0D,
-  kTetrominoRotationData_O_0D
+  kTetrominoRotationData_O,
+  kTetrominoRotationData_O,
+  kTetrominoRotationData_O,
+  kTetrominoRotationData_O
 };
 
 // S_Block 5

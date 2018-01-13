@@ -4,10 +4,10 @@
 
 #include <iostream>
 
-inline int row_to_pixel(size_t row) { return static_cast<int>((row * kBlockHeight) + kBoardStartY); }
-inline int col_to_pixel(size_t col) { return static_cast<int>((col * kBlockWidth) + kBoardStartX); }
-inline int pixel_to_row(size_t y) { return static_cast<int>((y <= kBoardStartY || y >= kBoardEndY) ? -1 : (y - kBoardStartY) / kBlockHeight); }
-inline int pixel_to_col(size_t x) { return static_cast<int>((x <= kBoardStartX || x >= kBoardEndX) ? -1 : (x - kBoardStartX) / kBlockWidth); }
+inline int row_to_pixel(size_t row) { return static_cast<int>((row * kBlockHeight) + kMatrixStartY); }
+inline int col_to_pixel(size_t col) { return static_cast<int>((col * kBlockWidth) + kMatrixStartX); }
+inline int pixel_to_row(size_t y) { return static_cast<int>((y <= kMatrixStartY || y >= kMatrixEndY) ? -1 : (y - kMatrixStartY) / kBlockHeight); }
+inline int pixel_to_col(size_t x) { return static_cast<int>((x <= kMatrixStartX || x >= kMatrixEndX) ? -1 : (x - kMatrixStartX) / kBlockWidth); }
 
 class Position final {
  public:

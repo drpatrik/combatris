@@ -46,7 +46,7 @@ void DeleteTexture(SDL_Texture* texture) {
 
 AssetManager::AssetManager(SDL_Renderer *renderer) {
   // Tetromino::Type - 1
-  const std::vector<std::string> kImageNames = {"I.bmp", "J.bmp", "L.bmp", "O.bmp", "S.bmp","T.bmp","Z.bmp"};
+  const std::vector<std::string> kImageNames = {"I.bmp", "J.bmp", "L.bmp", "O.bmp", "S.bmp","T.bmp","Z.bmp", "Border.bmp"};
 
   for (const auto& image_name : kImageNames) {
     sprites_.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, image_name), DeleteTexture));

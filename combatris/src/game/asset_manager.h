@@ -10,6 +10,8 @@
 
 #include <SDL_ttf.h>
 
+const int kBorderSpriteID = static_cast<int>(Tetromino::Type::Z);
+
 enum Font { Normal, Bold, Small, Large };
 
 class AssetManager final {

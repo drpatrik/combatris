@@ -5,7 +5,7 @@
 
 class TetrominoSprite {
  public:
-  explicit TetrominoSprite(const Tetromino& tetromino) : tetromino_(tetromino), angle_(Tetromino::Angle::A0), rotation_(tetromino_.GetRotationData(angle_)) {}
+  explicit TetrominoSprite(const Tetromino& tetromino) : tetromino_(tetromino), angle_(Tetromino::Angle::A0), rotation_(tetromino_.GetRotationData(angle_)), pos_(0, 0) {}
 
   void Render();
 
@@ -27,6 +27,5 @@ class TetrominoSprite {
   const Tetromino& tetromino_;
   Tetromino::Angle angle_;
   TetrominoRotationData rotation_;
-  int col_ = 4;
-  int row_ = 2;
+  Position pos_;
 };

@@ -2,6 +2,61 @@
 
 #include <iostream>
 
+namespace {
+
+void RenderWindowBackground(SDL_Renderer* renderer) {
+  SDL_Rect rc { 0, 0, kWidth, kHeight };
+
+  SDL_SetRenderDrawColor(renderer, 1, 40, 135, 255);
+  SDL_RenderFillRect(renderer, &rc);
+}
+
+void RenderMatrixGrid(SDL_Renderer* renderer) {
+  auto gray = GetColor(Color::Gray);
+
+  SDL_SetRenderDrawColor(renderer, gray.r, gray.g, gray.b, gray.a);
+  SDL_Rect rc { kMatrixStartX, kMatrixStartY, kMatrixWidth, kMatrixHeight };
+  SDL_RenderFillRect(renderer, &rc);
+
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+
+  rc = { 0, kMatrixStartY + 1, kBlockWidth - 2, kBlockHeight - 2 };
+
+  for (int row = 0; row < kVisibleRows; ++row) {
+    rc.x = kMatrixStartX + 1;
+    for (int col = 0; col < kVisibleCols; ++col) {
+      SDL_RenderFillRect(renderer, &rc);
+      rc.x += kBlockWidth;
+    }
+    rc.y += kBlockHeight;
+  }
+}
+
+void RenderMatrixFrame(SDL_Renderer* renderer, SDL_Texture* frame_texture) {
+  const int kRightFrameRow = (kFrameRows - 1) * kBlockHeight;
+  const int kLowerFrameCol = (kFrameCols - 1) * kBlockWidth;
+
+  int x = kFrameStartX;
+  int y = kFrameStartY;
+
+  for (int col = 0; col < kFrameCols; ++col) {
+    RenderBlock(renderer,x, y, frame_texture);
+    RenderBlock(renderer,x, y + kRightFrameRow, frame_texture);
+    x += kBlockWidth;
+  }
+
+  x = kFrameStartX;
+  y = kFrameStartY;
+
+  for (int row = 0; row < kFrameRows; ++row) {
+    RenderBlock(renderer,x, y, frame_texture);
+    RenderBlock(renderer,x + kLowerFrameCol, y, frame_texture);
+    y += kBlockHeight;
+  }
+}
+
+}
+
 Board::Board() {
   window_ = SDL_CreateWindow("Combatris", SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED, kWidth, kHeight, SDL_WINDOW_RESIZABLE);
@@ -62,28 +117,12 @@ void Board::Right() {
 }
 
 void Board::Render(double) {
-  SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 0);
   SDL_RenderClear(renderer_);
 
-  // Draw Grid
-  auto gray = GetColor(Color::Gray);
+  RenderWindowBackground(renderer_);
+  RenderMatrixGrid(renderer_);
+  RenderMatrixFrame(renderer_, asset_manager_->GetSprite(kBorderSpriteID).get());
 
-  SDL_SetRenderDrawColor(renderer_, gray.r, gray.g, gray.b, gray.a);
-  SDL_Rect rc { 0, 0, kWidth, kHeight };
-  SDL_RenderFillRect(renderer_, &rc);
-
-  SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 0);
-  int y = 0;
-
-  for (int row = 0; row < kRows; ++row) {
-    int x = 0;
-    for (int col = 0; col < kCols; ++col) {
-      SDL_Rect rc = { x + 1, y + 1, kBlockWidth - 2, kBlockHeight - 2 };
-      SDL_RenderFillRect(renderer_, &rc);
-      x += kBlockWidth;
-    }
-    y += kBlockHeight;
-  }
   if (tetromino_in_play_) {
     tetromino_in_play_->Render();
   }

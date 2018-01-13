@@ -2,6 +2,7 @@
 
 #include "tools/color.h"
 #include "game/coordinates.h"
+#include "game/renderer.h"
 #include "game/tetromino_rotation_data.h"
 
 #include <memory>
@@ -25,27 +26,13 @@ class Tetromino final {
     return *this;
   }
 
-  inline void RenderXY(int x, int y) const {
-    SDL_Rect dest_rc {x, y, kBlockWidth, kBlockHeight };
+  inline void Render(const Position& pos) const { RenderBlock(renderer_, pos.x(), pos.y(), tetromino_.get()); }
 
-    SDL_RenderCopy(renderer_, tetromino_.get(), nullptr, &dest_rc);
-  }
+  inline void Render(int x, int y) const { RenderBlock(renderer_, x, y, tetromino_.get()); }
 
-  void RenderGhostXY(int x, int y) const {
-    SDL_Rect rc { x, y, kBlockWidth, kBlockHeight };
+  inline void RenderGhost(const Position& pos) const { ::RenderGhost(renderer_, color_, pos.x(), pos.y()); }
 
-    SDL_SetRenderDrawColor(renderer_, color_.r, color_.g, color_.b, color_.a);
-    SDL_RenderFillRect(renderer_, &rc);
-
-    rc = { x + 1, y + 1, kBlockWidth - 2, kBlockHeight - 2 };
-
-    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 0);
-    SDL_RenderFillRect(renderer_, &rc);
-  }
-
-  inline void Render(int row, int col) const { RenderXY(row_to_pixel(row), col_to_pixel(col)); }
-
-  inline void RenderGhost(int row, int col) const { RenderGhostXY(row_to_pixel(row), col_to_pixel(col)); }
+  inline void RenderGhost(int x, int y) const { ::RenderGhost(renderer_, color_, x, y); }
 
   const TetrominoRotationData& GetRotationData(Angle angle) const { return rotations_.at(static_cast<size_t>(angle)); }
 
