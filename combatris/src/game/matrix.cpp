@@ -49,7 +49,7 @@ void SetupCols(Matrix::Type& matrix) {
 void Matrix::Print() {
   for (int row = 0; row < kRows; ++row) {
     for (int col = 0; col < kCols; ++ col) {
-      std::cout << std::setw(2) << matrix_.at(row).at(col);
+      std::cout << std::setw(2) << master_matrix_.at(row).at(col);
       if (col < kCols -1 ) {
         std::cout << ", ";
       }
@@ -59,12 +59,12 @@ void Matrix::Print() {
 }
 
 void Matrix::Initialize() {
-  matrix_ = Type(kRows, std::vector<int>(kCols, 0));
-  SetupRows(matrix_);
-  SetupCols(matrix_);
-  ingame_matrix_ = matrix_;
+  master_matrix_ = Type(kRows, std::vector<int>(kCols, 0));
+  SetupRows(master_matrix_);
+  SetupCols(master_matrix_);
+  ingame_matrix_ = master_matrix_;
   // Test Data
-  if (IsValid(Position(1, 0), tetrominos_.at(0)->GetRotationData(Tetromino::Angle::A0))) {
+  if (IsValid(Position(1, 2), tetrominos_.at(0)->GetRotationData(Tetromino::Angle::A0))) {
     Insert(Position(1, 2), tetrominos_.at(0)->GetRotationData(Tetromino::Angle::A0));
   } else {
     std::cout << "Not valid" << std::endl;
@@ -92,36 +92,40 @@ void Matrix::Render() {
   }
 }
 
-bool Matrix::IsValid(const Position& pos, const TetrominoRotationData& rotation) {
-  const auto& data = rotation.data_;
+bool Matrix::IsValid(const Position& pos, const TetrominoRotationData& rotation_data,  ValidationAction validation_action) {
+  const auto& shape = rotation_data.shape_;
 
-  for (size_t row = 0; row < data.size(); ++row) {
-    for (size_t col  = 0; col < data.at(row).size(); ++col) {
+  for (size_t row = 0; row < shape.size(); ++row) {
+    for (size_t col  = 0; col < shape.at(row).size(); ++col) {
       int try_row = pos.row() + row;
       int try_col = pos.col() + col;
 
-      if (ingame_matrix_.at(try_row).at(try_col) != 0 && data.at(row).at(col) != 0) {
-        ingame_matrix_ = matrix_;
+      if (ingame_matrix_.at(try_row).at(try_col) != 0 && shape.at(row).at(col) != 0) {
+        if (validation_action == ValidationAction::InsertIfValid) {
+          ingame_matrix_ = master_matrix_;
+        }
         return false;
       }
-      ingame_matrix_.at(try_row).at(try_col) = data.at(row).at(col);
+      if (validation_action == ValidationAction::InsertIfValid) {
+        ingame_matrix_.at(try_row).at(try_col) = shape.at(row).at(col);
+      }
     }
   }
   return true;
 }
 
-void Matrix::Insert(const Position& pos, const TetrominoRotationData& rotation) {
-  const auto& data = rotation.data_;
+void Matrix::Insert(const Position& pos, const TetrominoRotationData& rotation_data) {
+  const auto& shape = rotation_data.shape_;
 
-  for (size_t row = 0; row < data.size(); ++row) {
-    for (size_t col  = 0; col < data.at(row).size(); ++col) {
+  for (size_t row = 0; row < shape.size(); ++row) {
+    for (size_t col  = 0; col < shape.at(row).size(); ++col) {
       int insert_row = pos.row() + row;
       int insert_col = pos.col() + col;
 
-      if (data.at(row).at(col) == 0) {
+      if (shape.at(row).at(col) == 0) {
         continue;
       }
-      ingame_matrix_.at(insert_row).at(insert_col) = data.at(row).at(col);
+      ingame_matrix_.at(insert_row).at(insert_col) = shape.at(row).at(col);
     }
   }
 }
