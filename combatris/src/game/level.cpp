@@ -82,7 +82,7 @@ void Level::Render() {
   RenderText(x_, y_, Font::Normal, "Score: ", Color::White);
   RenderText(x_ + 74,  y_, Font::Normal, std::to_string(score_), Color::White);
   RenderText(x_, y_ + 50 , Font::Normal, "Level: ", Color::White);
-  RenderText(x_ + 74,  y_ +50, Font::Normal, std::to_string(level_), Color::White);
+  RenderText(x_ + 74,  y_ +50, Font::Normal, std::to_string(level_ + 1), Color::White);
   RenderText(x_, y_ + 100, Font::Normal, "Lines: ", Color::White);
   RenderText(x_ + 74,  y_ + 100, Font::Normal, std::to_string(total_lines_), Color::White);
 }
