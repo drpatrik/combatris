@@ -12,9 +12,7 @@ class TetrominoSprite {
     pos_ = (tetromino_.type() == Tetromino::Type::O) ? Position(0, 6) : Position(0, 5);
     if (matrix_->IsValid(pos_,  rotation_data_)) {
       matrix_->Insert(pos_, rotation_data_);
-    } else {
-      can_move_ = false;
-      std::cout << "upper" << std::endl;
+      can_move_ = true;
     }
     level_.ResetTime();
   }
@@ -31,8 +29,7 @@ class TetrominoSprite {
 
   void Right();
 
-  // next_piece, lines_cleared, lines_to_movedown
-  std::tuple<bool, Matrix::Lines, Matrix::Lines> MoveDown(double delta_time);
+  std::pair<bool, Matrix::Lines> Down(double delta_time);
 
   bool CanMove() const { return can_move_; }
 
@@ -46,5 +43,5 @@ class TetrominoSprite {
   Level& level_;
   TetrominoRotationData rotation_data_;
   bool floor_reached_ = false;
-  bool can_move_ = true;
+  bool can_move_ = false;
 };

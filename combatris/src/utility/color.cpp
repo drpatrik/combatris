@@ -1,4 +1,4 @@
-#include "tools/color.h"
+#include "utility/color.h"
 
 SDL_Color GetColor(Color color, uint8_t alpha) {
   if (color == Color::Blue) {

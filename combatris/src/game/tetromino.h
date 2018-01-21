@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tools/color.h"
+#include "utility/color.h"
 #include "game/coordinates.h"
 #include "game/renderer.h"
 #include "game/tetromino_rotation_data.h"

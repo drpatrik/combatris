@@ -1,4 +1,4 @@
-#include "tools/text.h"
+#include "utility/text.h"
 
 std::tuple<UniqueTexturePtr, int, int> CreateTextureFromText(SDL_Renderer *renderer, TTF_Font *font, const std::string& text,
                                                          Color text_color) {

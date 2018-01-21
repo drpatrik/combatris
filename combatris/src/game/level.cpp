@@ -1,6 +1,5 @@
 #include "game/level.h"
 #include "game/asset_manager.h"
-#include "tools/text.h"
 
 #include <vector>
 
@@ -40,9 +39,11 @@ int kLevelUp = 10;
 }
 
 void Level::ResetTime() {
+  int index = level_ < static_cast<int>(kLevelData.size()) ? level_ :  kLevelData.size() - 1;
+
+  wait_time_ = (1.0 / kLevelData.at(index).gravity_) / 60.0;
+  lock_delay_ = kLevelData.at(index).lock_delay_;
   time_ = 0;
-  wait_time_ = 60.0 / (1.0 / kLevelData.at(level_).gravity_);
-  lock_delay_ = kLevelData.at(level_).lock_delay_;
 }
 
 bool Level::WaitForMoveDown(double time_delta) {

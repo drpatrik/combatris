@@ -1,4 +1,4 @@
-#include "tools/timer.h"
+#include "utility/timer.h"
 #include "game/board.h"
 
 #include <SDL_mixer.h>

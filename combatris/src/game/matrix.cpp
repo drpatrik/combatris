@@ -1,5 +1,4 @@
 #include "game/matrix.h"
-#include "game/asset_manager.h"
 
 #include <iomanip>
 
@@ -54,37 +53,14 @@ Matrix::Lines RemoveClearedLines(Matrix::Type& matrix) {
   return lines;
 }
 
-Matrix::Lines CollapseMatrix(const Matrix::Lines& cleared_lines, Matrix::Type& matrix) {
-  Matrix::Lines lines;
-
-  if (cleared_lines.empty()) {
-    return lines;
-  }
-  int first_cleared_line = cleared_lines.begin()->row_in_matrix_ - 1;
-
-  for (int row = first_cleared_line; row > kVisibleRowStart; --row) {
-    auto& line = matrix.at(row);
-
-    auto it = std::find_if(line.begin() + kVisibleColStart, line.end() - kVisibleColStart, [](auto id) { return id != 0; });
-
-    if (it != line.end() - kVisibleColStart) {
-      lines.push_back(Line(row, line));
-    } else {
-      break;
-    }
-  }
-
+void CollapseMatrix(const Matrix::Lines& cleared_lines, Matrix::Type& matrix) {
   auto const& last_cleared_line = cleared_lines.rbegin()->row_in_matrix_;
 
   for (size_t i = 0; i < cleared_lines.size(); ++i) {
-    for (int row = last_cleared_line; row > kVisibleRowStart - 1; --row) {
+    for (int row = last_cleared_line; row > kVisibleRowStart; --row) {
       std::swap(matrix.at(row), matrix.at(row - 1));
     }
   }
-  // Animation end_point
-  lines.push_back(Line(last_cleared_line, std::vector<int>()));
-
-  return lines;
 }
 
 }
@@ -162,21 +138,24 @@ void Matrix::Insert(Type& matrix, const Position& pos, const TetrominoRotationDa
   }
 }
 
-std::pair<Matrix::Lines, Matrix::Lines> Matrix::Commit(const Position& pos, const TetrominoRotationData& rotation_data) {
+Matrix::Lines Matrix::Commit(const Position& current_pos, const TetrominoRotationData& rotation_data) {
+  auto pos = GetDropPosition(current_pos, rotation_data);
+
   Insert(master_matrix_, pos, rotation_data);
 
   auto lines_cleared = RemoveClearedLines(master_matrix_);
-  auto lines_to_movedown = CollapseMatrix(lines_cleared, master_matrix_);
 
-  return std::make_pair(lines_cleared, Matrix::Lines());
+  CollapseMatrix(lines_cleared, master_matrix_);
+
+  return lines_cleared;
 }
 
 Position Matrix::GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const {
   Position pos(current_pos);
 
-  while (IsValid(pos, rotation_data)) {
+  while (IsValid(Position(pos.row() + 1, pos.col()), rotation_data)) {
     pos.inc_row();
   }
-  pos.dec_row();
+
   return pos;
 }

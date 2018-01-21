@@ -19,25 +19,23 @@ class Matrix final {
     Initialize();
   }
 
-  void Print();
-
   void Render();
 
   bool IsValid(const Position& pos, const TetrominoRotationData& rotation_data) const;
 
   void Insert(const Position& pos, const TetrominoRotationData& rotation_data) {
     ingame_matrix_ = master_matrix_;
-    // Insert ghost
     Insert(ingame_matrix_, GetDropPosition(pos, rotation_data), rotation_data, true);
-    // Insert tetromino
     Insert(ingame_matrix_, pos, rotation_data);
   }
 
-  std::pair<Lines, Lines> Commit(const Position& pos, const TetrominoRotationData& rotation_data);
+  Lines Commit(const Position& pos, const TetrominoRotationData& rotation_data);
 
   Position GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const;
 
-  void Reset() { Initialize(); }
+  void NewGame() { Initialize(); }
+
+  void Print();
 
  protected:
   void Initialize();

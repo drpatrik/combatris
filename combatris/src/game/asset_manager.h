@@ -1,15 +1,10 @@
 #pragma once
 
+#include "utility/text.h"
 #include "game/tetromino.h"
 #include "game/constants.h"
-#include "tools/function_caller.h"
 
 #include <memory>
-#include <exception>
-
-#include <SDL_ttf.h>
-
-enum Font { Normal, Bold, Small, Large };
 
 class AssetManager final {
  public:

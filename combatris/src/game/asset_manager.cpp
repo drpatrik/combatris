@@ -1,5 +1,4 @@
 #include "asset_manager.h"
-#include "tools/text.h"
 
 #include <string>
 #include <iostream>

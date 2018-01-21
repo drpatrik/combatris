@@ -1,8 +1,6 @@
 #pragma once
 
 #include "game/tetromino_generator.h"
-#include "game/tetromino_sprite.h"
-#include "game/level.h"
 
 class Board final {
  public:

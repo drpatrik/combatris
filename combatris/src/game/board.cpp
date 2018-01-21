@@ -64,8 +64,8 @@ Board::~Board() noexcept {
 }
 
 void Board::NewGame() {
-  matrix_->Reset();
-  tetromino_generator_->Reset();
+  matrix_->NewGame();
+  tetromino_generator_->NewGame();
   tetromino_in_play_ = tetromino_generator_->Get();
 }
 
@@ -108,7 +108,7 @@ void Board::Render(double delta_time) {
       tetromino_in_play_.reset();
       std::cout << "Game Over" << std::endl;
     } else {
-      auto [next_piece, cleared_lines, lines_to_movedown] = tetromino_in_play_->MoveDown(delta_time);
+      auto [next_piece, cleared_lines] = tetromino_in_play_->Down(delta_time);
 
       if (next_piece && tetromino_in_play_->CanMove()) {
         level_->LinesCleared(cleared_lines.size());

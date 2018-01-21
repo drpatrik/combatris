@@ -9,26 +9,38 @@
 
         Current status:
 
-        - Most features are in-place
+        - Game is fully playable
+        - Score / levels / etc
         - Rotate left / right
         - Soft / Hard drop
 
         Next:
-        - Animation
+        - Animations:
+          - Cleared lines
+          - Tetromino Locked
+          - Level up
+          - Count down before game start
+          - Next Tetromino Queue
+          - Game Over
         - Hold piece
         - wall kick / floor kick according to SRS
-        - Better looking areas for score / next etc.
-        - Sound
+        - Panes for score / next etc.
         - Unit tests
 
+        Later:
+        - Sound
+        - Customizible controls
+        - Controller / mouse
+
         Keyboard Command:
-        N - New game
-        Arrow Up / S - Rotate Counter clockwise
-        A - Rotate Counter clockwise
-        Arrow Left - Move Left
-        Arrow Right - Move Right
-        Arrow Down - Soft Drop
-        Space - Hard Drop
+          N - New game
+          Arrow Up / S - Rotate Counter clockwise
+          A - Rotate Counter clockwise
+          Arrow Left - Move Left
+          Arrow Right - Move Right
+          Arrow Down - Soft Drop
+          Space - Hard Drop
+          Shift - Hold piece (not yet implemented)
 
         Dependencies:
         - C++17 compliant compiler (e.g. clang 4, clang-9.0.0, Visual Studio 2017.3 [P2])
@@ -38,6 +50,7 @@
         - SDL2 (x64 only)
         - SDL2_ttf (x64 only)
         - SDL2_mixer (x64 only)
+        - Network support when implemented will require boost
 
         The test suit requires catch - Catch will be automatically downloaded and installed
         as part of the build process

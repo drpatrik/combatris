@@ -1,7 +1,6 @@
 #pragma once
 
 #include "game/asset_manager.h"
-#include "tools/text.h"
 
 class Level {
  public:
@@ -14,7 +13,7 @@ class Level {
 
   void LinesCleared(int lines_cleared);
 
-  void Reset() {
+  void NewGame() {
     time_ = 0.0;
     wait_time_ = 0.0;
     lock_delay_ = 0.0;
