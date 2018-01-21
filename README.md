@@ -21,6 +21,15 @@
         - Sound
         - Unit tests
 
+        Keyboard Command:
+        N - New game
+        Arrow Up / S - Rotate Counter clockwise
+        A - Rotate Counter clockwise
+        Arrow Left - Move Left
+        Arrow Right - Move Right
+        Arrow Down - Soft Drop
+        Space - Hard Drop
+
         Dependencies:
         - C++17 compliant compiler (e.g. clang 4, clang-9.0.0, Visual Studio 2017.3 [P2])
         - C++14 compliant STL implementation
