@@ -1,4 +1,4 @@
-#Combatris
+# Combatris
 
         ![screenshots](screenshots/combatris-demo-1.png)
 
@@ -6,6 +6,18 @@
 
         This is very much work in progress and right now focus is on getting the game
         elements to work - after that work on the network capabilities will start.
+
+        Current status:
+
+        - Most features are in-place
+        - Rotate left / right
+        - Soft / Hard drop
+
+        Next:
+        - Animation
+        - Hold piece
+        - wall kick / floor kick according to SRS
+        - Better looking areas for score / next etc.
 
         Dependencies:
         - C++17 compliant compiler (e.g. clang 4, clang-9.0.0, Visual Studio 2017.3 [P2])
