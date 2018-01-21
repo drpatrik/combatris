@@ -1,6 +1,6 @@
 # Combatris
 
-        ![screenshots](screenshots/combatris-demo-1.png)
+![screenshots](screenshots/combatris-demo-1.png)
 
         A new old take on the Tetris game where network concepts are introduced.
 
@@ -18,6 +18,8 @@
         - Hold piece
         - wall kick / floor kick according to SRS
         - Better looking areas for score / next etc.
+        - Sound
+        - Unit tests
 
         Dependencies:
         - C++17 compliant compiler (e.g. clang 4, clang-9.0.0, Visual Studio 2017.3 [P2])
