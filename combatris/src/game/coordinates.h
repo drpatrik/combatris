@@ -24,6 +24,12 @@ class Position final {
   int row() const { return row_; }
   int col() const { return col_; }
 
+  int inc_row() { row_++; return row_; }
+  int dec_row() { row_--; return row_; }
+
+  int inc_col() { col_++; return col_; }
+  int dec_col() { col_--; return col_; }
+
   int x() const { return col_to_pixel(col_); }
   int y() const { return row_to_pixel(row_); }
 
@@ -32,8 +38,6 @@ class Position final {
   bool operator==(const Position& rhs) const { return std::make_pair(row_, col_) == std::make_pair(rhs.row_, rhs.col_); }
 
   bool operator==(const std::pair<int, int>& rhs) const { return std::make_pair(row_, col_) == rhs; }
-
-  bool IsValid() const { return (-1 != row_ && -1 != col_); }
 
   void Print() const { std::cout << "Row: " << row_ << " Col:" << col_ << std::endl; }
 

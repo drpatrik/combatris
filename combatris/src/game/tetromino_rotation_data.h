@@ -4,8 +4,9 @@
 
 struct TetrominoRotationData {
   explicit TetrominoRotationData(const std::vector<std::vector<int>> &shape) : shape_(shape) {}
+
   std::vector<std::vector<int>> shape_;
-  std::vector<std::vector<int>> wallkick_data_;
+  std::vector<std::vector<int>> kick_data_;
 };
 
 // I_Block 1

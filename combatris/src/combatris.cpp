@@ -1,13 +1,7 @@
 #include "tools/timer.h"
-#include "game/coordinates.h"
 #include "game/board.h"
 
-#include <SDL_ttf.h>
 #include <SDL_mixer.h>
-
-#include <thread>
-#include <sstream>
-#include <iostream>
 
 class Combatris {
  public:
@@ -48,38 +42,21 @@ class Combatris {
           break;
         }
         switch (event.type) {
-          case SDL_SCANCODE_LEFT:
-            if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
-              delta_timer.Reset();
-            }
-
           case SDL_KEYDOWN:
             if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
-              delta_timer.Reset();
-            } else if (event.key.keysym.scancode == SDL_SCANCODE_UP) {
-              board.Up();
+              board.GameControl(Board::Controls::HardDrop);
+            } else if (event.key.keysym.scancode == SDL_SCANCODE_A) {
+              board.GameControl(Board::Controls::RotateCounterClockwise);
+            } else if (event.key.keysym.scancode == SDL_SCANCODE_UP || event.key.keysym.scancode == SDL_SCANCODE_S) {
+              board.GameControl(Board::Controls::RotateClockwise);
             } else if (event.key.keysym.scancode == SDL_SCANCODE_LEFT) {
-              board.Left();
+              board.GameControl(Board::Controls::Left);
             } else if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
-              board.Right();
+              board.GameControl(Board::Controls::Right);
             } else if (event.key.keysym.scancode == SDL_SCANCODE_DOWN) {
-              board.Down();
+              board.GameControl(Board::Controls::SoftDrop);
             }
             break;
-#if !defined(NDEBUG)
-          case SDL_MOUSEMOTION: {
-
-            int mouseX = event.motion.x;
-            int mouseY = event.motion.y;
-            int row = pixel_to_row(mouseY);
-            int col = pixel_to_col(mouseX);
-
-            std::stringstream ss;
-            ss << "X: " << mouseX << " Y: " << mouseY << " Row: " <<  row << " Col: " << col;
-
-            SDL_SetWindowTitle(board, ss.str().c_str());
-          } break;
-#endif
           case SDL_MOUSEBUTTONDOWN:
             switch (event.button.button) {
               case SDL_BUTTON_LEFT:

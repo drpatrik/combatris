@@ -43,7 +43,7 @@ Board::Board() {
     std::cout << "Failed to create window : " << SDL_GetError() << std::endl;
     exit(-1);
   }
-  renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+  renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
   if (nullptr == renderer_) {
     std::cout << "Failed to create renderer : " << SDL_GetError() << std::endl;
     exit(-1);
@@ -52,10 +52,9 @@ Board::Board() {
   SDL_RenderSetLogicalSize(renderer_, kWidth, kHeight);
 
   asset_manager_ = std::make_shared<AssetManager>(renderer_);
-  tetromino_generator_ = std::make_unique<TetrominoGenerator>(renderer_, asset_manager_);
-  tetromino_in_play_ = tetromino_generator_->Get(current_tetromino_);
-  matrix_ = std::make_shared<Matrix>(renderer_, *tetromino_generator_);
-  border_texture_ = asset_manager_->GetSprite(kBorderSpriteID).get();
+  matrix_ = std::make_shared<Matrix>(renderer_, asset_manager_->GetTetrominos());
+  tetromino_generator_ = std::make_unique<TetrominoGenerator>(matrix_, level_, asset_manager_);
+  tetromino_in_play_ = tetromino_generator_->Get();
 }
 
 Board::~Board() noexcept {
@@ -63,45 +62,46 @@ Board::~Board() noexcept {
   SDL_DestroyWindow(window_);
 }
 
-void Board::Up() {
+void Board::GameControl(Controls control_pressed) {
   if (!tetromino_in_play_) {
     return;
   }
-  tetromino_in_play_->RotateRight();
+  switch (control_pressed) {
+    case Controls::RotateClockwise:
+      tetromino_in_play_->RotateClockwise();
+      break;
+    case Controls::RotateCounterClockwise:
+      tetromino_in_play_->RotateCounterClockwise();
+      break;
+    case Controls::SoftDrop:
+      tetromino_in_play_->SoftDrop();
+      break;
+    case Controls::HardDrop:
+      tetromino_in_play_->HardDrop();
+      break;
+    case Controls::Left:
+      tetromino_in_play_->Left();
+      break;
+    case Controls::Right:
+      tetromino_in_play_->Right();
+      break;
+    case Controls::HoldPiece:
+      break;
+  }
 }
 
-void Board::Down() {
-  if (!tetromino_in_play_) {
-    return;
-  }
-  auto n = static_cast<size_t>(current_tetromino_) + 1;
+void Board::Render(double delta_time) {
+  if (tetromino_in_play_) {
+    auto [next_piece, cleared_rows, rows_to_movedown] = tetromino_in_play_->MoveDown(delta_time);
 
-  if (n > kNumTetrominos - 1) {
-    n = 1;
+    if (next_piece) {
+      tetromino_in_play_ = tetromino_generator_->Get();
+    }
   }
-  current_tetromino_ = static_cast<Tetromino::Type>(n);
-  tetromino_in_play_ = tetromino_generator_->Get(current_tetromino_);
-}
-
-void Board::Left() {
-  if (!tetromino_in_play_) {
-    return;
-  }
-  tetromino_in_play_->Left();
-}
-
-void Board::Right() {
-  if (!tetromino_in_play_) {
-    return;
-  }
-  tetromino_in_play_->Right();
-}
-
-void Board::Render(double) {
   SDL_RenderClear(renderer_);
 
   RenderWindowBackground(renderer_);
-  RenderBorder(renderer_, border_texture_);
+  RenderBorder(renderer_, asset_manager_->GetBorderTexture());
   matrix_->Render();
 
   SDL_RenderPresent(renderer_);

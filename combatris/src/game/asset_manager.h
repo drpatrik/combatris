@@ -7,10 +7,7 @@
 #include <memory>
 #include <exception>
 
-
 #include <SDL_ttf.h>
-
-const int kBorderSpriteID = static_cast<int>(Tetromino::Type::Z);
 
 enum Font { Normal, Bold, Small, Large };
 
@@ -22,7 +19,11 @@ class AssetManager final {
 
   virtual ~AssetManager() noexcept {};
 
-  virtual std::shared_ptr<SDL_Texture> GetSprite(int id) { return sprites_.at(id); }
+  std::shared_ptr<const Tetromino> GetTetromino(Tetromino::Type type) const { return tetrominos_.at(static_cast<int>(type) - 1); }
+
+  const std::vector<std::shared_ptr<const Tetromino>>& GetTetrominos() const { return tetrominos_; }
+
+  SDL_Texture* GetBorderTexture() const { return border_texture_.get(); }
 
   virtual TTF_Font *GetFont(int id) const { return fonts_[id].get(); }
 
@@ -30,5 +31,6 @@ class AssetManager final {
   using UniqueFontPtr = std::unique_ptr<TTF_Font, function_caller<void(TTF_Font*), &TTF_CloseFont>>;
 
   std::vector<UniqueFontPtr> fonts_;
-  std::vector<std::shared_ptr<SDL_Texture>> sprites_;
+  std::shared_ptr<SDL_Texture> border_texture_;
+  std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
 };

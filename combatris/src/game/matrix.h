@@ -1,14 +1,20 @@
 #pragma once
 
-#include "game/tetromino_generator.h"
+#include "asset_manager.h"
+
+struct Line {
+  Line(int row_in_matrix, const std::vector<int>& line) : row_in_matrix_(row_in_matrix), line_(line) {}
+
+  int row_in_matrix_;
+  std::vector<int> line_;
+};
 
 class Matrix final {
  public:
-  enum class ValidationAction {JustValidate, InsertIfValid};
-
   using Type = std::vector<std::vector<int>>;
+  using Lines = std::vector<Line>;
 
-  Matrix(SDL_Renderer* renderer, const TetrominoGenerator& tetromino_generator) : renderer_(renderer), tetrominos_(tetromino_generator.GetTetrominos()) {
+  Matrix(SDL_Renderer* renderer, const std::vector<std::shared_ptr<const Tetromino>>& tetrominos) : renderer_(renderer), tetrominos_(tetrominos) {
     Initialize();
   }
 
@@ -16,17 +22,27 @@ class Matrix final {
 
   void Render();
 
-  bool IsValid(const Position& pos, const TetrominoRotationData& rotation_data, ValidationAction validation_action = ValidationAction::JustValidate);
+  bool IsValid(const Position& pos, const TetrominoRotationData& rotation_data) const;
 
-  void Insert(const Position& pos, const TetrominoRotationData& rotation_data);
+  void Insert(const Position& pos, const TetrominoRotationData& rotation_data) {
+    ingame_matrix_ = master_matrix_;
+    // Insert ghost
+    Insert(ingame_matrix_, GetDropPosition(pos, rotation_data), rotation_data, true);
+    // Insert tetromino
+    Insert(ingame_matrix_, pos, rotation_data);
+  }
+
+  std::pair<Lines, Lines> Commit(const Position& pos, const TetrominoRotationData& rotation_data);
+
+  Position GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const;
 
  protected:
   void Initialize();
+  void Insert(Type& matrix, const Position& pos, const TetrominoRotationData& rotation_data, bool insert_ghost = false);
 
  private:
   SDL_Renderer* renderer_;
   std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
-  std::shared_ptr<TetrominoGenerator> tetromino_generator_;
   Type ingame_matrix_;
   Type master_matrix_;
 };

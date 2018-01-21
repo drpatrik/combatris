@@ -26,6 +26,8 @@ class Tetromino final {
     return *this;
   }
 
+  Type type() const { return type_; }
+
   inline void Render(const Position& pos) const { RenderBlock(renderer_, pos.x(), pos.y(), texture_.get()); }
 
   inline void Render(int x, int y) const { RenderBlock(renderer_, x, y, texture_.get()); }

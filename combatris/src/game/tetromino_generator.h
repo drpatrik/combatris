@@ -8,17 +8,17 @@
 
 class TetrominoGenerator {
  public:
-  TetrominoGenerator(SDL_Renderer *renderer, const std::shared_ptr<AssetManager>& asset_manager);
+  TetrominoGenerator(std::shared_ptr<Matrix>& matrix, Level& level, const std::shared_ptr<AssetManager>& asset_manager)
+      : matrix_(matrix), level_(level), asset_manager_(asset_manager) {}
 
-  std::unique_ptr<TetrominoSprite> Get();
-  std::unique_ptr<TetrominoSprite> Get(Tetromino::Type type);
+  std::unique_ptr<TetrominoSprite> Get() {  return Get(static_cast<Tetromino::Type>(distribution_(engine_))); }
 
-  std::vector<std::shared_ptr<const Tetromino>> GetTetrominos() const { return tetrominos_; }
+  std::unique_ptr<TetrominoSprite> Get(Tetromino::Type type) { return std::make_unique<TetrominoSprite>(*asset_manager_->GetTetromino(type), level_,  matrix_); }
 
  private:
-  SDL_Renderer* renderer_;
+  std::shared_ptr<Matrix> matrix_;
+  Level& level_;
   std::shared_ptr<AssetManager> asset_manager_;
-  std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
   mutable std::mt19937 engine_ {std::random_device{}()};
   mutable std::uniform_int_distribution<int> distribution_{ 1, kNumTetrominos };
 };
