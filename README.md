@@ -1,4 +1,6 @@
-        Combatris
+#Combatris
+
+        ![screenshots](screenshots/combatris-demo-1.png)
 
         A new old take on the Tetris game where network concepts are introduced.
 

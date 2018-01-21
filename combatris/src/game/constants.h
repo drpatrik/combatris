@@ -1,9 +1,5 @@
 #pragma once
 
-#include <cstddef>
-
-const int kFPS = 60;
-const double kFrameDelay(double(1000000.0) / double(kFPS));
 const int kVisibleRows = 20;
 const int kVisibleCols = 10;
 const int kVisibleRowStart = 2;
@@ -21,7 +17,7 @@ const int kHeight = (kVisibleRows * kBlockHeight) + 200 + (kBlockHeight * 2);
 const int kNormalFontSize = 25;
 const int kSmallFontSize = 15;
 const int kLargeFontSize = 45;
-const size_t kNumTetrominos = 7;
+const int kNumTetrominos = 7;
 const int kMatrixStartX = 300 + kBlockWidth;
 const int kMatrixEndX = kMatrixStartX + (kVisibleRows * kBlockWidth);
 const int kMatrixStartY = 150 + kBlockHeight;

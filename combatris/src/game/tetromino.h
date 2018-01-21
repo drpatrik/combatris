@@ -36,6 +36,23 @@ class Tetromino final {
 
   inline void RenderGhost(int x, int y) const { ::RenderGhost(renderer_, x, y, color_); }
 
+  void RenderFull(int x, int y) const {
+    const auto& rotation = rotations_.at(static_cast<int>(Angle::A0));
+
+    for (size_t row = 0; row < rotation.shape_.size(); ++row) {
+      int t_x = x;
+      for (size_t col = 0; col < rotation.shape_.at(row).size(); ++col) {
+        const auto& shape = rotation.shape_;
+
+        if (shape[row][col] != 0) {
+          Render(t_x, y);
+        }
+        t_x += kBlockWidth;
+      }
+      y += kBlockHeight;
+    }
+  }
+
   const TetrominoRotationData& GetRotationData(Angle angle) const { return rotations_.at(static_cast<size_t>(angle)); }
 
   friend void swap(Tetromino& s1, Tetromino& s2) {

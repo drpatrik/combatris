@@ -29,23 +29,11 @@ void RenderGrid(SDL_Renderer* renderer) {
   }
 }
 
-void SetupCols(Matrix::Type& matrix) {
-  const int kEndRow = kRows;
+void SetupPlayableArea(Matrix::Type& matrix) {
+  for (int row = 0; row < kVisibleRowEnd; ++row) {
+    auto& line = matrix.at(row);
 
-  for (int col = 0; col < kCols; ++col) {
-    matrix.at(kEndRow - 1).at(col) = kBorderSpriteID ;
-    matrix.at(kEndRow).at(col) = kBorderSpriteID ;
-  }
-}
-
-void SetupRows(Matrix::Type& matrix) {
-  const int kEndCol = kCols - 1;
-
-  for (int row = 0; row < kRows; ++row) {
-    matrix.at(row).at(0) = kBorderSpriteID;
-    matrix.at(row).at(1) = kBorderSpriteID;
-    matrix.at(row).at(kEndCol - 1) = kBorderSpriteID ;
-    matrix.at(row).at(kEndCol) = kBorderSpriteID ;
+    std::fill(line.begin() + kVisibleColStart, line.end() - kVisibleColStart, 0);
   }
 }
 
@@ -77,7 +65,7 @@ Matrix::Lines CollapseMatrix(const Matrix::Lines& cleared_lines, Matrix::Type& m
   for (int row = first_cleared_line; row > kVisibleRowStart; --row) {
     auto& line = matrix.at(row);
 
-    auto it = std::find_if(line.begin() + kVisibleColStart, line.end() - kVisibleColStart, [](auto n) { return n != 0; });
+    auto it = std::find_if(line.begin() + kVisibleColStart, line.end() - kVisibleColStart, [](auto id) { return id != 0; });
 
     if (it != line.end() - kVisibleColStart) {
       lines.push_back(Line(row, line));
@@ -89,7 +77,7 @@ Matrix::Lines CollapseMatrix(const Matrix::Lines& cleared_lines, Matrix::Type& m
   auto const& last_cleared_line = cleared_lines.rbegin()->row_in_matrix_;
 
   for (size_t i = 0; i < cleared_lines.size(); ++i) {
-    for (int row = last_cleared_line; row > kVisibleRowStart; --row) {
+    for (int row = last_cleared_line; row > kVisibleRowStart - 1; --row) {
       std::swap(matrix.at(row), matrix.at(row - 1));
     }
   }
@@ -114,9 +102,9 @@ void Matrix::Print() {
 }
 
 void Matrix::Initialize() {
-  master_matrix_ = Matrix::Type(kRows + 1, std::vector<int>(kCols, 0));
-  SetupRows(master_matrix_);
-  SetupCols(master_matrix_);
+  master_matrix_ = Matrix::Type(kRows + 1, std::vector<int>(kCols, kBorderSpriteID));
+
+  SetupPlayableArea(master_matrix_);
   ingame_matrix_ = master_matrix_;
 }
 

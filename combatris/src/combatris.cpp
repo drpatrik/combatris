@@ -43,7 +43,9 @@ class Combatris {
         }
         switch (event.type) {
           case SDL_KEYDOWN:
-            if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
+            if (event.key.keysym.scancode == SDL_SCANCODE_N) {
+              board.NewGame();
+            } else if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
               board.GameControl(Board::Controls::HardDrop);
             } else if (event.key.keysym.scancode == SDL_SCANCODE_A) {
               board.GameControl(Board::Controls::RotateCounterClockwise);

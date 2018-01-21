@@ -53,13 +53,20 @@ Board::Board() {
 
   asset_manager_ = std::make_shared<AssetManager>(renderer_);
   matrix_ = std::make_shared<Matrix>(renderer_, asset_manager_->GetTetrominos());
-  tetromino_generator_ = std::make_unique<TetrominoGenerator>(matrix_, level_, asset_manager_);
+  level_ = std::make_shared<Level>(renderer_, asset_manager_, 10, 10);
+  tetromino_generator_ = std::make_unique<TetrominoGenerator>(matrix_, *level_, asset_manager_);
   tetromino_in_play_ = tetromino_generator_->Get();
 }
 
 Board::~Board() noexcept {
   SDL_DestroyRenderer(renderer_);
   SDL_DestroyWindow(window_);
+}
+
+void Board::NewGame() {
+  matrix_->Reset();
+  tetromino_generator_->Reset();
+  tetromino_in_play_ = tetromino_generator_->Get();
 }
 
 void Board::GameControl(Controls control_pressed) {
@@ -91,16 +98,26 @@ void Board::GameControl(Controls control_pressed) {
 }
 
 void Board::Render(double delta_time) {
-  if (tetromino_in_play_) {
-    auto [next_piece, cleared_rows, rows_to_movedown] = tetromino_in_play_->MoveDown(delta_time);
-
-    if (next_piece) {
-      tetromino_in_play_ = tetromino_generator_->Get();
-    }
-  }
   SDL_RenderClear(renderer_);
 
   RenderWindowBackground(renderer_);
+  RenderText(renderer_, 750, 10 , asset_manager_->GetFont(Font::Normal), "Next: ", Color::White);
+
+  if (tetromino_in_play_) {
+    if (!tetromino_in_play_->CanMove()) {
+      tetromino_in_play_.reset();
+      std::cout << "Game Over" << std::endl;
+    } else {
+      auto [next_piece, cleared_lines, lines_to_movedown] = tetromino_in_play_->MoveDown(delta_time);
+
+      if (next_piece && tetromino_in_play_->CanMove()) {
+        level_->LinesCleared(cleared_lines.size());
+        tetromino_in_play_ = tetromino_generator_->Get();
+      }
+    }
+    tetromino_generator_->next()->RenderFull(750, 50);
+  }
+  level_->Render();
   RenderBorder(renderer_, asset_manager_->GetBorderTexture());
   matrix_->Render();
 

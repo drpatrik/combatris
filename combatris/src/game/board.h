@@ -15,9 +15,11 @@ class Board final {
 
   void GameControl(Controls control_pressed);
 
-  operator SDL_Window*() const { return window_; }
-
   void Render(double delta_timer);
+
+  void NewGame();
+
+  //operator SDL_Window*() const { return window_; }
 
  private:
   SDL_Window* window_ = nullptr;
@@ -26,5 +28,5 @@ class Board final {
   std::shared_ptr<AssetManager> asset_manager_;
   std::unique_ptr<TetrominoGenerator> tetromino_generator_;
   std::shared_ptr<Matrix> matrix_;
-  Level level_;
+  std::shared_ptr<Level> level_;
 };

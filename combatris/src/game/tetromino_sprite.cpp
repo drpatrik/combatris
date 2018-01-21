@@ -49,22 +49,22 @@ void TetrominoSprite::Right() {
 }
 
 std::tuple<bool, Matrix::Lines, Matrix::Lines> TetrominoSprite::MoveDown(double delta_time) {
-  if (!level_.Wait(delta_time, floor_reached_)) {
-    return std::make_tuple(false, Matrix::Lines(), Matrix::Lines());
-  }
-  bool next_piece = false;
   Matrix::Lines cleared_lines;
   Matrix::Lines lines_to_movedown;
+  bool next_piece = false;
 
-  if (floor_reached_) {
-    std::tie(cleared_lines, lines_to_movedown) = matrix_->Commit(pos_, rotation_data_);
-    next_piece = true;
-  } else {
-    if (matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
-      pos_.inc_row();
-      matrix_->Insert(pos_, rotation_data_);
+  if (level_.Wait(delta_time, floor_reached_)) {
+    if (floor_reached_) {
+      std::tie(cleared_lines, lines_to_movedown) = matrix_->Commit(pos_, rotation_data_);
+      next_piece = true;
     } else {
-      floor_reached_ = true;
+      if (matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
+        pos_.inc_row();
+        matrix_->Insert(pos_, rotation_data_);
+      } else {
+        floor_reached_ = true;
+        can_move_ = (pos_.row() >= kVisibleRowStart - 1);
+      }
     }
   }
   return std::make_tuple(next_piece, cleared_lines, lines_to_movedown);

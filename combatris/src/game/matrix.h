@@ -14,7 +14,8 @@ class Matrix final {
   using Type = std::vector<std::vector<int>>;
   using Lines = std::vector<Line>;
 
-  Matrix(SDL_Renderer* renderer, const std::vector<std::shared_ptr<const Tetromino>>& tetrominos) : renderer_(renderer), tetrominos_(tetrominos) {
+  Matrix(SDL_Renderer* renderer, const std::vector<std::shared_ptr<const Tetromino>>& tetrominos)
+      : renderer_(renderer), tetrominos_(tetrominos) {
     Initialize();
   }
 
@@ -35,6 +36,8 @@ class Matrix final {
   std::pair<Lines, Lines> Commit(const Position& pos, const TetrominoRotationData& rotation_data);
 
   Position GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const;
+
+  void Reset() { Initialize(); }
 
  protected:
   void Initialize();

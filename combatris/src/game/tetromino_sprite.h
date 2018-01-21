@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include "game/coordinates.h"
@@ -9,7 +10,12 @@ class TetrominoSprite {
 
   TetrominoSprite(const Tetromino& tetromino, Level& level, const std::shared_ptr<Matrix>& matrix) : tetromino_(tetromino), angle_(Tetromino::Angle::A0), pos_(), matrix_(matrix), level_(level), rotation_data_(tetromino.GetRotationData(angle_)) {
     pos_ = (tetromino_.type() == Tetromino::Type::O) ? Position(0, 6) : Position(0, 5);
-    matrix_->Insert(pos_, rotation_data_);
+    if (matrix_->IsValid(pos_,  rotation_data_)) {
+      matrix_->Insert(pos_, rotation_data_);
+    } else {
+      can_move_ = false;
+      std::cout << "upper" << std::endl;
+    }
     level_.ResetTime();
   }
 
@@ -28,6 +34,8 @@ class TetrominoSprite {
   // next_piece, lines_cleared, lines_to_movedown
   std::tuple<bool, Matrix::Lines, Matrix::Lines> MoveDown(double delta_time);
 
+  bool CanMove() const { return can_move_; }
+
  private:
   const std::vector<Tetromino::Angle> kAngles = { Tetromino::Angle::A0, Tetromino::Angle::A90, Tetromino::Angle::A180, Tetromino::Angle::A270 };
 
@@ -38,4 +46,5 @@ class TetrominoSprite {
   Level& level_;
   TetrominoRotationData rotation_data_;
   bool floor_reached_ = false;
+  bool can_move_ = true;
 };
