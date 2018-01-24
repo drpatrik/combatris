@@ -20,23 +20,23 @@ elements to work - after that work on the network capabilities will start.
 - [ ] Sound
 - [ ] Customizible controls
 - [ ] Controller / mouse
-Animations:
-- [ ] Cleared lines
-- [ ] Tetromino Locked
-- [ ] Level up
-- [ ] Count down before game start
-- [ ] Next Tetromino Queue
-- [ ] Game Over
+- [ ] Cleared lines animations
+- [ ] Tetromino Locked animations
+- [ ] Level up animations
+- [ ] Count down before game start animations
+- [ ] Next Tetromino Queue animations
+- [ ] Game Over animations
 
 **Keyboard Command**
-* N                     New game
-* Arrow Up / S          Rotate Counter clockwise
-* A                     Rotate Counter clockwise
-* Arrow Left            Move Left
-* Arrow Right           Move Right
-* Arrow Down            Soft Drop
-* Space                 Hard Drop
-* Shift                 Hold piece (not yet implemented)
+Key          | Action
+N            | New game
+Arrow Up / S | Rotate Counter clockwise
+A            | Rotate Counter clockwise
+Arrow Left   | Move Left
+Arrow Right  | Move Right
+Arrow Down   | Soft Drop
+Space        | Hard Drop
+Shift        | Hold piece (not yet implemented)
 
 ## Build Combatris
 
