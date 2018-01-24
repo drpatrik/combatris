@@ -27,7 +27,7 @@ elements to work - after that work on the network capabilities will start.
 - [ ] Next Tetromino Queue animations
 - [ ] Game Over animations
 
-**Keyboard Command**
+**Keyboard Commands**
 
 Key | Action
 --- | ------
@@ -66,12 +66,22 @@ make
 will build the project, default is a release build. Ninja is used if available
 
 ```bash
-make test # will run the test suit.
+make test
 ```
 
+Will run the test suit.
+
 ```bash
-make run # will start the game
+make run
 ```
+
+Will start the game
+
+```bash
+make cppcheck
+```
+
+Will run cppcheck on the codebase, if installed
 
 **64-bit Windows 10**
 
