@@ -28,16 +28,16 @@ elements to work - after that work on the network capabilities will start.
 - [ ] Game Over animations
 
 **Keyboard Command**
-Key           | Action
-------------- | ------
-N            | New game
+Key | Action
+--- | ------
+N  | New game
 Arrow Up / S | Rotate Counter clockwise
-A            | Rotate Counter clockwise
-Arrow Left   | Move Left
-Arrow Right  | Move Right
-Arrow Down   | Soft Drop
-Space        | Hard Drop
-Shift        | Hold piece (not yet implemented)
+A | Rotate Counter clockwise
+Arrow Left | Move Left
+Arrow Right | Move Right
+Arrow Down | Soft Drop
+Space | Hard Drop
+Shift | Hold piece (not yet implemented)
 
 ## Build Combatris
 
