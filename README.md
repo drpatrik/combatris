@@ -1,6 +1,6 @@
-# Combatris
-
 ![screenshots](screenshots/combatris-demo-1.png)
+
+# Combatris
 
 A new old take on the Tetris game where network concepts are introduced.
 
@@ -33,14 +33,14 @@ elements to work - after that work on the network capabilities will start.
 * Controller / mouse
 
 **Keyboard Command**
-N - New game
-Arrow Up / S - Rotate Counter clockwise
-A - Rotate Counter clockwise
-Arrow Left - Move Left
-Arrow Right - Move Right
-Arrow Down - Soft Drop
-Space - Hard Drop
-Shift - Hold piece (not yet implemented)
+        N - New game
+        Arrow Up / S - Rotate Counter clockwise
+        A - Rotate Counter clockwise
+        Arrow Left - Move Left
+        Arrow Right - Move Right
+        Arrow Down - Soft Drop
+        Space - Hard Drop
+        Shift - Hold piece (not yet implemented)
 
 ## Build Combatris
 
@@ -87,12 +87,12 @@ PATH C:\SDL2-2.0.5\lib\x64;C:\SDL2_mixer\lib\x64;C:\SDL2_ttf-2.0.14\lib\x64
 
 Generate Visual Studio project files with CMakeSetup.exe
 
-##Credits
+## Credits
 
-Wall kick tables from https://harddrop.com/wiki/SRS
-Tetrominoes from https://commons.wikimedia.org/wiki/File:Tetrominoes_IJLO_STZ_Worlds.svg
-All sfx and music are from www.freesound.org
-Fonts http://www.dafont.com/cabin.font
-FindSDL2_mixer https://github.com/rlsosborne/doom
-DeltaTimer adapted from http://headerphile.com/sdl2/sdl2-part-9-no-more-delays/
-https://github.com/philsquared/Catch
+        Wall kick tables from https://harddrop.com/wiki/SRS
+        Tetrominoes from https://commons.wikimedia.org/wiki/File:Tetrominoes_IJLO_STZ_Worlds.svg
+        All sfx and music are from www.freesound.org
+        Fonts http://www.dafont.com/cabin.font
+        FindSDL2_mixer https://github.com/rlsosborne/doom
+        DeltaTimer adapted from http://headerphile.com/sdl2/sdl2-part-9-no-more-delays/
+        https://github.com/philsquared/Catch
