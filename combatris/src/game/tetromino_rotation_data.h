@@ -2,14 +2,51 @@
 
 #include <vector>
 
+// Which positions are tested is determined by the initial rotation state, and the desired final rotation state.
+// Because it is possible to rotate both clockwise and counter-clockwise, for each of the 4 initial states there are 2 final states.
+// Therefore there are a total of 8 possible rotations for each tetromino and 8 sets of wall kick data need to be described.
+
+// Several different conventions are commonly used for the naming of the rotation states. On this page, the following convention
+// will be used:
+// 0 = spawn state
+// R = state resulting from a clockwise rotation ("right") from spawn
+// L = state resulting from a counter-clockwise ("left") rotation from spawn
+// 2 = state resulting from 2 successive rotations in either direction from spawn.
+
+// J, L, S, T, Z Tetromino Wall Kick Data
+
+// Rotation, i (row, cols to try), col, row
+const std::vector<std::vector<std::vector<int>>> kWallKickDataForJLSTZ = {
+    {{0, 0}, {-1, 0}, {-1, +1}, {0, -2}, {-1, -2}}, // 0->R
+    {{0, 0}, {+1, 0}, {+1, -1}, {0, +2}, {+1, +2}}, // R->0
+    {{0, 0}, {+1, 0}, {+1, -1}, {0, +2}, {+1, +2}}, // R->2
+    {{0, 0}, {-1, 0}, {-1, +1}, {0, -2}, {-1, -2}}, // 2->R
+    {{0, 0}, {+1, 0}, {+1, +1}, {0, -2}, {+1, -2}}, // 2->L
+    {{0, 0}, {-1, 0}, {-1, -1}, {0, +2}, {-1, +2}}, // L->2
+    {{0, 0}, {-1, 0}, {-1, -1}, {0, +2}, {-1, +2}}, // L->0
+    {{0, 0}, {+1, 0}, {+1, +1}, {0, -2}, {+1, -2}}  // 0->L
+};
+
+// I Tetromino Wall Kick Data
+
+const std::vector<std::vector<std::vector<int>>> kWallKickDataForI = {
+    {{0, 0}, {-2, 0}, {+1, 0}, {-2, -1}, {+1, +2}}, // 0->R
+    {{0, 0}, {+2, 0}, {-1, 0}, {+2, +1}, {-1, -2}}, // R->0
+    {{0, 0}, {-1, 0}, {+2, 0}, {-1, +2}, {+2, -1}}, // R->2
+    {{0, 0}, {+1, 0}, {-2, 0}, {+1, -2}, {-2, +1}}, // 2->R
+    {{0, 0}, {+2, 0}, {-1, 0}, {+2, +1}, {-1, -2}}, // 2->L
+    {{0, 0}, {-2, 0}, {+1, 0}, {-2, -1}, {+1, +2}}, // L->2
+    {{0, 0}, {+1, 0}, {-2, 0}, {+1, -2}, {-2, +1}}, // L->0
+    {{0, 0}, {-1, 0}, {+2, 0}, {-1, +2}, {+2, -1}}  // 0->L
+};
+
 struct TetrominoRotationData {
   explicit TetrominoRotationData(const std::vector<std::vector<int>> &shape) : shape_(shape) {}
 
   std::vector<std::vector<int>> shape_;
-  std::vector<std::vector<int>> kick_data_;
 };
 
-// I_Block 1
+// I Tetromino 1
 
 const TetrominoRotationData kTetrominoRotationShape_I_0D({
     {0, 0, 0, 0},
@@ -46,7 +83,7 @@ const std::vector<TetrominoRotationData> kTetromino_I_Rotations = {
   kTetrominoRotationShape_I_270D
 };
 
-// J_Block 2
+// J Tetromino 2
 
 const TetrominoRotationData kTetrominoRotationShape_J_0D({
     {2, 0, 0},
@@ -79,7 +116,7 @@ const std::vector<TetrominoRotationData> kTetromino_J_Rotations = {
   kTetrominoRotationShape_J_270D
 };
 
-// L_Block 3
+// L Tetromino 3
 
 const TetrominoRotationData kTetrominoRotationShape_L_0D({
     {0, 0, 3},
@@ -112,7 +149,7 @@ const std::vector<TetrominoRotationData> kTetromino_L_Rotations = {
   kTetrominoRotationShape_L_270D
 };
 
-// O_Block 4
+// O Tetromino 4
 
 const TetrominoRotationData kTetrominoRotationShape_O({
     {0, 4, 4, 0},
@@ -127,7 +164,7 @@ const std::vector<TetrominoRotationData> kTetromino_O_Rotations = {
   kTetrominoRotationShape_O
 };
 
-// S_Block 5
+// S Tetromino 5
 
 const TetrominoRotationData kTetrominoRotationShape_S_0D({
     {0, 5, 5},
@@ -160,7 +197,7 @@ const std::vector<TetrominoRotationData> kTetromino_S_Rotations = {
   kTetrominoRotationShape_S_270D
 };
 
-// T_Block 6
+// T Tetromino 6
 
 const TetrominoRotationData kTetrominoRotationShape_T_0D({
     {0, 6, 0},
@@ -193,7 +230,7 @@ const std::vector<TetrominoRotationData> kTetromino_T_Rotations = {
   kTetrominoRotationShape_T_270D
 };
 
-// Z_Block 7
+// Z Tetromino 7
 
 const TetrominoRotationData kTetrominoRotationShape_Z_0D({
     {7, 7, 0},

@@ -1,30 +1,82 @@
 #include "game/tetromino_sprite.h"
 
-void TetrominoSprite::RotateClockwise() {
-  int angle = static_cast<int>(angle_) + 1;
-  auto try_angle = static_cast<Tetromino::Angle>(angle % kAngles.size());
-  const auto& rotation_data = tetromino_.GetRotationData(try_angle);
+#include <unordered_map>
 
-  if (matrix_->IsValid(pos_, rotation_data)) {
-    matrix_->Insert(pos_, rotation_data);
-    angle_ = try_angle ;
-    rotation_data_ = rotation_data;
+namespace {
+
+enum { GetRow = 1, GetCol = 0 };
+using Angle = Tetromino::Angle;
+using Rotation = TetrominoSprite::Rotation;
+
+const std::unordered_map<Tetromino::Angle, const std::unordered_map<Tetromino::Angle, int>> kStates = {
+  { Angle::A0, { { Angle::A90, 0 }, { Angle::A270, 3 } } },
+  { Angle::A90, { { Angle::A180, 2 }, { Angle::A0, 2 } } },
+  { Angle::A180, { { Angle::A270, 3 }, { Angle::A90, 0 } } },
+  { Angle::A270, { { Angle::A0, 1  }, { Angle::A180 , 1 } } }
+};
+
+inline const std::vector<std::vector<int>>& GetWallKickData(Tetromino::Type type, Tetromino::Angle from_angle, Tetromino::Angle to_angle) {
+  int state = kStates.at(from_angle).at(to_angle);
+
+  std::cout << state << std::endl;
+
+  return (type == Tetromino::Type::I) ? kWallKickDataForI[state] : kWallKickDataForJLSTZ[state];
+}
+
+Tetromino::Angle GetNextAngle(Tetromino::Angle current_angle, Rotation rotate) {
+  int angle = static_cast<int>(current_angle);
+
+  if (rotate == Rotation::Clockwise) {
+    angle++;
+    if (angle > static_cast<int>(Tetromino::Angle::A270)) {
+      angle = 0;
+    }
+  } else {
+    angle--;
+    if (angle < 0) {
+      angle =  static_cast<int>(Tetromino::Angle::A270);
+    }
+  }
+  return static_cast<Tetromino::Angle>(angle);
+}
+
+}
+
+std::tuple<bool, Position, Tetromino::Angle> TetrominoSprite::TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate) {
+  auto try_angle = GetNextAngle(current_angle, rotate);
+  const auto& wallkick_data = GetWallKickData(type, current_angle, try_angle);
+
+  for (const auto& col_row : wallkick_data) {
+    Position try_pos(current_pos.row() + col_row[GetRow], current_pos.col() + col_row[GetCol]);
+
+    std::cout << "Trying: " << col_row[GetCol] << ", " << col_row[GetRow] << std::endl;
+    if (matrix_->IsValid(try_pos, tetromino_.GetRotationData(try_angle))) {
+      return std::make_tuple(true, try_pos, try_angle);
+    }
+  }
+  std::cout << "Failed" << std::endl;
+  return std::make_tuple(false, current_pos, current_angle);
+}
+
+void TetrominoSprite::RotateClockwise() {
+  bool success;
+
+  std::tie(success, pos_, angle_) = TryRotation(tetromino_.type(), pos_, angle_, Rotation::Clockwise);
+
+  if (success) {
+    rotation_data_ = tetromino_.GetRotationData(angle_);
+    matrix_->Insert(pos_, rotation_data_);
   }
 }
 
 void TetrominoSprite::RotateCounterClockwise() {
-  int angle = static_cast<int>(angle_) - 1;
+  bool success;
 
-  if (angle < 0) {
-    angle = static_cast<int>(Tetromino::Angle::A270);
-  }
-  auto try_angle = static_cast<Tetromino::Angle>(angle);
-  const auto& rotation_data = tetromino_.GetRotationData(try_angle);
+  std::tie(success, pos_, angle_) = TryRotation(tetromino_.type(), pos_, angle_, Rotation::CounterClockwise);
 
-  if (matrix_->IsValid(pos_, rotation_data)) {
-    matrix_->Insert(pos_, rotation_data);
-    angle_ = try_angle;
-    rotation_data_ = rotation_data;
+  if (success) {
+    rotation_data_ = tetromino_.GetRotationData(angle_);
+    matrix_->Insert(pos_, rotation_data_);
   }
 }
 

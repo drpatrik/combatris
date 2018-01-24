@@ -94,6 +94,8 @@ void Board::GameControl(Controls control_pressed) {
       break;
     case Controls::HoldPiece:
       break;
+    case Controls::Pause:
+      break;
   }
 }
 

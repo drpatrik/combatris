@@ -4,20 +4,18 @@
 
 class Board final {
  public:
-  enum class Controls { RotateClockwise, RotateCounterClockwise, SoftDrop, HardDrop, Left, Right, HoldPiece };
+  enum class Controls { RotateClockwise, RotateCounterClockwise, SoftDrop, HardDrop, Left, Right, HoldPiece, Pause };
 
   Board();
   Board(const Board&) = delete;
   Board(const Board&&) = delete;
   ~Board() noexcept;
 
+  void NewGame();
+
   void GameControl(Controls control_pressed);
 
   void Render(double delta_timer);
-
-  void NewGame();
-
-  //operator SDL_Window*() const { return window_; }
 
  private:
   SDL_Window* window_ = nullptr;

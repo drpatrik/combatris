@@ -7,32 +7,32 @@
         This is very much work in progress and right now focus is on getting the game
         elements to work - after that work on the network capabilities will start.
 
-        Current status:
+        **Current status**
+        * Game is fully playable
+        * Score / levels / etc
+        * Rotate left / right
+        * Soft / Hard drop
+        * BPS Random Generator
+        * Wall kicks
 
-        - Game is fully playable
-        - Score / levels / etc
-        - Rotate left / right
-        - Soft / Hard drop
+        **Next:**
+        * Animations:
+          * Cleared lines
+          * Tetromino Locked
+          * Level up
+          * Count down before game start
+          * Next Tetromino Queue
+          * Game Over
+        * Hold piece
+        * Panes for score / next etc.
+        * Unit tests
 
-        Next:
-        - Animations:
-          - Cleared lines
-          - Tetromino Locked
-          - Level up
-          - Count down before game start
-          - Next Tetromino Queue
-          - Game Over
-        - Hold piece
-        - wall kick / floor kick according to SRS
-        - Panes for score / next etc.
-        - Unit tests
+        **Later:**
+        * Sound
+        * Customizible controls
+        * Controller / mouse
 
-        Later:
-        - Sound
-        - Customizible controls
-        - Controller / mouse
-
-        Keyboard Command:
+        **Keyboard Command**
           N - New game
           Arrow Up / S - Rotate Counter clockwise
           A - Rotate Counter clockwise
@@ -42,7 +42,9 @@
           Space - Hard Drop
           Shift - Hold piece (not yet implemented)
 
-        Dependencies:
+## Build Combatris
+
+        **Dependencies:**
         - C++17 compliant compiler (e.g. clang 4, clang-9.0.0, Visual Studio 2017.3 [P2])
         - C++14 compliant STL implementation
         - cmake 2.8.8 or later
@@ -55,8 +57,7 @@
         The test suit requires catch - Catch will be automatically downloaded and installed
         as part of the build process
 
-        OSX / Linux
-        -----------
+        **OSX / Linux**
 
         Install the required libraries with (linux)brew or any other package manager.
 
@@ -68,8 +69,7 @@
 
         make run # will start the game
 
-        64-bit Windows 10
-        -----------------
+        **64-bit Windows 10**
 
         Set the following environment variables (see System Properties/Environment Variables...):
 
@@ -77,19 +77,19 @@
         SDL2MIXER
         SDL2TTFDIR
 
-        Example:
+        *Example:*
         SDL2DIR C:\SDL2-2.0.5
 
         The PATH should include all three libraries lib\x64 directories
 
-        Example:
+        *Example:*
         PATH C:\SDL2-2.0.5\lib\x64;C:\SDL2_mixer\lib\x64;C:\SDL2_ttf-2.0.14\lib\x64
 
         Generate Visual Studio project files with CMakeSetup.exe
 
-        Credits
-        -------
+##Credits
 
+        Wall kick tables from https://harddrop.com/wiki/SRS
         Tetrominoes from https://commons.wikimedia.org/wiki/File:Tetrominoes_IJLO_STZ_Worlds.svg
         All sfx and music are from www.freesound.org
         Fonts http://www.dafont.com/cabin.font
