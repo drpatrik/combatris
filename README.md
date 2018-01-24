@@ -59,29 +59,28 @@ as part of the build process
 
 Install the required libraries with (linux)brew or any other package manager.
 
+Builds the project, default is a release build. Ninja is used if available:
+
 ```bash
 make
 ```
 
-will build the project, default is a release build. Ninja is used if available
+Starts the game:
+```bash
+make run
+```
+
+Runs the test suit:
 
 ```bash
 make test
 ```
 
-Will run the test suit.
-
-```bash
-make run
-```
-
-Will start the game
+Run cppcheck (if installed) on the codebase with all checks turned-on:
 
 ```bash
 make cppcheck
 ```
-
-Will run cppcheck on the codebase, if installed
 
 **64-bit Windows 10**
 
