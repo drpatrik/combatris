@@ -1,46 +1,42 @@
-![screenshots](screenshots/combatris-demo-1.png)
-
 # Combatris
+
+![screenshots](screenshots/combatris-demo-1.png)
 
 A new old take on the Tetris game where network concepts are introduced.
 
 This is very much work in progress and right now focus is on getting the game
 elements to work - after that work on the network capabilities will start.
 
-**Current status**
-* Game is fully playable
-* Score / levels / etc
-* Rotate left / right
-* Soft / Hard drop
-* BPS Random Generator
-* Wall kicks
-
-**Next:**
-* Animations:
-  * Cleared lines
-  * Tetromino Locked
-  * Level up
-  * Count down before game start
-  * Next Tetromino Queue
-  * Game Over
-* Hold piece
-* Panes for score / next etc.
-* Unit tests
-
-**Later:**
-* Sound
-* Customizible controls
-* Controller / mouse
+**Status**
+- [x] Game is fully playable
+- [x] Status such as score, level, next piece, etc
+- [x] Rotate left / right
+- [x] Soft / Hard drop
+- [x] BPS Random Generator
+- [x] Wall kicks
+- [ ] Hold piece
+- [ ] Panes for score / next etc.
+- [ ] Unit tests
+- [ ] Sound
+- [ ] Customizible controls
+- [ ] Controller / mouse
+- Animations:
+- [ ] Cleared lines
+- [ ] Tetromino Locked
+- [ ] Level up
+- [ ] Count down before game start
+- [ ] Next Tetromino Queue
+- [ ] Game Over
 
 **Keyboard Command**
-        N - New game
-        Arrow Up / S - Rotate Counter clockwise
-        A - Rotate Counter clockwise
-        Arrow Left - Move Left
-        Arrow Right - Move Right
-        Arrow Down - Soft Drop
-        Space - Hard Drop
-        Shift - Hold piece (not yet implemented)
+N                     New game
+Arrow Up / S          Rotate Counter clockwise
+A                     Rotate Counter clockwise
+Arrow Left            Move Left
+Arrow Right           Move Right
+Arrow Down            Soft Drop
+Space                 Hard Drop
+Shift                 Hold piece (not yet implemented)
 
 ## Build Combatris
 
