@@ -28,6 +28,7 @@ elements to work - after that work on the network capabilities will start.
 - [ ] Game Over animations
 
 **Keyboard Command**
+
 Key | Action
 --- | ------
 N  | New game
