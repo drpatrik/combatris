@@ -28,7 +28,8 @@ elements to work - after that work on the network capabilities will start.
 - [ ] Game Over animations
 
 **Keyboard Command**
-Key          | Action
+Key           | Action
+------------- | ------
 N            | New game
 Arrow Up / S | Rotate Counter clockwise
 A            | Rotate Counter clockwise
