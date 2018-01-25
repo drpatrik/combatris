@@ -19,6 +19,21 @@ class Matrix final {
     Initialize();
   }
 
+  Matrix(const std::vector<std::vector<int>>& matrix,  const std::vector<std::shared_ptr<const Tetromino>>& tetrominos, SDL_Renderer* renderer = nullptr) :
+      renderer_(renderer), tetrominos_(tetrominos) {
+    Initialize();
+
+    for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
+      for (int col = kVisibleColStart; col < kVisibleColEnd; ++col) {
+        int adjusted_row = row - kVisibleRowStart;
+        int adjusted_col = col - kVisibleColStart;
+
+        ingame_matrix_.at(row).at(col) = matrix.at(adjusted_row).at(adjusted_col);
+      }
+    }
+    master_matrix_ = ingame_matrix_;
+  }
+
   void Render();
 
   bool IsValid(const Position& pos, const TetrominoRotationData& rotation_data) const;

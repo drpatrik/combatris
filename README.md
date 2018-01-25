@@ -2,7 +2,8 @@
 
 ![screenshots](screenshots/combatris-demo-1.png)
 
-A new old take on the Tetris game where network concepts are introduced.
+An as accurant competion version of Tetris as possible with network support
+so several players can battle against each other using the "offical" battle rules.
 
 This is very much work in progress and right now focus is on getting the game
 elements to work - after that work on the network capabilities will start.
@@ -15,31 +16,37 @@ elements to work - after that work on the network capabilities will start.
 - [x] BPS Random Generator
 - [x] Wall kicks
 - [ ] Hold piece
+- [ ] T-Spin (scoring)
+- [ ] B2B T-Spin Double   (scoring)
+- [ ] Combos (scoring)
+- [ ] Hard Drop & Soft Drop (scoring)
 - [ ] Panes for score / next etc.
 - [ ] Unit tests
 - [ ] Sound
 - [ ] Customizible controls
 - [ ] Controller / mouse
-- [ ] Cleared lines animations
-- [ ] Tetromino Locked animations
-- [ ] Level up animations
-- [ ] Count down before game start animations
-- [ ] Next Tetromino Queue animations
-- [ ] Game Over animations
+- [ ] Cleared lines (animations)
+- [ ] Tetromino Locked (animations)
+- [ ] Level up  (animations)
+- [ ] Count down before game start (animations)
+- [ ] Next Tetromino Queue (animations)
+- [ ] T-Spin / score (animations)
+- [ ] Game Over (animations)
 
 **Keyboard Commands**
 
 Key | Action
 --- | ------
 N  | New game
-Arrow Up / S | Rotate Counter clockwise
+Up / S | Rotate Counter clockwise
 A | Rotate Counter clockwise
-Arrow Left | Move Left
-Arrow Right | Move Right
-Arrow Down | Soft Drop
+Left | Move Left
+Right | Move Right
+Down | Soft Drop
 Space | Hard Drop
 Shift | Hold piece (not yet implemented)
-
+F1 / ESC / P | Pause (not yet implemented)
+Q | Quit
 ## Build Combatris
 
 **Dependencies:**
@@ -103,6 +110,7 @@ Generate Visual Studio project files with CMakeSetup.exe
 ## Credits
 
         Wall kick tables from https://harddrop.com/wiki/SRS
+        Tetris info from http://tetris.wikia.com and https://tetris.wiki/SRS
         Tetrominoes from https://commons.wikimedia.org/wiki/File:Tetrominoes_IJLO_STZ_Worlds.svg
         All sfx and music are from www.freesound.org
         Fonts http://www.dafont.com/cabin.font

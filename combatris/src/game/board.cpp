@@ -50,7 +50,6 @@ Board::Board() {
   }
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
   SDL_RenderSetLogicalSize(renderer_, kWidth, kHeight);
-
   asset_manager_ = std::make_shared<AssetManager>(renderer_);
   matrix_ = std::make_shared<Matrix>(renderer_, asset_manager_->GetTetrominos());
   level_ = std::make_shared<Level>(renderer_, asset_manager_, 10, 10);

@@ -9,16 +9,16 @@ using Angle = Tetromino::Angle;
 using Rotation = TetrominoSprite::Rotation;
 
 const std::unordered_map<Tetromino::Angle, const std::unordered_map<Tetromino::Angle, int>> kStates = {
-  { Angle::A0, { { Angle::A90, 0 }, { Angle::A270, 3 } } },
-  { Angle::A90, { { Angle::A180, 2 }, { Angle::A0, 2 } } },
-  { Angle::A180, { { Angle::A270, 3 }, { Angle::A90, 0 } } },
-  { Angle::A270, { { Angle::A0, 1  }, { Angle::A180 , 1 } } }
+  { Angle::A0, { { Angle::A90, 0 }, { Angle::A270, 7 } } },
+  { Angle::A90, { { Angle::A180, 2 }, { Angle::A0, 1 } } },
+  { Angle::A180, { { Angle::A270, 4 }, { Angle::A90, 3 } } },
+  { Angle::A270, { { Angle::A0, 6 }, { Angle::A180 , 5 } } }
 };
 
 inline const std::vector<std::vector<int>>& GetWallKickData(Tetromino::Type type, Tetromino::Angle from_angle, Tetromino::Angle to_angle) {
   int state = kStates.at(from_angle).at(to_angle);
 
-  std::cout << state << std::endl;
+  std::cout << "State: " << state << std::endl;
 
   return (type == Tetromino::Type::I) ? kWallKickDataForI[state] : kWallKickDataForJLSTZ[state];
 }
@@ -40,6 +40,8 @@ Tetromino::Angle GetNextAngle(Tetromino::Angle current_angle, Rotation rotate) {
   return static_cast<Tetromino::Angle>(angle);
 }
 
+inline int ReverseSign(int value) { return value * -1; }
+
 }
 
 std::tuple<bool, Position, Tetromino::Angle> TetrominoSprite::TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate) {
@@ -47,9 +49,8 @@ std::tuple<bool, Position, Tetromino::Angle> TetrominoSprite::TryRotation(Tetrom
   const auto& wallkick_data = GetWallKickData(type, current_angle, try_angle);
 
   for (const auto& col_row : wallkick_data) {
-    Position try_pos(current_pos.row() + col_row[GetRow], current_pos.col() + col_row[GetCol]);
+    Position try_pos(current_pos.row() + ReverseSign(col_row[GetRow]), current_pos.col() + col_row[GetCol]);
 
-    std::cout << "Trying: " << col_row[GetCol] << ", " << col_row[GetRow] << std::endl;
     if (matrix_->IsValid(try_pos, tetromino_.GetRotationData(try_angle))) {
       return std::make_tuple(true, try_pos, try_angle);
     }
