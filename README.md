@@ -2,11 +2,11 @@
 
 ![screenshots](screenshots/combatris-demo-1.png)
 
-An as accurant competion version of Tetris as possible with network support
-so several players can battle against each other using the "offical" battle rules.
+An as accurate competition version of Tetris as possible with network support so
+several players can battle against each other using the "official" battle rules.
 
-This is very much work in progress and right now focus is on getting the game
-elements to work - after that work on the network capabilities will start.
+This is very much work in progress and right now focus is on getting the game elements
+to work - after that work on the network capabilities will start.
 
 **Status**
 - [x] Game is fully playable
