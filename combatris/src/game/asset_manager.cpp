@@ -65,7 +65,7 @@ std::vector<TetrominoAssetData> kTetrominoAssetData {
   TetrominoAssetData(Tetromino::Type::B, Color::Black, kTetromino_B_Rotations, "B.bmp"),
 };
 
-}
+} // namespace
 
 AssetManager::AssetManager(SDL_Renderer *renderer) {
   border_texture_ = std::shared_ptr<SDL_Texture>(LoadTexture(renderer, "Border.bmp"), DeleteTexture);

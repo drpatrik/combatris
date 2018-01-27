@@ -34,7 +34,7 @@ void RenderBorder(SDL_Renderer* renderer, SDL_Texture* frame_texture) {
   }
 }
 
-}
+} // namespace
 
 Board::Board() {
   window_ = SDL_CreateWindow("Combatris", SDL_WINDOWPOS_UNDEFINED,
@@ -118,10 +118,10 @@ void Board::Update(double delta_time) {
       tetromino_in_play_.reset();
       std::cout << "Game Over" << std::endl;
     } else {
-      auto [next_piece, cleared_lines] = tetromino_in_play_->Down(delta_time);
+      auto [next_piece, lines_cleared] = tetromino_in_play_->Down(delta_time);
 
       if (next_piece && tetromino_in_play_->CanMove()) {
-        level_->LinesCleared(cleared_lines.size());
+        level_->LinesCleared(lines_cleared.size());
         tetromino_in_play_ = tetromino_generator_->Get();
       }
     }

@@ -72,8 +72,8 @@ void MoveBlockDown(int end_row, Matrix::Type& matrix) {
   matrix.at(kVisibleRowStart) = kEmptyRow;
 }
 
-void CollapseMatrix(const Matrix::Lines& cleared_lines, Matrix::Type& matrix) {
-  for (const auto& line : cleared_lines) {
+void CollapseMatrix(const Matrix::Lines& lines_cleared, Matrix::Type& matrix) {
+  for (const auto& line : lines_cleared) {
     MoveBlockDown(line.row_in_matrix_, matrix);
   }
 }

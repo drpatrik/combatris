@@ -32,11 +32,11 @@ std::vector<LevelData> kLevelData = {
   LevelData(15, 2.36, 0.5)
 };
 
-std::vector<int> kScoreForLines = { 40, 100, 300, 1200 };
+const std::vector<int> kScoreForLines = { 40, 100, 300, 1200 };
 
-int kLevelUp = 10;
+const int kLevelUp = 10;
 
-}
+} // namespace
 
 void Level::ResetTime() {
   int index = level_ < static_cast<int>(kLevelData.size()) ? level_ :  kLevelData.size() - 1;
