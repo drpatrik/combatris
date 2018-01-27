@@ -35,10 +35,9 @@ class TetrominoGenerator {
   std::shared_ptr<const Tetromino> next() { return asset_manager_->GetTetromino(tetrominos_.back()); }
 
  protected:
+  const std::vector<Tetromino::Type> kTetrominos = { Tetromino::Type::I, Tetromino::Type::J, Tetromino::Type::L, Tetromino::Type::O, Tetromino::Type::S, Tetromino::Type::T, Tetromino::Type::Z };
 
   void GenerateTetrominos() {
-    const std::vector<Tetromino::Type> kTetrominos = { Tetromino::Type::I, Tetromino::Type::J, Tetromino::Type::L, Tetromino::Type::O, Tetromino::Type::S, Tetromino::Type::T, Tetromino::Type::Z };
-
     tetrominos_ = kTetrominos;
     std::shuffle(std::begin(tetrominos_), std::end(tetrominos_), engine_);
   }
@@ -49,5 +48,5 @@ class TetrominoGenerator {
   std::shared_ptr<AssetManager> asset_manager_;
   std::vector<Tetromino::Type>  tetrominos_;
   mutable std::mt19937 engine_ {std::random_device{}()};
-  mutable std::uniform_int_distribution<int> distribution_{ 0, kNumTetrominos - 1 };
+  mutable std::uniform_int_distribution<int> distribution_{ 0, static_cast<int>(kTetrominos.size()) - 1 };
 };

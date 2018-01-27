@@ -10,7 +10,7 @@
 class Tetromino final {
  public:
   enum class Angle { A0, A90, A180, A270 };
-  enum class Type { Invalid, I, J, L, O, S, T, Z };
+  enum class Type { Invalid, I, J, L, O, S, T, Z, B };
 
   Tetromino(SDL_Renderer *renderer, Type type, SDL_Color color, const std::vector<TetrominoRotationData>& rotations,
             const std::shared_ptr<SDL_Texture> &texture)
@@ -30,13 +30,9 @@ class Tetromino final {
 
   inline void Render(const Position& pos) const { RenderBlock(renderer_, pos.x(), pos.y(), texture_.get()); }
 
-  inline void Render(int x, int y) const { RenderBlock(renderer_, x, y, texture_.get()); }
-
   inline void RenderGhost(const Position& pos) const { ::RenderGhost(renderer_, pos.x(), pos.y(), color_); }
 
-  inline void RenderGhost(int x, int y) const { ::RenderGhost(renderer_, x, y, color_); }
-
-  void RenderFull(int x, int y) const {
+  void Render(int x, int y) const {
     const auto& rotation = rotations_.at(static_cast<int>(Angle::A0));
 
     for (size_t row = 0; row < rotation.shape_.size(); ++row) {
@@ -45,7 +41,7 @@ class Tetromino final {
         const auto& shape = rotation.shape_;
 
         if (shape[row][col] != 0) {
-          Render(t_x, y);
+          RenderBlock(renderer_, t_x, y, texture_.get());
         }
         t_x += kBlockWidth;
       }

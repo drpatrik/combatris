@@ -5,7 +5,20 @@
 namespace {
 
 const int kGhostAddOn = 10;
-const int kBorderSpriteID = static_cast<int>(Tetromino::Type::Z) + 1;
+const int kBorderSpriteID = static_cast<int>(Tetromino::Type::B) + 1;
+const std::vector<int> kEmptyRow = { kBorderSpriteID, kBorderSpriteID, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, kBorderSpriteID, kBorderSpriteID };
+
+void Print(const Matrix::Type& matrix) {
+  for (int row = 0; row < static_cast<int>(matrix.size()); ++row) {
+    for (int col = 0; col < static_cast<int>(matrix.at(row).size()); ++ col) {
+      std::cout << std::setw(2) <<matrix.at(row).at(col);
+      if (col < kCols -1 ) {
+        std::cout << ", ";
+      }
+    }
+    std::cout << std::endl;
+  }
+}
 
 void RenderGrid(SDL_Renderer* renderer) {
   const SDL_Color gray { 105, 105, 105, 255 };
@@ -30,9 +43,7 @@ void RenderGrid(SDL_Renderer* renderer) {
 
 void SetupPlayableArea(Matrix::Type& matrix) {
   for (int row = 0; row < kVisibleRowEnd; ++row) {
-    auto& line = matrix.at(row);
-
-    std::fill(line.begin() + kVisibleColStart, line.end() - kVisibleColStart, 0);
+    matrix.at(row) = kEmptyRow;
   }
 }
 
@@ -47,35 +58,29 @@ Matrix::Lines RemoveClearedLines(Matrix::Type& matrix) {
     }
     if (std::find(line.begin(), line.end(), 0) == line.end()) {
       lines.push_back(Line(row, line));
-      std::fill(line.begin() + kVisibleColStart, line.end() - kVisibleColStart, 0);
+      matrix.at(row) = kEmptyRow;
     }
   }
   return lines;
 }
 
+void MoveBlockDown(int end_row, Matrix::Type& matrix) {
+  Matrix::Type tmp;
+
+  std::copy(matrix.begin() + kVisibleRowStart, matrix.begin() + end_row, std::back_inserter(tmp));
+  std::copy(tmp.begin(), tmp.end(), matrix.begin() + kVisibleRowStart + 1);
+  matrix.at(kVisibleRowStart) = kEmptyRow;
+}
+
 void CollapseMatrix(const Matrix::Lines& cleared_lines, Matrix::Type& matrix) {
-  auto const& last_cleared_line = cleared_lines.rbegin()->row_in_matrix_;
-
-  for (size_t i = 0; i < cleared_lines.size(); ++i) {
-    for (int row = last_cleared_line; row > kVisibleRowStart; --row) {
-      std::swap(matrix.at(row), matrix.at(row - 1));
-    }
+  for (const auto& line : cleared_lines) {
+    MoveBlockDown(line.row_in_matrix_, matrix);
   }
 }
 
-}
+} // namespace
 
-void Matrix::Print() {
-  for (int row = 0; row < static_cast<int>(master_matrix_.size()); ++row) {
-    for (int col = 0; col < static_cast<int>(master_matrix_.at(row).size()); ++ col) {
-      std::cout << std::setw(2) << master_matrix_.at(row).at(col);
-      if (col < kCols -1 ) {
-        std::cout << ", ";
-      }
-    }
-    std::cout << std::endl;
-  }
-}
+void Matrix::Print() const { ::Print(master_matrix_); }
 
 void Matrix::Initialize() {
   master_matrix_ = Matrix::Type(kRows + 1, std::vector<int>(kCols, kBorderSpriteID));
@@ -106,6 +111,9 @@ void Matrix::Render() {
 }
 
 bool Matrix::IsValid(const Position& pos, const TetrominoRotationData& rotation_data) const {
+  if (pos.col() < 0 || pos.row() < 0) {
+    return false;
+  }
   const auto& shape = rotation_data.shape_;
 
   for (size_t row = 0; row < shape.size(); ++row) {

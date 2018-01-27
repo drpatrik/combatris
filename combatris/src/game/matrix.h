@@ -19,6 +19,7 @@ class Matrix final {
     Initialize();
   }
 
+  // Used by test suit
   Matrix(const std::vector<std::vector<int>>& matrix,  const std::vector<std::shared_ptr<const Tetromino>>& tetrominos, SDL_Renderer* renderer = nullptr) :
       renderer_(renderer), tetrominos_(tetrominos) {
     Initialize();
@@ -50,15 +51,28 @@ class Matrix final {
 
   void NewGame() { Initialize(); }
 
-  void Print();
+  void Print() const;
 
  protected:
   void Initialize();
   void Insert(Type& matrix, const Position& pos, const TetrominoRotationData& rotation_data, bool insert_ghost = false);
 
  private:
+  friend bool operator==(const Matrix& rhs, const Matrix::Type& lhs);
+
   SDL_Renderer* renderer_;
   std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
   Type ingame_matrix_;
   Type master_matrix_;
 };
+
+inline bool operator==(const Matrix& rhs, const Matrix::Type& lhs) {
+  for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
+    const auto& line = rhs.master_matrix_.at(row);
+    if (!std::equal(line.begin() + kVisibleColStart, line.end() - kVisibleColStart, lhs.at(row - kVisibleRowStart).begin())) {
+      return false;
+    }
+  }
+
+  return true;
+}

@@ -9,9 +9,8 @@ class TetrominoSprite {
  public:
   enum class Rotation { Clockwise, CounterClockwise };
 
-  TetrominoSprite(const Tetromino& tetromino, Level& level, const std::shared_ptr<Matrix>& matrix) : tetromino_(tetromino), angle_(Tetromino::Angle::A0), pos_(), matrix_(matrix), level_(level), rotation_data_(tetromino.GetRotationData(angle_)) {
-    pos_ = (tetromino_.type() == Tetromino::Type::O) ? Position(0, 6) : Position(0, 5);
-    if (matrix_->IsValid(pos_,  rotation_data_)) {
+  TetrominoSprite(const Tetromino& tetromino, Level& level, const std::shared_ptr<Matrix>& matrix) : tetromino_(tetromino), angle_(Tetromino::Angle::A0), pos_(0, 5), matrix_(matrix), level_(level), rotation_data_(tetromino.GetRotationData(angle_)) {
+    if (matrix_->IsValid(pos_, rotation_data_)) {
       matrix_->Insert(pos_, rotation_data_);
       can_move_ = true;
     }

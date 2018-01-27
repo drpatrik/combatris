@@ -1,4 +1,4 @@
-# Combatris
+# Combatris - Tetris Battle
 
 ![screenshots](screenshots/combatris-demo-1.png)
 
@@ -17,20 +17,19 @@ to work - after that work on the network capabilities will start.
 - [x] Wall kicks
 - [ ] Hold piece
 - [ ] T-Spin (scoring)
-- [ ] B2B T-Spin Double   (scoring)
+- [ ] B2B T-Spin Double (scoring)
 - [ ] Combos (scoring)
 - [ ] Hard Drop & Soft Drop (scoring)
-- [ ] Panes for score / next etc.
-- [ ] Unit tests
+- [ ] Panes for score / next / hold piece etc.
+- [ ] Unit tests // Two in place right now
 - [ ] Sound
 - [ ] Customizible controls
-- [ ] Controller / mouse
+- [ ] Gamepad / Mouse
 - [ ] Cleared lines (animations)
 - [ ] Tetromino Locked (animations)
-- [ ] Level up  (animations)
+- [ ] Level up (animations)
+- [ ] Special Move / Combo (T-Spin / Tetris / etc.) (animations)
 - [ ] Count down before game start (animations)
-- [ ] Next Tetromino Queue (animations)
-- [ ] T-Spin / score (animations)
 - [ ] Game Over (animations)
 
 **Keyboard Commands**

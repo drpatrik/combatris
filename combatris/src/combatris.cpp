@@ -5,8 +5,6 @@
 
 class Combatris {
  public:
-  using HighResClock = std::chrono::high_resolution_clock;
-
   Combatris() {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
       std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -24,6 +22,7 @@ class Combatris {
 
   ~Combatris() {
     SDL_Quit();
+    TTF_Quit();
     Mix_CloseAudio();
     Mix_Quit();
   }
@@ -70,7 +69,7 @@ class Combatris {
             }
         }
       }
-      board.Render(delta_timer.GetDelta());
+      board.Update(delta_timer.GetDelta());
     }
   }
 };

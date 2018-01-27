@@ -17,7 +17,6 @@ const int kHeight = (kVisibleRows * kBlockHeight) + 200 + (kBlockHeight * 2);
 const int kNormalFontSize = 25;
 const int kSmallFontSize = 15;
 const int kLargeFontSize = 45;
-const int kNumTetrominos = 7;
 const int kMatrixStartX = 300 + kBlockWidth;
 const int kMatrixEndX = kMatrixStartX + (kVisibleRows * kBlockWidth);
 const int kMatrixStartY = 150 + kBlockHeight;

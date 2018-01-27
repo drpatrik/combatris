@@ -98,12 +98,21 @@ void Board::GameControl(Controls control_pressed) {
   }
 }
 
-void Board::Render(double delta_time) {
+void Board::Render(double /*delta_time*/) {
   SDL_RenderClear(renderer_);
 
   RenderWindowBackground(renderer_);
   RenderText(renderer_, 750, 10 , asset_manager_->GetFont(Font::Normal), "Next: ", Color::White);
 
+  tetromino_generator_->next()->Render(750, 50);
+  level_->Render();
+  RenderBorder(renderer_, asset_manager_->GetBorderTexture());
+  matrix_->Render();
+
+  SDL_RenderPresent(renderer_);
+}
+
+void Board::Update(double delta_time) {
   if (tetromino_in_play_) {
     if (!tetromino_in_play_->CanMove()) {
       tetromino_in_play_.reset();
@@ -116,11 +125,7 @@ void Board::Render(double delta_time) {
         tetromino_in_play_ = tetromino_generator_->Get();
       }
     }
-    tetromino_generator_->next()->RenderFull(750, 50);
-  }
-  level_->Render();
-  RenderBorder(renderer_, asset_manager_->GetBorderTexture());
-  matrix_->Render();
 
-  SDL_RenderPresent(renderer_);
+  }
+  Render(delta_time);
 }

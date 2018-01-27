@@ -15,6 +15,9 @@ class Board final {
 
   void GameControl(Controls control_pressed);
 
+  void Update(double delta_timer);
+
+ protected:
   void Render(double delta_timer);
 
  private:
