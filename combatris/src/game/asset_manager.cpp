@@ -8,7 +8,7 @@ namespace {
 const std::string kAssetFolder = "../../assets/";
 
 SDL_Texture* LoadTexture(SDL_Renderer *renderer, const std::string& name) {
-  if (renderer == nullptr) {
+  if (SDL_WasInit(SDL_INIT_EVERYTHING) == 0 || nullptr == renderer) {
     return nullptr;
   }
   std::string full_path =  kAssetFolder + "art/" + name;
@@ -26,6 +26,9 @@ SDL_Texture* LoadTexture(SDL_Renderer *renderer, const std::string& name) {
 }
 
 TTF_Font *LoadFont(const std::string& name, int size) {
+  if (TTF_WasInit() == 0) {
+    return nullptr;
+  }
   std::string full_path = kAssetFolder + "fonts/" + name;
 
   TTF_Font *font = TTF_OpenFont(full_path.c_str(), size);
@@ -65,6 +68,13 @@ std::vector<TetrominoAssetData> kTetrominoAssetData {
   TetrominoAssetData(Tetromino::Type::B, Color::Black, kTetromino_B_Rotations, "B.bmp"),
 };
 
+const std::vector<std::pair<std::string, int>> kFonts {
+  std::make_pair("Cabin-Regular.ttf", kNormalFontSize),
+  std::make_pair("Cabin-Bold.ttf", kNormalFontSize),
+  std::make_pair("Cabin-Regular.ttf", kSmallFontSize),
+  std::make_pair("Cabin-Bold.ttf", kLargeFontSize)
+};
+
 } // namespace
 
 AssetManager::AssetManager(SDL_Renderer *renderer) {
@@ -75,17 +85,7 @@ AssetManager::AssetManager(SDL_Renderer *renderer) {
         renderer, data.type_, data.color_, data.rotations_,
         std::shared_ptr<SDL_Texture>(LoadTexture(renderer, data.image_name_), DeleteTexture)));
   }
-
-  if (renderer != nullptr) {
-    std::vector<std::pair<std::string, int>> fonts {
-      std::make_pair("Cabin-Regular.ttf", kNormalFontSize),
-          std::make_pair("Cabin-Bold.ttf", kNormalFontSize),
-          std::make_pair("Cabin-Regular.ttf", kSmallFontSize),
-          std::make_pair("Cabin-Bold.ttf", kLargeFontSize)
-          };
-
-    for (const auto& f:fonts) {
-      fonts_.push_back(UniqueFontPtr{ LoadFont(f.first, f.second) });
-    }
+  for (const auto& f:kFonts) {
+    fonts_.push_back(UniqueFontPtr{ LoadFont(f.first, f.second) });
   }
 }

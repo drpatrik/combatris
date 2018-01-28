@@ -20,7 +20,7 @@ class AssetManager final {
 
   SDL_Texture* GetBorderTexture() const { return border_texture_.get(); }
 
-  virtual TTF_Font *GetFont(int id) const { return fonts_[id].get(); }
+  virtual TTF_Font* GetFont(int id) const { return fonts_.at(id).get(); }
 
  private:
   using UniqueFontPtr = std::unique_ptr<TTF_Font, function_caller<void(TTF_Font*), &TTF_CloseFont>>;
