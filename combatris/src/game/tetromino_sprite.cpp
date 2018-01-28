@@ -92,23 +92,21 @@ void TetrominoSprite::Right() {
   }
 }
 
-std::pair<bool, Matrix::Lines> TetrominoSprite::Down(double delta_time) {
-  Matrix::Lines lines_cleared;
-  bool next_piece = false;
-
-  if (level_.Wait(delta_time, floor_reached_)) {
-    if (floor_reached_) {
-      lines_cleared = matrix_->Commit(pos_, rotation_data_);
-      next_piece = true;
-    } else {
-      if (matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
-        pos_.inc_row();
-        matrix_->Insert(pos_, rotation_data_);
-      } else {
-        floor_reached_ = true;
-        can_move_ = (pos_.row() + 1 > kVisibleRowStart);
-      }
+void TetrominoSprite::Down(double delta_time) {
+  if (!level_.Wait(delta_time, floor_reached_)) {
+    return;
+  }
+  if (floor_reached_) {
+    matrix_->Commit(pos_, rotation_data_);
+    return;
+  }
+  if (matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
+    pos_.inc_row();
+    matrix_->Insert(pos_, rotation_data_);
+  } else {
+    floor_reached_ = true;
+    if ((pos_.row() + 1 < kVisibleRowStart)) {
+      matrix_->GetEventQueue().Push(EventType::GameOver);
     }
   }
-  return std::make_pair(next_piece, lines_cleared);
 }

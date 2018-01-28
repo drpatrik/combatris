@@ -36,7 +36,7 @@ void RenderBorder(SDL_Renderer* renderer, SDL_Texture* frame_texture) {
 
 } // namespace
 
-Board::Board() {
+Board::Board() : events_() {
   window_ = SDL_CreateWindow("Combatris", SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED, kWidth, kHeight, SDL_WINDOW_RESIZABLE);
   if (nullptr == window_) {
@@ -51,10 +51,11 @@ Board::Board() {
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
   SDL_RenderSetLogicalSize(renderer_, kWidth, kHeight);
   asset_manager_ = std::make_shared<AssetManager>(renderer_);
-  matrix_ = std::make_shared<Matrix>(renderer_, asset_manager_->GetTetrominos());
-  level_ = std::make_shared<Level>(renderer_, asset_manager_, 10, 10);
+  matrix_ = std::make_shared<Matrix>(renderer_, events_, asset_manager_->GetTetrominos());
+  level_ = std::make_shared<Level>(renderer_, events_, asset_manager_, 10, 10);
+  scoring_ = std::make_shared<Scoring>(*level_);
   tetromino_generator_ = std::make_unique<TetrominoGenerator>(matrix_, *level_, asset_manager_);
-  tetromino_in_play_ = tetromino_generator_->Get();
+  NewGame();
 }
 
 Board::~Board() noexcept {
@@ -63,9 +64,7 @@ Board::~Board() noexcept {
 }
 
 void Board::NewGame() {
-  matrix_->NewGame();
-  tetromino_generator_->NewGame();
-  tetromino_in_play_ = tetromino_generator_->Get();
+  events_.Push(EventType::NewGame);
 }
 
 void Board::GameControl(Controls control_pressed) {
@@ -105,6 +104,7 @@ void Board::Render(double /*delta_time*/) {
   RenderText(renderer_, 750, 10 , asset_manager_->GetFont(Font::Normal), "Next: ", Color::White);
 
   tetromino_generator_->next()->Render(750, 50);
+  scoring_->Render();
   level_->Render();
   RenderBorder(renderer_, asset_manager_->GetBorderTexture());
   matrix_->Render();
@@ -113,19 +113,35 @@ void Board::Render(double /*delta_time*/) {
 }
 
 void Board::Update(double delta_time) {
-  if (tetromino_in_play_) {
-    if (!tetromino_in_play_->CanMove()) {
+  auto event = events_.Pop();
+
+  switch (event.type()) {
+    case EventType::None:
+      break;
+    case EventType::LinesCleared:
+      level_->Update(event);
+      scoring_->Update(event);
+      // Passby on purpose
+    case EventType::NextPiece:
+      tetromino_in_play_ = tetromino_generator_->Get();
+      break;
+    case EventType::LevelUp:
+      std::cout << "Level Up" << std::endl;
+      break;
+    case EventType::GameOver:
       tetromino_in_play_.reset();
       std::cout << "Game Over" << std::endl;
-    } else {
-      auto [next_piece, lines_cleared] = tetromino_in_play_->Down(delta_time);
-
-      if (next_piece && tetromino_in_play_->CanMove()) {
-        level_->LinesCleared(lines_cleared.size());
-        tetromino_in_play_ = tetromino_generator_->Get();
-      }
-    }
-
+      break;
+    case EventType::NewGame:
+      events_.NewGame();
+      matrix_->NewGame();
+      scoring_->NewGame();
+      tetromino_generator_->NewGame();
+      tetromino_in_play_ = tetromino_generator_->Get();
+      break;
+  };
+  if (tetromino_in_play_) {
+    tetromino_in_play_->Down(delta_time);
   }
   Render(delta_time);
 }

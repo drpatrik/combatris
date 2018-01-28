@@ -1,14 +1,18 @@
 #pragma once
 
 #include "game/tetromino_generator.h"
+#include "game/scoring.h"
 
 class Board final {
  public:
   enum class Controls { RotateClockwise, RotateCounterClockwise, SoftDrop, HardDrop, Left, Right, HoldPiece, Pause };
 
   Board();
+
   Board(const Board&) = delete;
+
   Board(const Board&&) = delete;
+
   ~Board() noexcept;
 
   void NewGame();
@@ -28,4 +32,6 @@ class Board final {
   std::unique_ptr<TetrominoGenerator> tetromino_generator_;
   std::shared_ptr<Matrix> matrix_;
   std::shared_ptr<Level> level_;
+  std::shared_ptr<Scoring> scoring_;
+  Events events_;
 };

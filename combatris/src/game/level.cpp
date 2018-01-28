@@ -32,8 +32,6 @@ std::vector<LevelData> kLevelData = {
   LevelData(15, 2.36, 0.5)
 };
 
-const std::vector<int> kScoreForLines = { 40, 100, 300, 1200 };
-
 const int kLevelUp = 10;
 
 } // namespace
@@ -63,25 +61,24 @@ bool Level::WaitForLockDelay(double time_delta) {
   return false;
 }
 
-void Level::LinesCleared(int lines_cleared) {
-  if (lines_cleared == 0) {
+void Level::Update(const Event& event) {
+  int lines_cleared = event.lines_cleared_.size();
+
+  if (0 == lines_cleared) {
     return;
   }
-  int score = kScoreForLines.at(lines_cleared - 1) * (level_ + 1);
-
   total_lines_ += lines_cleared;
   lines_this_level_ += lines_cleared;
   if (lines_this_level_ >= kLevelUp) {
+    events_.Push(EventType::LevelUp);
     lines_this_level_ = 0;
     level_++;
     ResetTime();
   }
-  score_ += score;
 }
 
 void Level::Render() {
-  RenderText(x_, y_, Font::Normal, "Score: ", Color::White);
-  RenderText(x_ + 74,  y_, Font::Normal, std::to_string(score_), Color::White);
+  // Will be moved into Pane at some point in time
   RenderText(x_, y_ + 50 , Font::Normal, "Level: ", Color::White);
   RenderText(x_ + 74,  y_ +50, Font::Normal, std::to_string(level_ + 1), Color::White);
   RenderText(x_, y_ + 100, Font::Normal, "Lines: ", Color::White);

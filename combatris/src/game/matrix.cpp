@@ -47,8 +47,8 @@ void SetupPlayableArea(Matrix::Type& matrix) {
   }
 }
 
-Matrix::Lines RemoveClearedLines(Matrix::Type& matrix) {
-  Matrix::Lines lines;
+Lines RemoveClearedLines(Matrix::Type& matrix) {
+  Lines lines;
 
   for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
     auto& line = matrix.at(row);
@@ -72,7 +72,7 @@ void MoveBlockDown(int end_row, Matrix::Type& matrix) {
   matrix.at(kVisibleRowStart) = kEmptyRow;
 }
 
-void CollapseMatrix(const Matrix::Lines& lines_cleared, Matrix::Type& matrix) {
+void CollapseMatrix(const Lines& lines_cleared, Matrix::Type& matrix) {
   for (const auto& line : lines_cleared) {
     MoveBlockDown(line.row_in_matrix_, matrix);
   }
@@ -146,7 +146,7 @@ void Matrix::Insert(Type& matrix, const Position& pos, const TetrominoRotationDa
   }
 }
 
-Matrix::Lines Matrix::Commit(const Position& current_pos, const TetrominoRotationData& rotation_data) {
+void Matrix::Commit(const Position& current_pos, const TetrominoRotationData& rotation_data) {
   auto pos = GetDropPosition(current_pos, rotation_data);
 
   Insert(master_matrix_, pos, rotation_data);
@@ -155,7 +155,9 @@ Matrix::Lines Matrix::Commit(const Position& current_pos, const TetrominoRotatio
 
   CollapseMatrix(lines_cleared, master_matrix_);
 
-  return lines_cleared;
+  auto event = (lines_cleared.size() > 0) ? EventType::LinesCleared : EventType::NextPiece;
+
+  events_.Push(event, lines_cleared);
 }
 
 Position Matrix::GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const {

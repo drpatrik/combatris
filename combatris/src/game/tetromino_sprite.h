@@ -11,9 +11,10 @@ class TetrominoSprite {
   TetrominoSprite(const Tetromino& tetromino, Level& level, const std::shared_ptr<Matrix>& matrix) : tetromino_(tetromino), angle_(Tetromino::Angle::A0), pos_(0, 5), matrix_(matrix), level_(level), rotation_data_(tetromino.GetRotationData(angle_)) {
     if (matrix_->IsValid(pos_, rotation_data_)) {
       matrix_->Insert(pos_, rotation_data_);
-      can_move_ = true;
+      level_.ResetTime();
+    } else {
+      matrix_->GetEventQueue().Push(EventType::GameOver);
     }
-    level_.ResetTime();
   }
 
   void RotateClockwise();
@@ -32,9 +33,7 @@ class TetrominoSprite {
 
   void Right();
 
-  std::pair<bool, Matrix::Lines> Down(double delta_time);
-
-  bool CanMove() const { return can_move_; }
+  void Down(double delta_time);
 
  protected:
   std::tuple<bool, Position, Tetromino::Angle> TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotatet);
@@ -49,5 +48,4 @@ class TetrominoSprite {
   Level& level_;
   TetrominoRotationData rotation_data_;
   bool floor_reached_ = false;
-  bool can_move_ = false;
 };

@@ -27,10 +27,7 @@ class TetrominoGenerator {
     return std::make_unique<TetrominoSprite>(*asset_manager_->GetTetromino(type), level_,  matrix_);
   }
 
-  void NewGame() {
-    GenerateTetrominos();
-    level_.NewGame();
-  }
+  void NewGame() { GenerateTetrominos(); }
 
   std::shared_ptr<const Tetromino> next() { return asset_manager_->GetTetromino(tetrominos_.back()); }
 

@@ -1,27 +1,22 @@
 #pragma once
 
-#include "asset_manager.h"
-
-struct Line {
-  Line(int row_in_matrix, const std::vector<int>& line) : row_in_matrix_(row_in_matrix), line_(line) {}
-
-  int row_in_matrix_;
-  std::vector<int> line_;
-};
+#include "game/asset_manager.h"
+#include "game/events.h"
 
 class Matrix final {
  public:
   using Type = std::vector<std::vector<int>>;
-  using Lines = std::vector<Line>;
 
-  Matrix(SDL_Renderer* renderer, const std::vector<std::shared_ptr<const Tetromino>>& tetrominos)
-      : renderer_(renderer), tetrominos_(tetrominos) {
+  Matrix(SDL_Renderer* renderer, Events& events, const std::vector<std::shared_ptr<const Tetromino>>& tetrominos)
+      : renderer_(renderer), events_(events), tetrominos_(tetrominos) {
     Initialize();
   }
 
   // Used by test suit
-  Matrix(const std::vector<std::vector<int>>& matrix,  const std::vector<std::shared_ptr<const Tetromino>>& tetrominos, SDL_Renderer* renderer = nullptr) :
-      renderer_(renderer), tetrominos_(tetrominos) {
+  Matrix(const std::vector<std::vector<int>> &matrix, Events &events,
+         const std::vector<std::shared_ptr<const Tetromino>> &tetrominos,
+         SDL_Renderer *renderer = nullptr)
+      : renderer_(renderer), events_(events), tetrominos_(tetrominos) {
     Initialize();
 
     for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
@@ -29,13 +24,16 @@ class Matrix final {
         int adjusted_row = row - kVisibleRowStart;
         int adjusted_col = col - kVisibleColStart;
 
-        ingame_matrix_.at(row).at(col) = matrix.at(adjusted_row).at(adjusted_col);
+        ingame_matrix_.at(row).at(col) =
+            matrix.at(adjusted_row).at(adjusted_col);
       }
     }
     master_matrix_ = ingame_matrix_;
   }
 
   void Render();
+
+  Events& GetEventQueue() { return events_; }
 
   bool IsValid(const Position& pos, const TetrominoRotationData& rotation_data) const;
 
@@ -45,7 +43,7 @@ class Matrix final {
     Insert(ingame_matrix_, pos, rotation_data);
   }
 
-  Lines Commit(const Position& pos, const TetrominoRotationData& rotation_data);
+  void Commit(const Position& pos, const TetrominoRotationData& rotation_data);
 
   Position GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const;
 
@@ -61,6 +59,7 @@ class Matrix final {
   friend bool operator==(const Matrix& rhs, const Matrix::Type& lhs);
 
   SDL_Renderer* renderer_;
+  Events& events_;
   std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
   Type ingame_matrix_;
   Type master_matrix_;
