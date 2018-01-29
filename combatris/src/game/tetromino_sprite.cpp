@@ -72,10 +72,23 @@ void TetrominoSprite::RotateCounterClockwise() {
   }
 }
 
+void TetrominoSprite::SoftDrop() {
+  if (floor_reached_) {
+    return;
+  }
+  if (pos_.row() >= kVisibleRowStart - 1) {
+    matrix_->GetEvents().Push(EventType::SoftDrop, 1);
+  }
+  level_.Release();
+}
+
 void TetrominoSprite::HardDrop() {
+  int drop_row = pos_.row();
+
   pos_ = matrix_->GetDropPosition(pos_, rotation_data_);
   level_.Release();
   floor_reached_ = true;
+  matrix_->GetEvents().Push(EventType::HardDrop, kVisibleRows - drop_row);
 }
 
 void TetrominoSprite::Left() {
@@ -106,7 +119,7 @@ void TetrominoSprite::Down(double delta_time) {
   } else {
     floor_reached_ = true;
     if ((pos_.row() + 1 < kVisibleRowStart)) {
-      matrix_->GetEventQueue().Push(EventType::GameOver);
+      matrix_->GetEvents().Push(EventType::GameOver);
     }
   }
 }

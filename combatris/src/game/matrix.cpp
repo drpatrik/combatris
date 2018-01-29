@@ -74,7 +74,7 @@ void MoveBlockDown(int end_row, Matrix::Type& matrix) {
 
 void CollapseMatrix(const Lines& lines_cleared, Matrix::Type& matrix) {
   for (const auto& line : lines_cleared) {
-    MoveBlockDown(line.row_in_matrix_, matrix);
+    MoveBlockDown(line.row_, matrix);
   }
 }
 

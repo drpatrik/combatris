@@ -13,7 +13,7 @@ class TetrominoSprite {
       matrix_->Insert(pos_, rotation_data_);
       level_.ResetTime();
     } else {
-      matrix_->GetEventQueue().Push(EventType::GameOver);
+      matrix_->GetEvents().Push(EventType::GameOver);
     }
   }
 
@@ -21,11 +21,7 @@ class TetrominoSprite {
 
   void RotateCounterClockwise();
 
-  void SoftDrop() {
-    if (!floor_reached_) {
-      level_.Release();
-    }
-  }
+  void SoftDrop();
 
   void HardDrop();
 

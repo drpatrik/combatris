@@ -5,17 +5,17 @@
 #include <iostream>
 
 struct Line {
-  Line(int row_in_matrix, const std::vector<int>& line) : row_in_matrix_(row_in_matrix), line_(line) {}
+  Line(int row, const std::vector<int>& line) : row_(row), line_(line) {}
 
-  int row_in_matrix_;
+  int row_;
   std::vector<int> line_;
 };
 
 using Lines = std::vector<Line>;
 
-enum class EventType { None, NextPiece, LinesCleared, LevelUp, GameOver, NewGame };
+enum class EventType { None, GameOver, NewGame, NextPiece, LinesCleared, LevelUp, CountDown, HardDrop, SoftDrop };
 
-enum class SpecialMove { None, T_Spin, T_SpinMini };
+enum class SpecialMove { None, T_Spin, T_SpinMini, PerfectClear };
 
 struct Event {
   Event(EventType type, const Lines& lines_cleared, SpecialMove special_move = SpecialMove::None)
@@ -24,6 +24,9 @@ struct Event {
   explicit Event(EventType type)
       : type_(type), lines_cleared_(), special_move_(SpecialMove::None) {}
 
+  Event(EventType type, int lines_dropped)
+      : type_(type), lines_cleared_(), special_move_(SpecialMove::None), lines_dropped_(lines_dropped) {}
+
   EventType type() const { return type_; }
 
   int lines_cleared() const { return lines_cleared_.size(); }
@@ -31,6 +34,7 @@ struct Event {
   EventType type_;
   Lines lines_cleared_;
   SpecialMove special_move_;
+  int lines_dropped_ = 0;
 };
 
 class Events {
@@ -41,6 +45,8 @@ class Events {
 
   Events(const Events&&) = delete;
 
+  bool IsEmpty() const { return events_.empty(); }
+
   void Push(const Event& event) { events_.push_back(event); }
 
   void Push(EventType type, const Lines& lines, SpecialMove special_move = SpecialMove::None) {
@@ -49,10 +55,9 @@ class Events {
 
   void Push(EventType type) { events_.emplace_back(type); }
 
+  void Push(EventType type, int lines) { events_.emplace_back(type, lines); }
+
   Event Pop() {
-    if (events_.empty()) {
-      return Event(EventType::None);
-    }
     Event event = events_.front();
 
     events_.pop_front();

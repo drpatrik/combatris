@@ -1,12 +1,12 @@
 #pragma once
 
-#include "game/asset_manager.h"
+#include "game/assets.h"
 #include "game/events.h"
 
 class Level {
  public:
-  Level(SDL_Renderer* renderer, Events& events, const std::shared_ptr<AssetManager>& asset_manager, int x, int y)
-      : renderer_(renderer), events_(events), asset_manager_(asset_manager), x_(x), y_(y) { ResetTime(); }
+  Level(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets, int x, int y)
+      : renderer_(renderer), events_(events), assets_(assets), x_(x), y_(y) { ResetTime(); }
 
   bool Wait(double time_delta, bool floor_reached) { return (floor_reached) ? WaitForLockDelay(time_delta) : WaitForMoveDown(time_delta); }
 
@@ -30,7 +30,7 @@ class Level {
   void Render();
 
   void RenderText(int x, int y, Font font, const std::string& text, Color text_color) const {
-    ::RenderText(renderer_, x, y, asset_manager_->GetFont(font), text, text_color);
+    ::RenderText(renderer_, x, y, assets_->GetFont(font), text, text_color);
   }
 
  protected:
@@ -41,7 +41,7 @@ class Level {
  private:
   SDL_Renderer* renderer_;
   Events& events_;
-  std::shared_ptr<AssetManager> asset_manager_;
+  std::shared_ptr<Assets> assets_;
   int x_;
   int y_;
   double time_ = 0.0;

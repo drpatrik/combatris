@@ -6,13 +6,13 @@
 
 #include <memory>
 
-class AssetManager final {
+class Assets final {
  public:
-  explicit AssetManager(SDL_Renderer *renderer);
+  explicit Assets(SDL_Renderer *renderer);
 
-  AssetManager(const AssetManager&) = delete;
+  Assets(const Assets&) = delete;
 
-  virtual ~AssetManager() noexcept {};
+  virtual ~Assets() noexcept {};
 
   std::shared_ptr<const Tetromino> GetTetromino(Tetromino::Type type) const { return tetrominos_.at(static_cast<int>(type) - 1); }
 

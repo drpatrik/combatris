@@ -19,8 +19,8 @@ to work - after that work on the network capabilities will start.
 - [ ] T-Spin (scoring)
 - [ ] B2B T-Spin Double (scoring)
 - [ ] Combos (scoring)
-- [ ] Hard Drop & Soft Drop (scoring)
-- [ ] Panes for score / next / hold piece etc.
+- [X] Hard Drop & Soft Drop (scoring)
+- [ ] Panes for score / next tetrominos / hold piece etc.
 - [ ] Unit tests // Two in place right now
 - [ ] Sound
 - [ ] Customizible controls

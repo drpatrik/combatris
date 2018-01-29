@@ -1,4 +1,4 @@
-#include "asset_manager.h"
+#include "assets.h"
 
 #include <string>
 #include <iostream>
@@ -77,7 +77,7 @@ const std::vector<std::pair<std::string, int>> kFonts {
 
 } // namespace
 
-AssetManager::AssetManager(SDL_Renderer *renderer) {
+Assets::Assets(SDL_Renderer *renderer) {
   border_texture_ = std::shared_ptr<SDL_Texture>(LoadTexture(renderer, "Border.bmp"), DeleteTexture);
 
   for (const auto &data : kTetrominoAssetData) {

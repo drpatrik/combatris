@@ -12,9 +12,15 @@ class Scoring {
   }
 
   void Update(const Event& event) {
-    const std::vector<int> kScoreForLines = { 40, 100, 300, 1200 };
+    if (event.type() == EventType::SoftDrop) {
+      score_ += event.lines_dropped_;
+    } else if (event.type() == EventType::HardDrop) {
+      score_ += event.lines_dropped_ * 2;
+    } else {
+      const std::vector<int> kScoreForLines = { 40, 100, 300, 1200 };
 
-    score_ += (kScoreForLines.at(event.lines_cleared() - 1) * (level_.level()));
+      score_ += (kScoreForLines.at(event.lines_cleared() - 1) * (level_.level()));
+    }
   }
 
   void Render() {

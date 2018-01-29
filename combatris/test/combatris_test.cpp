@@ -1,15 +1,16 @@
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 
 #include "game/matrix.h"
+#include "game/assets.h"
 
 #include <tuple>
 #include "catch.hpp"
 
 namespace {
 
-std::tuple<std::shared_ptr<Events>, std::shared_ptr<AssetManager>, std::shared_ptr<Matrix>> SetupTestHarness(const Matrix::Type& test_matrix) {
+std::tuple<std::shared_ptr<Events>, std::shared_ptr<Assets>, std::shared_ptr<Matrix>> SetupTestHarness(const Matrix::Type& test_matrix) {
   auto events = std::make_shared<Events>();
-  auto asset_manager = std::make_shared<AssetManager>(nullptr);
+  auto asset_manager = std::make_shared<Assets>(nullptr);
   auto matrix = std::make_shared<Matrix>(test_matrix, *events, asset_manager->GetTetrominos());
 
   return std::make_tuple(events, asset_manager, matrix);

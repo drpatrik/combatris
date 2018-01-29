@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game/asset_manager.h"
+#include "game/tetromino.h"
 #include "game/events.h"
 
 class Matrix final {
@@ -33,7 +33,7 @@ class Matrix final {
 
   void Render();
 
-  Events& GetEventQueue() { return events_; }
+  Events& GetEvents() { return events_; }
 
   bool IsValid(const Position& pos, const TetrominoRotationData& rotation_data) const;
 
