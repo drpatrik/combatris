@@ -24,13 +24,13 @@ to work - after that work on the network capabilities will start.
 - [ ] Unit tests // Two in place right now
 - [ ] Sound
 - [ ] Customizible controls
-- [ ] Gamepad / Mouse
+- [X] Joystick support (PS3 joystick tested)
 - [ ] Cleared lines (animations)
 - [ ] Tetromino Locked (animations)
-- [ ] Level up (animations)
+- [X] Level up (animations)
 - [ ] Special Move / Combo (T-Spin / Tetris / etc.) (animations)
 - [ ] Count down before game start (animations)
-- [ ] Game Over (animations)
+- [ ] Game Over
 
 **Keyboard Commands**
 

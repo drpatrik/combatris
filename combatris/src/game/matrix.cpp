@@ -78,6 +78,10 @@ void CollapseMatrix(const Lines& lines_cleared, Matrix::Type& matrix) {
   }
 }
 
+bool DetectPerfectClear(const Matrix::Type& matrix) {
+  return matrix.at(matrix.size() - 3) == kEmptyRow;
+}
+
 } // namespace
 
 void Matrix::Print() const { ::Print(master_matrix_); }
@@ -154,6 +158,10 @@ void Matrix::Commit(const Position& current_pos, const TetrominoRotationData& ro
   auto lines_cleared = RemoveClearedLines(master_matrix_);
 
   CollapseMatrix(lines_cleared, master_matrix_);
+
+  if (lines_cleared.size() > 0 && DetectPerfectClear(master_matrix_)) {
+    events_.Push(EventType::PerfectClear);
+  }
 
   auto event = (lines_cleared.size() > 0) ? EventType::LinesCleared : EventType::NextPiece;
 

@@ -10,13 +10,15 @@ class Assets final {
  public:
   explicit Assets(SDL_Renderer *renderer);
 
-  Assets(const Assets&) = delete;
+  ~Assets() = default;
 
-  virtual ~Assets() noexcept {};
+  Assets(const Assets&) = delete;
 
   std::shared_ptr<const Tetromino> GetTetromino(Tetromino::Type type) const { return tetrominos_.at(static_cast<int>(type) - 1); }
 
   const std::vector<std::shared_ptr<const Tetromino>>& GetTetrominos() const { return tetrominos_; }
+
+  const std::vector<std::shared_ptr<SDL_Texture>>& GetCountdownTextures() const { return countdown_textures_; }
 
   SDL_Texture* GetBorderTexture() const { return border_texture_.get(); }
 
@@ -27,5 +29,6 @@ class Assets final {
 
   std::vector<UniqueFontPtr> fonts_;
   std::shared_ptr<SDL_Texture> border_texture_;
+  std::vector<std::shared_ptr<SDL_Texture>> countdown_textures_;
   std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
 };

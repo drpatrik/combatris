@@ -34,9 +34,22 @@ void RenderBorder(SDL_Renderer* renderer, SDL_Texture* frame_texture) {
   }
 }
 
+bool RunAnimation(std::deque<std::shared_ptr<Animation>>& animations, double delta_time) {
+  for (auto it = std::begin(animations); it != std::end(animations);) {
+    (*it)->Update(delta_time);
+    if ((*it)->IsReady()) {
+      it = animations.erase(it);
+    } else {
+      ++it;
+    }
+  }
+
+  return (animations.size() == 0);
+}
+
 } // namespace
 
-Board::Board() : events_(), next_() {
+Board::Board() : events_() {
   window_ = SDL_CreateWindow("Combatris", SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED, kWidth, kHeight, SDL_WINDOW_RESIZABLE);
   if (nullptr == window_) {
@@ -48,6 +61,7 @@ Board::Board() : events_(), next_() {
     std::cout << "Failed to create renderer : " << SDL_GetError() << std::endl;
     exit(-1);
   }
+  SDL_RaiseWindow(window_);
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
   SDL_RenderSetLogicalSize(renderer_, kWidth, kHeight);
   assets_ = std::make_shared<Assets>(renderer_);
@@ -55,7 +69,6 @@ Board::Board() : events_(), next_() {
   level_ = std::make_shared<Level>(renderer_, events_, assets_, 10, 10);
   scoring_ = std::make_shared<Scoring>(*level_);
   tetromino_generator_ = std::make_unique<TetrominoGenerator>(matrix_, *level_, assets_);
-  NewGame();
 }
 
 Board::~Board() noexcept {
@@ -97,10 +110,11 @@ void Board::GameControl(Controls control_pressed) {
   }
 }
 
-void Board::Render(double /*delta_time*/) {
+void Board::Render(double delta_time) {
   SDL_RenderClear(renderer_);
 
   RenderWindowBackground(renderer_);
+  // This is just temporary, it will move away when the panes are ready
   RenderText(renderer_, 750, 10 , assets_->GetFont(Font::Normal), "Next: ", Color::White);
   for (size_t i = 0; i < 3; ++i) {
     tetromino_generator_->RenderFromQueue(i, 750, 50 + (100 * i));
@@ -109,6 +123,7 @@ void Board::Render(double /*delta_time*/) {
   level_->Render();
   RenderBorder(renderer_, assets_->GetBorderTexture());
   matrix_->Render();
+  RunAnimation(active_animations_, delta_time);
 
   SDL_RenderPresent(renderer_);
 }
@@ -118,8 +133,6 @@ void Board::Update(double delta_time) {
     auto event = events_.Pop();
 
     switch (event.type()) {
-      case EventType::None:
-        break;
       case EventType::CountDown:
         break;
       case EventType::LinesCleared:
@@ -149,10 +162,19 @@ void Board::Update(double delta_time) {
         // the panes are ready
         tetromino_in_play_ = tetromino_generator_->Get();
         break;
+      case EventType::PerfectClear:
+        std::cout << "Perfect Clear" << std::endl;
+        break;
     }
   }
   if (tetromino_in_play_) {
     tetromino_in_play_->Down(delta_time);
+  } else {
+    if (show_splashscreen_) {
+
+    } else {
+
+    }
   }
   Render(delta_time);
 }

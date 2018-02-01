@@ -21,7 +21,7 @@ inline const std::vector<std::vector<int>>& GetWallKickData(Tetromino::Type type
 }
 
 Tetromino::Angle GetNextAngle(Tetromino::Angle current_angle, Rotation rotate) {
-  int angle= static_cast<int>(current_angle);
+  auto angle= static_cast<int>(current_angle);
 
   angle += (rotate == Rotation::Clockwise) ? 1 : -1;
   if (angle > static_cast<int>(Tetromino::Angle::A270)) {

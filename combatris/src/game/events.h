@@ -13,9 +13,9 @@ struct Line {
 
 using Lines = std::vector<Line>;
 
-enum class EventType { None, GameOver, NewGame, NextPiece, LinesCleared, LevelUp, CountDown, HardDrop, SoftDrop };
+enum class EventType { GameOver, NewGame, NextPiece, LinesCleared, LevelUp, CountDown, HardDrop, SoftDrop, PerfectClear };
 
-enum class SpecialMove { None, T_Spin, T_SpinMini, PerfectClear };
+enum class SpecialMove { None, T_Spin, T_SpinMini };
 
 struct Event {
   Event(EventType type, const Lines& lines_cleared, SpecialMove special_move = SpecialMove::None)
@@ -39,7 +39,7 @@ struct Event {
 
 class Events {
  public:
-  Events() {}
+  Events() = default;
 
   Events(const Events&) = delete;
 

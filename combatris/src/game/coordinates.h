@@ -18,8 +18,6 @@ inline int col_to_visible(int col) { return col - kVisibleColStart; }
 
 class Position final {
  public:
-  Position() : row_(-1), col_(-1) {}
-
   Position(int row, int col) : row_(row), col_(col) {}
 
   int row() const { return row_; }
@@ -47,8 +45,8 @@ class Position final {
   void Print() const { std::cout << "Row: " << row_ << " Col:" << col_ << std::endl; }
 
  private:
-  int row_;
-  int col_;
+  int row_ = -1;
+  int col_ = -1;
 };
 
 inline int Center(int w1, int w2 ) {

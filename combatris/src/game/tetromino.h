@@ -16,7 +16,7 @@ class Tetromino final {
             const std::shared_ptr<SDL_Texture> &texture)
       : renderer_(renderer), type_(type), color_(color), rotations_(rotations), texture_(texture) {}
 
-  Tetromino(const Tetromino &s) : renderer_(s.renderer_), type_(s.type_), color_(s.color_), rotations_(s.rotations_), texture_(s.texture_) {}
+  Tetromino(const Tetromino &s) = default;
 
   Tetromino(Tetromino&& other) noexcept { swap(*this, other); }
 
