@@ -19,6 +19,7 @@ to work - after that work on the network capabilities will start.
 - [ ] T-Spin (scoring)
 - [ ] B2B T-Spin Double (scoring)
 - [ ] Combos (scoring)
+- [X] Perfect clear (cleared matrix after game started)
 - [X] Hard Drop & Soft Drop (scoring)
 - [ ] Panes for score / next tetrominos / hold piece etc.
 - [ ] Unit tests // Two in place right now
@@ -27,7 +28,7 @@ to work - after that work on the network capabilities will start.
 - [X] Joystick support (PS3 joystick tested)
 - [ ] Cleared lines (animations)
 - [ ] Tetromino Locked (animations)
-- [X] Level up (animations)
+- [ ] Level up (animations)
 - [ ] Special Move / Combo (T-Spin / Tetris / etc.) (animations)
 - [ ] Count down before game start (animations)
 - [ ] Game Over
