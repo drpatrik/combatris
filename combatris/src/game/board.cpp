@@ -11,29 +11,6 @@ void RenderWindowBackground(SDL_Renderer* renderer) {
   SDL_RenderFillRect(renderer, &rc);
 }
 
-void RenderBorder(SDL_Renderer* renderer, SDL_Texture* frame_texture) {
-  const int kRightFrameRow = (kFrameRows - 1) * kBlockHeight;
-  const int kLowerFrameCol = (kFrameCols - 1) * kBlockWidth;
-
-  int x = kFrameStartX;
-  int y = kFrameStartY;
-
-  for (int col = 0; col < kFrameCols; ++col) {
-    RenderBlock(renderer,x, y, frame_texture);
-    RenderBlock(renderer,x, y + kRightFrameRow, frame_texture);
-    x += kBlockWidth;
-  }
-
-  x = kFrameStartX;
-  y = kFrameStartY;
-
-  for (int row = 0; row < kFrameRows; ++row) {
-    RenderBlock(renderer,x, y, frame_texture);
-    RenderBlock(renderer,x + kLowerFrameCol, y, frame_texture);
-    y += kBlockHeight;
-  }
-}
-
 bool RunAnimation(std::deque<std::shared_ptr<Animation>>& animations, double delta_time) {
   for (auto it = std::begin(animations); it != std::end(animations);) {
     (*it)->Update(delta_time);
@@ -121,7 +98,6 @@ void Board::Render(double delta_time) {
   }
   scoring_->Render();
   level_->Render();
-  RenderBorder(renderer_, assets_->GetBorderTexture());
   matrix_->Render();
   RunAnimation(active_animations_, delta_time);
 

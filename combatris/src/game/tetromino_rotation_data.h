@@ -256,4 +256,4 @@ const std::vector<TetrominoRotationData> kTetromino_Z_Rotations = {
   kTetrominoRotationShape_Z_270D
 };
 
-const std::vector<TetrominoRotationData> kTetromino_B_Rotations = {};
+const std::vector<TetrominoRotationData> kTetromino_No_Rotations = {};

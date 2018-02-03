@@ -4,9 +4,11 @@
 
 namespace {
 
-const int kGhostAddOn = 10;
-const int kBorderSpriteID = static_cast<int>(Tetromino::Type::B) + 1;
-const std::vector<int> kEmptyRow = { kBorderSpriteID, kBorderSpriteID, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, kBorderSpriteID, kBorderSpriteID };
+
+const int kBorderID = static_cast<int>(Tetromino::Type::Border);
+const int kEmptyID =  static_cast<int>(Tetromino::Type::Empty);
+const int kGhostAddOn = kBorderID + 1;
+const std::vector<int> kEmptyRow = { kBorderID, kBorderID, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, kBorderID, kBorderID };
 
 void Print(const Matrix::Type& matrix) {
   for (int row = 0; row < static_cast<int>(matrix.size()); ++row) {
@@ -53,10 +55,10 @@ Lines RemoveClearedLines(Matrix::Type& matrix) {
   for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
     auto& line = matrix.at(row);
 
-    if (line.at(kVisibleColStart) == 0) {
+    if (line.at(kVisibleColStart) == kEmptyID) {
       continue;
     }
-    if (std::find(line.begin(), line.end(), 0) == line.end()) {
+    if (std::find(line.begin(), line.end(), kEmptyID) == line.end()) {
       lines.push_back(Line(row, line));
       matrix.at(row) = kEmptyRow;
     }
@@ -87,7 +89,7 @@ bool DetectPerfectClear(const Matrix::Type& matrix) {
 void Matrix::Print() const { ::Print(master_matrix_); }
 
 void Matrix::Initialize() {
-  master_matrix_ = Matrix::Type(kRows + 1, std::vector<int>(kCols, kBorderSpriteID));
+  master_matrix_ = Matrix::Type(kRows + 1, std::vector<int>(kCols, kBorderID));
 
   SetupPlayableArea(master_matrix_);
   ingame_matrix_ = master_matrix_;
@@ -95,11 +97,11 @@ void Matrix::Initialize() {
 
 void Matrix::Render() {
   RenderGrid(renderer_);
-  for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
-    for (int col = kVisibleColStart; col < kVisibleColEnd; ++col) {
-      int id = ingame_matrix_.at(row).at(col);
+  for (int row = kVisibleRowStart - 2; row < kVisibleRowEnd + 1; ++row) {
+    for (int col = kVisibleColStart - 1; col < kVisibleColEnd + 1; ++col) {
+      const int id = ingame_matrix_[row][col];
 
-      if (0 == id) {
+      if (kEmptyID == id) {
         continue;
       }
       const auto& tetromino = (id < kGhostAddOn) ? *tetrominos_.at(id - 1) : *tetrominos_.at(id - kGhostAddOn - 1);
@@ -110,6 +112,7 @@ void Matrix::Render() {
       } else {
         tetromino.RenderGhost(pos);
       }
+      row += (row == kVisibleRowStart - 2);
     }
   }
 }
@@ -125,7 +128,7 @@ bool Matrix::IsValid(const Position& pos, const TetrominoRotationData& rotation_
       int try_row = pos.row() + row;
       int try_col = pos.col() + col;
 
-      if (master_matrix_.at(try_row).at(try_col) != 0 && shape.at(row).at(col) != 0) {
+      if (master_matrix_.at(try_row).at(try_col) != kEmptyID && shape.at(row).at(col) != kEmptyID) {
         return false;
       }
     }
@@ -142,7 +145,7 @@ void Matrix::Insert(Type& matrix, const Position& pos, const TetrominoRotationDa
       int insert_row = pos.row() + row;
       int insert_col = pos.col() + col;
 
-      if (shape.at(row).at(col) == 0) {
+      if (shape.at(row).at(col) == kEmptyID) {
         continue;
       }
       matrix.at(insert_row).at(insert_col) = shape.at(row).at(col) + ghost_add_on;

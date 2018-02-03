@@ -80,7 +80,8 @@ std::vector<TetrominoAssetData> kTetrominoAssetData {
   TetrominoAssetData(Tetromino::Type::S, Color::Green, kTetromino_S_Rotations, "S.bmp"),
   TetrominoAssetData(Tetromino::Type::T, Color::Purple, kTetromino_T_Rotations, "T.bmp"),
   TetrominoAssetData(Tetromino::Type::Z, Color::Red, kTetromino_Z_Rotations, "Z.bmp"),
-  TetrominoAssetData(Tetromino::Type::B, Color::Black, kTetromino_B_Rotations, "B.bmp"),
+  TetrominoAssetData(Tetromino::Type::FILLER, Color::Black, kTetromino_No_Rotations, "Filler.bmp"),
+  TetrominoAssetData(Tetromino::Type::BORDER, Color::Black, kTetromino_No_Rotations, "Border.bmp")
 };
 
 const std::vector<std::pair<std::string, int>> kFonts {
@@ -93,8 +94,6 @@ const std::vector<std::pair<std::string, int>> kFonts {
 } // namespace
 
 Assets::Assets(SDL_Renderer *renderer) {
-  border_texture_ = std::shared_ptr<SDL_Texture>(LoadTexture(renderer, "Border.bmp"), DeleteTexture);
-
   for (const auto &data : kTetrominoAssetData) {
     tetrominos_.push_back(std::make_shared<Tetromino>(
         renderer, data.type_, data.color_, data.rotations_,
