@@ -80,8 +80,8 @@ std::vector<TetrominoAssetData> kTetrominoAssetData {
   TetrominoAssetData(Tetromino::Type::S, Color::Green, kTetromino_S_Rotations, "S.bmp"),
   TetrominoAssetData(Tetromino::Type::T, Color::Purple, kTetromino_T_Rotations, "T.bmp"),
   TetrominoAssetData(Tetromino::Type::Z, Color::Red, kTetromino_Z_Rotations, "Z.bmp"),
-  TetrominoAssetData(Tetromino::Type::FILLER, Color::Black, kTetromino_No_Rotations, "Filler.bmp"),
-  TetrominoAssetData(Tetromino::Type::BORDER, Color::Black, kTetromino_No_Rotations, "Border.bmp")
+  TetrominoAssetData(Tetromino::Type::Filler, Color::Black, kTetromino_No_Rotations, "Filler.bmp"),
+  TetrominoAssetData(Tetromino::Type::Border, Color::Black, kTetromino_No_Rotations, "Border.bmp")
 };
 
 const std::vector<std::pair<std::string, int>> kFonts {

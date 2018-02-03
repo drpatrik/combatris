@@ -18,23 +18,23 @@ inline int col_to_visible(int col) { return col - kVisibleColStart; }
 
 class Position final {
  public:
-  Position(int row, int col) : row_(row), col_(col) {}
+  inline Position(int row, int col) : row_(row), col_(col) {}
 
-  int row() const { return row_; }
+  inline int row() const { return row_; }
 
-  int col() const { return col_; }
+  inline int col() const { return col_; }
 
-  int inc_row() { row_++; return row_; }
+  inline int inc_row() { row_++; return row_; }
 
-  int dec_row() { row_--; return row_; }
+  inline int dec_row() { row_--; return row_; }
 
-  int inc_col() { col_++; return col_; }
+  inline int inc_col() { col_++; return col_; }
 
-  int dec_col() { col_--; return col_; }
+  inline int dec_col() { col_--; return col_; }
 
-  int x() const { return col_to_pixel(col_); }
+  inline int x() const { return col_to_pixel(col_); }
 
-  int y() const { return row_to_pixel(row_); }
+  inline int y() const { return row_to_pixel(row_); }
 
   bool operator<(const Position& rhs) const { return std::make_pair(row_, col_) < std::make_pair(rhs.row_, rhs.col_); }
 

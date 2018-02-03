@@ -21,14 +21,10 @@ class Matrix final {
 
     for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
       for (int col = kVisibleColStart; col < kVisibleColEnd; ++col) {
-        int adjusted_row = row - kVisibleRowStart;
-        int adjusted_col = col - kVisibleColStart;
-
-        ingame_matrix_.at(row).at(col) =
-            matrix.at(adjusted_row).at(adjusted_col);
+        master_matrix_.at(row).at(col) = matrix.at(row_to_visible(row)).at(col_to_visible(col));
       }
     }
-    master_matrix_ = ingame_matrix_;
+    matrix_  = master_matrix_;
   }
 
   void Render();
@@ -38,9 +34,9 @@ class Matrix final {
   bool IsValid(const Position& pos, const TetrominoRotationData& rotation_data) const;
 
   void Insert(const Position& pos, const TetrominoRotationData& rotation_data) {
-    ingame_matrix_ = master_matrix_;
-    Insert(ingame_matrix_, GetDropPosition(pos, rotation_data), rotation_data, true);
-    Insert(ingame_matrix_, pos, rotation_data);
+    matrix_ = master_matrix_;
+    Insert(matrix_, GetDropPosition(pos, rotation_data), rotation_data, true);
+    Insert(matrix_, pos, rotation_data);
   }
 
   void Commit(const Position& pos, const TetrominoRotationData& rotation_data);
@@ -49,7 +45,7 @@ class Matrix final {
 
   void NewGame() { Initialize(); }
 
-  void Print() const;
+  void Print(bool master = true) const;
 
  protected:
   void Initialize();
@@ -61,7 +57,7 @@ class Matrix final {
   SDL_Renderer* renderer_;
   Events& events_;
   std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
-  Type ingame_matrix_;
+  Type matrix_;
   Type master_matrix_;
 };
 

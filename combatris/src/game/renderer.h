@@ -11,13 +11,13 @@ inline void RenderBlock(SDL_Renderer* renderer, int x, int y, SDL_Texture* textu
 }
 
 inline void RenderGhost(SDL_Renderer* renderer, int x, int y, const SDL_Color& color) {
-    SDL_Rect rc { x, y, kBlockWidth, kBlockHeight };
+  SDL_Rect rc { x, y, kBlockWidth, kBlockHeight };
 
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderFillRect(renderer, &rc);
+  SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+  SDL_RenderFillRect(renderer, &rc);
 
-    rc = { x + 2, y + 2, kBlockWidth - 4, kBlockHeight - 4 };
+  rc = { x + 3, y + 3, kBlockWidth - 6, kBlockHeight - 6 };
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-    SDL_RenderFillRect(renderer, &rc);
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+  SDL_RenderFillRect(renderer, &rc);
 }

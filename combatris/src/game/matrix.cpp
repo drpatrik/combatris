@@ -53,7 +53,7 @@ Lines RemoveClearedLines(Matrix::Type& matrix) {
   Lines lines;
 
   for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
-    auto& line = matrix.at(row);
+    const auto& line = matrix.at(row);
 
     if (line.at(kVisibleColStart) == kEmptyID) {
       continue;
@@ -86,25 +86,28 @@ bool DetectPerfectClear(const Matrix::Type& matrix) {
 
 } // namespace
 
-void Matrix::Print() const { ::Print(master_matrix_); }
+void Matrix::Print(bool master) const { ::Print((master) ? master_matrix_ : matrix_); }
 
 void Matrix::Initialize() {
   master_matrix_ = Matrix::Type(kRows + 1, std::vector<int>(kCols, kBorderID));
 
   SetupPlayableArea(master_matrix_);
-  ingame_matrix_ = master_matrix_;
+  matrix_ = master_matrix_;
 }
 
 void Matrix::Render() {
   RenderGrid(renderer_);
-  for (int row = kVisibleRowStart - 2; row < kVisibleRowEnd + 1; ++row) {
+  for (int col = kVisibleColStart - 1; col < kVisibleColEnd + 1; ++col) {
+    tetrominos_[kBorderID - 1]->Render(Position(row_to_visible(kVisibleRowStart - 1), col_to_visible(col)));
+  }
+  for (int row = kVisibleRowStart; row < kVisibleRowEnd + 1; ++row) {
     for (int col = kVisibleColStart - 1; col < kVisibleColEnd + 1; ++col) {
-      const int id = ingame_matrix_[row][col];
+      const int id = matrix_[row][col];
 
       if (kEmptyID == id) {
         continue;
       }
-      const auto& tetromino = (id < kGhostAddOn) ? *tetrominos_.at(id - 1) : *tetrominos_.at(id - kGhostAddOn - 1);
+      const auto& tetromino = (id < kGhostAddOn) ? *tetrominos_[id - 1] : *tetrominos_[id - kGhostAddOn - 1];
       Position pos(row_to_visible(row), col_to_visible(col));
 
       if (id < kGhostAddOn) {
@@ -112,7 +115,6 @@ void Matrix::Render() {
       } else {
         tetromino.RenderGhost(pos);
       }
-      row += (row == kVisibleRowStart - 2);
     }
   }
 }
