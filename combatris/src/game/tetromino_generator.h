@@ -14,6 +14,8 @@ class TetrominoGenerator {
     GenerateTetrominos();
   }
 
+  void PushFront(Tetromino::Type type) { tetrominos_queue_.push_front(type); }
+
   std::unique_ptr<TetrominoSprite> Get() {
     auto tetromino = tetrominos_queue_.front();
 

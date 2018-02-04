@@ -18,6 +18,8 @@ class TetrominoSprite {
     }
   }
 
+  void Respawn() { pos_ = kSpawnPosition; }
+
   void RotateClockwise();
 
   void RotateCounterClockwise();
@@ -33,12 +35,14 @@ class TetrominoSprite {
   void Down(double delta_time);
 
  protected:
+  const Position kSpawnPosition = Position(0, 5);
+
   std::tuple<bool, Position, Tetromino::Angle> TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate);
 
  private:
   const Tetromino& tetromino_;
   Tetromino::Angle angle_ = Tetromino::Angle::A0;
-  Position pos_ = Position(0, 5);
+  Position pos_ = kSpawnPosition;
   std::shared_ptr<Matrix> matrix_;
   Level& level_;
   TetrominoRotationData rotation_data_;

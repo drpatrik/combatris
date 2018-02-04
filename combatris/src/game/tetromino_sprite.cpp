@@ -116,10 +116,11 @@ void TetrominoSprite::Down(double delta_time) {
   if (matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
     pos_.inc_row();
     matrix_->Insert(pos_, rotation_data_);
-  } else {
-    floor_reached_ = true;
-    if ((pos_.row() + 1 < kVisibleRowStart)) {
-      matrix_->GetEvents().Push(EventType::GameOver);
+    if (!matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
+      floor_reached_ = true;
+      matrix_->GetEvents().Push(EventType::FloorReached);
     }
+  } else {
+    matrix_->GetEvents().Push(EventType::GameOver);
   }
 }

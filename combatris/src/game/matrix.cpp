@@ -4,9 +4,8 @@
 
 namespace {
 
-
-const int kBorderID = static_cast<int>(Tetromino::Type::Border);
 const int kEmptyID =  static_cast<int>(Tetromino::Type::Empty);
+const int kBorderID = static_cast<int>(Tetromino::Type::Border);
 const int kGhostAddOn = kBorderID + 1;
 const std::vector<int> kEmptyRow = { kBorderID, kBorderID, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, kBorderID, kBorderID };
 

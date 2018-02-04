@@ -116,6 +116,7 @@ void Board::Update(double delta_time) {
         scoring_->Update(event);
         // Pass through
       case EventType::NextPiece:
+        std::cout << "Next Piece" << std::endl;
         tetromino_in_play_ = tetromino_generator_->Get();
         break;
       case EventType::SoftDrop:
@@ -140,6 +141,10 @@ void Board::Update(double delta_time) {
         break;
       case EventType::PerfectClear:
         std::cout << "Perfect Clear" << std::endl;
+        break;
+      case EventType::FloorReached:
+        // Launch floor reached animation
+        std::cout << "Floor reached" << std::endl;
         break;
     }
   }

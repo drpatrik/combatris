@@ -13,7 +13,7 @@ struct Line {
 
 using Lines = std::vector<Line>;
 
-enum class EventType { GameOver, NewGame, NextPiece, LinesCleared, LevelUp, CountDown, HardDrop, SoftDrop, PerfectClear };
+enum class EventType { GameOver, NewGame, NextPiece, LinesCleared, LevelUp, CountDown, HardDrop, SoftDrop, PerfectClear, FloorReached };
 
 enum class SpecialMove { None, T_Spin, T_SpinMini };
 
