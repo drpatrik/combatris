@@ -13,27 +13,26 @@ struct Line {
 
 using Lines = std::vector<Line>;
 
-enum class EventType { GameOver, NewGame, NextPiece, LinesCleared, LevelUp, CountDown, HardDrop, SoftDrop, PerfectClear, FloorReached };
-
-enum class SpecialMove { None, T_Spin, T_SpinMini };
-
 struct Event {
-  Event(EventType type, const Lines& lines_cleared, SpecialMove special_move = SpecialMove::None)
-      : type_(type), lines_cleared_(lines_cleared), special_move_(special_move) {}
+  enum class Type { GameOver, NewGame, NextPiece, LinesCleared, LevelUp, CountDown, HardDrop, SoftDrop, PerfectClear, FloorReached };
+  enum class BonusMove { None, T_Spin, T_SpinMini };
 
-  explicit Event(EventType type)
-      : type_(type), lines_cleared_(), special_move_(SpecialMove::None) {}
+  Event(Type type, const Lines& lines_cleared, BonusMove bonus_move = BonusMove::None)
+      : type_(type), lines_cleared_(lines_cleared), bonus_move_(bonus_move) {}
 
-  Event(EventType type, int lines_dropped)
-      : type_(type), lines_cleared_(), special_move_(SpecialMove::None), lines_dropped_(lines_dropped) {}
+  explicit Event(Type type)
+      : type_(type), lines_cleared_(), bonus_move_(BonusMove::None) {}
 
-  EventType type() const { return type_; }
+  Event(Type type, int lines_dropped)
+      : type_(type), lines_cleared_(), bonus_move_(BonusMove::None), lines_dropped_(lines_dropped) {}
+
+  Type type() const { return type_; }
 
   int lines_cleared() const { return lines_cleared_.size(); }
 
-  EventType type_;
+  Type type_;
   Lines lines_cleared_;
-  SpecialMove special_move_;
+  BonusMove bonus_move_;
   int lines_dropped_ = 0;
 };
 
@@ -49,13 +48,13 @@ class Events {
 
   void Push(const Event& event) { events_.push_back(event); }
 
-  void Push(EventType type, const Lines& lines, SpecialMove special_move = SpecialMove::None) {
-    events_.emplace_back(type, lines, special_move);
+  void Push(Event::Type type, const Lines& lines, Event::BonusMove bonus_move = Event::BonusMove::None) {
+    events_.emplace_back(type, lines, bonus_move);
   }
 
-  void Push(EventType type) { events_.emplace_back(type); }
+  void Push(Event::Type type) { events_.emplace_back(type); }
 
-  void Push(EventType type, int lines) { events_.emplace_back(type, lines); }
+  void Push(Event::Type type, int lines) { events_.emplace_back(type, lines); }
 
   Event Pop() {
     Event event = events_.front();

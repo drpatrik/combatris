@@ -54,7 +54,7 @@ Board::~Board() noexcept {
 }
 
 void Board::NewGame() {
-  events_.Push(EventType::NewGame);
+  events_.Push(Event::Type::NewGame);
 }
 
 void Board::GameControl(Controls control_pressed) {
@@ -109,28 +109,28 @@ void Board::Update(double delta_time) {
     auto event = events_.Pop();
 
     switch (event.type()) {
-      case EventType::CountDown:
+      case Event::Type::CountDown:
         break;
-      case EventType::LinesCleared:
+      case Event::Type::LinesCleared:
         level_->Update(event);
         scoring_->Update(event);
         // Pass through
-      case EventType::NextPiece:
+      case Event::Type::NextPiece:
         std::cout << "Next Piece" << std::endl;
         tetromino_in_play_ = tetromino_generator_->Get();
         break;
-      case EventType::SoftDrop:
-      case EventType::HardDrop:
+      case Event::Type::SoftDrop:
+      case Event::Type::HardDrop:
         scoring_->Update(event);
         break;
-      case EventType::LevelUp:
+      case Event::Type::LevelUp:
         std::cout << "Level Up" << std::endl;
         break;
-      case EventType::GameOver:
+      case Event::Type::GameOver:
         tetromino_in_play_.reset();
         std::cout << "Game Over" << std::endl;
         break;
-      case EventType::NewGame:
+      case Event::Type::NewGame:
         events_.NewGame();
         matrix_->NewGame();
         scoring_->NewGame();
@@ -139,10 +139,10 @@ void Board::Update(double delta_time) {
         // the panes are ready
         tetromino_in_play_ = tetromino_generator_->Get();
         break;
-      case EventType::PerfectClear:
+      case Event::Type::PerfectClear:
         std::cout << "Perfect Clear" << std::endl;
         break;
-      case EventType::FloorReached:
+      case Event::Type::FloorReached:
         // Launch floor reached animation
         std::cout << "Floor reached" << std::endl;
         break;

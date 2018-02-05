@@ -35,7 +35,10 @@ const std::vector<std::vector<std::vector<int>>> kWallKickDataForI = {
 
 struct TetrominoRotationData {
   explicit TetrominoRotationData(const std::vector<std::vector<int>> &shape) : shape_(shape) {}
+  TetrominoRotationData(int angle_index, const std::vector<std::vector<int>> &shape) :
+      angle_index_(angle_index), shape_(shape) {}
 
+  int angle_index_ = -1;
   std::vector<std::vector<int>> shape_;
 };
 
@@ -192,25 +195,25 @@ const std::vector<TetrominoRotationData> kTetromino_S_Rotations = {
 
 // T Tetromino 6
 
-const TetrominoRotationData kTetrominoRotationShape_T_0D({
+const TetrominoRotationData kTetrominoRotationShape_T_0D(0, {
     {0, 6, 0},
     {6, 6, 6},
     {0, 0, 0}
   });
 
-const TetrominoRotationData kTetrominoRotationShape_T_90D({
+const TetrominoRotationData kTetrominoRotationShape_T_90D(1, {
     {0, 6, 0},
     {0, 6, 6},
     {0, 6, 0}
   });
 
-const TetrominoRotationData kTetrominoRotationShape_T_180D({
+const TetrominoRotationData kTetrominoRotationShape_T_180D(2, {
     {0, 0, 0},
     {6, 6, 6},
     {0, 6, 0}
   });
 
-const TetrominoRotationData kTetrominoRotationShape_T_270D({
+const TetrominoRotationData kTetrominoRotationShape_T_270D(3, {
     {0, 6, 0},
     {6, 6, 0},
     {0, 6, 0}

@@ -68,7 +68,7 @@ void Level::Update(const Event& event) {
   total_lines_ += lines_cleared;
   lines_this_level_ += lines_cleared;
   if (lines_this_level_ >= kLevelUp) {
-    events_.Push(EventType::LevelUp);
+    events_.Push(Event::Type::LevelUp);
     lines_this_level_ = 0;
     level_++;
     ResetTime();

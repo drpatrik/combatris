@@ -1,4 +1,5 @@
 #include "game/matrix.h"
+#include "game/tetromino_tspin_detection.h"
 
 #include <iomanip>
 
@@ -44,7 +45,7 @@ void RenderGrid(SDL_Renderer* renderer) {
 
 void SetupPlayableArea(Matrix::Type& matrix) {
   for (int row = 0; row < kVisibleRowEnd; ++row) {
-    matrix.at(row) = kEmptyRow;
+    matrix[row] = kEmptyRow;
   }
 }
 
@@ -52,14 +53,14 @@ Lines RemoveClearedLines(Matrix::Type& matrix) {
   Lines lines;
 
   for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
-    const auto& line = matrix.at(row);
+    const auto& line = matrix[row];
 
-    if (line.at(kVisibleColStart) == kEmptyID) {
+    if (line[kVisibleColStart] == kEmptyID) {
       continue;
     }
     if (std::find(line.begin(), line.end(), kEmptyID) == line.end()) {
       lines.push_back(Line(row, line));
-      matrix.at(row) = kEmptyRow;
+      matrix[row] = kEmptyRow;
     }
   }
   return lines;
@@ -70,7 +71,7 @@ void MoveBlockDown(int end_row, Matrix::Type& matrix) {
 
   std::copy(matrix.begin() + kVisibleRowStart, matrix.begin() + end_row, std::back_inserter(tmp));
   std::copy(tmp.begin(), tmp.end(), matrix.begin() + kVisibleRowStart + 1);
-  matrix.at(kVisibleRowStart) = kEmptyRow;
+  matrix[kVisibleRowStart] = kEmptyRow;
 }
 
 void CollapseMatrix(const Lines& lines_cleared, Matrix::Type& matrix) {
@@ -80,7 +81,7 @@ void CollapseMatrix(const Lines& lines_cleared, Matrix::Type& matrix) {
 }
 
 bool DetectPerfectClear(const Matrix::Type& matrix) {
-  return matrix.at(matrix.size() - 3) == kEmptyRow;
+  return matrix[matrix.size() - 3] == kEmptyRow;
 }
 
 } // namespace
@@ -125,11 +126,11 @@ bool Matrix::IsValid(const Position& pos, const TetrominoRotationData& rotation_
   const auto& shape = rotation_data.shape_;
 
   for (size_t row = 0; row < shape.size(); ++row) {
-    for (size_t col  = 0; col < shape.at(row).size(); ++col) {
+    for (size_t col  = 0; col < shape[row].size(); ++col) {
       int try_row = pos.row() + row;
       int try_col = pos.col() + col;
 
-      if (master_matrix_.at(try_row).at(try_col) != kEmptyID && shape.at(row).at(col) != kEmptyID) {
+      if (master_matrix_[try_row][try_col] != kEmptyID && shape[row][col] != kEmptyID) {
         return false;
       }
     }
@@ -142,34 +143,40 @@ void Matrix::Insert(Type& matrix, const Position& pos, const TetrominoRotationDa
   const auto& shape = rotation_data.shape_;
 
   for (size_t row = 0; row < shape.size(); ++row) {
-    for (size_t col  = 0; col < shape.at(row).size(); ++col) {
+    for (size_t col  = 0; col < shape[row].size(); ++col) {
       int insert_row = pos.row() + row;
       int insert_col = pos.col() + col;
 
-      if (shape.at(row).at(col) == kEmptyID) {
+      if (shape[row][col] == kEmptyID) {
         continue;
       }
-      matrix.at(insert_row).at(insert_col) = shape.at(row).at(col) + ghost_add_on;
+      matrix[insert_row][insert_col] = shape[row][col] + ghost_add_on;
     }
   }
 }
 
-void Matrix::Commit(const Position& current_pos, const TetrominoRotationData& rotation_data) {
+void Matrix::Commit(Tetromino::Type type, Tetromino::Moves latest_move, const Position& current_pos, const TetrominoRotationData& rotation_data) {
+  Event::BonusMove bonus_move = Event::BonusMove::None;
+
   auto pos = GetDropPosition(current_pos, rotation_data);
 
   Insert(master_matrix_, pos, rotation_data);
+
+  if (Tetromino::Type::T == type && latest_move == Tetromino::Moves::Rotation) {
+    bonus_move = DetectTSpin(master_matrix_, pos, rotation_data.angle_index_);
+  }
 
   auto lines_cleared = RemoveClearedLines(master_matrix_);
 
   CollapseMatrix(lines_cleared, master_matrix_);
 
   if (lines_cleared.size() > 0 && DetectPerfectClear(master_matrix_)) {
-    events_.Push(EventType::PerfectClear);
+    events_.Push(Event::Type::PerfectClear);
   }
 
-  auto event = (lines_cleared.size() > 0) ? EventType::LinesCleared : EventType::NextPiece;
+  auto event = (lines_cleared.size() > 0) ? Event::Type::LinesCleared : Event::Type::NextPiece;
 
-  events_.Push(event, lines_cleared);
+  events_.Push(event, lines_cleared, bonus_move);
 }
 
 Position Matrix::GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const {

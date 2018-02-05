@@ -14,7 +14,7 @@ class TetrominoSprite {
       matrix_->Insert(pos_, rotation_data_);
       level_.ResetTime();
     } else {
-      matrix_->GetEvents().Push(EventType::GameOver);
+      matrix_->GetEvents().Push(Event::Type::GameOver);
     }
   }
 
@@ -47,4 +47,5 @@ class TetrominoSprite {
   Level& level_;
   TetrominoRotationData rotation_data_;
   bool floor_reached_ = false;
+  Tetromino::Moves last_move_ = Tetromino::Moves::None;
 };

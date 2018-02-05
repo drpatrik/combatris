@@ -39,7 +39,7 @@ class Matrix final {
     Insert(matrix_, pos, rotation_data);
   }
 
-  void Commit(const Position& pos, const TetrominoRotationData& rotation_data);
+  void Commit(Tetromino::Type type, Tetromino::Moves latest_move, const Position& pos, const TetrominoRotationData& rotation_data);
 
   Position GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const;
 

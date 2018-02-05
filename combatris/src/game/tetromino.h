@@ -9,6 +9,7 @@
 
 class Tetromino final {
  public:
+  enum class Moves { None, Left, Right, Down, Rotation };
   enum class Angle { A0, A90, A180, A270 };
   enum class Type { Empty, I, J, L, O, S, T, Z, Filler, Border };
 

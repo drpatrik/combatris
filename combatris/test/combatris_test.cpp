@@ -71,11 +71,13 @@ TEST_CASE("ClearLinesAtTop") {
 
   Position insert_pos(0, kVisibleColStart);
 
-  matrix->Commit(insert_pos, tetrominos.at(static_cast<int>(Tetromino::Type::I) - 1)->GetRotationData(Tetromino::Angle::A0));
+  matrix->Commit(Tetromino::Type::I, Tetromino::Moves::Down, insert_pos,
+                 tetrominos.at(static_cast<int>(Tetromino::Type::I) - 1)
+                     ->GetRotationData(Tetromino::Angle::A0));
 
   auto event = events->Pop();
 
-  REQUIRE(event.type() == EventType::LinesCleared);
+  REQUIRE(event.type() == Event::Type::LinesCleared);
 
   REQUIRE(event.lines_cleared() == 1);
   REQUIRE(*matrix == kClearTopRowAfter);
@@ -128,17 +130,20 @@ const std::vector<std::vector<int>> kClearedLineWithGarbageBetweenAfter {
 };
 
 TEST_CASE("ClearedLineWithGarbageBetween") {
-  auto [events, asset_manager, matrix] = SetupTestHarness(kClearedLineWithGarbageBetweenBefore);
+  auto [events, asset_manager, matrix] =
+      SetupTestHarness(kClearedLineWithGarbageBetweenBefore);
 
   auto tetrominos = asset_manager->GetTetrominos();
 
   Position insert_pos(kVisibleRowStart + 15, kVisibleColStart - 1);
 
-  matrix->Commit(insert_pos, tetrominos.at(static_cast<int>(Tetromino::Type::I) - 1)->GetRotationData(Tetromino::Angle::A90));
+  matrix->Commit(Tetromino::Type::I, Tetromino::Moves::Down, insert_pos,
+                 tetrominos.at(static_cast<int>(Tetromino::Type::I) - 1)
+                     ->GetRotationData(Tetromino::Angle::A90));
 
   auto event = events->Pop();
 
-  REQUIRE(event.type() == EventType::LinesCleared);
+  REQUIRE(event.type() == Event::Type::LinesCleared);
   REQUIRE(event.lines_cleared() == 2);
   REQUIRE(*matrix == kClearedLineWithGarbageBetweenAfter);
 }

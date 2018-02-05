@@ -58,6 +58,7 @@ void TetrominoSprite::RotateClockwise() {
   if (success) {
     rotation_data_ = tetromino_.GetRotationData(angle_);
     matrix_->Insert(pos_, rotation_data_);
+    last_move_ = Tetromino::Moves::Rotation;
   }
 }
 
@@ -69,6 +70,7 @@ void TetrominoSprite::RotateCounterClockwise() {
   if (success) {
     rotation_data_ = tetromino_.GetRotationData(angle_);
     matrix_->Insert(pos_, rotation_data_);
+    last_move_ = Tetromino::Moves::Rotation;
   }
 }
 
@@ -77,7 +79,7 @@ void TetrominoSprite::SoftDrop() {
     return;
   }
   if (pos_.row() >= kVisibleRowStart - 1) {
-    matrix_->GetEvents().Push(EventType::SoftDrop, 1);
+    matrix_->GetEvents().Push(Event::Type::SoftDrop, 1);
   }
   level_.Release();
 }
@@ -88,13 +90,14 @@ void TetrominoSprite::HardDrop() {
   pos_ = matrix_->GetDropPosition(pos_, rotation_data_);
   level_.Release();
   floor_reached_ = true;
-  matrix_->GetEvents().Push(EventType::HardDrop, kVisibleRows - drop_row);
+  matrix_->GetEvents().Push(Event::Type::HardDrop, kVisibleRows - drop_row);
 }
 
 void TetrominoSprite::Left() {
   if (matrix_->IsValid(Position(pos_.row(), pos_.col() - 1), rotation_data_)) {
     pos_.dec_col();
     matrix_->Insert(pos_, rotation_data_);
+    last_move_ = Tetromino::Moves::Left;
   }
 }
 
@@ -102,6 +105,7 @@ void TetrominoSprite::Right() {
   if (matrix_->IsValid(Position(pos_.row(), pos_.col() + 1), rotation_data_)) {
     pos_.inc_col();
     matrix_->Insert(pos_, rotation_data_);
+    last_move_ = Tetromino::Moves::Right;
   }
 }
 
@@ -110,17 +114,18 @@ void TetrominoSprite::Down(double delta_time) {
     return;
   }
   if (floor_reached_) {
-    matrix_->Commit(pos_, rotation_data_);
+    matrix_->Commit(tetromino_.type(), last_move_, pos_, rotation_data_);
     return;
   }
   if (matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
     pos_.inc_row();
     matrix_->Insert(pos_, rotation_data_);
+    last_move_ = Tetromino::Moves::Down;
     if (!matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
       floor_reached_ = true;
-      matrix_->GetEvents().Push(EventType::FloorReached);
+      matrix_->GetEvents().Push(Event::Type::FloorReached);
     }
   } else {
-    matrix_->GetEvents().Push(EventType::GameOver);
+    matrix_->GetEvents().Push(Event::Type::GameOver);
   }
 }
