@@ -14,7 +14,7 @@ to work - after that work on the network capabilities will start.
 - [x] Rotate left / right
 - [x] Soft / Hard drop
 - [x] BPS Random Generator
-- [x] Wall kicks
+- [x] Wall kicks (Super Rotating System)
 - [ ] Hold piece
 - [x] T-Spin (scoring)
 - [x] B2B T-Spin Double (scoring)
