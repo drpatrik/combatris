@@ -14,7 +14,7 @@ struct Line {
 using Lines = std::vector<Line>;
 
 struct Event {
-  enum class Type { GameOver, NewGame, NextPiece, LinesCleared, LevelUp, CountDown, HardDrop, SoftDrop, PerfectClear, FloorReached };
+  enum class Type { GameOver, NewGame, NextPiece, LinesCleared, LevelUp, CountDown, HardDrop, SoftDrop, PerfectClear, FloorReached, SendGarbage, GotGarbage };
   enum class BonusMove { None, T_Spin, T_SpinMini };
 
   Event(Type type, const Lines& lines_cleared, BonusMove bonus_move = BonusMove::None)
@@ -34,6 +34,7 @@ struct Event {
   Lines lines_cleared_;
   BonusMove bonus_move_;
   int lines_dropped_ = 0;
+  int garbage_lines_ = 0;
 };
 
 class Events {

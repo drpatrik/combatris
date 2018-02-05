@@ -16,9 +16,9 @@ to work - after that work on the network capabilities will start.
 - [x] BPS Random Generator
 - [x] Wall kicks
 - [ ] Hold piece
-- [ ] T-Spin (scoring)
-- [ ] B2B T-Spin Double (scoring)
-- [ ] Combos (scoring)
+- [x] T-Spin (scoring)
+- [x] B2B T-Spin Double (scoring)
+- [x] Combos (scoring)
 - [X] Perfect clear (cleared matrix after game started)
 - [X] Hard Drop & Soft Drop (scoring)
 - [ ] Panes for score / next tetrominos / hold piece etc.
@@ -29,9 +29,11 @@ to work - after that work on the network capabilities will start.
 - [ ] Cleared lines (animations)
 - [ ] Tetromino Locked (animations)
 - [ ] Level up (animations)
-- [ ] Special Move / Combo (T-Spin / Tetris / etc.) (animations)
+- [ ] Bonus Move / Combo (T-Spin / Tetris / etc.) (animations)
 - [ ] Count down before game start (animations)
 - [ ] Game Over
+- [ ] Splash Screen
+- [ ] Network functionality
 
 **Keyboard Commands**
 

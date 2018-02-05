@@ -6,6 +6,7 @@
 
 class TetrominoSprite {
  public:
+  enum class Status { Continue, Commited };
   enum class Rotation { Clockwise, CounterClockwise };
 
   TetrominoSprite(const Tetromino &tetromino, Level &level, const std::shared_ptr<Matrix> &matrix)
@@ -32,7 +33,7 @@ class TetrominoSprite {
 
   void Right();
 
-  void Down(double delta_time);
+  Status Down(double delta_time);
 
  protected:
   const Position kSpawnPosition = Position(0, 5);

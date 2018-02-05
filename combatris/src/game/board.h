@@ -43,5 +43,4 @@ class Board final {
   std::shared_ptr<Scoring> scoring_;
   Events events_;
   std::deque<std::shared_ptr<Animation>> active_animations_;
-  bool show_splashscreen_ = true;
 };

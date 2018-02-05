@@ -96,6 +96,8 @@ void Board::Render(double delta_time) {
   for (size_t i = 0; i < 3; ++i) {
     tetromino_generator_->RenderFromQueue(i, 750, 50 + (100 * i));
   }
+  // This is just temporary, it will move away when
+  // the panes are ready
   scoring_->Render();
   level_->Render();
   matrix_->Render();
@@ -113,10 +115,9 @@ void Board::Update(double delta_time) {
         break;
       case Event::Type::LinesCleared:
         level_->Update(event);
-        scoring_->Update(event);
         // Pass through
       case Event::Type::NextPiece:
-        std::cout << "Next Piece" << std::endl;
+        scoring_->Update(event);
         tetromino_in_play_ = tetromino_generator_->Get();
         break;
       case Event::Type::SoftDrop:
@@ -135,8 +136,6 @@ void Board::Update(double delta_time) {
         matrix_->NewGame();
         scoring_->NewGame();
         tetromino_generator_->NewGame();
-        // This is just temporary, it will move away when
-        // the panes are ready
         tetromino_in_play_ = tetromino_generator_->Get();
         break;
       case Event::Type::PerfectClear:
@@ -144,18 +143,15 @@ void Board::Update(double delta_time) {
         break;
       case Event::Type::FloorReached:
         // Launch floor reached animation
-        std::cout << "Floor reached" << std::endl;
+        break;
+      case Event::Type::SendGarbage:
+        break;
+      case Event::Type::GotGarbage:
         break;
     }
   }
-  if (tetromino_in_play_) {
-    tetromino_in_play_->Down(delta_time);
-  } else {
-    if (show_splashscreen_) {
-
-    } else {
-
-    }
+  if (tetromino_in_play_ && tetromino_in_play_->Down(delta_time) == TetrominoSprite::Status::Commited) {
+    tetromino_in_play_.reset();
   }
   Render(delta_time);
 }
