@@ -39,7 +39,7 @@ const std::vector<TetrominoRotationData> kTSpin_Rotations = {
 
 } // namespace
 
-Event::BonusMove DetectTSpin(const Matrix::Type& matrix, const Position& pos, int angle_index) {
+TSpinType DetectTSpin(const Matrix::Type& matrix, const Position& pos, int angle_index) {
   const auto& shape = kTSpin_Rotations.at(angle_index).shape_;
   int tspin_corners = 0;
   int tspin_minicorners = 0;
@@ -57,13 +57,13 @@ Event::BonusMove DetectTSpin(const Matrix::Type& matrix, const Position& pos, in
       }
     }
   }
-  Event::BonusMove bonus_move = Event::BonusMove::None;
+  auto tspin_type = TSpinType::None;
 
   if (tspin_corners == 2 && tspin_minicorners >= 1) {
-    bonus_move = Event::BonusMove::T_Spin;
+    tspin_type = TSpinType::TSpin;
   } else if (tspin_corners == 1 && tspin_minicorners >= 2) {
-    bonus_move = Event::BonusMove::T_SpinMini;
+    tspin_type = TSpinType::TSpinMini;
   }
 
-  return bonus_move;
+  return tspin_type;
 }

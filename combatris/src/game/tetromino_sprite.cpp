@@ -79,7 +79,7 @@ void TetrominoSprite::SoftDrop() {
     return;
   }
   if (pos_.row() >= kVisibleRowStart - 1) {
-    matrix_->GetEvents().Push(Event::Type::SoftDrop, 1);
+    events_.Push(Event::Type::Scoring, 1);
   }
   level_.Release();
 }
@@ -91,7 +91,7 @@ void TetrominoSprite::HardDrop() {
   level_.Release();
   floor_reached_ = true;
   last_move_ = Tetromino::Moves::Down;
-  matrix_->GetEvents().Push(Event::Type::HardDrop, kVisibleRows - drop_row);
+  events_.Push(Event::Type::Scoring, (kVisibleRows - drop_row) * 2);
 }
 
 void TetrominoSprite::Left() {
@@ -115,7 +115,13 @@ TetrominoSprite::Status TetrominoSprite::Down(double delta_time) {
     return Status::Continue;
   }
   if (floor_reached_) {
-    matrix_->Commit(tetromino_.type(), last_move_, pos_, rotation_data_);
+    auto [lines_cleared, tspin_type, perfect_clear] = matrix_->Commit(tetromino_.type(), last_move_, pos_, rotation_data_);
+
+    if (perfect_clear) {
+      events_.Push(Event::Type::PerfectClear);
+    }
+    events_.Push(Event::Type::Scoring, lines_cleared, tspin_type);
+
     return Status::Commited;
   }
   if (matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
@@ -124,10 +130,10 @@ TetrominoSprite::Status TetrominoSprite::Down(double delta_time) {
     last_move_ = Tetromino::Moves::Down;
     if (!matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
       floor_reached_ = true;
-      matrix_->GetEvents().Push(Event::Type::FloorReached);
+      events_.Push(Event::Type::FloorReached);
     }
   } else {
-    matrix_->GetEvents().Push(Event::Type::GameOver);
+    events_.Push(Event::Type::GameOver);
   }
   return Status::Continue;
 }

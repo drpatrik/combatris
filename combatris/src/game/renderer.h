@@ -4,6 +4,11 @@
 
 #include <SDL.h>
 
+class RenderInterface {
+ public:
+  virtual void Render() const = 0;
+};
+
 inline void RenderBlock(SDL_Renderer* renderer, int x, int y, SDL_Texture* texture) {
   SDL_Rect dest_rc { x, y, kBlockWidth, kBlockHeight };
 

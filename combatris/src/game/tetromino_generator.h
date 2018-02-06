@@ -7,10 +7,10 @@
 #include <deque>
 #include <random>
 
-class TetrominoGenerator {
+class TetrominoGenerator final {
  public:
-  TetrominoGenerator(std::shared_ptr<Matrix>& matrix, Level& level, const std::shared_ptr<Assets>& assets)
-      : matrix_(matrix), level_(level), assets_(assets) {
+  TetrominoGenerator(std::shared_ptr<Matrix>& matrix, Level& level, Events& events, const std::shared_ptr<Assets>& assets)
+      : matrix_(matrix), level_(level), events_(events), assets_(assets) {
     GenerateTetrominos();
   }
 
@@ -27,7 +27,7 @@ class TetrominoGenerator {
   }
 
   std::unique_ptr<TetrominoSprite> Get(Tetromino::Type type) {
-    return std::make_unique<TetrominoSprite>(*assets_->GetTetromino(type), level_,  matrix_);
+    return std::make_unique<TetrominoSprite>(*assets_->GetTetromino(type), level_,  events_, matrix_);
   }
 
   void NewGame() { tetrominos_queue_.clear(); GenerateTetrominos(); }
@@ -53,6 +53,7 @@ class TetrominoGenerator {
  private:
   std::shared_ptr<Matrix> matrix_;
   Level& level_;
+  Events& events_;
   std::shared_ptr<Assets> assets_;
   std::deque<Tetromino::Type> tetrominos_queue_;
   mutable std::mt19937 engine_ {std::random_device{}()};

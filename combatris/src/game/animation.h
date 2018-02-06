@@ -12,7 +12,7 @@ public:
 
   virtual void Start() = 0;
 
-  virtual void Update(double) = 0;
+  virtual void Render(double) = 0;
 
   virtual bool IsReady() = 0;
 
@@ -25,8 +25,6 @@ public:
   Matrix &GetMatrix() { return matrix_; }
 
   const Assets& GetAsset() const { return assets_; }
-
-  Events& GetEvents() { return matrix_.GetEvents(); }
 
 protected:
   double x_ = 0.0;

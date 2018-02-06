@@ -1,22 +1,23 @@
 #pragma once
 
-#include "game/tetromino.h"
 #include "game/events.h"
+#include "game/tetromino.h"
 
-class Matrix final {
+class Matrix final : public RenderInterface {
  public:
   using Type = std::vector<std::vector<int>>;
+  using CommitReturnTyoe = std::tuple<Lines, TSpinType, bool>;
 
-  Matrix(SDL_Renderer* renderer, Events& events, const std::vector<std::shared_ptr<const Tetromino>>& tetrominos)
-      : renderer_(renderer), events_(events), tetrominos_(tetrominos) {
+  Matrix(SDL_Renderer* renderer, const std::vector<std::shared_ptr<const Tetromino>>& tetrominos)
+      : renderer_(renderer), tetrominos_(tetrominos) {
     Initialize();
   }
 
   // Used by test suit
-  Matrix(const std::vector<std::vector<int>> &matrix, Events &events,
+  Matrix(const std::vector<std::vector<int>> &matrix,
          const std::vector<std::shared_ptr<const Tetromino>> &tetrominos,
          SDL_Renderer *renderer = nullptr)
-      : renderer_(renderer), events_(events), tetrominos_(tetrominos) {
+      : renderer_(renderer), tetrominos_(tetrominos) {
     Initialize();
 
     for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
@@ -27,9 +28,7 @@ class Matrix final {
     matrix_  = master_matrix_;
   }
 
-  void Render();
-
-  Events& GetEvents() { return events_; }
+  virtual void Render() const override;
 
   bool IsValid(const Position& pos, const TetrominoRotationData& rotation_data) const;
 
@@ -39,7 +38,7 @@ class Matrix final {
     Insert(matrix_, pos, rotation_data);
   }
 
-  void Commit(Tetromino::Type type, Tetromino::Moves latest_move, const Position& pos, const TetrominoRotationData& rotation_data);
+  CommitReturnTyoe Commit(Tetromino::Type type, Tetromino::Moves latest_move, const Position& pos, const TetrominoRotationData& rotation_data);
 
   Position GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const;
 
@@ -55,7 +54,6 @@ class Matrix final {
   friend bool operator==(const Matrix& rhs, const Matrix::Type& lhs);
 
   SDL_Renderer* renderer_;
-  Events& events_;
   std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
   Type matrix_;
   Type master_matrix_;

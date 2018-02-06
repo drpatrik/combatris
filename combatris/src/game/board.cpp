@@ -11,9 +11,9 @@ void RenderWindowBackground(SDL_Renderer* renderer) {
   SDL_RenderFillRect(renderer, &rc);
 }
 
-bool RunAnimation(std::deque<std::shared_ptr<Animation>>& animations, double delta_time) {
+bool RenderAnimations(std::deque<std::shared_ptr<Animation>>& animations, double delta_time) {
   for (auto it = std::begin(animations); it != std::end(animations);) {
-    (*it)->Update(delta_time);
+    (*it)->Render(delta_time);
     if ((*it)->IsReady()) {
       it = animations.erase(it);
     } else {
@@ -42,10 +42,15 @@ Board::Board() : events_() {
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
   SDL_RenderSetLogicalSize(renderer_, kWidth, kHeight);
   assets_ = std::make_shared<Assets>(renderer_);
-  matrix_ = std::make_shared<Matrix>(renderer_, events_, assets_->GetTetrominos());
-  level_ = std::make_shared<Level>(renderer_, events_, assets_, 10, 10);
-  scoring_ = std::make_shared<Scoring>(*level_);
-  tetromino_generator_ = std::make_unique<TetrominoGenerator>(matrix_, *level_, assets_);
+  matrix_ = std::make_shared<Matrix>(renderer_, assets_->GetTetrominos());
+  renderers_.push_back(matrix_.get());
+  level_ = std::make_shared<Level>(renderer_, events_, assets_);
+  renderers_.push_back(level_.get());
+  scoring_ = std::make_shared<Scoring>(renderer_, assets_, *level_);
+  renderers_.push_back(scoring_.get());
+  tetromino_generator_ = std::make_shared<TetrominoGenerator>(matrix_, *level_, events_, assets_);
+  next_piece_ = std::make_shared<NextPiece>(renderer_, tetromino_generator_, assets_);
+  renderers_.push_back(next_piece_.get());
 }
 
 Board::~Board() noexcept {
@@ -53,9 +58,7 @@ Board::~Board() noexcept {
   SDL_DestroyWindow(window_);
 }
 
-void Board::NewGame() {
-  events_.Push(Event::Type::NewGame);
-}
+void Board::NewGame() { events_.Push(Event::Type::NewGame); }
 
 void Board::GameControl(Controls control_pressed) {
   if (!tetromino_in_play_) {
@@ -91,17 +94,10 @@ void Board::Render(double delta_time) {
   SDL_RenderClear(renderer_);
 
   RenderWindowBackground(renderer_);
-  // This is just temporary, it will move away when the panes are ready
-  RenderText(renderer_, 750, 10 , assets_->GetFont(Font::Normal), "Next: ", Color::White);
-  for (size_t i = 0; i < 3; ++i) {
-    tetromino_generator_->RenderFromQueue(i, 750, 50 + (100 * i));
-  }
-  // This is just temporary, it will move away when
-  // the panes are ready
-  scoring_->Render();
-  level_->Render();
-  matrix_->Render();
-  RunAnimation(active_animations_, delta_time);
+
+  std::for_each(renderers_.begin(), renderers_.end(), [](const auto& r) { r->Render(); });
+
+  RenderAnimations(animations_, delta_time);
 
   SDL_RenderPresent(renderer_);
 }
@@ -113,16 +109,12 @@ void Board::Update(double delta_time) {
     switch (event.type()) {
       case Event::Type::CountDown:
         break;
-      case Event::Type::LinesCleared:
+      case Event::Type::Scoring:
         level_->Update(event);
-        // Pass through
-      case Event::Type::NextPiece:
         scoring_->Update(event);
-        tetromino_in_play_ = tetromino_generator_->Get();
         break;
-      case Event::Type::SoftDrop:
-      case Event::Type::HardDrop:
-        scoring_->Update(event);
+      case Event::Type::NextPiece:
+        tetromino_in_play_ = tetromino_generator_->Get();
         break;
       case Event::Type::LevelUp:
         std::cout << "Level Up" << std::endl;
@@ -135,6 +127,7 @@ void Board::Update(double delta_time) {
         events_.NewGame();
         matrix_->NewGame();
         scoring_->NewGame();
+        next_piece_->Show();
         tetromino_generator_->NewGame();
         tetromino_in_play_ = tetromino_generator_->Get();
         break;
@@ -152,6 +145,7 @@ void Board::Update(double delta_time) {
   }
   if (tetromino_in_play_ && tetromino_in_play_->Down(delta_time) == TetrominoSprite::Status::Commited) {
     tetromino_in_play_.reset();
+    events_.Push(Event::Type::NextPiece);
   }
   Render(delta_time);
 }

@@ -95,7 +95,7 @@ void Matrix::Initialize() {
   matrix_ = master_matrix_;
 }
 
-void Matrix::Render() {
+void Matrix::Render() const {
   RenderGrid(renderer_);
   for (int col = kVisibleColStart - 1; col < kVisibleColEnd + 1; ++col) {
     tetrominos_[kBorderID - 1]->Render(Position(row_to_visible(kVisibleRowStart - 1), col_to_visible(col)));
@@ -155,28 +155,25 @@ void Matrix::Insert(Type& matrix, const Position& pos, const TetrominoRotationDa
   }
 }
 
-void Matrix::Commit(Tetromino::Type type, Tetromino::Moves latest_move, const Position& current_pos, const TetrominoRotationData& rotation_data) {
-  Event::BonusMove bonus_move = Event::BonusMove::None;
+Matrix::CommitReturnTyoe Matrix::Commit(Tetromino::Type type, Tetromino::Moves latest_move, const Position& current_pos, const TetrominoRotationData& rotation_data) {
+  TSpinType tspin_type = TSpinType::None;
 
   auto pos = GetDropPosition(current_pos, rotation_data);
 
   Insert(master_matrix_, pos, rotation_data);
 
   if (Tetromino::Type::T == type && latest_move == Tetromino::Moves::Rotation) {
-    bonus_move = DetectTSpin(master_matrix_, pos, rotation_data.angle_index_);
+    tspin_type = DetectTSpin(master_matrix_, pos, rotation_data.angle_index_);
   }
 
   auto lines_cleared = RemoveClearedLines(master_matrix_);
 
   CollapseMatrix(lines_cleared, master_matrix_);
 
-  if (lines_cleared.size() > 0 && DetectPerfectClear(master_matrix_)) {
-    events_.Push(Event::Type::PerfectClear);
-  }
+  bool perfect_clear = (lines_cleared.size() > 0 && DetectPerfectClear(master_matrix_));
 
-  auto event = (lines_cleared.size() > 0) ? Event::Type::LinesCleared : Event::Type::NextPiece;
 
-  events_.Push(event, lines_cleared, bonus_move);
+  return std::make_tuple(lines_cleared, tspin_type, perfect_clear);
 }
 
 Position Matrix::GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const {

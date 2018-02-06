@@ -1,8 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <deque>
-#include <iostream>
+#include <vector>
 
 struct Line {
   Line(int row, const std::vector<int>& line) : row_(row), line_(line) {}
@@ -13,18 +12,30 @@ struct Line {
 
 using Lines = std::vector<Line>;
 
-struct Event {
-  enum class Type { GameOver, NewGame, NextPiece, LinesCleared, LevelUp, CountDown, HardDrop, SoftDrop, PerfectClear, FloorReached, SendGarbage, GotGarbage };
-  enum class BonusMove { None, T_Spin, T_SpinMini };
+enum class TSpinType { None, TSpin, TSpinMini };
 
-  Event(Type type, const Lines& lines_cleared, BonusMove bonus_move = BonusMove::None)
-      : type_(type), lines_cleared_(lines_cleared), bonus_move_(bonus_move) {}
+struct Event {
+  enum class Type {
+    GameOver,
+    NewGame,
+    NextPiece,
+    Scoring,
+    LevelUp,
+    CountDown,
+    PerfectClear,
+    FloorReached,
+    SendGarbage,
+    GotGarbage
+  };
+
+  Event(Type type, const Lines& lines_cleared, TSpinType tspin_type = TSpinType::None)
+      : type_(type), lines_cleared_(lines_cleared), tspin_type_(tspin_type) {}
 
   explicit Event(Type type)
-      : type_(type), lines_cleared_(), bonus_move_(BonusMove::None) {}
+      : type_(type), lines_cleared_(), tspin_type_(TSpinType::None) {}
 
   Event(Type type, int lines_dropped)
-      : type_(type), lines_cleared_(), bonus_move_(BonusMove::None), lines_dropped_(lines_dropped) {}
+      : type_(type), lines_cleared_(), tspin_type_(TSpinType::None), lines_dropped_(lines_dropped) {}
 
   Type type() const { return type_; }
 
@@ -32,7 +43,7 @@ struct Event {
 
   Type type_;
   Lines lines_cleared_;
-  BonusMove bonus_move_;
+  TSpinType tspin_type_;
   int lines_dropped_ = 0;
   int garbage_lines_ = 0;
 };
@@ -49,8 +60,8 @@ class Events {
 
   void Push(const Event& event) { events_.push_back(event); }
 
-  void Push(Event::Type type, const Lines& lines, Event::BonusMove bonus_move = Event::BonusMove::None) {
-    events_.emplace_back(type, lines, bonus_move);
+  void Push(Event::Type type, const Lines& lines, TSpinType tspin_type = TSpinType::None) {
+    events_.emplace_back(type, lines, tspin_type);
   }
 
   void Push(Event::Type type) { events_.emplace_back(type); }

@@ -9,13 +9,13 @@ class TetrominoSprite {
   enum class Status { Continue, Commited };
   enum class Rotation { Clockwise, CounterClockwise };
 
-  TetrominoSprite(const Tetromino &tetromino, Level &level, const std::shared_ptr<Matrix> &matrix)
-      : tetromino_(tetromino), matrix_(matrix), level_(level), rotation_data_(tetromino.GetRotationData(angle_)) {
+  TetrominoSprite(const Tetromino& tetromino, Level& level, Events& events, const std::shared_ptr<Matrix>& matrix)
+      : tetromino_(tetromino), matrix_(matrix), level_(level), events_(events), rotation_data_(tetromino.GetRotationData(angle_)) {
     if (matrix_->IsValid(pos_, rotation_data_)) {
       matrix_->Insert(pos_, rotation_data_);
       level_.ResetTime();
     } else {
-      matrix_->GetEvents().Push(Event::Type::GameOver);
+      events_.Push(Event::Type::GameOver);
     }
   }
 
@@ -46,6 +46,7 @@ class TetrominoSprite {
   Position pos_ = kSpawnPosition;
   std::shared_ptr<Matrix> matrix_;
   Level& level_;
+  Events& events_;
   TetrominoRotationData rotation_data_;
   bool floor_reached_ = false;
   Tetromino::Moves last_move_ = Tetromino::Moves::None;

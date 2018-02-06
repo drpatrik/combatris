@@ -75,8 +75,7 @@ void Level::Update(const Event& event) {
   }
 }
 
-void Level::Render() {
-  // Will be moved into Pane at some point in time
+void Level::Render() const {
   RenderText(x_, y_ + 50 , Font::Normal, "Level: ", Color::White);
   RenderText(x_ + 74,  y_ +50, Font::Normal, std::to_string(level_ + 1), Color::White);
   RenderText(x_, y_ + 100, Font::Normal, "Lines: ", Color::White);
