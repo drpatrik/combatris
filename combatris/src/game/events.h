@@ -75,7 +75,7 @@ class Events {
     return event;
   }
 
-  void NewGame() { events_.clear(); }
+  void Clear() { events_.clear(); }
 
  private:
   std::deque<Event> events_;

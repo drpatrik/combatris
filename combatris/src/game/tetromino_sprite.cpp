@@ -134,6 +134,7 @@ TetrominoSprite::Status TetrominoSprite::Down(double delta_time) {
     }
   } else {
     events_.Push(Event::Type::GameOver);
+    return Status::GameOver;
   }
   return Status::Continue;
 }

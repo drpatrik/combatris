@@ -120,11 +120,13 @@ void Board::Update(double delta_time) {
         std::cout << "Level Up" << std::endl;
         break;
       case Event::Type::GameOver:
+        events_.Clear();
+        animations_.clear();
         tetromino_in_play_.reset();
         std::cout << "Game Over" << std::endl;
         break;
       case Event::Type::NewGame:
-        events_.NewGame();
+        events_.Clear();
         matrix_->NewGame();
         scoring_->NewGame();
         next_piece_->Show();
@@ -143,9 +145,15 @@ void Board::Update(double delta_time) {
         break;
     }
   }
-  if (tetromino_in_play_ && tetromino_in_play_->Down(delta_time) == TetrominoSprite::Status::Commited) {
-    tetromino_in_play_.reset();
-    events_.Push(Event::Type::NextPiece);
+  if (tetromino_in_play_) {
+    auto status = tetromino_in_play_->Down(delta_time);
+
+    if (status != TetrominoSprite::Status::Continue) {
+      tetromino_in_play_.reset();
+      if (status ==  TetrominoSprite::Status::Commited) {
+        events_.Push(Event::Type::NextPiece);
+      }
+    }
   }
   Render(delta_time);
 }

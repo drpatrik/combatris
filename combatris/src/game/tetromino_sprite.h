@@ -6,7 +6,7 @@
 
 class TetrominoSprite {
  public:
-  enum class Status { Continue, Commited };
+  enum class Status { Continue, Commited, GameOver };
   enum class Rotation { Clockwise, CounterClockwise };
 
   TetrominoSprite(const Tetromino& tetromino, Level& level, Events& events, const std::shared_ptr<Matrix>& matrix)
@@ -15,6 +15,7 @@ class TetrominoSprite {
       matrix_->Insert(pos_, rotation_data_);
       level_.ResetTime();
     } else {
+      level_.Release();
       events_.Push(Event::Type::GameOver);
     }
   }
