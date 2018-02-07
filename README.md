@@ -47,7 +47,7 @@ Left | Move Left
 Right | Move Right
 Down | Soft Drop
 Space | Hard Drop
-Shift | Hold piece (not yet implemented)
+Shift | Hold piece
 F1 / ESC / P | Pause (not yet implemented)
 Q | Quit
 ## Build Combatris
