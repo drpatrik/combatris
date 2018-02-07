@@ -81,14 +81,14 @@ void TetrominoSprite::SoftDrop() {
   if (pos_.row() >= kVisibleRowStart - 1) {
     events_.Push(Event::Type::Scoring, 1);
   }
-  level_.Release();
+  level_->Release();
 }
 
 void TetrominoSprite::HardDrop() {
   int drop_row = pos_.row();
 
   pos_ = matrix_->GetDropPosition(pos_, rotation_data_);
-  level_.Release();
+  level_->Release();
   floor_reached_ = true;
   last_move_ = Tetromino::Moves::Down;
   events_.Push(Event::Type::Scoring, (kVisibleRows - drop_row) * 2);
@@ -111,7 +111,7 @@ void TetrominoSprite::Right() {
 }
 
 TetrominoSprite::Status TetrominoSprite::Down(double delta_time) {
-  if (!level_.Wait(delta_time, floor_reached_)) {
+  if (!level_->Wait(delta_time, floor_reached_)) {
     return Status::Continue;
   }
   if (floor_reached_) {

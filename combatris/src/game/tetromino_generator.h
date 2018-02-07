@@ -9,12 +9,10 @@
 
 class TetrominoGenerator final {
  public:
-  TetrominoGenerator(std::shared_ptr<Matrix>& matrix, Level& level, Events& events, const std::shared_ptr<Assets>& assets)
+  TetrominoGenerator(std::shared_ptr<Matrix>& matrix, std::shared_ptr<Level>& level, Events& events, const std::shared_ptr<Assets>& assets)
       : matrix_(matrix), level_(level), events_(events), assets_(assets) {
     GenerateTetrominos();
   }
-
-  void PushFront(Tetromino::Type type) { tetrominos_queue_.push_front(type); }
 
   std::unique_ptr<TetrominoSprite> Get() {
     auto tetromino = tetrominos_queue_.front();
@@ -52,10 +50,10 @@ class TetrominoGenerator final {
 
  private:
   std::shared_ptr<Matrix> matrix_;
-  Level& level_;
+  std::shared_ptr<Level> level_;
   Events& events_;
   std::shared_ptr<Assets> assets_;
   std::deque<Tetromino::Type> tetrominos_queue_;
-  mutable std::mt19937 engine_ {std::random_device{}()};
+  mutable std::mt19937 engine_ { std::random_device{}() };
   mutable std::uniform_int_distribution<int> distribution_{ 0, static_cast<int>(kTetrominos.size()) - 1 };
 };

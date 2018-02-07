@@ -2,15 +2,19 @@
 
 #include "game/level.h"
 
-class Scoring final : public Pane {
+class Scoring final : public TextPane {
  public:
-  Scoring(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, Level& level) :
-      Pane(renderer, 10, 10, assets), level_(level) {}
+  Scoring(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Level>& level) :
+      TextPane(renderer, kMatrixStartX - kBlockWidth - 165, (kMatrixStartY - kBlockHeight) + 150, "SCORE", assets),
+      level_(level) {
+    SetCenteredText(std::to_string(0));
+  }
 
   void NewGame() {
     score_ = 0;
     ClearCounter();
-    level_.NewGame();
+    level_->NewGame();
+    SetCenteredText(0);
   }
 
   void ClearCounter() {
@@ -39,7 +43,7 @@ class Scoring final : public Pane {
           if (++combo_counter_ > 1) {
             combo_score = (event.lines_cleared() == 1) ? 20 : 50;
           }
-        } else {
+        } else if (!event.IsDrop()) {
           ClearCounter();
         }
         break;
@@ -57,16 +61,12 @@ class Scoring final : public Pane {
         break;
     }
     score_ += event.lines_dropped_;
-    score_ += (base_score * level_.level()) + (combo_score * level_.level());
-  }
-
-  virtual void Render() const override {
-    RenderText(x_, y_, Font::Normal, "Score: ", Color::White);
-    RenderText(x_ + 74,  y_ , Font::Normal, std::to_string(score_), Color::White);
+    score_ += (base_score * level_->level()) + (combo_score * level_->level());
+    TextPane::SetCenteredText(score_);
   }
 
  private:
-  Level& level_;
+  std::shared_ptr<Level> level_;
   int score_ = 0;
   int combo_counter_ = 0;
   int b2b_tspin_counter_ = 0;

@@ -15,13 +15,13 @@ to work - after that work on the network capabilities will start.
 - [x] Soft / Hard drop
 - [x] BPS Random Generator
 - [x] Wall kicks (Super Rotating System)
-- [ ] Hold piece
+- [X] Hold piece
 - [x] T-Spin (scoring)
 - [x] B2B T-Spin Double (scoring)
 - [x] Combos (scoring)
 - [X] Perfect clear (cleared matrix after game started)
 - [X] Hard Drop & Soft Drop (scoring)
-- [ ] Panes for score / next tetrominos / hold piece etc.
+- [X] Panes for score / next tetrominos / hold piece etc.
 - [ ] Unit tests // Two in place right now
 - [ ] Sound
 - [ ] Customizible controls
@@ -34,6 +34,7 @@ to work - after that work on the network capabilities will start.
 - [ ] Game Over
 - [ ] Splash Screen
 - [ ] Network functionality
+- [ ] Multi-player
 
 **Keyboard Commands**
 

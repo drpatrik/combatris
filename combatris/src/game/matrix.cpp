@@ -23,7 +23,7 @@ void Print(const Matrix::Type& matrix) {
 }
 
 void RenderGrid(SDL_Renderer* renderer) {
-  const SDL_Color gray { 105, 105, 105, 255 };
+  const SDL_Color gray { 51, 55, 66, 255 };
 
   SDL_SetRenderDrawColor(renderer, gray.r, gray.g, gray.b, gray.a);
   SDL_Rect rc { kMatrixStartX, kMatrixStartY, kMatrixWidth, kMatrixHeight };

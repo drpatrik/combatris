@@ -1,7 +1,9 @@
 #include "utility/color.h"
 
 SDL_Color GetColor(Color color, uint8_t alpha) {
-  if (color == Color::Blue) {
+  if (color == Color::Score) {
+    return { 182, 195, 201, alpha };
+  } else if (color == Color::Blue) {
     return { 0, 0, 240, alpha };
   } else if (color == Color::Red) {
     return { 240, 0, 0, alpha };
@@ -17,6 +19,8 @@ SDL_Color GetColor(Color color, uint8_t alpha) {
     return { 240, 160, 0, alpha };
   } else if (color == Color::Purple) {
     return { 160, 0, 240, alpha };
+  } else if (color == Color::Gray) {
+    return { 102, 102, 102, alpha };
   } else {
     return { 255, 255, 255, alpha };
   }

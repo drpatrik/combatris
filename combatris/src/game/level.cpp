@@ -60,24 +60,18 @@ bool Level::WaitForLockDelay(double time_delta) {
 }
 
 void Level::Update(const Event& event) {
-  int lines_cleared = event.lines_cleared_.size();
+  int lines_cleared = event.lines_cleared();
 
   if (0 == lines_cleared) {
     return;
   }
-  total_lines_ += lines_cleared;
   lines_this_level_ += lines_cleared;
   if (lines_this_level_ >= kLevelUp) {
     events_.Push(Event::Type::LevelUp);
     lines_this_level_ = 0;
     level_++;
     ResetTime();
+    SetCenteredText(level());
   }
-}
 
-void Level::Render() const {
-  RenderText(x_, y_ + 50 , Font::Normal, "Level: ", Color::White);
-  RenderText(x_ + 74,  y_ +50, Font::Normal, std::to_string(level_ + 1), Color::White);
-  RenderText(x_, y_ + 100, Font::Normal, "Lines: ", Color::White);
-  RenderText(x_ + 74,  y_ + 100, Font::Normal, std::to_string(total_lines_), Color::White);
 }

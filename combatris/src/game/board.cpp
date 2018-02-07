@@ -46,11 +46,15 @@ Board::Board() : events_() {
   renderers_.push_back(matrix_.get());
   level_ = std::make_shared<Level>(renderer_, events_, assets_);
   renderers_.push_back(level_.get());
-  scoring_ = std::make_shared<Scoring>(renderer_, assets_, *level_);
+  scoring_ = std::make_unique<Scoring>(renderer_, assets_, level_);
   renderers_.push_back(scoring_.get());
-  tetromino_generator_ = std::make_shared<TetrominoGenerator>(matrix_, *level_, events_, assets_);
-  next_piece_ = std::make_shared<NextPiece>(renderer_, tetromino_generator_, assets_);
+  tetromino_generator_ = std::make_shared<TetrominoGenerator>(matrix_, level_, events_, assets_);
+  next_piece_ = std::make_unique<NextPiece>(renderer_, tetromino_generator_, assets_);
   renderers_.push_back(next_piece_.get());
+  hold_piece_ = std::make_unique<HoldPiece>(renderer_, tetromino_generator_, assets_);
+  renderers_.push_back(hold_piece_.get());
+  total_lines_ = std::make_unique<TotalLines>(renderer_, assets_);
+  renderers_.push_back(total_lines_.get());
 }
 
 Board::~Board() noexcept {
@@ -84,6 +88,9 @@ void Board::GameControl(Controls control_pressed) {
       tetromino_in_play_->Right();
       break;
     case Controls::HoldPiece:
+      if (hold_piece_->CanHold()) {
+        tetromino_in_play_ = hold_piece_->Hold(tetromino_in_play_->type());
+      }
       break;
     case Controls::Pause:
       break;
@@ -111,9 +118,11 @@ void Board::Update(double delta_time) {
         break;
       case Event::Type::Scoring:
         level_->Update(event);
+        total_lines_->Update(event);
         scoring_->Update(event);
         break;
       case Event::Type::NextPiece:
+        hold_piece_->Update(event);
         tetromino_in_play_ = tetromino_generator_->Get();
         break;
       case Event::Type::LevelUp:
@@ -130,6 +139,8 @@ void Board::Update(double delta_time) {
         matrix_->NewGame();
         scoring_->NewGame();
         next_piece_->Show();
+        hold_piece_->NewGame();
+        total_lines_->NewGame();
         tetromino_generator_->NewGame();
         tetromino_in_play_ = tetromino_generator_->Get();
         break;

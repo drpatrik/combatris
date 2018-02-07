@@ -39,6 +39,8 @@ struct Event {
 
   Type type() const { return type_; }
 
+  bool IsDrop() const { return lines_dropped_ > 0; }
+
   int lines_cleared() const { return lines_cleared_.size(); }
 
   Type type_;
