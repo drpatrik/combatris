@@ -1,7 +1,7 @@
 #pragma once
 
-#include "game/pane.h"
 #include "game/tetromino_generator.h"
+#include "game/panes/pane.h"
 
 class NextPiece final : public TextPane {
  public:
@@ -20,12 +20,14 @@ class NextPiece final : public TextPane {
     if (hide_pieces_) {
       return;
     }
-    tetromino_generator_->RenderFromQueue(0, x_ + 15, y_ + 50);
+    tetromino_generator_->RenderFromQueue(0, x_ + 10, y_ + caption_height_ + 15);
 
     for (size_t i = 1; i < 3; ++i) {
-      tetromino_generator_->RenderFromQueue(i, x_ + 15, y_ + 50 + (90 * i));
+      tetromino_generator_->RenderFromQueue(i, x_ + 10, y_ + caption_height_ + 15 + (90 * i));
     }
   }
+
+  virtual void Reset() override {}
 
  private:
   bool hide_pieces_ = true;

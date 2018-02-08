@@ -1,19 +1,18 @@
 #pragma once
 
-#include "game/level.h"
+#include "game/panes/level.h"
 
 class Scoring final : public TextPane {
  public:
   Scoring(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Level>& level) :
-      TextPane(renderer, kMatrixStartX - kBlockWidth - 165, (kMatrixStartY - kBlockHeight) + 150, "SCORE", assets),
+      TextPane(renderer, kMatrixStartX - kBlockWidth - (kBoxWidth + 8), (kMatrixStartY - kBlockHeight) + 150, "SCORE", assets),
       level_(level) {
     SetCenteredText(std::to_string(0));
   }
 
-  void NewGame() {
+  virtual void Reset() override {
     score_ = 0;
     ClearCounter();
-    level_->NewGame();
     SetCenteredText(0);
   }
 

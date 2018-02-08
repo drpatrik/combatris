@@ -1,5 +1,7 @@
 #pragma once
 
+#include "game/constants.h"
+
 #include <vector>
 
 // 0 = spawn state
@@ -37,14 +39,20 @@ struct TetrominoRotationData {
   explicit TetrominoRotationData(const std::vector<std::vector<int>> &shape) : shape_(shape) {}
   TetrominoRotationData(int angle_index, const std::vector<std::vector<int>> &shape) :
       angle_index_(angle_index), shape_(shape) {}
+  TetrominoRotationData(int width, int height, const std::vector<std::vector<int>> &shape) :
+      width_(width), height_(height), shape_(shape) {}
+  TetrominoRotationData(int angle_index, int width, int height, const std::vector<std::vector<int>> &shape) :
+      angle_index_(angle_index), width_(width), height_(height), shape_(shape) {}
 
   int angle_index_ = -1;
+  int width_ = 0;
+  int height_ = 0;
   std::vector<std::vector<int>> shape_;
 };
 
 // I Tetromino 1
 
-const TetrominoRotationData kTetrominoRotationShape_I_0D({
+const TetrominoRotationData kTetrominoRotationShape_I_0D(kBlockWidth * 4, kBlockHeight, {
     {0, 0, 0, 0},
     {1, 1, 1, 1},
     {0, 0, 0, 0},
@@ -81,7 +89,7 @@ const std::vector<TetrominoRotationData> kTetromino_I_Rotations = {
 
 // J Tetromino 2
 
-const TetrominoRotationData kTetrominoRotationShape_J_0D({
+const TetrominoRotationData kTetrominoRotationShape_J_0D(kBlockWidth * 3, kBlockHeight * 2, {
     {2, 0, 0},
     {2, 2, 2},
     {0, 0, 0}
@@ -114,7 +122,7 @@ const std::vector<TetrominoRotationData> kTetromino_J_Rotations = {
 
 // L Tetromino 3
 
-const TetrominoRotationData kTetrominoRotationShape_L_0D({
+const TetrominoRotationData kTetrominoRotationShape_L_0D(kBlockWidth * 3, kBlockHeight * 2, {
     {0, 0, 3},
     {3, 3, 3},
     {0, 0, 0}
@@ -147,7 +155,7 @@ const std::vector<TetrominoRotationData> kTetromino_L_Rotations = {
 
 // O Tetromino 4
 
-const TetrominoRotationData kTetrominoRotationShape_O({
+const TetrominoRotationData kTetrominoRotationShape_O(kBlockWidth * 4, kBlockHeight * 2, {
     {0, 4, 4, 0},
     {0, 4, 4, 0},
     {0, 0, 0, 0}
@@ -162,7 +170,7 @@ const std::vector<TetrominoRotationData> kTetromino_O_Rotations = {
 
 // S Tetromino 5
 
-const TetrominoRotationData kTetrominoRotationShape_S_0D({
+const TetrominoRotationData kTetrominoRotationShape_S_0D(kBlockWidth * 3, kBlockHeight * 2, {
     {0, 5, 5},
     {5, 5, 0},
     {0, 0, 0}
@@ -195,7 +203,7 @@ const std::vector<TetrominoRotationData> kTetromino_S_Rotations = {
 
 // T Tetromino 6
 
-const TetrominoRotationData kTetrominoRotationShape_T_0D(0, {
+const TetrominoRotationData kTetrominoRotationShape_T_0D(0, kBlockWidth * 3, kBlockHeight * 2,  {
     {0, 6, 0},
     {6, 6, 6},
     {0, 0, 0}
@@ -228,7 +236,7 @@ const std::vector<TetrominoRotationData> kTetromino_T_Rotations = {
 
 // Z Tetromino 7
 
-const TetrominoRotationData kTetrominoRotationShape_Z_0D({
+const TetrominoRotationData kTetrominoRotationShape_Z_0D(kBlockWidth * 3, kBlockHeight * 2, {
     {7, 7, 0},
     {0, 7, 7},
     {0, 0, 0}

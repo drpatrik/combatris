@@ -1,17 +1,20 @@
 #pragma once
 
-#include "game/pane.h"
 #include "game/events.h"
+#include "game/panes/pane.h"
 
 class Level final : public TextPane {
  public:
-  Level(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets)
-      : TextPane(renderer, kMatrixStartX - kBlockWidth - 165, (kMatrixStartY - kBlockHeight) + 428, "LEVEL", assets), events_(events) {
-    ResetTime();
-    SetCenteredText(1);
-  }
+   Level(SDL_Renderer *renderer, Events &events, const std::shared_ptr<Assets> &assets)
+       : TextPane(renderer, kMatrixStartX - kBlockWidth - (kBoxWidth + 8), (kMatrixStartY - kBlockHeight) + 428, "LEVEL", assets),
+         events_(events) {
+     ResetTime();
+     SetCenteredText(1);
+   }
 
-  bool Wait(double time_delta, bool floor_reached) { return (floor_reached) ? WaitForLockDelay(time_delta) : WaitForMoveDown(time_delta); }
+   bool Wait(double time_delta, bool floor_reached) {
+     return (floor_reached) ? WaitForLockDelay(time_delta)
+                            : WaitForMoveDown(time_delta); }
 
   void Release() { time_ += 60.0; }
 
@@ -19,7 +22,7 @@ class Level final : public TextPane {
 
   int level() const { return level_ + 1; }
 
-  void NewGame() {
+  virtual void Reset() override {
     time_ = 0.0;
     wait_time_ = 0.0;
     lock_delay_ = 0.0;

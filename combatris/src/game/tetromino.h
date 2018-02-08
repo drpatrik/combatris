@@ -34,7 +34,10 @@ class Tetromino final {
   inline void RenderGhost(const Position& pos) const { ::RenderGhost(renderer_, pos.x(), pos.y(), color_); }
 
   void Render(int x, int y) const {
-    const auto& rotation = rotations_.at(static_cast<int>(Angle::A0));
+    const auto& rotation = rotations_[0];
+
+    x += (((kBlockWidth * 4) - rotation.width_) / 2);
+    y -= (((kBlockHeight * 2) - rotation.height_) / 2);
 
     for (size_t row = 0; row < rotation.shape_.size(); ++row) {
       int t_x = x;

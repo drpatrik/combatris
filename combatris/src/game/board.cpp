@@ -43,18 +43,18 @@ Board::Board() : events_() {
   SDL_RenderSetLogicalSize(renderer_, kWidth, kHeight);
   assets_ = std::make_shared<Assets>(renderer_);
   matrix_ = std::make_shared<Matrix>(renderer_, assets_->GetTetrominos());
-  renderers_.push_back(matrix_.get());
+  pane_list_.push_back(matrix_.get());
   level_ = std::make_shared<Level>(renderer_, events_, assets_);
-  renderers_.push_back(level_.get());
+  pane_list_.push_back(level_.get());
   scoring_ = std::make_unique<Scoring>(renderer_, assets_, level_);
-  renderers_.push_back(scoring_.get());
+  pane_list_.push_back(scoring_.get());
   tetromino_generator_ = std::make_shared<TetrominoGenerator>(matrix_, level_, events_, assets_);
   next_piece_ = std::make_unique<NextPiece>(renderer_, tetromino_generator_, assets_);
-  renderers_.push_back(next_piece_.get());
+  pane_list_.push_back(next_piece_.get());
   hold_piece_ = std::make_unique<HoldPiece>(renderer_, tetromino_generator_, assets_);
-  renderers_.push_back(hold_piece_.get());
+  pane_list_.push_back(hold_piece_.get());
   total_lines_ = std::make_unique<TotalLines>(renderer_, assets_);
-  renderers_.push_back(total_lines_.get());
+  pane_list_.push_back(total_lines_.get());
 }
 
 Board::~Board() noexcept {
@@ -102,7 +102,7 @@ void Board::Render(double delta_time) {
 
   RenderWindowBackground(renderer_);
 
-  std::for_each(renderers_.begin(), renderers_.end(), [](const auto& r) { r->Render(); });
+  std::for_each(pane_list_.begin(), pane_list_.end(), [](const auto& r) { r->Render(); });
 
   RenderAnimations(animations_, delta_time);
 
@@ -136,12 +136,9 @@ void Board::Update(double delta_time) {
         break;
       case Event::Type::NewGame:
         events_.Clear();
-        matrix_->NewGame();
-        scoring_->NewGame();
         next_piece_->Show();
-        hold_piece_->NewGame();
-        total_lines_->NewGame();
-        tetromino_generator_->NewGame();
+        tetromino_generator_->Reset();
+        std::for_each(pane_list_.begin(), pane_list_.end(), [](const auto& r) { r->Reset(); });
         tetromino_in_play_ = tetromino_generator_->Get();
         break;
       case Event::Type::PerfectClear:

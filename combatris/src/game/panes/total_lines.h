@@ -1,15 +1,15 @@
 #pragma once
 
-#include "game/pane.h"
+#include "game/panes/pane.h"
 #include "game/tetromino_generator.h"
 
 class TotalLines final : public TextPane {
  public:
   TotalLines(SDL_Renderer *renderer, const std::shared_ptr<Assets> &assets)
-       : TextPane(renderer, kMatrixStartX - kBlockWidth - 165,
-                  (kMatrixStartY - kBlockHeight) + 578, "LINES", assets) { NewGame(); }
+       : TextPane(renderer, kMatrixStartX - kBlockWidth - (kBoxWidth + 8),
+                  (kMatrixStartY - kBlockHeight) + 578, "LINES", assets) { Reset(); }
 
-  void NewGame() { total_lines_ = 0;  SetCenteredText(std::to_string(0)); }
+  virtual void Reset() override { total_lines_ = 0;  SetCenteredText(std::to_string(0)); }
 
   void Update(const Event& event) {
     if (Event::Type::Scoring == event.type() && !event.IsDrop()) {

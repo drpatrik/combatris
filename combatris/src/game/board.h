@@ -1,9 +1,9 @@
 #pragma once
 
-#include "game/total_lines.h"
-#include "game/scoring.h"
-#include "game/next_piece.h"
-#include "game/hold_piece.h"
+#include "game/panes/total_lines.h"
+#include "game/panes/scoring.h"
+#include "game/panes/next_piece.h"
+#include "game/panes/hold_piece.h"
 #include "game/animation.h"
 
 class Board final {
@@ -46,7 +46,7 @@ class Board final {
   std::unique_ptr<NextPiece> next_piece_;
   std::unique_ptr<HoldPiece> hold_piece_;
   std::unique_ptr<TotalLines> total_lines_;
-  std::vector<RenderInterface*> renderers_;
+  std::vector<PaneInterface*> pane_list_;
   Events events_;
   std::deque<std::shared_ptr<Animation>> animations_;
 };

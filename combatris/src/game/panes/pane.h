@@ -2,9 +2,9 @@
 
 #include "utility/color.h"
 #include "game/assets.h"
-#include "game/renderer.h"
+#include "game/panes/pane_interface.h"
 
-class Pane : public RenderInterface {
+class Pane : public PaneInterface {
  public:
   Pane(SDL_Renderer* renderer, int x, int y, const std::shared_ptr<Assets>& assets) : renderer_(renderer), x_(x), y_(y), assets_(assets) {}
 
@@ -38,6 +38,10 @@ class Pane : public RenderInterface {
 class TextPane : public Pane {
  public:
   enum class Orientation { Left, Right };
+  static const int kBoxWidth = 148;
+  static const int kBoxHeight = 84;
+  static const int kBoxInteriorWidth = 138;
+  static const int kBoxInteriorHeight = 74;
 
   TextPane(SDL_Renderer* renderer, int x, int y, const std::string& text, const std::shared_ptr<Assets>& assets) : Pane(renderer, x, y, assets) {
     std::tie(caption_texture_, caption_width_, caption_height_) = CreateTextureFromText(renderer_, assets_->GetFont(Font::Bold), text, Color::White);
@@ -50,20 +54,20 @@ class TextPane : public Pane {
   void SetCenteredText(const std::string& text) {
     std::tie(text_texture_, txt_width_, txt_height_) = CreateTextureFromText(renderer_, assets_->GetFont(Font::Large), text, Color::Score);
 
-    txt_x_ = ((145 - txt_width_) / 2) + 5;
-    txt_y_ = ((78 - txt_height_) / 2) + caption_height_ + 10;
+    txt_x_ = ((kBoxWidth - txt_width_) / 2) + 5;
+    txt_y_ = ((kBoxHeight - txt_height_) / 2) + caption_height_ + 10;
   }
 
   virtual void Render() const override {
     if (Orientation::Right == orientation_) {
-      RenderCopy(caption_texture_.get(), 156 - caption_width_, 0, caption_width_, caption_height_);
+      RenderCopy(caption_texture_.get(), kBoxWidth - caption_width_, 0, caption_width_, caption_height_);
     } else {
       RenderCopy(caption_texture_.get(), 0, 0, caption_width_, caption_height_);
     }
     SetDrawColor(Color::Gray);
-    FillRect(0, 5 + caption_height_, 156, 88);
+    FillRect(0, 5 + caption_height_, kBoxWidth, kBoxHeight);
     SetDrawColor(Color::Black);
-    FillRect(5, 10 + caption_height_, 145, 78);
+    FillRect(5, 10 + caption_height_, kBoxInteriorWidth, kBoxInteriorHeight);
     if (text_texture_) {
       RenderCopy(text_texture_.get(), txt_x_, txt_y_, txt_width_, txt_height_);
     }

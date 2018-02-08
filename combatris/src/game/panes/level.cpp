@@ -1,6 +1,4 @@
-#include "game/level.h"
-
-#include <vector>
+#include "game/panes/level.h"
 
 namespace {
 

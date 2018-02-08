@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game/pane.h"
+#include "game/panes/pane.h"
 #include "game/tetromino_generator.h"
 
 class HoldPiece final : public TextPane {
@@ -8,7 +8,7 @@ class HoldPiece final : public TextPane {
    HoldPiece(SDL_Renderer *renderer,
              const std::shared_ptr<TetrominoGenerator> &tetromino_generator,
              const std::shared_ptr<Assets> &assets)
-       : TextPane(renderer, kMatrixStartX - kBlockWidth - 165,
+       : TextPane(renderer, kMatrixStartX - kBlockWidth - (kBoxWidth + 8),
                       kMatrixStartY - kBlockHeight, "HOLD", assets),
          tetromino_generator_(tetromino_generator) {}
 
@@ -26,11 +26,6 @@ class HoldPiece final : public TextPane {
      return tetromino_sprite;
   }
 
-  void NewGame() {
-    wait_for_lock_ = false;
-    tetromino_ = Tetromino::Type::Empty;
-  }
-
   bool CanHold() const { return !wait_for_lock_; }
 
   void Update(const Event& event) { wait_for_lock_ = !(event.type() == Event::Type::NextPiece); }
@@ -43,7 +38,12 @@ class HoldPiece final : public TextPane {
     if (Tetromino::Type::Empty == tetromino_) {
       return;
     }
-    assets_->GetTetromino(tetromino_)->Render(x_ + 15, y_ + 50 + txt_height_);
+    assets_->GetTetromino(tetromino_)->Render(x_ + 10, y_ + caption_height_ + 15);
+  }
+
+  virtual void Reset() override {
+    wait_for_lock_ = false;
+    tetromino_ = Tetromino::Type::Empty;
   }
 
  private:

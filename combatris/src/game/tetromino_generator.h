@@ -1,6 +1,5 @@
 #pragma once
 
-#include "game/constants.h"
 #include "game/assets.h"
 #include "game/tetromino_sprite.h"
 
@@ -28,7 +27,10 @@ class TetrominoGenerator final {
     return std::make_unique<TetrominoSprite>(*assets_->GetTetromino(type), level_,  events_, matrix_);
   }
 
-  void NewGame() { tetrominos_queue_.clear(); GenerateTetrominos(); }
+  void Reset() {
+    tetrominos_queue_.clear();
+    GenerateTetrominos();
+  }
 
   void RenderFromQueue(size_t n, int x, int y) const { assets_->GetTetromino(tetrominos_queue_.at(n))->Render(x, y); }
 

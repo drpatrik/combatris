@@ -2,7 +2,7 @@
 
 #include "game/coordinates.h"
 #include "game/matrix.h"
-#include "level.h"
+#include "game/panes/level.h"
 
 class TetrominoSprite {
  public:

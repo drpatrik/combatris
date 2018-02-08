@@ -2,8 +2,9 @@
 
 #include "game/events.h"
 #include "game/tetromino.h"
+#include "game/panes/pane_interface.h"
 
-class Matrix final : public RenderInterface {
+class Matrix final : public PaneInterface {
  public:
   using Type = std::vector<std::vector<int>>;
   using CommitReturnTyoe = std::tuple<Lines, TSpinType, bool>;
@@ -30,6 +31,8 @@ class Matrix final : public RenderInterface {
 
   virtual void Render() const override;
 
+  virtual void Reset() override { Initialize(); }
+
   bool IsValid(const Position& pos, const TetrominoRotationData& rotation_data) const;
 
   void Insert(const Position& pos, const TetrominoRotationData& rotation_data) {
@@ -41,8 +44,6 @@ class Matrix final : public RenderInterface {
   CommitReturnTyoe Commit(Tetromino::Type type, Tetromino::Moves latest_move, const Position& pos, const TetrominoRotationData& rotation_data);
 
   Position GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const;
-
-  void NewGame() { Initialize(); }
 
   void Print(bool master = true) const;
 

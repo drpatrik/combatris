@@ -41,7 +41,7 @@ to work - after that work on the network capabilities will start.
 Key | Action
 --- | ------
 N  | New game
-Up / S | Rotate Counter clockwise
+Up / S | Rotate clockwise
 A | Rotate Counter clockwise
 Left | Move Left
 Right | Move Right
