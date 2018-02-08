@@ -54,8 +54,8 @@ class TextPane : public Pane {
   void SetCenteredText(const std::string& text) {
     std::tie(text_texture_, txt_width_, txt_height_) = CreateTextureFromText(renderer_, assets_->GetFont(Font::Large), text, Color::Score);
 
-    txt_x_ = ((kBoxWidth - txt_width_) / 2) + 5;
-    txt_y_ = ((kBoxHeight - txt_height_) / 2) + caption_height_ + 10;
+    txt_x_ = ((kBoxWidth - txt_width_) / 2);
+    txt_y_ = ((kBoxHeight - txt_height_) / 2) + (caption_height_ + 5);
   }
 
   virtual void Render() const override {
