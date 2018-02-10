@@ -3,14 +3,11 @@
 #include "game/events.h"
 #include "game/panes/pane.h"
 
-class Level final : public TextPane {
+class Level final : public TextPane, public EventSink {
  public:
    Level(SDL_Renderer *renderer, Events &events, const std::shared_ptr<Assets> &assets)
        : TextPane(renderer, kMatrixStartX - kBlockWidth - (kBoxWidth + 8), (kMatrixStartY - kBlockHeight) + 428, "LEVEL", assets),
-         events_(events) {
-     ResetTime();
-     SetCenteredText(1);
-   }
+         events_(events) { SetCenteredText(1); }
 
    bool Wait(double time_delta, bool floor_reached) {
      return (floor_reached) ? WaitForLockDelay(time_delta)
@@ -18,21 +15,22 @@ class Level final : public TextPane {
 
   void Release() { time_ += 60.0; }
 
-  void Update(const Event& event);
+  virtual void Update(const Event& event) override;
 
-  int level() const { return level_ + 1; }
+  inline int level() const { return level_ + 1; }
 
   virtual void Reset() override {
     time_ = 0.0;
-    wait_time_ = 0.0;
-    lock_delay_ = 0.0;
     level_ = 0;
     total_lines_ = 0;
     lines_this_level_ = 0;
+    SetThresholds();
     SetCenteredText(1);
   }
 
-  void ResetTime();
+  void SetThresholds();
+
+  inline void ResetTime() { time_ = 0.0; }
 
  protected:
   bool WaitForMoveDown(double time_delta);

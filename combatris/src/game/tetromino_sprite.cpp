@@ -111,30 +111,33 @@ void TetrominoSprite::Right() {
 }
 
 TetrominoSprite::Status TetrominoSprite::Down(double delta_time) {
+  Status status = Status::Continue;
+
   if (!level_->Wait(delta_time, floor_reached_)) {
-    return Status::Continue;
+    return status;
   }
-  if (floor_reached_) {
+  if (matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
+    pos_.inc_row();
+    matrix_->Insert(pos_, rotation_data_);
+    last_move_ = Tetromino::Moves::Down;
+    bool floor_is_reached = !matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_);
+
+    if (!floor_reached_ && floor_is_reached) {
+      floor_reached_ = true;
+      events_.Push(Event::Type::FloorReached);
+    } else if (floor_reached_ && !floor_is_reached) {
+      level_->ResetTime();
+      floor_reached_ = false;
+      events_.Push(Event::Type::InTransit);
+    }
+  } else {
     auto [lines_cleared, tspin_type, perfect_clear] = matrix_->Commit(tetromino_.type(), last_move_, pos_, rotation_data_);
 
     if (perfect_clear) {
       events_.Push(Event::Type::PerfectClear);
     }
     events_.Push(Event::Type::Scoring, lines_cleared, tspin_type);
-
-    return Status::Commited;
+    status = Status::Commited;
   }
-  if (matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
-    pos_.inc_row();
-    matrix_->Insert(pos_, rotation_data_);
-    last_move_ = Tetromino::Moves::Down;
-    if (!matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
-      floor_reached_ = true;
-      events_.Push(Event::Type::FloorReached);
-    }
-  } else {
-    events_.Push(Event::Type::GameOver);
-    return Status::GameOver;
-  }
-  return Status::Continue;
+  return status;
 }

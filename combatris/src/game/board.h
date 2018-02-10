@@ -8,7 +8,7 @@
 
 class Board final {
  public:
-  enum class Controls { RotateClockwise, RotateCounterClockwise, SoftDrop, HardDrop, Left, Right, HoldPiece, Pause };
+  enum class Controls { RotateClockwise, RotateCounterClockwise, SoftDrop, HardDrop, Left, Right, HoldPiece };
 
   Board();
 
@@ -18,7 +18,9 @@ class Board final {
 
   ~Board() noexcept;
 
-  void NewGame();
+  void NewGame() { events_.Push(Event::Type::NewGame); }
+
+  void Pause() { events_.Push(Event::Type::Pause); }
 
   void GameControl(Controls control_pressed);
 
@@ -46,7 +48,9 @@ class Board final {
   std::unique_ptr<NextPiece> next_piece_;
   std::unique_ptr<HoldPiece> hold_piece_;
   std::unique_ptr<TotalLines> total_lines_;
-  std::vector<PaneInterface*> pane_list_;
+  std::vector<PaneInterface*> panes_;
+  std::vector<EventSink*> event_sinks_;
   Events events_;
+  bool game_paused_ = false;
   std::deque<std::shared_ptr<Animation>> animations_;
 };

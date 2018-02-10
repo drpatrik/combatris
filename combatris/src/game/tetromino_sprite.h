@@ -6,7 +6,7 @@
 
 class TetrominoSprite {
  public:
-  enum class Status { Continue, Commited, GameOver };
+  enum class Status { Continue, Commited };
   enum class Rotation { Clockwise, CounterClockwise };
 
   TetrominoSprite(const Tetromino& tetromino, const std::shared_ptr<Level>& level, Events& events, const std::shared_ptr<Matrix>& matrix)
@@ -14,13 +14,13 @@ class TetrominoSprite {
     if (matrix_->IsValid(pos_, rotation_data_)) {
       matrix_->Insert(pos_, rotation_data_);
       level_->ResetTime();
-    } else {
-      level_->Release();
-      events_.Push(Event::Type::GameOver);
+      game_over_ = false;
     }
   }
 
   Tetromino::Type type() { return tetromino_.type(); }
+
+  bool is_game_over() const { return game_over_; }
 
   void RotateClockwise();
 
@@ -51,4 +51,5 @@ class TetrominoSprite {
   TetrominoRotationData rotation_data_;
   bool floor_reached_ = false;
   Tetromino::Moves last_move_ = Tetromino::Moves::None;
+  bool game_over_ = true;
 };

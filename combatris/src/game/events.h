@@ -16,6 +16,7 @@ enum class TSpinType { None, TSpin, TSpinMini };
 
 struct Event {
   enum class Type {
+    Pause,
     GameOver,
     NewGame,
     NextPiece,
@@ -24,6 +25,7 @@ struct Event {
     CountDown,
     PerfectClear,
     FloorReached,
+    InTransit,
     SendGarbage,
     GotGarbage
   };
@@ -37,17 +39,25 @@ struct Event {
   Event(Type type, int lines_dropped)
       : type_(type), lines_cleared_(), tspin_type_(TSpinType::None), lines_dropped_(lines_dropped) {}
 
-  Type type() const { return type_; }
+  inline bool Is(Event::Type type) const { return type == type_; }
 
-  bool IsDrop() const { return lines_dropped_ > 0; }
+  inline Type type() const { return type_; }
 
-  int lines_cleared() const { return lines_cleared_.size(); }
+  inline bool IsDrop() const { return lines_dropped_ > 0; }
+
+  inline int lines_cleared() const { return lines_cleared_.size(); }
 
   Type type_;
   Lines lines_cleared_;
   TSpinType tspin_type_;
   int lines_dropped_ = 0;
   int garbage_lines_ = 0;
+};
+
+class EventSink {
+ public:
+  virtual ~EventSink() noexcept {}
+  virtual void Update(const Event& event) = 0;
 };
 
 class Events {
@@ -60,13 +70,15 @@ class Events {
 
   bool IsEmpty() const { return events_.empty(); }
 
+  void Push(Event::Type type) { events_.emplace_back(type); }
+
+  void PushFront(Event::Type type) { events_.emplace_front(type); }
+
   void Push(const Event& event) { events_.push_back(event); }
 
   void Push(Event::Type type, const Lines& lines, TSpinType tspin_type = TSpinType::None) {
     events_.emplace_back(type, lines, tspin_type);
   }
-
-  void Push(Event::Type type) { events_.emplace_back(type); }
 
   void Push(Event::Type type, int lines) { events_.emplace_back(type, lines); }
 

@@ -31,7 +31,8 @@ to work - after that work on the network capabilities will start.
 - [ ] Level up (animations)
 - [ ] Bonus Move / Combo (T-Spin / Tetris / etc.) (animations)
 - [ ] Count down before game start (animations)
-- [ ] Game Over
+- [ ] Game Over Screen
+- [ ] Pause Screen
 - [ ] Splash Screen
 - [ ] Network functionality
 - [ ] Multi-player
@@ -41,6 +42,7 @@ to work - after that work on the network capabilities will start.
 Key | Action
 --- | ------
 N  | New game
+F1 / ESC / P | Pause
 Up / S | Rotate clockwise
 A | Rotate Counter clockwise
 Left | Move Left
@@ -48,8 +50,20 @@ Right | Move Right
 Down | Soft Drop
 Space | Hard Drop
 Shift | Hold piece
-F1 / ESC / P | Pause (not yet implemented)
 Q | Quit
+**Joystick Commands (PS3 Controller)**
+
+Key | Action
+--- | ------
+Start  | New game
+Select | Pause
+Square | Rotate clockwise
+Circle | Rotate Counter clockwise
+Left | Move Left
+Right | Move Right
+Down | Soft Drop
+X | Hard Drop
+Triangle | Hold piece
 ## Build Combatris
 
 **Dependencies:**

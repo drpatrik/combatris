@@ -5,7 +5,8 @@
 
 namespace {
 
-uint32_t kKeyRepeatTime = 100; // milliseconds
+uint32_t kFirstKeyRepeatTime = 150; // milliseconds
+uint32_t kKeyRepeatTime = 50; // milliseconds
 
 }
 
@@ -24,23 +25,21 @@ class Combatris {
       std::cout << "Mix_OpenAudio Error: " << Mix_GetError() << std::endl;
       exit(-1);
     }
-    for (int i = 0; i < SDL_NumJoysticks(); ++i) {
-      if (i == 0) {
-        SDL_JoystickEventState(SDL_ENABLE);
-        SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
-      }
-      joysticks_.push_back(SDL_JoystickOpen(0));
-      if (joysticks_.back() == nullptr) {
+    if (SDL_NumJoysticks() > 0) {
+      SDL_JoystickEventState(SDL_ENABLE);
+      SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
+      joystick_ = SDL_JoystickOpen(0);
+      if (nullptr == joystick_) {
         std::cout << "Warning: Unable to open game controller! SDL Error: " << SDL_GetError() << std::endl;
         exit(-1);
       }
-      std::cout << "Joystick found: " << SDL_JoystickName(joysticks_.back()) << std::endl;
+      std::cout << "Joystick found: " << SDL_JoystickName(joystick_) << std::endl;
     }
   }
 
   ~Combatris() {
-    for (auto controller : joysticks_) {
-      SDL_JoystickClose(controller);
+    if (joystick_ != nullptr) {
+      SDL_JoystickClose(joystick_);
     }
     SDL_Quit();
     TTF_Quit();
@@ -52,8 +51,9 @@ class Combatris {
     bool quit = false;
     Board board;
     DeltaTimer delta_timer;
-    uint32_t repeat_counter = 0;
     bool button_pressed = false;
+    uint32_t repeat_counter = 0;
+    uint32_t repeat_threshold = kFirstKeyRepeatTime;
     std::function<void()> function_to_repeat;
 
     while (!quit) {
@@ -83,24 +83,22 @@ class Combatris {
             } else if (event.key.keysym.scancode == SDL_SCANCODE_LSHIFT || event.key.keysym.scancode == SDL_SCANCODE_C) {
               board.GameControl(Board::Controls::HoldPiece);
             } else if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE || event.key.keysym.scancode == SDL_SCANCODE_F1 || event.key.keysym.scancode == SDL_SCANCODE_P) {
-              board.GameControl(Board::Controls::Pause);
+              board.Pause();
             }
             break;
           case SDL_JOYBUTTONDOWN:
             if (!button_pressed) {
               repeat_counter = SDL_GetTicks();
+              button_pressed = true;
             }
-            button_pressed = true;
-            if (event.jbutton.button == 4) { // pad up
-              board.GameControl(Board::Controls::RotateClockwise);
-            } else if (event.jbutton.button == 6) { // pad down
-              function_to_repeat = [&]() { board.GameControl(Board::Controls::SoftDrop); };
+            if (event.jbutton.button == 6) { // pad down
+              function_to_repeat = [&board]() { board.GameControl(Board::Controls::SoftDrop); };
               function_to_repeat();
             }  else if (event.jbutton.button == 7) { // pad left
-              function_to_repeat = [&]() { board.GameControl(Board::Controls::Left); };
+              function_to_repeat = [&board]() { board.GameControl(Board::Controls::Left); };
               function_to_repeat();
             }  else if (event.jbutton.button == 5) { // pad right
-              function_to_repeat = [&]() { board.GameControl(Board::Controls::Right); };
+              function_to_repeat = [&board]() { board.GameControl(Board::Controls::Right); };
               function_to_repeat();
             } else if (event.jbutton.button == 15) { // Square
               board.GameControl(Board::Controls::RotateCounterClockwise);
@@ -112,26 +110,30 @@ class Combatris {
               board.GameControl(Board::Controls::HardDrop);
             }  else if (event.jbutton.button == 3) { // Start
               board.NewGame();
+            } else if (event.jbutton.button == 0) { // Select
+              board.Pause();
             }
             break;
           case SDL_JOYBUTTONUP:
             button_pressed = false;
             function_to_repeat = nullptr;
+            repeat_threshold = kFirstKeyRepeatTime;
             break;
         }
       }
-      if (button_pressed && (SDL_GetTicks() - repeat_counter) > kKeyRepeatTime) {
+      if (button_pressed && (SDL_GetTicks() - repeat_counter) > repeat_threshold) {
         if (function_to_repeat) {
           function_to_repeat();
         }
         repeat_counter = SDL_GetTicks();
+        repeat_threshold = kKeyRepeatTime;
       }
       board.Update(delta_timer.GetDelta());
     }
   }
 
  private:
-  std::vector<SDL_Joystick*> joysticks_;
+  SDL_Joystick* joystick_;
 };
 
 int main(int, char * []) {

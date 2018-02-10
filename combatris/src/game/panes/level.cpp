@@ -32,12 +32,11 @@ const int kLevelUp = 10;
 
 } // namespace
 
-void Level::ResetTime() {
+void Level::SetThresholds() {
   int index = level_ < static_cast<int>(kLevelData.size()) ? level_ :  kLevelData.size() - 1;
 
   wait_time_ = (1.0 / kLevelData.at(index).gravity_) / 60.0;
   lock_delay_ = kLevelData.at(index).lock_delay_;
-  time_ = 0;
 }
 
 bool Level::WaitForMoveDown(double time_delta) {
@@ -68,7 +67,7 @@ void Level::Update(const Event& event) {
     events_.Push(Event::Type::LevelUp);
     lines_this_level_ = 0;
     level_++;
-    ResetTime();
+    SetThresholds();
     SetCenteredText(level());
   }
 

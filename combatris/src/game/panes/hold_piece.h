@@ -3,7 +3,7 @@
 #include "game/panes/pane.h"
 #include "game/tetromino_generator.h"
 
-class HoldPiece final : public TextPane {
+class HoldPiece final : public TextPane, public EventSink {
  public:
    HoldPiece(SDL_Renderer *renderer,
              const std::shared_ptr<TetrominoGenerator> &tetromino_generator,
@@ -28,7 +28,12 @@ class HoldPiece final : public TextPane {
 
   bool CanHold() const { return !wait_for_lock_; }
 
-  void Update(const Event& event) { wait_for_lock_ = !(event.type() == Event::Type::NextPiece); }
+  virtual void Update(const Event& event) override {
+    if (!event.Is(Event::Type::NextPiece)) {
+      return;
+    }
+    wait_for_lock_ = false;
+  }
 
   std::unique_ptr<TetrominoSprite> Get() { return tetromino_generator_->Get(tetromino_); }
 

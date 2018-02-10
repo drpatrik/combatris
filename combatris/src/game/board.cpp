@@ -43,26 +43,28 @@ Board::Board() : events_() {
   SDL_RenderSetLogicalSize(renderer_, kWidth, kHeight);
   assets_ = std::make_shared<Assets>(renderer_);
   matrix_ = std::make_shared<Matrix>(renderer_, assets_->GetTetrominos());
-  pane_list_.push_back(matrix_.get());
+  panes_.push_back(matrix_.get());
   level_ = std::make_shared<Level>(renderer_, events_, assets_);
-  pane_list_.push_back(level_.get());
+  panes_.push_back(level_.get());
+  event_sinks_.push_back(level_.get());
   scoring_ = std::make_unique<Scoring>(renderer_, assets_, level_);
-  pane_list_.push_back(scoring_.get());
+  event_sinks_.push_back(scoring_.get());
+  panes_.push_back(scoring_.get());
   tetromino_generator_ = std::make_shared<TetrominoGenerator>(matrix_, level_, events_, assets_);
   next_piece_ = std::make_unique<NextPiece>(renderer_, tetromino_generator_, assets_);
-  pane_list_.push_back(next_piece_.get());
+  panes_.push_back(next_piece_.get());
   hold_piece_ = std::make_unique<HoldPiece>(renderer_, tetromino_generator_, assets_);
-  pane_list_.push_back(hold_piece_.get());
+  panes_.push_back(hold_piece_.get());
+  event_sinks_.push_back(hold_piece_.get());
   total_lines_ = std::make_unique<TotalLines>(renderer_, assets_);
-  pane_list_.push_back(total_lines_.get());
+  panes_.push_back(total_lines_.get());
+  event_sinks_.push_back(total_lines_.get());
 }
 
 Board::~Board() noexcept {
   SDL_DestroyRenderer(renderer_);
   SDL_DestroyWindow(window_);
 }
-
-void Board::NewGame() { events_.Push(Event::Type::NewGame); }
 
 void Board::GameControl(Controls control_pressed) {
   if (!tetromino_in_play_) {
@@ -92,8 +94,6 @@ void Board::GameControl(Controls control_pressed) {
         tetromino_in_play_ = hold_piece_->Hold(tetromino_in_play_->type());
       }
       break;
-    case Controls::Pause:
-      break;
   }
 }
 
@@ -102,7 +102,7 @@ void Board::Render(double delta_time) {
 
   RenderWindowBackground(renderer_);
 
-  std::for_each(pane_list_.begin(), pane_list_.end(), [](const auto& r) { r->Render(); });
+  std::for_each(panes_.begin(), panes_.end(), [](const auto& r) { r->Render(); });
 
   RenderAnimations(animations_, delta_time);
 
@@ -113,17 +113,26 @@ void Board::Update(double delta_time) {
   if (!events_.IsEmpty()) {
     auto event = events_.Pop();
 
+    std::for_each(event_sinks_.begin(), event_sinks_.end(), [&event](const auto& r) { r->Update(event); });
+
     switch (event.type()) {
+      case Event::Type::Pause:
+        game_paused_ = !game_paused_;
+        if (game_paused_) {
+          std::cout << "Game Paused" << std::endl;
+        } else {
+          level_->ResetTime();
+          std::cout << "Running" << std::endl;
+        }
+        break;
       case Event::Type::CountDown:
         break;
-      case Event::Type::Scoring:
-        level_->Update(event);
-        total_lines_->Update(event);
-        scoring_->Update(event);
-        break;
       case Event::Type::NextPiece:
-        hold_piece_->Update(event);
         tetromino_in_play_ = tetromino_generator_->Get();
+        if (tetromino_in_play_->is_game_over()) {
+          tetromino_in_play_.reset();
+          events_.PushFront(Event::Type::GameOver);
+        }
         break;
       case Event::Type::LevelUp:
         std::cout << "Level Up" << std::endl;
@@ -138,29 +147,31 @@ void Board::Update(double delta_time) {
         events_.Clear();
         next_piece_->Show();
         tetromino_generator_->Reset();
-        std::for_each(pane_list_.begin(), pane_list_.end(), [](const auto& r) { r->Reset(); });
+        game_paused_ = false;
+        std::for_each(panes_.begin(), panes_.end(), [](const auto& r) { r->Reset(); });
         tetromino_in_play_ = tetromino_generator_->Get();
         break;
       case Event::Type::PerfectClear:
         std::cout << "Perfect Clear" << std::endl;
         break;
       case Event::Type::FloorReached:
-        // Launch floor reached animation
+        std::cout << "Floor reached" << std::endl;
+        break;
+      case Event::Type::InTransit:
+        std::cout << "In transit" << std::endl;
         break;
       case Event::Type::SendGarbage:
         break;
       case Event::Type::GotGarbage:
         break;
+      default:
+        break;
     }
   }
-  if (tetromino_in_play_) {
-    auto status = tetromino_in_play_->Down(delta_time);
-
-    if (status != TetrominoSprite::Status::Continue) {
+  if (!game_paused_) {
+    if (tetromino_in_play_ && tetromino_in_play_->Down(delta_time) == TetrominoSprite::Status::Commited) {
       tetromino_in_play_.reset();
-      if (status ==  TetrominoSprite::Status::Commited) {
-        events_.Push(Event::Type::NextPiece);
-      }
+      events_.Push(Event::Type::NextPiece);
     }
   }
   Render(delta_time);

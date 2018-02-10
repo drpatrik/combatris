@@ -11,8 +11,6 @@ class NextPiece final : public TextPane {
     SetCaptionOrientation(TextPane::Orientation::Left);
   }
 
-  void Hide() { hide_pieces_ = true; }
-
   void Show() { hide_pieces_ = false; }
 
   virtual void Render() const override {
@@ -31,5 +29,5 @@ class NextPiece final : public TextPane {
 
  private:
   bool hide_pieces_ = true;
-  const std::shared_ptr<TetrominoGenerator> tetromino_generator_;
+  std::shared_ptr<TetrominoGenerator> tetromino_generator_;
 };
