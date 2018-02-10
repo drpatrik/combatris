@@ -51,6 +51,7 @@ Down | Soft Drop
 Space | Hard Drop
 Shift | Hold piece
 Q | Quit
+
 **Joystick Commands (PS3 Controller)**
 
 Key | Action
