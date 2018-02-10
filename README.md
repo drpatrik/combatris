@@ -43,8 +43,8 @@ Key | Action
 --- | ------
 N  | New game
 F1 / ESC / P | Pause
+A | Rotate counter clockwise
 Up / S | Rotate clockwise
-A | Rotate Counter clockwise
 Left | Move Left
 Right | Move Right
 Down | Soft Drop
@@ -58,8 +58,8 @@ Key | Action
 --- | ------
 Start  | New game
 Select | Pause
-Square | Rotate clockwise
-Circle | Rotate Counter clockwise
+Square | Rotate counter clockwise
+Circle | Rotate clockwise
 Left | Move Left
 Right | Move Right
 Down | Soft Drop
