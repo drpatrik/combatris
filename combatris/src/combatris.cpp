@@ -133,7 +133,7 @@ class Combatris {
   }
 
  private:
-  SDL_Joystick* joystick_;
+  SDL_Joystick* joystick_ = nullptr;
 };
 
 int main(int, char * []) {

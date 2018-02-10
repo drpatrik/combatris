@@ -1,7 +1,5 @@
 #pragma once
 
-#include "game/events.h"
-#include "game/panes/pane.h"
 #include "game/tetromino_generator.h"
 
 class TotalLines final : public TextPane, public EventSink {

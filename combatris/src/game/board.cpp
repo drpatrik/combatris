@@ -155,14 +155,12 @@ void Board::Update(double delta_time) {
         std::cout << "Perfect Clear" << std::endl;
         break;
       case Event::Type::FloorReached:
-        std::cout << "Floor reached" << std::endl;
         break;
       case Event::Type::InTransit:
-        std::cout << "In transit" << std::endl;
         break;
-      case Event::Type::SendGarbage:
+      case Event::Type::SendLines:
         break;
-      case Event::Type::GotGarbage:
+      case Event::Type::GotLines:
         break;
       default:
         break;

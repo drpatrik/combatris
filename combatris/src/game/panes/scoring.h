@@ -1,6 +1,5 @@
 #pragma once
 
-#include "game/events.h"
 #include "game/panes/level.h"
 
 class Scoring final : public TextPane, public EventSink {

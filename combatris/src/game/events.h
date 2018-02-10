@@ -26,8 +26,8 @@ struct Event {
     PerfectClear,
     FloorReached,
     InTransit,
-    SendGarbage,
-    GotGarbage
+    SendLines,
+    GotLines
   };
 
   Event(Type type, const Lines& lines_cleared, TSpinType tspin_type = TSpinType::None)
