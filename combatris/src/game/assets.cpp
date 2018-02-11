@@ -6,7 +6,6 @@
 namespace {
 
 const std::string kAssetFolder = "../../assets/";
-int kCountDownTextures = 3;
 
 void DeleteTexture(SDL_Texture* texture) {
   if (texture != nullptr) {
@@ -30,20 +29,6 @@ SDL_Texture* LoadTexture(SDL_Renderer *renderer, const std::string& name) {
   SDL_FreeSurface(surface);
 
   return texture;
-}
-
-std::vector<std::shared_ptr<SDL_Texture>> LoadTextures(SDL_Renderer* renderer, const std::string& name, size_t n) {
-  if (SDL_WasInit(SDL_INIT_EVERYTHING) == 0 || nullptr == renderer) {
-    return std::vector<std::shared_ptr<SDL_Texture>>();
-  }
-  std::vector<std::shared_ptr<SDL_Texture>> textures;
-
-  for (size_t i = 1; i <= n; ++i) {
-    std::string fullname = name + "_" + std::to_string(i) + ".bmp";
-    textures.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, fullname), DeleteTexture));
-  }
-
-  return textures;
 }
 
 TTF_Font *LoadFont(const std::string& name, int size) {
@@ -88,7 +73,8 @@ const std::vector<std::pair<std::string, int>> kFonts {
   std::make_pair("Cabin-Regular.ttf", kNormalFontSize),
   std::make_pair("Cabin-Bold.ttf", kNormalFontSize),
   std::make_pair("Cabin-Regular.ttf", kSmallFontSize),
-  std::make_pair("Cabin-Bold.ttf", kLargeFontSize)
+  std::make_pair("Cabin-Bold.ttf", kLargeFontSize),
+  std::make_pair("Cabin-Bold.ttf", kVeryLargeFontSize)
 };
 
 } // namespace
@@ -102,5 +88,4 @@ Assets::Assets(SDL_Renderer *renderer) {
   for (const auto& f:kFonts) {
     fonts_.push_back(UniqueFontPtr{ LoadFont(f.first, f.second) });
   }
-  countdown_textures_ = LoadTextures(renderer, "Countdown", kCountDownTextures);
 }

@@ -8,9 +8,9 @@ inline int row_to_pixel(size_t row) { return static_cast<int>((row * kBlockHeigh
 
 inline int col_to_pixel(size_t col) { return static_cast<int>((col * kBlockWidth) + kMatrixStartX); }
 
-inline int pixel_to_row(size_t y) { return static_cast<int>((y <= kMatrixStartY || y >= kMatrixEndY) ? -1 : (y - kMatrixStartY) / kBlockHeight); }
+inline int row_to_pixel_adjusted(size_t row) { return static_cast<int>((row * kBlockHeight) + (kMatrixStartY - (kVisibleRowStart * kBlockHeight))); }
 
-inline int pixel_to_col(size_t x) { return static_cast<int>((x <= kMatrixStartX || x >= kMatrixEndX) ? -1 : (x - kMatrixStartX) / kBlockWidth); }
+inline int col_to_pixel_adjusted(size_t col) { return static_cast<int>((col * kBlockWidth) + (kMatrixStartX - (kVisibleColStart  * kBlockWidth))); }
 
 inline int row_to_visible(int row) { return row - kVisibleRowStart; }
 

@@ -11,10 +11,11 @@ void RenderWindowBackground(SDL_Renderer* renderer) {
   SDL_RenderFillRect(renderer, &rc);
 }
 
-bool RenderAnimations(std::deque<std::shared_ptr<Animation>>& animations, double delta_time) {
+bool RenderAnimations(std::deque<std::shared_ptr<Animation>>& animations, double delta_time, Events& events) {
   for (auto it = std::begin(animations); it != std::end(animations);) {
     (*it)->Render(delta_time);
-    if ((*it)->IsReady()) {
+    if (auto [status, event] = (*it)->IsReady(); status) {
+      events.Push(event);
       it = animations.erase(it);
     } else {
       ++it;
@@ -59,6 +60,7 @@ Board::Board() : events_() {
   total_lines_ = std::make_unique<TotalLines>(renderer_, assets_);
   panes_.push_back(total_lines_.get());
   event_sinks_.push_back(total_lines_.get());
+  AddAnimation<SplashScreenAnimation>(renderer_, assets_);
 }
 
 Board::~Board() noexcept {
@@ -97,6 +99,70 @@ void Board::GameControl(Controls control_pressed) {
   }
 }
 
+void Board::EventHandler(Events& events) {
+  if (events.IsEmpty()) {
+    return;
+  }
+  auto event = events.Pop();
+
+  std::for_each(event_sinks_.begin(), event_sinks_.end(), [&event](const auto& r) { r->Update(event); });
+
+  switch (event.type()) {
+    case Event::Type::Pause:
+      AddAnimation<PauseAnimation>(renderer_, assets_, game_paused_);
+      break;
+    case Event::Type::UnPause:
+      AddAnimation<CountDownAnimation>(renderer_, assets_, Event::Type::AnimationDone);
+      break;
+    case Event::Type::AnimationDone:
+      level_->ResetTime();
+      break;
+    case Event::Type::NextPiece:
+      tetromino_in_play_ = tetromino_generator_->Get();
+      if (tetromino_in_play_->is_game_over()) {
+        tetromino_in_play_.reset();
+        events.PushFront(Event::Type::GameOver);
+      }
+      break;
+    case Event::Type::LevelUp:
+      AddAnimation<LevelUpAnimation>(renderer_, assets_);
+      break;
+    case Event::Type::ScoreAnimation:
+      AddAnimation<ScoreAnimation>(renderer_, assets_, event.pos_, event.score_);
+      break;
+    case Event::Type::GameOver:
+      events.Clear();
+      animations_.clear();
+      tetromino_in_play_.reset();
+      AddAnimation<GameOverAnimation>(renderer_, assets_);
+      break;
+    case Event::Type::NewGame:
+      AddAnimation<CountDownAnimation>(renderer_, assets_, Event::Type::ResetGame);
+      break;
+    case Event::Type::ResetGame:
+      events.Clear();
+      next_piece_->Show();
+      tetromino_generator_->Reset();
+      game_paused_ = false;
+      std::for_each(panes_.begin(), panes_.end(), [](const auto& r) { r->Reset(); });
+      tetromino_in_play_ = tetromino_generator_->Get();
+      break;
+    case Event::Type::PerfectClear:
+      std::cout << "Perfect Clear" << std::endl;
+      break;
+    case Event::Type::FloorReached:
+      break;
+    case Event::Type::InTransit:
+      break;
+    case Event::Type::SendLines:
+      break;
+    case Event::Type::GotLines:
+      break;
+    default:
+      break;
+  }
+}
+
 void Board::Render(double delta_time) {
   SDL_RenderClear(renderer_);
 
@@ -104,68 +170,13 @@ void Board::Render(double delta_time) {
 
   std::for_each(panes_.begin(), panes_.end(), [](const auto& r) { r->Render(); });
 
-  RenderAnimations(animations_, delta_time);
+  RenderAnimations(animations_, delta_time, events_);
 
   SDL_RenderPresent(renderer_);
 }
 
 void Board::Update(double delta_time) {
-  if (!events_.IsEmpty()) {
-    auto event = events_.Pop();
-
-    std::for_each(event_sinks_.begin(), event_sinks_.end(), [&event](const auto& r) { r->Update(event); });
-
-    switch (event.type()) {
-      case Event::Type::Pause:
-        game_paused_ = !game_paused_;
-        if (game_paused_) {
-          std::cout << "Game Paused" << std::endl;
-        } else {
-          level_->ResetTime();
-          std::cout << "Running" << std::endl;
-        }
-        break;
-      case Event::Type::CountDown:
-        break;
-      case Event::Type::NextPiece:
-        tetromino_in_play_ = tetromino_generator_->Get();
-        if (tetromino_in_play_->is_game_over()) {
-          tetromino_in_play_.reset();
-          events_.PushFront(Event::Type::GameOver);
-        }
-        break;
-      case Event::Type::LevelUp:
-        std::cout << "Level Up" << std::endl;
-        break;
-      case Event::Type::GameOver:
-        events_.Clear();
-        animations_.clear();
-        tetromino_in_play_.reset();
-        std::cout << "Game Over" << std::endl;
-        break;
-      case Event::Type::NewGame:
-        events_.Clear();
-        next_piece_->Show();
-        tetromino_generator_->Reset();
-        game_paused_ = false;
-        std::for_each(panes_.begin(), panes_.end(), [](const auto& r) { r->Reset(); });
-        tetromino_in_play_ = tetromino_generator_->Get();
-        break;
-      case Event::Type::PerfectClear:
-        std::cout << "Perfect Clear" << std::endl;
-        break;
-      case Event::Type::FloorReached:
-        break;
-      case Event::Type::InTransit:
-        break;
-      case Event::Type::SendLines:
-        break;
-      case Event::Type::GotLines:
-        break;
-      default:
-        break;
-    }
-  }
+  EventHandler(events_);
   if (!game_paused_) {
     if (tetromino_in_play_ && tetromino_in_play_->Down(delta_time) == TetrominoSprite::Status::Commited) {
       tetromino_in_play_.reset();

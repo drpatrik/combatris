@@ -1,5 +1,7 @@
 #pragma once
 
+#include "game/coordinates.h"
+
 #include <deque>
 #include <vector>
 
@@ -16,25 +18,31 @@ enum class TSpinType { None, TSpin, TSpinMini };
 
 struct Event {
   enum class Type {
+    None,
     Pause,
+    UnPause,
     GameOver,
     NewGame,
     NextPiece,
     Scoring,
+    ScoreAnimation,
     LevelUp,
-    CountDown,
+    ResetGame,
     PerfectClear,
     FloorReached,
     InTransit,
     SendLines,
-    GotLines
+    GotLines,
+    AnimationDone
   };
 
-  Event(Type type, const Lines& lines_cleared, TSpinType tspin_type = TSpinType::None)
-      : type_(type), lines_cleared_(lines_cleared), tspin_type_(tspin_type) {}
+  Event(Type type, const Lines& lines_cleared, const Position& pos, TSpinType tspin_type = TSpinType::None)
+      : type_(type), lines_cleared_(lines_cleared), pos_(pos), tspin_type_(tspin_type) {}
 
   explicit Event(Type type)
-      : type_(type), lines_cleared_(), tspin_type_(TSpinType::None) {}
+      : type_(type), lines_cleared_() {}
+
+  Event(Type type, const Position& pos, int score) : type_(type), pos_(pos), score_(score) {}
 
   Event(Type type, int lines_dropped)
       : type_(type), lines_cleared_(), tspin_type_(TSpinType::None), lines_dropped_(lines_dropped) {}
@@ -47,11 +55,15 @@ struct Event {
 
   inline int lines_cleared() const { return lines_cleared_.size(); }
 
+  inline int score() const { return score_; }
+
   Type type_;
   Lines lines_cleared_;
-  TSpinType tspin_type_;
+  Position pos_ = Position(-1, -1);
+  TSpinType tspin_type_ = TSpinType::None;
   int lines_dropped_ = 0;
   int garbage_lines_ = 0;
+  int score_ = 0;
 };
 
 class EventSink {
@@ -76,8 +88,12 @@ class Events {
 
   void Push(const Event& event) { events_.push_back(event); }
 
-  void Push(Event::Type type, const Lines& lines, TSpinType tspin_type = TSpinType::None) {
-    events_.emplace_back(type, lines, tspin_type);
+  void Push(Event::Type type, const Lines& lines, const Position& pos, TSpinType tspin_type = TSpinType::None) {
+    events_.emplace_back(type, lines, pos, tspin_type);
+  }
+
+  void Push(Event::Type type, const Position& pos, int score) {
+    events_.emplace_back(type, pos, score);
   }
 
   void Push(Event::Type type, int lines) { events_.emplace_back(type, lines); }

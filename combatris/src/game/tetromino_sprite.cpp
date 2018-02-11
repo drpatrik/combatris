@@ -136,7 +136,7 @@ TetrominoSprite::Status TetrominoSprite::Down(double delta_time) {
     if (perfect_clear) {
       events_.Push(Event::Type::PerfectClear);
     }
-    events_.Push(Event::Type::Scoring, lines_cleared, tspin_type);
+    events_.Push(Event::Type::Scoring, lines_cleared, pos_, tspin_type);
     status = Status::Commited;
   }
   return status;

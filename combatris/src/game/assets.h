@@ -18,14 +18,11 @@ class Assets final {
 
   const std::vector<std::shared_ptr<const Tetromino>>& GetTetrominos() const { return tetrominos_; }
 
-  const std::vector<std::shared_ptr<SDL_Texture>>& GetCountdownTextures() const { return countdown_textures_; }
-
   virtual TTF_Font* GetFont(int id) const { return fonts_.at(id).get(); }
 
  private:
   using UniqueFontPtr = std::unique_ptr<TTF_Font, function_caller<void(TTF_Font*), &TTF_CloseFont>>;
 
   std::vector<UniqueFontPtr> fonts_;
-  std::vector<std::shared_ptr<SDL_Texture>> countdown_textures_;
   std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
 };

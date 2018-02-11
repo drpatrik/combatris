@@ -21,19 +21,24 @@ to work - after that work on the network capabilities will start.
 - [x] Combos (scoring)
 - [X] Perfect clear (cleared matrix after game started)
 - [X] Hard Drop & Soft Drop (scoring)
-- [X] Panes for score / next tetrominos / hold piece etc.
+- [X] Panes for score / next tetrominos / hold piece / level
+- [ ] High Score pane
+- [ ] Bonus Move / Combo (T-Spin / Tetris / etc.) (pane)
 - [ ] Unit tests // Two in place right now
 - [ ] Sound
-- [ ] Customizible controls
+- [ ] Customizible keyboard controls
 - [X] Joystick support (PS3 joystick tested)
+- [X] Hot add / remove joystick device
+- [X] Config joystick to use
+- [ ] Customizible joystick controls
 - [ ] Cleared lines (animations)
 - [ ] Tetromino Locked (animations)
-- [ ] Level up (animations)
-- [ ] Bonus Move / Combo (T-Spin / Tetris / etc.) (animations)
-- [ ] Count down before game start (animations)
-- [ ] Game Over Screen
-- [ ] Pause Screen
-- [ ] Splash Screen
+- [X] Level up (animations)
+- [X] Score animation
+- [X] Count down before game start (animations)
+- [X] Game Over Screen
+- [X] Pause Screen
+- [X] Splash Screen
 - [ ] Network functionality
 - [ ] Multi-player
 

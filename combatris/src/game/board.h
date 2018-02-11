@@ -18,9 +18,20 @@ class Board final {
 
   ~Board() noexcept;
 
-  void NewGame() { events_.Push(Event::Type::NewGame); }
+  void NewGame() {
+    animations_.clear();
+    events_.Push(Event::Type::NewGame);
+  }
 
-  void Pause() { events_.Push(Event::Type::Pause); }
+  void Pause() {
+    if (!tetromino_in_play_) {
+      return;
+    }
+    game_paused_ = !game_paused_;
+    if (game_paused_) {
+      events_.Push(Event::Type::Pause);
+    }
+  }
 
   void GameControl(Controls control_pressed);
 
@@ -28,12 +39,10 @@ class Board final {
 
  protected:
   template<class T, class ...Args>
-  void StartAnimation(Args&&... args) {
-    auto animation = std::make_shared<T>(std::forward<Args>(args)...);
+  void AddAnimation(Args&&... args) { animations_.push_front(std::make_shared<T>(std::forward<Args>(args)...)); }
 
-    animation->Start();
-    animations_.push_front(animation);
-  }
+  void EventHandler(Events& events);
+
   void Render(double delta_timer);
 
  private:

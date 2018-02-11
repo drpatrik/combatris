@@ -3,28 +3,34 @@
 #include "game/matrix.h"
 #include "game/assets.h"
 
+namespace {
+
+const SDL_Rect kMatrixRect = { kMatrixStartX, kMatrixStartY, kMatrixWidth, kMatrixHeight };
+
+void SetBlackBackground(SDL_Renderer* renderer) {
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+  SDL_RenderFillRect(renderer, &kMatrixRect);
+}
+
+} // namespace
+
 class Animation {
 public:
-  Animation(SDL_Renderer *renderer, Matrix& matrix, const Assets& assets)
+  Animation(SDL_Renderer* renderer, const std::shared_ptr<Matrix>& matrix, const std::shared_ptr<Assets>& assets)
       : renderer_(renderer), matrix_(matrix), assets_(assets) {}
+  Animation(SDL_Renderer *renderer,  const std::shared_ptr<Assets>& assets) : renderer_(renderer), assets_(assets) {}
 
   virtual ~Animation() noexcept = default;
 
-  virtual void Start() = 0;
-
   virtual void Render(double) = 0;
 
-  virtual bool IsReady() = 0;
-
-  virtual bool Idle() const { return false; }
-
-  virtual bool LockBoard() const { return true; }
+  virtual std::pair<bool, Event::Type> IsReady()  = 0;
 
   operator SDL_Renderer *() const { return renderer_; }
 
-  Matrix &GetMatrix() { return matrix_; }
+  Matrix& GetMatrix() { return *matrix_; }
 
-  const Assets& GetAsset() const { return assets_; }
+  const Assets& GetAsset() const { return *assets_; }
 
 protected:
   double x_ = 0.0;
@@ -35,258 +41,111 @@ protected:
   }
 
 private:
-  SDL_Renderer *renderer_;
-  Matrix &matrix_;
-  const Assets& assets_;
+  SDL_Renderer* renderer_;
+  std::shared_ptr<Matrix> matrix_ = nullptr;
+  std::shared_ptr<Assets> assets_ = nullptr;
 };
 
-/*class ScoreAnimation final : public Animation {
+class ScoreAnimation final : public Animation {
  public:
-  ScoreAnimation(SDL_Renderer *renderer, Grid &grid,
-                 const std::vector<Position> &matches, int chains,
-                 int score,
-                 const std::shared_ptr<AssetManager> &asset_manager)
-      : Animation(renderer, grid, asset_manager), score_(score), chains_(chains) {
-    auto [x, y] = FindPositionForScoreAnimation(matches);
-
+  ScoreAnimation(SDL_Renderer* renderer,  const std::shared_ptr<Assets>& assets,  const Position& pos, int score)
+      : Animation(renderer, assets) {
     int width, height;
-    std::tie(texture_, width, height) = CreateTextureFromFramedText(*this, GetAsset().GetFont(Small), std::to_string(score_), Color::White, Color::Black);
+    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold), std::to_string(score), Color::SteelGray);
 
-    rc_ = { x + Center(kSpriteWidth, width), y + Center(kSpriteHeight, height), width, height };
-    y_ = rc_.y;
-    end_pos_ = y_ - kSpriteHeightTimes1_5;
-  }
+    int x = col_to_pixel_adjusted(pos.col()) + Center(kBlockWidth * 4, width);
+    int y = row_to_pixel_adjusted(pos.row());
 
-  virtual void Start() override {
-    switch (chains_) {
-      case 1:
-        GetAudio().PlaySound(SoundEffect::RemovedOneChain);
-        break;
-      case 2:
-        GetAudio().PlaySound(SoundEffect::RemovedTwoChains);
-        break;
-      default:
-        GetAudio().PlaySound(SoundEffect::RemovedManyChains);
-        break;
+    if (x + width > kMatrixEndX) {
+      x = kMatrixEndX - width;
+    } else if (x < kMatrixStartX) {
+      x = kMatrixStartX;
     }
+    if (y + height > kMatrixEndY) {
+      y = kMatrixEndY - height;
+    }
+    rc_ = { x, y, width, height };
+    y_ = rc_.y;
+    end_pos_ = y_ - (kBlockHeight * 2);
   }
 
-  virtual void Update(double delta) override {
-    SDL_Rect clip_rc;
-    SDL_RenderGetClipRect(*this, &clip_rc);
-    SDL_RenderSetClipRect(*this, NULL);
+  virtual void Render(double delta) override {
     rc_.y = static_cast<int>(y_);
     RenderCopy(texture_.get(), rc_);
     y_ -= delta * 65.0;
-    SDL_RenderSetClipRect(*this, &clip_rc);
   }
 
-  virtual bool IsReady() override { return (y_ <= end_pos_); }
+  virtual std::pair<bool, Event::Type> IsReady() override { return std::make_pair(y_ <= end_pos_, Event::Type::None); }
 
  private:
-  int score_;
-  int chains_;
   SDL_Rect rc_;
   UniqueTexturePtr texture_ = nullptr;
   double end_pos_;
-  };*/
+};
 
-/*class MatchAnimation final : public Animation {
+class ClearedLinesAnimation final : public Animation {
 public:
-  MatchAnimation(SDL_Renderer *renderer, Grid &grid,
-                 const std::vector<Position> &matches, int chains,
-                 const std::shared_ptr<AssetManager> &asset_manager)
-      : Animation(renderer, grid, asset_manager), matches_(matches.begin(), matches.end()),
-        score_animation_(renderer, grid, matches, chains, GetBasicScore(matches_.size()), asset_manager) {}
+  ClearedLinesAnimation(SDL_Renderer *renderer,const std::shared_ptr<Assets> &assets, const Lines& lines)
+      : Animation(renderer, assets), lines_(lines) {}
 
-  virtual void Start() override {
-    int i = 0;
-
-    elements_.resize(matches_.size(), Element(SpriteID::OwnedByAnimation));
-    for (const auto &m : matches_) {
-      std::swap(elements_[i], GetGrid().At(m));
-      i++;
-    }
-  }
-
-  virtual void Update(double delta) override {
-    if (!lock_board_) {
-      score_animation_.Update(delta);
-      return;
-    }
-    x_ += (75.0 * delta);
-    y_ += (75.0 * delta);
-    scale_w_ -= (150 * delta);
-    scale_h_ -= (150 * delta);
-
-    int i = 0;
-
-    for (const auto &m : matches_) {
-      int x = static_cast<int>(m.x() + x_);
-      int y = static_cast<int>(m.y() + y_);
-
-      SDL_Rect rc = { x, y, static_cast<int>(scale_w_), static_cast<int>(scale_h_) };
-      RenderCopy(elements_[i], rc);
-      i++;
-    }
-  }
-
-  virtual bool IsReady() override {
-    if (!lock_board_) {
-      return score_animation_.IsReady();
-    } else {
-      if (scale_w_ <= 0.0 || scale_h_ <= 0.0) {
-        for (const auto &m : matches_) {
-          GetGrid().At(m) = Element(SpriteID::Empty);
-        }
-        lock_board_ = false;
-        score_animation_.Start();
-      }
-    }
-    return false;
-  }
-
-  virtual bool LockBoard() const override { return lock_board_; }
-
-private:
-  std::set<Position> matches_;
-  std::vector<Element> elements_;
-  double scale_w_ = kSpriteWidth;
-  double scale_h_ = kSpriteHeight;
-  bool lock_board_ = true;
-  ScoreAnimation score_animation_;
-  };*/
-
-/*class MoveDownAnimation final : public Animation {
-public:
-  MoveDownAnimation(SDL_Renderer *renderer, Grid &grid, const Position &p,
-                    const std::shared_ptr<AssetManager> &asset_manager)
-      : Animation(renderer, grid, asset_manager), p_(p) {}
-
-  virtual void Start() override {
-    std::swap(element_, GetGrid().At(p_));
-    rc_ = { p_.x(), p_.y() - kSpriteHeight, kSpriteWidth, kSpriteHeight };
-    y_ = rc_.y;
-  }
-
-  virtual void Update(double delta) override {
-    const double kIncY = GetGrid().IsFilling() ? delta * 500 : delta * 350;
-
-    rc_.y = static_cast<int>(y_);
-    RenderCopy(element_, rc_);
+  virtual void Render(double delta) override {
+    const double kIncY = delta * 350;
     y_ += kIncY;
   }
 
-  virtual bool IsReady() override {
-    if (y_ < p_.y()) {
-      return false;
-    }
-    std::swap(element_, GetGrid().At(p_));
-    if (p_.row() + 1 >= kRows || !GetGrid().At(p_.row() + 1, p_.col()).IsEmpty()) {
-      GetAudio().PlaySound(SoundEffect::DiamondLanding);
-    }
-    return true;
-  }
+  virtual std::pair<bool, Event::Type> IsReady() override { return std::make_pair(true, Event::Type::None); }
 
 private:
-  Position p_;
-  SDL_Rect rc_ { 0, 0, 0, 0 };
-  Element element_ = Element(OwnedByAnimation);
+  Lines lines_;
 };
 
-class HintAnimation final : public Animation {
-public:
-  HintAnimation(SDL_Renderer *renderer, Grid &grid, const Position &p1,
-                const Position &p2,
-                std::shared_ptr<AssetManager> &asset_manager)
-      : Animation(renderer, grid, asset_manager), p1_(p1), p2_(p2) {}
-
-  ~HintAnimation() {
-    std::swap(e1_, GetGrid().At(p1_));
-    std::swap(e2_, GetGrid().At(p2_));
+class CountDownAnimation final : public Animation {
+ public:
+  CountDownAnimation(SDL_Renderer *renderer, const std::shared_ptr<Assets> &assets, Event::Type type)
+      : Animation(renderer, assets), type_(type) {
+    CreateTexture(countdown_);
   }
 
-  virtual void Start() override {
-    std::swap(e1_, GetGrid().At(p1_));
-    std::swap(e2_, GetGrid().At(p2_));
-    GetAudio().PlaySound(SoundEffect::Hint);
-  }
-
-  virtual void Update(double delta) override {
-    const double kTwoTimesPi = 2.0 * 3.1415926535897932384626433;
-    const double kRadius = kSpriteWidth / 10.0;
-
-    angle_ += (delta * 30);
-    if (angle_ > kTwoTimesPi) {
-      angle_ = 0.0;
-      revolutions_++;
-    }
-    x_ = cos(angle_) * kRadius;
-    y_ = sin(angle_) * kRadius;
-
-    e1_.Render(*this, static_cast<int>(x_) + p1_.x(), static_cast<int>(y_) + p1_.y(), true);
-    e2_.Render(*this, static_cast<int>(x_) + p2_.x(), static_cast<int>(y_) + p2_.y(), true);
-  }
-
-  virtual bool IsReady() override { return (revolutions_ >= 3) ? true : false; }
-
-  virtual bool Idle() const override { return true; }
-
-private:
-  Position p1_;
-  Position p2_;
-  Element e1_ = Element(SpriteID::OwnedByAnimation);
-  Element e2_ = Element(SpriteID::OwnedByAnimation);
-  double angle_ = 0.0;
-  int revolutions_ = 0;
-  };*/
-
-/*class ExplosionAnimation final : public Animation {
-public:
-  ExplosionAnimation(SDL_Renderer *renderer, Grid &grid,
-                     std::shared_ptr<AssetManager> &asset_manager)
-      : Animation(renderer, grid, asset_manager), explosion_texture_(asset_manager->GetExplosionTextures()) {}
-
-  virtual void Start() override {}
-
-  virtual void Update(double delta) override {
-    const SDL_Rect rc{ 100, 278, 71, 100 };
-
-    RenderCopy(explosion_texture_.at(frame_), rc);
-    animation_ticks_ += delta;
-    if (animation_ticks_ >= (kTimeResolution * 5)) {
-      frame_++;
-      animation_ticks_ = 0.0;
+  virtual void Render(double delta) override {
+    SetBlackBackground(*this);
+    RenderCopy(texture_.get(), rc_);
+    ticks_ += delta;
+    if (ticks_ >= 1.0) {
+      countdown_--;
+      CreateTexture(countdown_);
+      ticks_ = 0.0;
     }
   }
 
-  virtual bool IsReady() override {
-    return (static_cast<size_t>(frame_) >= explosion_texture_.size());
-  }
+  virtual  std::pair<bool, Event::Type> IsReady() override { return std::make_pair(countdown_ - 1 < 0.0, type_); }
 
-private:
-  int frame_ = 0;
-  double animation_ticks_ = 0.0;
-  std::vector<SDL_Texture *> countdown_textures_;
-  };*/
-
-/*class LevelUpAnimation final : public Animation {
-public:
-  ThresholdReachedAnimation(SDL_Renderer *renderer, Grid &grid,
-                            std::shared_ptr<AssetManager> &asset_manager, int value)
-      : Animation(renderer, grid, asset_manager) {
-    const std::string kText = std::to_string(value - (value % kThresholdMultiplier)) + " diamonds cleared";
-
+  void CreateTexture(int i) {
     int width, height;
 
-    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Large), kText, Color::White);
-
-    rc_ = { kBlackAreaX + Center(kBlackAreadWidth, width), kBlackAreaY + Center(kBlackAreadHeight, height) , width, height };
+    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(VeryLarge), std::to_string(i), Color::White);
+    rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + Center(kMatrixHeight, height) , width, height };
   }
 
-  virtual void Start() override { GetAudio().PlaySound(SoundEffect::ThresholdReached); }
+private:
+  Event::Type type_;
+  int countdown_ = 3;
+  double ticks_ = 0.0;
+  SDL_Rect rc_;
+  UniqueTexturePtr texture_;
+  };
 
-  virtual void Update(double delta) override {
+class LevelUpAnimation final : public Animation {
+ public:
+  LevelUpAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets> &assets)
+      : Animation(renderer, assets) {
+    int width, height;
+
+    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Large), "LEVEL UP", Color::White);
+
+    rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + Center(kMatrixHeight, height) , width, height };
+  }
+
+  virtual void Render(double delta) override {
     const double kFade = (ticks_ <= 0.6) ? 0.0 : 500.0;
 
     SDL_SetTextureAlphaMod(texture_.get(), static_cast<Uint8>(alpha_));
@@ -296,18 +155,94 @@ public:
     ticks_ += delta;
   }
 
-  virtual bool IsReady() override {
-    if (ticks_ >= 2.0 || alpha_ <= 0) {
-      return true;
-    }
-    return false;
+  virtual std::pair<bool, Event::Type> IsReady() override {
+    return std::make_pair(ticks_ >= 3.0 || alpha_ <= 0, Event::Type::None);
   }
-
-  virtual bool LockBoard() const override { return false; }
 
 private:
   double alpha_ = 255.0;
   UniqueTexturePtr texture_;
   SDL_Rect rc_;
   double ticks_;
-  };*/
+};
+
+class PauseAnimation final : public Animation {
+ public:
+  PauseAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets> &assets, bool &game_paused)
+      : Animation(renderer, assets), game_paused_(game_paused) {
+    int width, height;
+
+    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Large), "Paused ... ", Color::White);
+
+    rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + Center(kMatrixHeight, height) , width, height };
+  }
+
+  virtual void Render(double) override {
+    SetBlackBackground(*this);
+    RenderCopy(texture_.get(), rc_);
+  }
+
+  virtual std::pair<bool, Event::Type> IsReady() override { return std::make_pair(!game_paused_, Event::Type::UnPause); }
+
+private:
+  bool& game_paused_;
+  UniqueTexturePtr texture_;
+  SDL_Rect rc_;
+};
+
+class SplashScreenAnimation final : public Animation {
+ public:
+  SplashScreenAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets> &assets)
+      : Animation(renderer, assets) {
+    int width, height;
+
+    std::tie(texture_1_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Large), "COMBATRIS", Color::SteelGray);
+    rc_1_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100 , width, height };
+    std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Small), "Press 'N' or Start to play", Color::White);
+    rc_2_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_1_.y + rc_1_.h + 10 , width, height };
+  }
+
+  virtual void Render(double) override {
+    SetBlackBackground(*this);
+    RenderCopy(texture_1_.get(), rc_1_);
+    RenderCopy(texture_2_.get(), rc_2_);
+  }
+
+  virtual std::pair<bool, Event::Type> IsReady() override { return std::make_pair(false, Event::Type::None); }
+
+private:
+  UniqueTexturePtr texture_1_;
+  UniqueTexturePtr texture_2_;
+  SDL_Rect rc_1_;
+  SDL_Rect rc_2_;
+};
+
+class GameOverAnimation final : public Animation {
+ public:
+  GameOverAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets> &assets)
+      : Animation(renderer, assets) {
+    int width, height;
+
+    std::tie(texture_1_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Large), "Game Over", Color::White);
+    rc_1_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100 , width, height };
+    std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Small), "Press 'N' or Start to play", Color::White);
+    rc_2_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_1_.y + rc_1_.h + 10 , width, height };
+    blackbox_rc_ = { rc_1_.x - 20, rc_1_.y - 20, rc_1_.w + 40, rc_1_.h + rc_2_.h + 50 };
+  }
+
+  virtual void Render(double) override {
+    SDL_SetRenderDrawColor(*this, 0, 0, 0, 0);
+    SDL_RenderFillRect(*this, &blackbox_rc_);
+    RenderCopy(texture_1_.get(), rc_1_);
+    RenderCopy(texture_2_.get(), rc_2_);
+  }
+
+  virtual std::pair<bool, Event::Type> IsReady() override { return std::make_pair(false, Event::Type::None); }
+
+private:
+  UniqueTexturePtr texture_1_;
+  UniqueTexturePtr texture_2_;
+  SDL_Rect rc_1_;
+  SDL_Rect rc_2_;
+  SDL_Rect blackbox_rc_;
+};

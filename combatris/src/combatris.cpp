@@ -7,8 +7,18 @@ namespace {
 
 uint32_t kFirstKeyRepeatTime = 150; // milliseconds
 uint32_t kKeyRepeatTime = 50; // milliseconds
+// PS3 Controller Mappings
+int kJoystick_SoftDrop = 6; // Pad Down
+int kJoystick_Left = 7; // Pad Left
+int kJoystick_Right = 5; // Pad Right
+int kJoystick_RotateCounterClockwise = 15; // Square button
+int kJoystick_RotateClockwise = 13; // Circle button
+int kJoystick_HoldPiece = 12; // Triangle Button
+int kJoystick_HardDrop = 14; // X button
+int kJoystick_Start = 3; // Start button
+int kJoystick_Pause = 0; // Select button
 
-}
+} // namespace
 
 class Combatris {
  public:
@@ -25,26 +35,41 @@ class Combatris {
       std::cout << "Mix_OpenAudio Error: " << Mix_GetError() << std::endl;
       exit(-1);
     }
+    SDL_JoystickEventState(SDL_ENABLE);
+    SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
     if (SDL_NumJoysticks() > 0) {
-      SDL_JoystickEventState(SDL_ENABLE);
-      SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
-      joystick_ = SDL_JoystickOpen(0);
-      if (nullptr == joystick_) {
-        std::cout << "Warning: Unable to open game controller! SDL Error: " << SDL_GetError() << std::endl;
-        exit(-1);
-      }
-      std::cout << "Joystick found: " << SDL_JoystickName(joystick_) << std::endl;
+      AttachJoystick(0);
     }
   }
 
   ~Combatris() {
-    if (joystick_ != nullptr) {
-      SDL_JoystickClose(joystick_);
-    }
+    DetachJoystick(joystick_index_);
     SDL_Quit();
     TTF_Quit();
     Mix_CloseAudio();
     Mix_Quit();
+  }
+
+  void AttachJoystick(int index) {
+    if (nullptr != joystick_) {
+      return;
+    }
+    joystick_ = SDL_JoystickOpen(index);
+    if (nullptr == joystick_) {
+      std::cout << "Warning: Unable to open game controller! SDL Error: " << SDL_GetError() << std::endl;
+      exit(-1);
+    }
+    joystick_index_ = index;
+    std::cout << "Joystick found: " << SDL_JoystickName(joystick_) << std::endl;
+  }
+
+  void DetachJoystick(int index) {
+    if (nullptr == joystick_ || index != joystick_index_) {
+      return;
+    }
+    SDL_JoystickClose(joystick_);
+    joystick_ = nullptr;
+    joystick_index_ = -1;
   }
 
   void Play() {
@@ -91,26 +116,26 @@ class Combatris {
               repeat_counter = SDL_GetTicks();
               button_pressed = true;
             }
-            if (event.jbutton.button == 6) { // pad down
+            if (event.jbutton.button == kJoystick_SoftDrop) { // pad down
               function_to_repeat = [&board]() { board.GameControl(Board::Controls::SoftDrop); };
               function_to_repeat();
-            }  else if (event.jbutton.button == 7) { // pad left
+            }  else if (event.jbutton.button == kJoystick_Left) { // pad left
               function_to_repeat = [&board]() { board.GameControl(Board::Controls::Left); };
               function_to_repeat();
-            }  else if (event.jbutton.button == 5) { // pad right
+            }  else if (event.jbutton.button == kJoystick_Right) { // pad right
               function_to_repeat = [&board]() { board.GameControl(Board::Controls::Right); };
               function_to_repeat();
-            } else if (event.jbutton.button == 15) { // Square
+            } else if (event.jbutton.button == kJoystick_RotateCounterClockwise) { // Square
               board.GameControl(Board::Controls::RotateCounterClockwise);
-            }  else if (event.jbutton.button == 13) { // Circle
+            }  else if (event.jbutton.button == kJoystick_RotateClockwise) { // Circle
               board.GameControl(Board::Controls::RotateClockwise);
-            }  else if (event.jbutton.button == 12) { // Triangle
+            }  else if (event.jbutton.button == kJoystick_HoldPiece) { // Triangle
               board.GameControl(Board::Controls::HoldPiece);
-            }  else if (event.jbutton.button == 14) { // X
+            }  else if (event.jbutton.button == kJoystick_HardDrop) { // X
               board.GameControl(Board::Controls::HardDrop);
-            }  else if (event.jbutton.button == 3) { // Start
+            }  else if (event.jbutton.button == kJoystick_Start) { // Start
               board.NewGame();
-            } else if (event.jbutton.button == 0) { // Select
+            } else if (event.jbutton.button == kJoystick_Pause) { // Select
               board.Pause();
             }
             break;
@@ -118,6 +143,14 @@ class Combatris {
             button_pressed = false;
             function_to_repeat = nullptr;
             repeat_threshold = kFirstKeyRepeatTime;
+            break;
+          case SDL_JOYDEVICEADDED:
+            AttachJoystick(event.jbutton.which);
+            std::cout << "Joystick device added: " << event.jbutton.which << std::endl;
+            break;
+          case SDL_JOYDEVICEREMOVED:
+            DetachJoystick(event.jbutton.which);
+            std::cout << "Joystick device removed: " << event.jbutton.which << std::endl;
             break;
         }
       }
@@ -133,6 +166,7 @@ class Combatris {
   }
 
  private:
+  int joystick_index_ = -1;
   SDL_Joystick* joystick_ = nullptr;
 };
 

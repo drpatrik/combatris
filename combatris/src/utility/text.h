@@ -9,7 +9,7 @@
 
 #include <SDL_ttf.h>
 
-enum Font { Normal, Bold, Small, Large };
+enum Font { Normal, Bold, Small, Large, VeryLarge };
 
 using UniqueTexturePtr = std::unique_ptr<SDL_Texture, function_caller<void(SDL_Texture*), &SDL_DestroyTexture>>;
 

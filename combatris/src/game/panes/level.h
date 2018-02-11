@@ -28,6 +28,8 @@ class Level final : public TextPane, public EventSink {
     SetCenteredText(1);
   }
 
+  Events& GetEvents() { return events_; }
+
   void SetThresholds();
 
   inline void ResetTime() { time_ = 0.0; }

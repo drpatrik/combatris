@@ -1,7 +1,7 @@
 #include "utility/color.h"
 
 SDL_Color GetColor(Color color, uint8_t alpha) {
-  if (color == Color::Score) {
+  if (color == Color::SteelGray) {
     return { 182, 195, 201, alpha };
   } else if (color == Color::Blue) {
     return { 0, 0, 240, alpha };
