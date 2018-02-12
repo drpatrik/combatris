@@ -33,6 +33,28 @@ class Tetromino final {
 
   inline void RenderGhost(const Position& pos) const { ::RenderGhost(renderer_, pos.x(), pos.y(), color_); }
 
+  const TetrominoRotationData& GetRotationData(Angle angle) const { return rotations_.at(static_cast<size_t>(angle)); }
+
+  void Render(int x, int y, SDL_Texture* texture, Angle angle) const {
+    const auto& rotation = rotations_[static_cast<int>(angle)];
+
+    for (size_t row = 0; row < rotation.shape_.size(); ++row) {
+      int t_x = x;
+      for (size_t col = 0; col < rotation.shape_.at(row).size(); ++col) {
+        const auto& shape = rotation.shape_;
+        const SDL_Rect rc = { t_x, y, kBlockWidth, kBlockHeight };
+
+        if (shape[row][col] != 0) {
+          SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 0);
+          SDL_RenderFillRect(renderer_, &rc);
+          RenderBlock(renderer_, t_x, y, texture);
+        }
+        t_x += kBlockWidth;
+      }
+      y += kBlockHeight;
+    }
+  }
+
   void Render(int x, int y) const {
     const auto& rotation = rotations_[0];
 
@@ -52,8 +74,6 @@ class Tetromino final {
       y += kBlockHeight;
     }
   }
-
-  const TetrominoRotationData& GetRotationData(Angle angle) const { return rotations_.at(static_cast<size_t>(angle)); }
 
   friend void swap(Tetromino& s1, Tetromino& s2) {
     using std::swap;

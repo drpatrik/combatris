@@ -1,6 +1,5 @@
 #pragma once
 
-#include "game/coordinates.h"
 #include "game/matrix.h"
 #include "game/panes/level.h"
 
@@ -19,6 +18,14 @@ class TetrominoSprite {
   }
 
   Tetromino::Type type() { return tetromino_.type(); }
+
+  Tetromino::Angle angle() const { return angle_; }
+
+  Position pos() const { return Position(pos_.row() - kVisibleRowStart, pos_.col() - kVisibleColStart); }
+
+  const Tetromino& tetromino() const { return tetromino_; }
+
+  double lock_delay() const { return level_->lock_delay(); }
 
   bool is_game_over() const { return game_over_; }
 

@@ -12,7 +12,7 @@ void RenderWindowBackground(SDL_Renderer* renderer) {
 }
 
 bool RenderAnimations(std::deque<std::shared_ptr<Animation>>& animations, double delta_time, Events& events) {
-  for (auto it = std::begin(animations); it != std::end(animations);) {
+  for (auto it = animations.begin(); it != animations.end();) {
     (*it)->Render(delta_time);
     if (auto [status, event] = (*it)->IsReady(); status) {
       events.Push(event);
@@ -25,10 +25,19 @@ bool RenderAnimations(std::deque<std::shared_ptr<Animation>>& animations, double
   return (animations.size() == 0);
 }
 
+template <class T>
+void RemoveAnimation(std::deque<std::shared_ptr<Animation>>& animations) {
+  animations.erase(std::remove_if(animations.begin(), animations.end(),
+                                  [](const auto &a) {
+                                    return a->name() == typeid(T).name();
+                                  }),
+                   animations.end());
+}
+
 } // namespace
 
 Board::Board() : events_() {
-  window_ = SDL_CreateWindow("Combatris", SDL_WINDOWPOS_UNDEFINED,
+  window_ = SDL_CreateWindow("COMBATRIS", SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED, kWidth, kHeight, SDL_WINDOW_RESIZABLE);
   if (nullptr == window_) {
     std::cout << "Failed to create window : " << SDL_GetError() << std::endl;
@@ -151,8 +160,10 @@ void Board::EventHandler(Events& events) {
       std::cout << "Perfect Clear" << std::endl;
       break;
     case Event::Type::FloorReached:
+      AddAnimation<FloorReachedAnimation>(renderer_, assets_, tetromino_in_play_);
       break;
     case Event::Type::InTransit:
+      RemoveAnimation<FloorReachedAnimation>(animations_);
       break;
     case Event::Type::SendLines:
       break;

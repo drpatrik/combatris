@@ -70,11 +70,17 @@ std::vector<TetrominoAssetData> kTetrominoAssetData {
 };
 
 const std::vector<std::pair<std::string, int>> kFonts {
-  std::make_pair("Cabin-Regular.ttf", kNormalFontSize),
-  std::make_pair("Cabin-Bold.ttf", kNormalFontSize),
-  std::make_pair("Cabin-Regular.ttf", kSmallFontSize),
-  std::make_pair("Cabin-Bold.ttf", kLargeFontSize),
-  std::make_pair("Cabin-Bold.ttf", kVeryLargeFontSize)
+  std::make_pair("Cabin-Regular.ttf", 15),
+  std::make_pair("Cabin-Bold.ttf", 15),
+  std::make_pair("Cabin-Regular.ttf", 25),
+  std::make_pair("Cabin-Bold.ttf", 25),
+  std::make_pair("Cabin-Regular.ttf", 35),
+  std::make_pair("Cabin-Regular.ttf", 45),
+  std::make_pair("Cabin-Bold.ttf", 45),
+  std::make_pair("Cabin-Regular.ttf", 55),
+  std::make_pair("Cabin-Bold.ttf", 55),
+  std::make_pair("Cabin-Regular.ttf", 100),
+  std::make_pair("Cabin-Regular.ttf", 200),
 };
 
 } // namespace
@@ -84,6 +90,7 @@ Assets::Assets(SDL_Renderer *renderer) {
     tetrominos_.push_back(std::make_shared<Tetromino>(
         renderer, data.type_, data.color_, data.rotations_,
         std::shared_ptr<SDL_Texture>(LoadTexture(renderer, data.image_name_), DeleteTexture)));
+    alpha_textures_.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, data.image_name_), DeleteTexture));
   }
   for (const auto& f:kFonts) {
     fonts_.push_back(UniqueFontPtr{ LoadFont(f.first, f.second) });

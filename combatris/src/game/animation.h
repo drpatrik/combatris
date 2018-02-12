@@ -1,15 +1,15 @@
 #pragma once
 
-#include "game/matrix.h"
+#include "game/tetromino_sprite.h"
 #include "game/assets.h"
 
 namespace {
 
-const SDL_Rect kMatrixRect = { kMatrixStartX, kMatrixStartY, kMatrixWidth, kMatrixHeight };
+const SDL_Rect kMatrixRc = { kMatrixStartX, kMatrixStartY, kMatrixWidth, kMatrixHeight };
 
 void SetBlackBackground(SDL_Renderer* renderer) {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-  SDL_RenderFillRect(renderer, &kMatrixRect);
+  SDL_RenderFillRect(renderer, &kMatrixRc);
 }
 
 } // namespace
@@ -32,6 +32,8 @@ public:
 
   const Assets& GetAsset() const { return *assets_; }
 
+  virtual std::string name() const { return typeid(*this).name(); }
+
 protected:
   double x_ = 0.0;
   double y_ = 0.0;
@@ -51,7 +53,7 @@ class ScoreAnimation final : public Animation {
   ScoreAnimation(SDL_Renderer* renderer,  const std::shared_ptr<Assets>& assets,  const Position& pos, int score)
       : Animation(renderer, assets) {
     int width, height;
-    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold), std::to_string(score), Color::SteelGray);
+    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold25), std::to_string(score), Color::White);
 
     int x = col_to_pixel_adjusted(pos.col()) + Center(kBlockWidth * 4, width);
     int y = row_to_pixel_adjusted(pos.row());
@@ -122,8 +124,8 @@ class CountDownAnimation final : public Animation {
   void CreateTexture(int i) {
     int width, height;
 
-    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(VeryLarge), std::to_string(i), Color::White);
-    rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + Center(kMatrixHeight, height) , width, height };
+    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal200), std::to_string(i), Color::White);
+    rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100, width, height };
   }
 
 private:
@@ -140,30 +142,67 @@ class LevelUpAnimation final : public Animation {
       : Animation(renderer, assets) {
     int width, height;
 
-    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Large), "LEVEL UP", Color::White);
+    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold55), "LEVEL UP", Color::SteelGray);
 
-    rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + Center(kMatrixHeight, height) , width, height };
+    rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + Center(kMatrixHeight, height), width, height };
+    y_ = rc_.y;
+    end_pos_ = y_ - (kBlockHeight * 3);
   }
 
   virtual void Render(double delta) override {
-    const double kFade = (ticks_ <= 0.6) ? 0.0 : 500.0;
-
     SDL_SetTextureAlphaMod(texture_.get(), static_cast<Uint8>(alpha_));
+    rc_.y = static_cast<int>(y_);
     RenderCopy(texture_.get(), rc_);
 
-    alpha_ -= delta * kFade;
-    ticks_ += delta;
+    alpha_ -= delta * 150.0;
+    y_ -= delta * 65.0;
   }
 
-  virtual std::pair<bool, Event::Type> IsReady() override {
-    return std::make_pair(ticks_ >= 3.0 || alpha_ <= 0, Event::Type::None);
-  }
+  virtual std::pair<bool, Event::Type> IsReady() override { return std::make_pair(y_ <= end_pos_, Event::Type::None); }
 
 private:
   double alpha_ = 255.0;
   UniqueTexturePtr texture_;
   SDL_Rect rc_;
-  double ticks_;
+  double end_pos_;
+};
+
+class FloorReachedAnimation final : public Animation {
+ public:
+  FloorReachedAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets> &assets, const std::shared_ptr<TetrominoSprite>& tetromino_sprite)
+      : Animation(renderer, assets), tetromino_sprite_(tetromino_sprite), tetromino_(tetromino_sprite->tetromino()) {
+    alpha_texture_ = assets->GetAlphaTextures(tetromino_sprite_->type());
+    SDL_GetTextureAlphaMod(alpha_texture_.get(), &alpha_saved_);
+  }
+
+  virtual ~FloorReachedAnimation() { SDL_SetTextureAlphaMod(alpha_texture_.get(), alpha_saved_); }
+
+  virtual void Render(double delta) override {
+    const Position& pos = tetromino_sprite_->pos();
+
+    SDL_RenderSetClipRect(*this, &kMatrixRc);
+    SDL_SetTextureAlphaMod(alpha_texture_.get(), static_cast<Uint8>(alpha_));
+    tetromino_.Render(pos.x(), pos.y(), alpha_texture_.get(), tetromino_sprite_->angle());
+    SDL_RenderSetClipRect(*this, nullptr);
+
+    alpha_ -= delta * 400.0;
+    if (alpha_ < 0) {
+      alpha_ = 0;
+    }
+    ticks_ += delta;
+  }
+
+  virtual std::pair<bool, Event::Type> IsReady() override {
+    return std::make_pair(ticks_ > tetromino_sprite_->lock_delay(), Event::Type::None);
+  }
+
+private:
+  double alpha_ = 255.0;
+  double ticks_ = 0.0;
+  Uint8 alpha_saved_;
+  std::shared_ptr<SDL_Texture> alpha_texture_;
+  std::shared_ptr<TetrominoSprite> tetromino_sprite_;
+  const Tetromino& tetromino_;
 };
 
 class PauseAnimation final : public Animation {
@@ -172,7 +211,7 @@ class PauseAnimation final : public Animation {
       : Animation(renderer, assets), game_paused_(game_paused) {
     int width, height;
 
-    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Large), "Paused ... ", Color::White);
+    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal45), "Paused ... ", Color::White);
 
     rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + Center(kMatrixHeight, height) , width, height };
   }
@@ -196,9 +235,9 @@ class SplashScreenAnimation final : public Animation {
       : Animation(renderer, assets) {
     int width, height;
 
-    std::tie(texture_1_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Large), "COMBATRIS", Color::SteelGray);
-    rc_1_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100 , width, height };
-    std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Small), "Press 'N' or Start to play", Color::White);
+    std::tie(texture_1_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal55), "COMBATRIS", Color::SteelGray);
+    rc_1_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100, width, height };
+    std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal25), "Press 'N' or Start to play", Color::White);
     rc_2_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_1_.y + rc_1_.h + 10 , width, height };
   }
 
@@ -223,9 +262,9 @@ class GameOverAnimation final : public Animation {
       : Animation(renderer, assets) {
     int width, height;
 
-    std::tie(texture_1_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Large), "Game Over", Color::White);
+    std::tie(texture_1_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal55), "Game Over", Color::White);
     rc_1_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100 , width, height };
-    std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Small), "Press 'N' or Start to play", Color::White);
+    std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal25), "Press 'N' or Start to play", Color::White);
     rc_2_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_1_.y + rc_1_.h + 10 , width, height };
     blackbox_rc_ = { rc_1_.x - 20, rc_1_.y - 20, rc_1_.w + 40, rc_1_.h + rc_2_.h + 50 };
   }

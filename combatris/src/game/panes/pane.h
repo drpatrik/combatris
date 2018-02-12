@@ -44,7 +44,7 @@ class TextPane : public Pane {
   static const int kBoxInteriorHeight = 74;
 
   TextPane(SDL_Renderer* renderer, int x, int y, const std::string& text, const std::shared_ptr<Assets>& assets) : Pane(renderer, x, y, assets) {
-    std::tie(caption_texture_, caption_width_, caption_height_) = CreateTextureFromText(renderer_, assets_->GetFont(Font::Bold), text, Color::White);
+    std::tie(caption_texture_, caption_width_, caption_height_) = CreateTextureFromText(renderer_, assets_->GetFont(Bold25), text, Color::White);
   }
 
   void SetCaptionOrientation(Orientation orientation) { orientation_ = orientation; }
@@ -52,7 +52,7 @@ class TextPane : public Pane {
   void SetCenteredText(int text) { SetCenteredText(std::to_string(text)); }
 
   void SetCenteredText(const std::string& text) {
-    std::tie(text_texture_, txt_width_, txt_height_) = CreateTextureFromText(renderer_, assets_->GetFont(Font::Large), text, Color::SteelGray);
+    std::tie(text_texture_, txt_width_, txt_height_) = CreateTextureFromText(renderer_, assets_->GetFont(Bold45), text, Color::SteelGray);
 
     txt_x_ = ((kBoxWidth - txt_width_) / 2);
     txt_y_ = ((kBoxHeight - txt_height_) / 2) + (caption_height_ + 5);

@@ -40,6 +40,8 @@ class Position final {
 
   bool operator==(const Position& rhs) const { return std::make_pair(row_, col_) == std::make_pair(rhs.row_, rhs.col_); }
 
+  bool operator!=(const Position& rhs) const { return std::make_pair(row_, col_) != std::make_pair(rhs.row_, rhs.col_); }
+
   bool operator==(const std::pair<int, int>& rhs) const { return std::make_pair(row_, col_) == rhs; }
 
   void Print() const { std::cout << "Row: " << row_ << " Col:" << col_ << std::endl; }

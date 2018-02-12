@@ -13,7 +13,7 @@ class TetrominoGenerator final {
     GenerateTetrominos();
   }
 
-  std::unique_ptr<TetrominoSprite> Get() {
+  std::shared_ptr<TetrominoSprite> Get() {
     auto tetromino = tetrominos_queue_.front();
 
     tetrominos_queue_.pop_front();
@@ -23,8 +23,8 @@ class TetrominoGenerator final {
     return Get(tetromino);
   }
 
-  std::unique_ptr<TetrominoSprite> Get(Tetromino::Type type) {
-    return std::make_unique<TetrominoSprite>(*assets_->GetTetromino(type), level_,  events_, matrix_);
+  std::shared_ptr<TetrominoSprite> Get(Tetromino::Type type) {
+    return std::make_shared<TetrominoSprite>(*assets_->GetTetromino(type), level_,  events_, matrix_);
   }
 
   void Reset() {

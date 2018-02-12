@@ -12,8 +12,8 @@ class HoldPiece final : public TextPane, public EventSink {
                       kMatrixStartY - kBlockHeight, "HOLD", assets),
          tetromino_generator_(tetromino_generator) {}
 
-   std::unique_ptr<TetrominoSprite> Hold(Tetromino::Type tetromino) {
-     std::unique_ptr<TetrominoSprite> tetromino_sprite;
+  std::shared_ptr<TetrominoSprite> Hold(Tetromino::Type tetromino) {
+     std::shared_ptr<TetrominoSprite> tetromino_sprite;
 
      if (Tetromino::Type::Empty == tetromino_) {
        tetromino_sprite = tetromino_generator_->Get();
@@ -35,7 +35,7 @@ class HoldPiece final : public TextPane, public EventSink {
     wait_for_lock_ = false;
   }
 
-  std::unique_ptr<TetrominoSprite> Get() { return tetromino_generator_->Get(tetromino_); }
+  std::shared_ptr<TetrominoSprite> Get() { return tetromino_generator_->Get(tetromino_); }
 
   virtual void Render() const override {
     TextPane::Render();

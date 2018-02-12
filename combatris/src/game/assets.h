@@ -6,6 +6,8 @@
 
 #include <memory>
 
+enum Font { Normal15, Bold15, Normal25, Bold25, Normal35, Normal45, Bold45, Normal55, Bold55, Normal100, Normal200 };
+
 class Assets final {
  public:
   explicit Assets(SDL_Renderer *renderer);
@@ -18,6 +20,8 @@ class Assets final {
 
   const std::vector<std::shared_ptr<const Tetromino>>& GetTetrominos() const { return tetrominos_; }
 
+  std::shared_ptr<SDL_Texture> GetAlphaTextures(Tetromino::Type type) const { return alpha_textures_.at(static_cast<int>(type) - 1); }
+
   virtual TTF_Font* GetFont(int id) const { return fonts_.at(id).get(); }
 
  private:
@@ -25,4 +29,5 @@ class Assets final {
 
   std::vector<UniqueFontPtr> fonts_;
   std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
+  std::vector<std::shared_ptr<SDL_Texture>> alpha_textures_;
 };

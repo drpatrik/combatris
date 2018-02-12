@@ -48,7 +48,7 @@ class Board final {
  private:
   SDL_Window* window_ = nullptr;
   SDL_Renderer* renderer_ = nullptr;
-  std::unique_ptr<TetrominoSprite> tetromino_in_play_;
+  std::shared_ptr<TetrominoSprite> tetromino_in_play_;
   std::shared_ptr<Assets> assets_;
   std::shared_ptr<TetrominoGenerator> tetromino_generator_;
   std::shared_ptr<Matrix> matrix_;

@@ -5,8 +5,8 @@
 
 namespace {
 
-uint32_t kFirstKeyRepeatTime = 150; // milliseconds
-uint32_t kKeyRepeatTime = 50; // milliseconds
+uint32_t kRepeatDelay = 150; // milliseconds
+uint32_t kRepeatInterval = 50; // milliseconds
 // PS3 Controller Mappings
 int kJoystick_SoftDrop = 6; // Pad Down
 int kJoystick_Left = 7; // Pad Left
@@ -78,7 +78,7 @@ class Combatris {
     DeltaTimer delta_timer;
     bool button_pressed = false;
     uint32_t repeat_counter = 0;
-    uint32_t repeat_threshold = kFirstKeyRepeatTime;
+    uint32_t repeat_threshold = kRepeatDelay;
     std::function<void()> function_to_repeat;
 
     while (!quit) {
@@ -91,6 +91,10 @@ class Combatris {
         }
         switch (event.type) {
           case SDL_KEYDOWN:
+            if (!button_pressed) {
+              repeat_counter = SDL_GetTicks();
+              button_pressed = true;
+            }
             if (event.key.keysym.scancode == SDL_SCANCODE_N) {
               board.NewGame();
             } else if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
@@ -100,11 +104,14 @@ class Combatris {
             } else if (event.key.keysym.scancode == SDL_SCANCODE_UP || event.key.keysym.scancode == SDL_SCANCODE_X) {
               board.GameControl(Board::Controls::RotateClockwise);
             } else if (event.key.keysym.scancode == SDL_SCANCODE_LEFT) {
-              board.GameControl(Board::Controls::Left);
+              function_to_repeat = [&board]() { board.GameControl(Board::Controls::Left); };
+              function_to_repeat();
             } else if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
-              board.GameControl(Board::Controls::Right);
+              function_to_repeat = [&board]() { board.GameControl(Board::Controls::Right); };
+              function_to_repeat();
             } else if (event.key.keysym.scancode == SDL_SCANCODE_DOWN) {
-              board.GameControl(Board::Controls::SoftDrop);
+              function_to_repeat = [&board]() { board.GameControl(Board::Controls::SoftDrop); };
+              function_to_repeat();
             } else if (event.key.keysym.scancode == SDL_SCANCODE_LSHIFT || event.key.keysym.scancode == SDL_SCANCODE_C) {
               board.GameControl(Board::Controls::HoldPiece);
             } else if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE || event.key.keysym.scancode == SDL_SCANCODE_F1 || event.key.keysym.scancode == SDL_SCANCODE_P) {
@@ -139,10 +146,11 @@ class Combatris {
               board.Pause();
             }
             break;
+          case SDL_KEYUP:
           case SDL_JOYBUTTONUP:
             button_pressed = false;
             function_to_repeat = nullptr;
-            repeat_threshold = kFirstKeyRepeatTime;
+            repeat_threshold = kRepeatDelay;
             break;
           case SDL_JOYDEVICEADDED:
             AttachJoystick(event.jbutton.which);
@@ -159,7 +167,7 @@ class Combatris {
           function_to_repeat();
         }
         repeat_counter = SDL_GetTicks();
-        repeat_threshold = kKeyRepeatTime;
+        repeat_threshold = kRepeatInterval;
       }
       board.Update(delta_timer.GetDelta());
     }
@@ -170,7 +178,7 @@ class Combatris {
   SDL_Joystick* joystick_ = nullptr;
 };
 
-int main(int, char * []) {
+int main(int, char*[]) {
   Combatris combatris;
 
   combatris.Play();
