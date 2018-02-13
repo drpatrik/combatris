@@ -2,6 +2,7 @@
 
 #include "game/panes/total_lines.h"
 #include "game/panes/scoring.h"
+#include "game/panes/high_score.h"
 #include "game/panes/next_piece.h"
 #include "game/panes/hold_piece.h"
 #include "game/animation.h"
@@ -41,6 +42,18 @@ class Board final {
   template<class T, class ...Args>
   void AddAnimation(Args&&... args) { animations_.push_front(std::make_shared<T>(std::forward<Args>(args)...)); }
 
+  void AddPane(PaneInterface* pane) { panes_.push_back(pane); }
+
+  void AddPane(Pane* pane) {
+    panes_.push_back(pane);
+
+    auto sink = dynamic_cast<EventSink*>(pane);
+
+    if (nullptr != sink) {
+      event_sinks_.push_back(sink);
+    }
+  }
+
   void EventHandler(Events& events);
 
   void Render(double delta_timer);
@@ -54,6 +67,7 @@ class Board final {
   std::shared_ptr<Matrix> matrix_;
   std::shared_ptr<Level> level_;
   std::unique_ptr<Scoring> scoring_;
+  std::unique_ptr<HighScore> high_score_;
   std::unique_ptr<NextPiece> next_piece_;
   std::unique_ptr<HoldPiece> hold_piece_;
   std::unique_ptr<TotalLines> total_lines_;

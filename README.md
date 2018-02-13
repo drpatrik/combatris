@@ -21,7 +21,7 @@ This is very much work in progress and right now focus is on getting the game el
 - [X] Perfect clear (cleared matrix after game started)
 - [X] Hard Drop & Soft Drop (scoring)
 - [X] Panes for score / next tetrominos / hold piece / level
-- [ ] High Score pane
+- [X] High Score pane
 - [ ] Bonus Move / Combo (T-Spin / Tetris / etc.) (pane)
 - [ ] Unit tests // Two in place right now
 - [ ] Sound

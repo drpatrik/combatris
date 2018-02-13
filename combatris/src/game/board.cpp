@@ -53,22 +53,20 @@ Board::Board() : events_() {
   SDL_RenderSetLogicalSize(renderer_, kWidth, kHeight);
   assets_ = std::make_shared<Assets>(renderer_);
   matrix_ = std::make_shared<Matrix>(renderer_, assets_->GetTetrominos());
-  panes_.push_back(matrix_.get());
+  AddPane(matrix_.get());
   level_ = std::make_shared<Level>(renderer_, events_, assets_);
-  panes_.push_back(level_.get());
-  event_sinks_.push_back(level_.get());
+  AddPane(level_.get());
   scoring_ = std::make_unique<Scoring>(renderer_, assets_, level_);
-  event_sinks_.push_back(scoring_.get());
-  panes_.push_back(scoring_.get());
+  AddPane(scoring_.get());
+  high_score_ = std::make_unique<HighScore>(renderer_, assets_);
+  AddPane(high_score_.get());
   tetromino_generator_ = std::make_shared<TetrominoGenerator>(matrix_, level_, events_, assets_);
   next_piece_ = std::make_unique<NextPiece>(renderer_, tetromino_generator_, assets_);
-  panes_.push_back(next_piece_.get());
+  AddPane(next_piece_.get());
   hold_piece_ = std::make_unique<HoldPiece>(renderer_, tetromino_generator_, assets_);
-  panes_.push_back(hold_piece_.get());
-  event_sinks_.push_back(hold_piece_.get());
+  AddPane(hold_piece_.get());
   total_lines_ = std::make_unique<TotalLines>(renderer_, assets_);
-  panes_.push_back(total_lines_.get());
-  event_sinks_.push_back(total_lines_.get());
+  AddPane(total_lines_.get());
   AddAnimation<SplashScreenAnimation>(renderer_, assets_);
 }
 
@@ -136,7 +134,7 @@ void Board::EventHandler(Events& events) {
     case Event::Type::LevelUp:
       AddAnimation<LevelUpAnimation>(renderer_, assets_);
       break;
-    case Event::Type::ScoreAnimation:
+    case Event::Type::Score:
       AddAnimation<ScoreAnimation>(renderer_, assets_, event.pos_, event.score_);
       break;
     case Event::Type::GameOver:

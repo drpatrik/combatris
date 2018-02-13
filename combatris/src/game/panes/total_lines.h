@@ -11,7 +11,7 @@ class TotalLines final : public TextPane, public EventSink {
   virtual void Reset() override { total_lines_ = 0;  SetCenteredText(std::to_string(0)); }
 
   virtual void Update(const Event& event) override {
-    if (Event::Type::Scoring == event.type() && !event.IsDrop()) {
+    if (Event::Type::ScoringData == event.type() && !event.IsDrop()) {
       total_lines_ += event.lines_cleared();
       SetCenteredText(total_lines_);
     }

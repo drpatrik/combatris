@@ -6,9 +6,7 @@ class Scoring final : public TextPane, public EventSink {
  public:
   Scoring(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Level>& level) :
       TextPane(renderer, kMatrixStartX - kBlockWidth - (kBoxWidth + 8), (kMatrixStartY - kBlockHeight) + 150, "SCORE", assets),
-      level_(level), events_(level->GetEvents()) {
-    SetCenteredText(std::to_string(0));
-  }
+      level_(level), events_(level->GetEvents()) { SetCenteredText(0); }
 
   virtual void Reset() override {
     score_ = 0;
@@ -18,12 +16,12 @@ class Scoring final : public TextPane, public EventSink {
 
   void ClearCounter() {
     combo_counter_ = 0;
-    b2b_tspin_counter_ = 0;
     b2b_tetris_counter_ = 0;
+    b2b_tspin_counter_ = 0;
   }
 
   virtual void Update(const Event& event) override {
-    if (!event.Is(Event::Type::Scoring)) {
+    if (!event.Is(Event::Type::ScoringData)) {
       return;
     }
     const std::vector<int> kScoreForLines = { 0, 100, 300, 500, 800 };
@@ -35,6 +33,7 @@ class Scoring final : public TextPane, public EventSink {
 
     switch (event.tspin_type_) {
       case TSpinType::None:
+        b2b_tspin_counter_ = 0;
         base_score = kScoreForLines.at(event.lines_cleared());
         if (event.lines_cleared() == 4) {
           if (++b2b_tetris_counter_ > 1) {
@@ -65,7 +64,7 @@ class Scoring final : public TextPane, public EventSink {
     int score = (base_score * level_->level()) + (combo_score * level_->level());
 
     if (score > 0) {
-      events_.Push(Event::Type::ScoreAnimation, event.pos_, score);
+      events_.Push(Event::Type::Score, event.pos_, score);
     }
     score_ += event.lines_dropped_;
     score_ += score;
