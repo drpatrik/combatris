@@ -4,6 +4,8 @@
 
 namespace {
 
+
+
 void RenderWindowBackground(SDL_Renderer* renderer) {
   SDL_Rect rc { 0, 0, kWidth, kHeight };
 
@@ -56,17 +58,19 @@ Board::Board() : events_() {
   AddPane(matrix_.get());
   level_ = std::make_shared<Level>(renderer_, events_, assets_);
   AddPane(level_.get());
+  tetromino_generator_ = std::make_shared<TetrominoGenerator>(matrix_, level_, events_, assets_);
   scoring_ = std::make_unique<Scoring>(renderer_, assets_, level_);
   AddPane(scoring_.get());
   high_score_ = std::make_unique<HighScore>(renderer_, assets_);
   AddPane(high_score_.get());
-  tetromino_generator_ = std::make_shared<TetrominoGenerator>(matrix_, level_, events_, assets_);
   next_piece_ = std::make_unique<NextPiece>(renderer_, tetromino_generator_, assets_);
   AddPane(next_piece_.get());
   hold_piece_ = std::make_unique<HoldPiece>(renderer_, tetromino_generator_, assets_);
   AddPane(hold_piece_.get());
   total_lines_ = std::make_unique<TotalLines>(renderer_, assets_);
   AddPane(total_lines_.get());
+  moves_ = std::make_unique<Moves>(renderer_, assets_);
+  AddPane(moves_.get());
   AddAnimation<SplashScreenAnimation>(renderer_, assets_);
 }
 
@@ -116,13 +120,15 @@ void Board::EventHandler(Events& events) {
 
   switch (event.type()) {
     case Event::Type::Pause:
+      next_piece_->Hide();
       AddAnimation<PauseAnimation>(renderer_, assets_, game_paused_);
       break;
     case Event::Type::UnPause:
-      AddAnimation<CountDownAnimation>(renderer_, assets_, Event::Type::AnimationDone);
+      AddAnimation<CountDownAnimation>(renderer_, assets_, Event::Type::CountdownAnimationDone);
       break;
-    case Event::Type::AnimationDone:
+    case Event::Type::CountdownAnimationDone:
       level_->ResetTime();
+      next_piece_->Show();
       break;
     case Event::Type::NextPiece:
       tetromino_in_play_ = tetromino_generator_->Get();
@@ -160,7 +166,7 @@ void Board::EventHandler(Events& events) {
     case Event::Type::FloorReached:
       AddAnimation<FloorReachedAnimation>(renderer_, assets_, tetromino_in_play_);
       break;
-    case Event::Type::InTransit:
+    case Event::Type::FloorLeft:
       RemoveAnimation<FloorReachedAnimation>(animations_);
       break;
     case Event::Type::SendLines:
@@ -177,7 +183,7 @@ void Board::Render(double delta_time) {
 
   RenderWindowBackground(renderer_);
 
-  std::for_each(panes_.begin(), panes_.end(), [](const auto& r) { r->Render(); });
+  std::for_each(panes_.begin(), panes_.end(), [delta_time](const auto& r) { r->Render(delta_time); });
 
   RenderAnimations(animations_, delta_time, events_);
 

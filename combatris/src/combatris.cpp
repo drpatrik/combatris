@@ -100,9 +100,11 @@ class Combatris {
             } else if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
               board.GameControl(Board::Controls::HardDrop);
             } else if (event.key.keysym.scancode == SDL_SCANCODE_Z) {
-              board.GameControl(Board::Controls::RotateCounterClockwise);
+              function_to_repeat = [&board]() { board.GameControl(Board::Controls::RotateCounterClockwise); };
+              function_to_repeat();
             } else if (event.key.keysym.scancode == SDL_SCANCODE_UP || event.key.keysym.scancode == SDL_SCANCODE_X) {
-              board.GameControl(Board::Controls::RotateClockwise);
+              function_to_repeat = [&board]() { board.GameControl(Board::Controls::RotateClockwise); };
+              function_to_repeat();
             } else if (event.key.keysym.scancode == SDL_SCANCODE_LEFT) {
               function_to_repeat = [&board]() { board.GameControl(Board::Controls::Left); };
               function_to_repeat();
@@ -133,9 +135,11 @@ class Combatris {
               function_to_repeat = [&board]() { board.GameControl(Board::Controls::Right); };
               function_to_repeat();
             } else if (event.jbutton.button == kJoystick_RotateCounterClockwise) { // Square
-              board.GameControl(Board::Controls::RotateCounterClockwise);
+              function_to_repeat = [&board]() { board.GameControl(Board::Controls::RotateCounterClockwise); };
+              function_to_repeat();
             }  else if (event.jbutton.button == kJoystick_RotateClockwise) { // Circle
-              board.GameControl(Board::Controls::RotateClockwise);
+              function_to_repeat = [&board]() { board.GameControl(Board::Controls::RotateClockwise); };
+              function_to_repeat();
             }  else if (event.jbutton.button == kJoystick_HoldPiece) { // Triangle
               board.GameControl(Board::Controls::HoldPiece);
             }  else if (event.jbutton.button == kJoystick_HardDrop) { // X

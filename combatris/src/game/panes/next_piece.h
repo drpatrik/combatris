@@ -13,8 +13,10 @@ class NextPiece final : public TextPane {
 
   void Show() { hide_pieces_ = false; }
 
-  virtual void Render() const override {
-    TextPane::Render();
+  void Hide() { hide_pieces_ = true; }
+
+  virtual void Render(double delta_time) override {
+    TextPane::Render(delta_time);
     if (hide_pieces_) {
       return;
     }

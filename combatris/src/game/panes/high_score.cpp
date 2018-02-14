@@ -1,6 +1,5 @@
 #include "game/panes/high_score.h"
 
-#include <set>
 #include <fstream>
 
 namespace {

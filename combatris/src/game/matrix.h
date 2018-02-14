@@ -16,9 +16,13 @@ class Matrix final : public PaneInterface {
 
   // Used by test suit
   Matrix(const std::vector<std::vector<int>> &matrix,
-         const std::vector<std::shared_ptr<const Tetromino>> &tetrominos,
-         SDL_Renderer *renderer = nullptr)
-      : renderer_(renderer), tetrominos_(tetrominos) {
+         const std::vector<std::shared_ptr<const Tetromino>> &tetrominos)
+      : tetrominos_(tetrominos) {
+    Initialize();
+    SetTestData(matrix);
+  }
+
+  void SetTestData(const std::vector<std::vector<int>> &matrix) {
     Initialize();
 
     for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
@@ -29,7 +33,7 @@ class Matrix final : public PaneInterface {
     matrix_  = master_matrix_;
   }
 
-  virtual void Render() const override;
+  virtual void Render(double) override;
 
   virtual void Reset() override { Initialize(); }
 
@@ -41,7 +45,7 @@ class Matrix final : public PaneInterface {
     Insert(matrix_, pos, rotation_data);
   }
 
-  CommitReturnTyoe Commit(Tetromino::Type type, Tetromino::Moves latest_move, const Position& pos, const TetrominoRotationData& rotation_data);
+  CommitReturnTyoe Commit(Tetromino::Type type, Tetromino::Move latest_move, const Position& pos, const TetrominoRotationData& rotation_data);
 
   Position GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const;
 
@@ -54,7 +58,7 @@ class Matrix final : public PaneInterface {
  private:
   friend bool operator==(const Matrix& rhs, const Matrix::Type& lhs);
 
-  SDL_Renderer* renderer_;
+  SDL_Renderer* renderer_ = nullptr;
   std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
   Type matrix_;
   Type master_matrix_;

@@ -72,9 +72,12 @@ std::vector<TetrominoAssetData> kTetrominoAssetData {
 const std::vector<std::pair<std::string, int>> kFonts {
   std::make_pair("Cabin-Regular.ttf", 15),
   std::make_pair("Cabin-Bold.ttf", 15),
+  std::make_pair("Cabin-Regular.ttf", 20),
+  std::make_pair("Cabin-Bold.ttf", 20),
   std::make_pair("Cabin-Regular.ttf", 25),
   std::make_pair("Cabin-Bold.ttf", 25),
   std::make_pair("Cabin-Regular.ttf", 35),
+  std::make_pair("Cabin-Bold.ttf", 35),
   std::make_pair("Cabin-Regular.ttf", 45),
   std::make_pair("Cabin-Bold.ttf", 45),
   std::make_pair("Cabin-Regular.ttf", 55),

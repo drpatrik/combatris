@@ -6,7 +6,7 @@
 
 #include <memory>
 
-enum Font { Normal15, Bold15, Normal25, Bold25, Normal35, Normal45, Bold45, Normal55, Bold55, Normal100, Normal200 };
+enum Font { Normal15, Bold15, Normal20, Bold20, Normal25, Bold25, Normal35, Bold35, Normal45, Bold45, Normal55, Bold55, Normal100, Normal200 };
 
 class Assets final {
  public:

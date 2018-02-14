@@ -5,6 +5,7 @@
 #include "game/panes/high_score.h"
 #include "game/panes/next_piece.h"
 #include "game/panes/hold_piece.h"
+#include "game/panes/moves.h"
 #include "game/animation.h"
 
 class Board final {
@@ -71,6 +72,7 @@ class Board final {
   std::unique_ptr<NextPiece> next_piece_;
   std::unique_ptr<HoldPiece> hold_piece_;
   std::unique_ptr<TotalLines> total_lines_;
+  std::unique_ptr<Moves> moves_;
   std::vector<PaneInterface*> panes_;
   std::vector<EventSink*> event_sinks_;
   Events events_;

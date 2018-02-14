@@ -70,7 +70,7 @@ TEST_CASE("ClearLinesAtTop") {
 
   Position insert_pos(0, kVisibleColStart);
 
-  auto [lines_cleared, tspin_type, perfect_clear] = matrix->Commit(Tetromino::Type::I, Tetromino::Moves::Down, insert_pos,
+  auto [lines_cleared, tspin_type, perfect_clear] = matrix->Commit(Tetromino::Type::I, Tetromino::Move::Down, insert_pos,
                  tetrominos.at(static_cast<int>(Tetromino::Type::I) - 1)
                      ->GetRotationData(Tetromino::Angle::A0));
 
@@ -132,7 +132,7 @@ TEST_CASE("ClearedLineWithGarbageBetween") {
   Position insert_pos(kVisibleRowStart + 15, kVisibleColStart - 1);
 
   auto[lines_cleared, tspin_type, perfect_clear] =
-      matrix->Commit(Tetromino::Type::I, Tetromino::Moves::Down, insert_pos,
+      matrix->Commit(Tetromino::Type::I, Tetromino::Move::Down, insert_pos,
                      tetrominos.at(static_cast<int>(Tetromino::Type::I) - 1)
                          ->GetRotationData(Tetromino::Angle::A90));
 

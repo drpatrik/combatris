@@ -57,6 +57,6 @@ class TetrominoSprite {
   Events& events_;
   TetrominoRotationData rotation_data_;
   bool floor_reached_ = false;
-  Tetromino::Moves last_move_ = Tetromino::Moves::None;
+  Tetromino::Move last_move_ = Tetromino::Move::None;
   bool game_over_ = true;
 };

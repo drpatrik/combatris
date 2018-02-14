@@ -15,6 +15,7 @@ struct Line {
 using Lines = std::vector<Line>;
 
 enum class TSpinType { None, TSpin, TSpinMini };
+enum class ComboType { None, B2BTSpin, B2BTetris, Combo };
 
 struct Event {
   enum class Type {
@@ -26,14 +27,15 @@ struct Event {
     NextPiece,
     ScoringData,
     Score,
+    Moves,
     LevelUp,
     ResetGame,
     PerfectClear,
     FloorReached,
-    InTransit,
+    FloorLeft,
     SendLines,
     GotLines,
-    AnimationDone
+    CountdownAnimationDone
   };
 
   Event(Type type, const Lines& lines_cleared, const Position& pos, TSpinType tspin_type = TSpinType::None)
@@ -46,6 +48,8 @@ struct Event {
 
   Event(Type type, int lines_dropped)
       : type_(type), lines_cleared_(), tspin_type_(TSpinType::None), lines_dropped_(lines_dropped) {}
+  Event(Type type, const Lines& lines_cleared, TSpinType tspin_type, ComboType combo_type, int combo_counter) :
+      type_(type), lines_cleared_(lines_cleared), tspin_type_(tspin_type), combo_type_(combo_type), combo_counter_(combo_counter) {}
 
   inline bool Is(Event::Type type) const { return type == type_; }
 
@@ -64,6 +68,8 @@ struct Event {
   int lines_dropped_ = 0;
   int garbage_lines_ = 0;
   int score_ = 0;
+  ComboType combo_type_ = ComboType::None;
+  int combo_counter_ = 0;
 };
 
 class EventSink {
@@ -97,6 +103,10 @@ class Events {
   }
 
   void Push(Event::Type type, int lines) { events_.emplace_back(type, lines); }
+
+  void Push(Event::Type type, const Lines& lines_cleared, TSpinType tspin_type, ComboType combo_type, int counter) {
+    events_.emplace_back(type, lines_cleared, tspin_type, combo_type, counter);
+  }
 
   Event Pop() {
     Event event = events_.front();

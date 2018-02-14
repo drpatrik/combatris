@@ -44,9 +44,8 @@ class TextPane : public Pane {
   static const int kBoxInteriorWidth = 138;
   static const int kBoxInteriorHeight = 74;
 
-  TextPane(SDL_Renderer* renderer, int x, int y, const std::string& text, const std::shared_ptr<Assets>& assets, N n = N::L1) : Pane(renderer, x, y, assets) {
+  TextPane(SDL_Renderer* renderer, int x, int y, const std::string& text, const std::shared_ptr<Assets>& assets) : Pane(renderer, x, y, assets) {
     std::tie(caption_texture_, caption_width_, caption_height_) = CreateTextureFromText(renderer_, assets_->GetFont(Bold25), text, Color::White);
-    lines_.resize(static_cast<int>(n) + 1);
   }
 
   TextPane(SDL_Renderer* renderer, int x, int y, const std::shared_ptr<Assets>& assets) : Pane(renderer, x, y, assets) {}
@@ -55,28 +54,33 @@ class TextPane : public Pane {
 
   void SetCenteredText(int text) { SetCenteredText(std::to_string(text)); }
 
-  void SetCenteredText(const std::string& text, Color color = Color::SteelGray) {
+  void SetCenteredText(const std::string& text, Color color = Color::SteelGray, Font font = Bold45) {
+    lines_.resize(1);
     auto& line = lines_[0];
 
-    std::tie(line.texture_, line.w_, line.h_) = CreateTextureFromText(renderer_, assets_->GetFont(Bold45), text, color);
+    std::tie(line.texture_, line.w_, line.h_) = CreateTextureFromText(renderer_, assets_->GetFont(font), text, color);
 
     line.x_ = ((kBoxWidth - line.w_) / 2);
     line.y_ = ((kBoxHeight - line.h_) / 2) + (caption_height_ + 5);
   }
 
-  void SetCenteredText(const std::string& text1, Color color1, const std::string& text2, Color color2) {
-      auto& line1 = lines_[0];
-      std::tie(line1.texture_, line1.w_, line1.h_) = CreateTextureFromText(renderer_, assets_->GetFont(Normal15), text1, color1);
-      line1.x_ = ((kBoxWidth - line1.w_) / 2);
-      line1.y_ = (caption_height_ + 5);
+  void ClearBox() { lines_.clear(); }
 
-      auto& line2 = lines_[1];
-      std::tie(line2.texture_, line2.w_, line2.h_) = CreateTextureFromText(renderer_, assets_->GetFont(Normal15), text2, color2);
-      line2.x_ = ((kBoxWidth - line2.w_) / 2);
-      line2.y_ = line1.h_ + 5 + (caption_height_ + 5);
+
+  void SetCenteredText(const std::string& text1, Color color1, const std::string& text2, Color color2) {
+    lines_.resize(2);
+    auto& line1 = lines_[0];
+    std::tie(line1.texture_, line1.w_, line1.h_) = CreateTextureFromText(renderer_, assets_->GetFont(Bold25), text1, color1);
+    line1.x_ = ((kBoxWidth - line1.w_) / 2);
+    line1.y_ = (caption_height_ + 15);
+
+    auto& line2 = lines_[1];
+    std::tie(line2.texture_, line2.w_, line2.h_) = CreateTextureFromText(renderer_, assets_->GetFont(Bold25), text2, color2);
+    line2.x_ = ((kBoxWidth - line2.w_) / 2);
+    line2.y_ = line1.h_ + 10 + (caption_height_ + 5);
   }
 
-  virtual void Render() const override {
+  virtual void Render(double) override {
     if (caption_texture_) {
       if (Orientation::Right == orientation_) {
         RenderCopy(caption_texture_.get(), kBoxWidth - caption_width_, 0, caption_width_, caption_height_);
@@ -88,8 +92,7 @@ class TextPane : public Pane {
     FillRect(0, 5 + caption_height_, kBoxWidth, kBoxHeight);
     SetDrawColor(Color::Black);
     FillRect(5, 10 + caption_height_, kBoxInteriorWidth, kBoxInteriorHeight);
-    for (size_t i = 0; i < lines_.size(); ++i) {
-      auto& line = lines_[i];
+    for (const auto& line : lines_) {
       RenderCopy(line.texture_.get(), line.x_, line.y_, line.w_, line.h_);
     }
   }

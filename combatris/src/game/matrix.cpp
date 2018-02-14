@@ -95,7 +95,7 @@ void Matrix::Initialize() {
   matrix_ = master_matrix_;
 }
 
-void Matrix::Render() const {
+void Matrix::Render(double) {
   RenderGrid(renderer_);
   for (int col = kVisibleColStart - 1; col < kVisibleColEnd + 1; ++col) {
     tetrominos_[kBorderID - 1]->Render(Position(row_to_visible(kVisibleRowStart - 1), col_to_visible(col)));
@@ -155,14 +155,14 @@ void Matrix::Insert(Type& matrix, const Position& pos, const TetrominoRotationDa
   }
 }
 
-Matrix::CommitReturnTyoe Matrix::Commit(Tetromino::Type type, Tetromino::Moves latest_move, const Position& current_pos, const TetrominoRotationData& rotation_data) {
+Matrix::CommitReturnTyoe Matrix::Commit(Tetromino::Type type, Tetromino::Move latest_move, const Position& current_pos, const TetrominoRotationData& rotation_data) {
   TSpinType tspin_type = TSpinType::None;
 
   auto pos = GetDropPosition(current_pos, rotation_data);
 
   Insert(master_matrix_, pos, rotation_data);
 
-  if (Tetromino::Type::T == type && latest_move == Tetromino::Moves::Rotation) {
+  if (Tetromino::Type::T == type && latest_move == Tetromino::Move::Rotation) {
     tspin_type = DetectTSpin(master_matrix_, pos, rotation_data.angle_index_);
   }
 

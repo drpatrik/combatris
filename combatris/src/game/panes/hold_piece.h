@@ -37,8 +37,8 @@ class HoldPiece final : public TextPane, public EventSink {
 
   std::shared_ptr<TetrominoSprite> Get() { return tetromino_generator_->Get(tetromino_); }
 
-  virtual void Render() const override {
-    TextPane::Render();
+  virtual void Render(double delta_time) override {
+    TextPane::Render(delta_time);
 
     if (Tetromino::Type::Empty == tetromino_) {
       return;

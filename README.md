@@ -22,15 +22,10 @@ This is very much work in progress and right now focus is on getting the game el
 - [X] Hard Drop & Soft Drop (scoring)
 - [X] Panes for score / next tetrominos / hold piece / level
 - [X] High Score pane
-- [ ] Bonus Move / Combo (T-Spin / Tetris / etc.) (pane)
-- [ ] Unit tests // Two in place right now
-- [ ] Sound
-- [ ] Customizible keyboard controls
+- [X] Pane for B2B / Combo / T-Spin / Tetris / etc.)
 - [X] Joystick support (PS3 joystick tested)
 - [X] Hot add / remove joystick device
 - [X] Config joystick to use
-- [ ] Customizible joystick controls
-- [ ] Cleared lines (animations)
 - [X] Tetromino Locked (animations)
 - [X] Level up (animations)
 - [X] Score animation
@@ -38,8 +33,10 @@ This is very much work in progress and right now focus is on getting the game el
 - [X] Game Over Screen
 - [X] Pause Screen
 - [X] Splash Screen
-- [ ] Network functionality
-- [ ] Multi-player
+- [ ] Sound
+- [ ] Network functionality (P2P based on UDP)
+- [ ] Own display for Battle game statistics
+- [ ] Unit tests // Two in place right now
 
 **Keyboard Commands**
 

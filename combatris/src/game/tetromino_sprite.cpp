@@ -58,7 +58,7 @@ void TetrominoSprite::RotateClockwise() {
   if (success) {
     rotation_data_ = tetromino_.GetRotationData(angle_);
     matrix_->Insert(pos_, rotation_data_);
-    last_move_ = Tetromino::Moves::Rotation;
+    last_move_ = Tetromino::Move::Rotation;
   }
 }
 
@@ -70,7 +70,7 @@ void TetrominoSprite::RotateCounterClockwise() {
   if (success) {
     rotation_data_ = tetromino_.GetRotationData(angle_);
     matrix_->Insert(pos_, rotation_data_);
-    last_move_ = Tetromino::Moves::Rotation;
+    last_move_ = Tetromino::Move::Rotation;
   }
 }
 
@@ -90,7 +90,7 @@ void TetrominoSprite::HardDrop() {
   pos_ = matrix_->GetDropPosition(pos_, rotation_data_);
   level_->Release();
   floor_reached_ = true;
-  last_move_ = Tetromino::Moves::Down;
+  last_move_ = Tetromino::Move::Down;
   events_.Push(Event::Type::ScoringData, (kVisibleRows - drop_row) * 2);
 }
 
@@ -98,7 +98,7 @@ void TetrominoSprite::Left() {
   if (matrix_->IsValid(Position(pos_.row(), pos_.col() - 1), rotation_data_)) {
     pos_.dec_col();
     matrix_->Insert(pos_, rotation_data_);
-    last_move_ = Tetromino::Moves::Left;
+    last_move_ = Tetromino::Move::Left;
   }
 }
 
@@ -106,7 +106,7 @@ void TetrominoSprite::Right() {
   if (matrix_->IsValid(Position(pos_.row(), pos_.col() + 1), rotation_data_)) {
     pos_.inc_col();
     matrix_->Insert(pos_, rotation_data_);
-    last_move_ = Tetromino::Moves::Right;
+    last_move_ = Tetromino::Move::Right;
   }
 }
 
@@ -119,7 +119,7 @@ TetrominoSprite::Status TetrominoSprite::Down(double delta_time) {
   if (matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
     pos_.inc_row();
     matrix_->Insert(pos_, rotation_data_);
-    last_move_ = Tetromino::Moves::Down;
+    last_move_ = Tetromino::Move::Down;
     bool floor_is_reached = !matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_);
 
     if (!floor_reached_ && floor_is_reached) {
@@ -128,7 +128,7 @@ TetrominoSprite::Status TetrominoSprite::Down(double delta_time) {
     } else if (floor_reached_ && !floor_is_reached) {
       level_->ResetTime();
       floor_reached_ = false;
-      events_.Push(Event::Type::InTransit);
+      events_.Push(Event::Type::FloorLeft);
     }
   } else {
     auto [lines_cleared, tspin_type, perfect_clear] = matrix_->Commit(tetromino_.type(), last_move_, pos_, rotation_data_);
