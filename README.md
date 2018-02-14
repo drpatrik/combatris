@@ -22,10 +22,10 @@ This is very much work in progress and right now focus is on getting the game el
 - [X] Hard Drop & Soft Drop (scoring)
 - [X] Panes for score / next tetrominos / hold piece / level
 - [X] High Score pane
-- [X] Pane for B2B / Combo / T-Spin / Tetris / etc.)
+- [X] Pane showing the last clearing move (B2B / Combo / T-Spin / Single / Double /etc.)
 - [X] Joystick support (PS3 joystick tested)
 - [X] Hot add / remove joystick device
-- [X] Config joystick to use
+- [ ] Configure which joystick to use (if many available)
 - [X] Tetromino Locked (animations)
 - [X] Level up (animations)
 - [X] Score animation
