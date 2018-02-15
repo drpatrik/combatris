@@ -22,6 +22,8 @@ class Matrix final : public PaneInterface {
     SetTestData(matrix);
   }
 
+  Matrix(const Matrix&) = delete;
+
   void SetTestData(const std::vector<std::vector<int>> &matrix) {
     Initialize();
 
@@ -53,6 +55,7 @@ class Matrix final : public PaneInterface {
 
  protected:
   void Initialize();
+
   void Insert(Type& matrix, const Position& pos, const TetrominoRotationData& rotation_data, bool insert_ghost = false);
 
  private:

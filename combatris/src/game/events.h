@@ -38,16 +38,17 @@ struct Event {
     CountdownAnimationDone
   };
 
-  Event(Type type, const Lines& lines_cleared, const Position& pos, TSpinType tspin_type = TSpinType::None)
-      : type_(type), lines_cleared_(lines_cleared), pos_(pos), tspin_type_(tspin_type) {}
-
   explicit Event(Type type)
       : type_(type), lines_cleared_() {}
+
+  Event(Type type, const Lines& lines_cleared, const Position& pos, TSpinType tspin_type = TSpinType::None)
+      : type_(type), lines_cleared_(lines_cleared), pos_(pos), tspin_type_(tspin_type) {}
 
   Event(Type type, const Position& pos, int score) : type_(type), pos_(pos), score_(score) {}
 
   Event(Type type, int lines_dropped)
       : type_(type), lines_cleared_(), tspin_type_(TSpinType::None), lines_dropped_(lines_dropped) {}
+
   Event(Type type, const Lines& lines_cleared, TSpinType tspin_type, ComboType combo_type, int combo_counter) :
       type_(type), lines_cleared_(lines_cleared), tspin_type_(tspin_type), combo_type_(combo_type), combo_counter_(combo_counter) {}
 
@@ -75,6 +76,7 @@ struct Event {
 class EventSink {
  public:
   virtual ~EventSink() noexcept {}
+
   virtual void Update(const Event& event) = 0;
 };
 
@@ -109,7 +111,7 @@ class Events {
   }
 
   Event Pop() {
-    Event event = events_.front();
+    auto event = events_.front();
 
     events_.pop_front();
     return event;

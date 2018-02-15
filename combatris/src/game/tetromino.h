@@ -17,15 +17,7 @@ class Tetromino final {
             const std::shared_ptr<SDL_Texture> &texture)
       : renderer_(renderer), type_(type), color_(color), rotations_(rotations), texture_(texture) {}
 
-  Tetromino(const Tetromino &s) = default;
-
-  Tetromino(Tetromino&& other) noexcept { swap(*this, other); }
-
-  Tetromino& operator=(Tetromino other) noexcept {
-    swap(*this, other);
-
-    return *this;
-  }
+  Tetromino(const Tetromino&) = delete;
 
   Type type() const { return type_; }
 
@@ -39,7 +31,7 @@ class Tetromino final {
     const auto& rotation = rotations_[static_cast<int>(angle)];
 
     for (size_t row = 0; row < rotation.shape_.size(); ++row) {
-      int t_x = x;
+      auto t_x = x;
       for (size_t col = 0; col < rotation.shape_.at(row).size(); ++col) {
         const auto& shape = rotation.shape_;
         const SDL_Rect rc = { t_x, y, kBlockWidth, kBlockHeight };
@@ -62,7 +54,7 @@ class Tetromino final {
     y -= (((kBlockHeight * 2) - rotation.height_) / 2);
 
     for (size_t row = 0; row < rotation.shape_.size(); ++row) {
-      int t_x = x;
+      auto t_x = x;
       for (size_t col = 0; col < rotation.shape_.at(row).size(); ++col) {
         const auto& shape = rotation.shape_;
 
@@ -73,16 +65,6 @@ class Tetromino final {
       }
       y += kBlockHeight;
     }
-  }
-
-  friend void swap(Tetromino& s1, Tetromino& s2) {
-    using std::swap;
-
-    swap(s1.renderer_, s2.renderer_);
-    swap(s1.type_, s2.type_);
-    swap(s1.color_, s2.color_);
-    swap(s1.rotations_, s2.rotations_);
-    swap(s1.texture_, s2.texture_);
   }
 
  private:

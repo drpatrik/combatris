@@ -15,7 +15,7 @@ const std::unordered_map<Tetromino::Angle, const std::unordered_map<Tetromino::A
 };
 
 inline const std::vector<std::vector<int>>& GetWallKickData(Tetromino::Type type, Tetromino::Angle from_angle, Tetromino::Angle to_angle) {
-  int state = kStates.at(from_angle).at(to_angle);
+  auto state = kStates.at(from_angle).at(to_angle);
 
   return (type == Tetromino::Type::I) ? kWallKickDataForI[state] : kWallKickDataForJLSTZ[state];
 }
@@ -85,7 +85,7 @@ void TetrominoSprite::SoftDrop() {
 }
 
 void TetrominoSprite::HardDrop() {
-  int drop_row = pos_.row();
+  auto drop_row = pos_.row();
 
   pos_ = matrix_->GetDropPosition(pos_, rotation_data_);
   level_->Release();
@@ -111,7 +111,7 @@ void TetrominoSprite::Right() {
 }
 
 TetrominoSprite::Status TetrominoSprite::Down(double delta_time) {
-  Status status = Status::Continue;
+  auto status = Status::Continue;
 
   if (!level_->Wait(delta_time, floor_reached_)) {
     return status;
@@ -120,7 +120,7 @@ TetrominoSprite::Status TetrominoSprite::Down(double delta_time) {
     pos_.inc_row();
     matrix_->Insert(pos_, rotation_data_);
     last_move_ = Tetromino::Move::Down;
-    bool floor_is_reached = !matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_);
+    auto floor_is_reached = !matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_);
 
     if (!floor_reached_ && floor_is_reached) {
       floor_reached_ = true;

@@ -4,7 +4,7 @@
 
 class TotalLines final : public TextPane, public EventSink {
  public:
-  TotalLines(SDL_Renderer *renderer, const std::shared_ptr<Assets> &assets)
+  TotalLines(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets)
        : TextPane(renderer, kMatrixStartX - kBlockWidth - (kBoxWidth + 8),
                   (kMatrixStartY - kBlockHeight) + 578, "LINES", assets) { Reset(); }
 

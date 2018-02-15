@@ -33,7 +33,7 @@ const int kLevelUp = 10;
 } // namespace
 
 void Level::SetThresholds() {
-  int index = level_ < static_cast<int>(kLevelData.size()) ? level_ :  kLevelData.size() - 1;
+  auto index = level_ < static_cast<int>(kLevelData.size()) ? level_ :  kLevelData.size() - 1;
 
   wait_time_ = (1.0 / kLevelData.at(index).gravity_) / 60.0;
   lock_delay_ = kLevelData.at(index).lock_delay_;
@@ -57,7 +57,7 @@ bool Level::WaitForLockDelay(double time_delta) {
 }
 
 void Level::Update(const Event& event) {
-  int lines_cleared = event.lines_cleared();
+  auto lines_cleared = event.lines_cleared();
 
   if (0 == lines_cleared) {
     return;

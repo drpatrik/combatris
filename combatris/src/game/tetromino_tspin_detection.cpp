@@ -41,13 +41,13 @@ const std::vector<TetrominoRotationData> kTSpin_Rotations = {
 
 TSpinType DetectTSpin(const Matrix::Type& matrix, const Position& pos, int angle_index) {
   const auto& shape = kTSpin_Rotations.at(angle_index).shape_;
-  int tspin_corners = 0;
-  int tspin_minicorners = 0;
+  auto tspin_corners = 0;
+  auto tspin_minicorners = 0;
 
   for (size_t row = 0; row < shape.size(); ++row) {
     for (size_t col  = 0; col < shape.at(row).size(); ++col) {
-      int try_row = pos.row() + row;
-      int try_col = pos.col() + col;
+      auto try_row = pos.row() + row;
+      auto try_col = pos.col() + col;
 
       if (shape.at(row).at(col) == kTSpinCorner && matrix.at(try_row).at(try_col) != kEmptyID) {
         tspin_corners++;

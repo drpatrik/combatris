@@ -30,10 +30,7 @@ bool RenderAnimations(std::deque<std::shared_ptr<Animation>>& animations, double
 template <class T>
 void RemoveAnimation(std::deque<std::shared_ptr<Animation>>& animations) {
   animations.erase(std::remove_if(animations.begin(), animations.end(),
-                                  [](const auto &a) {
-                                    return a->name() == typeid(T).name();
-                                  }),
-                   animations.end());
+    [](const auto &a) { return a->name() == typeid(T).name(); }), animations.end());
 }
 
 } // namespace
@@ -103,9 +100,7 @@ void Board::GameControl(Controls control_pressed) {
       tetromino_in_play_->Right();
       break;
     case Controls::HoldPiece:
-      if (hold_piece_->CanHold()) {
-        tetromino_in_play_ = hold_piece_->Hold(tetromino_in_play_->type());
-      }
+      tetromino_in_play_ = hold_piece_->Hold(tetromino_in_play_);
       break;
   }
 }

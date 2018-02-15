@@ -32,9 +32,9 @@ void Scoring::UpdateEvents(int score, ComboType combo_type, const Event& event) 
 }
 
 std::tuple<int, int, ComboType> Scoring::Calculate(const Event& event) {
-  int base_score = 0;
-  int combo_score = 0;
-  ComboType combo_type = ComboType::None;
+  auto base_score = 0;
+  auto combo_score = 0;
+  auto combo_type = ComboType::None;
 
   if (event.IsDrop()) {
     return std::make_tuple(base_score, combo_score, combo_type);
@@ -77,7 +77,7 @@ void Scoring::Update(const Event& event) {
   }
   auto [base_score, combo_score, combo_type] = Calculate(event);
 
-  int score = (base_score * level_->level()) + (combo_score * level_->level());
+  auto score = (base_score * level_->level()) + (combo_score * level_->level());
 
   UpdateEvents(score, combo_type, event);
 

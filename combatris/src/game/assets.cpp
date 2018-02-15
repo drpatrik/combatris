@@ -17,14 +17,14 @@ SDL_Texture* LoadTexture(SDL_Renderer *renderer, const std::string& name) {
   if (SDL_WasInit(SDL_INIT_EVERYTHING) == 0 || nullptr == renderer) {
     return nullptr;
   }
-  std::string full_path =  kAssetFolder + "art/" + name;
+  auto full_path =  kAssetFolder + "art/" + name;
+  auto surface = SDL_LoadBMP(full_path.c_str());
 
-  SDL_Surface* surface = SDL_LoadBMP(full_path.c_str());
   if (nullptr == surface) {
     std::cout << "Failed to load surface " << full_path << " error : " << SDL_GetError() << std::endl;
     exit(-1);
   }
-  SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+  auto texture = SDL_CreateTextureFromSurface(renderer, surface);
 
   SDL_FreeSurface(surface);
 
@@ -35,11 +35,10 @@ TTF_Font *LoadFont(const std::string& name, int size) {
   if (TTF_WasInit() == 0) {
     return nullptr;
   }
-  std::string full_path = kAssetFolder + "fonts/" + name;
+  auto full_path = kAssetFolder + "fonts/" + name;
+  auto font = TTF_OpenFont(full_path.c_str(), size);
 
-  TTF_Font *font = TTF_OpenFont(full_path.c_str(), size);
-
-  if (font == nullptr) {
+  if (nullptr == font) {
     std::cout << "Failed to load text " << full_path << " error : " << SDL_GetError() << std::endl;
     exit(-1);
   }

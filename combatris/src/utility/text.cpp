@@ -1,19 +1,19 @@
 #include "utility/text.h"
 
-std::tuple<UniqueTexturePtr, int, int> CreateTextureFromText(SDL_Renderer *renderer, TTF_Font *font, const std::string& text,
+std::tuple<UniqueTexturePtr, int, int> CreateTextureFromText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text,
                                                          Color text_color) {
   SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), GetColor(text_color, 0));
   auto texture = UniqueTexturePtr{ SDL_CreateTextureFromSurface(renderer, surface) };
 
-  int width = surface->w;
-  int height = surface->h;
+  auto width = surface->w;
+  auto height = surface->h;
 
   SDL_FreeSurface(surface);
 
   return std::make_tuple(std::move(texture), width, height);
 }
 
-void RenderText(SDL_Renderer *renderer, int x, int y, TTF_Font *font, const std::string& text, Color text_color) {
+void RenderText(SDL_Renderer *renderer, int x, int y, TTF_Font* font, const std::string& text, Color text_color) {
   auto [texture, width, height] = CreateTextureFromText(renderer, font, text, text_color);
 
   SDL_Rect rc{ x, y, width, height };
@@ -21,14 +21,14 @@ void RenderText(SDL_Renderer *renderer, int x, int y, TTF_Font *font, const std:
   SDL_RenderCopy(renderer, texture.get(), nullptr, &rc);
 }
 
-std::tuple<UniqueTexturePtr, int, int> CreateTextureFromFramedText(SDL_Renderer *renderer, TTF_Font *font,
+std::tuple<UniqueTexturePtr, int, int> CreateTextureFromFramedText(SDL_Renderer* renderer, TTF_Font* font,
                                                                const std::string& text, Color text_color,
                                                                Color background_color) {
   SDL_Surface* surface = TTF_RenderText_Shaded(font, text.c_str(), GetColor(text_color), GetColor(background_color));
   auto source_texture = UniqueTexturePtr{ SDL_CreateTextureFromSurface(renderer, surface) };
 
-  int width = surface->w + 2;
-  int height = surface->h + 2;
+  auto width = surface->w + 2;
+  auto height = surface->h + 2;
 
   SDL_FreeSurface(surface);
 

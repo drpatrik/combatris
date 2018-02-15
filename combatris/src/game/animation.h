@@ -16,9 +16,9 @@ void SetBlackBackground(SDL_Renderer* renderer) {
 
 class Animation {
 public:
-  Animation(SDL_Renderer* renderer, const std::shared_ptr<Matrix>& matrix, const std::shared_ptr<Assets>& assets)
-      : renderer_(renderer), matrix_(matrix), assets_(assets) {}
   Animation(SDL_Renderer *renderer,  const std::shared_ptr<Assets>& assets) : renderer_(renderer), assets_(assets) {}
+
+  Animation(const Animation&) = delete;
 
   virtual ~Animation() noexcept = default;
 
@@ -28,8 +28,6 @@ public:
 
   operator SDL_Renderer *() const { return renderer_; }
 
-  Matrix& GetMatrix() { return *matrix_; }
-
   const Assets& GetAsset() const { return *assets_; }
 
   virtual std::string name() const { return typeid(*this).name(); }
@@ -38,13 +36,10 @@ protected:
   double x_ = 0.0;
   double y_ = 0.0;
 
-  void RenderCopy(SDL_Texture *texture, const SDL_Rect &rc) {
-    SDL_RenderCopy(*this, texture, nullptr, &rc);
-  }
+  void RenderCopy(SDL_Texture *texture, const SDL_Rect &rc) { SDL_RenderCopy(*this, texture, nullptr, &rc); }
 
 private:
   SDL_Renderer* renderer_;
-  std::shared_ptr<Matrix> matrix_ = nullptr;
   std::shared_ptr<Assets> assets_ = nullptr;
 };
 
@@ -55,8 +50,8 @@ class ScoreAnimation final : public Animation {
     int width, height;
     std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold25), std::to_string(score), Color::White);
 
-    int x = col_to_pixel_adjusted(pos.col()) + Center(kBlockWidth * 4, width);
-    int y = row_to_pixel_adjusted(pos.row());
+    auto x = col_to_pixel_adjusted(pos.col()) + Center(kBlockWidth * 4, width);
+    auto y = row_to_pixel_adjusted(pos.row());
 
     if (x + width > kMatrixEndX) {
       x = kMatrixEndX - width;
@@ -178,7 +173,7 @@ class FloorReachedAnimation final : public Animation {
   virtual ~FloorReachedAnimation() { SDL_SetTextureAlphaMod(alpha_texture_.get(), alpha_saved_); }
 
   virtual void Render(double delta) override {
-    const Position& pos = tetromino_sprite_->pos();
+    const auto& pos = tetromino_sprite_->pos();
 
     SDL_RenderSetClipRect(*this, &kMatrixRc);
     SDL_SetTextureAlphaMod(alpha_texture_.get(), static_cast<Uint8>(alpha_));

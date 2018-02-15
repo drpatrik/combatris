@@ -5,7 +5,7 @@
 
 class Level final : public TextPane, public EventSink {
  public:
-   Level(SDL_Renderer *renderer, Events &events, const std::shared_ptr<Assets> &assets)
+   Level(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets)
        : TextPane(renderer, kMatrixStartX - kBlockWidth - (kBoxWidth + 8), (kMatrixStartY - kBlockHeight) + 428, "LEVEL", assets),
          events_(events) { SetCenteredText(1); SetThresholds(); }
 
@@ -17,10 +17,6 @@ class Level final : public TextPane, public EventSink {
 
   virtual void Update(const Event& event) override;
 
-  inline int level() const { return level_ + 1; }
-
-  inline double lock_delay() const { return lock_delay_; }
-
   virtual void Reset() override {
     time_ = 0.0;
     level_ = 0;
@@ -29,6 +25,10 @@ class Level final : public TextPane, public EventSink {
     SetThresholds();
     SetCenteredText(1);
   }
+
+  inline int level() const { return level_ + 1; }
+
+  inline double lock_delay() const { return lock_delay_; }
 
   Events& GetEvents() { return events_; }
 

@@ -28,8 +28,8 @@ void Moves::Update(const Event& event) {
   if (!event.Is(Event::Type::Moves)) {
     return;
   }
-  std::string line1 = GetComboType(event);
-  std::string line2 = kTSpinTypes[static_cast<int>(event.tspin_type_)];
+  auto line1 = GetComboType(event);
+  auto line2 = kTSpinTypes[static_cast<int>(event.tspin_type_)];
 
   if (line2.empty()) {
     line2 = kBasicScoreTypes[event.lines_cleared()];

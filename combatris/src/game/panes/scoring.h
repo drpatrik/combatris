@@ -24,6 +24,7 @@ class Scoring final : public TextPane, public EventSink {
 
  protected:
   void UpdateEvents(int score, ComboType combo_type, const Event& event);
+
   std::tuple<int, int, ComboType> Calculate(const Event& event);
 
  private:

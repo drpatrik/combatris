@@ -127,8 +127,8 @@ bool Matrix::IsValid(const Position& pos, const TetrominoRotationData& rotation_
 
   for (size_t row = 0; row < shape.size(); ++row) {
     for (size_t col  = 0; col < shape[row].size(); ++col) {
-      int try_row = pos.row() + row;
-      int try_col = pos.col() + col;
+      auto try_row = pos.row() + row;
+      auto try_col = pos.col() + col;
 
       if (master_matrix_[try_row][try_col] != kEmptyID && shape[row][col] != kEmptyID) {
         return false;
@@ -139,13 +139,13 @@ bool Matrix::IsValid(const Position& pos, const TetrominoRotationData& rotation_
 }
 
 void Matrix::Insert(Type& matrix, const Position& pos, const TetrominoRotationData& rotation_data, bool insert_ghost) {
-  const int ghost_add_on = (insert_ghost) ? kGhostAddOn : 0;
+  const auto ghost_add_on = (insert_ghost) ? kGhostAddOn : 0;
   const auto& shape = rotation_data.shape_;
 
   for (size_t row = 0; row < shape.size(); ++row) {
     for (size_t col  = 0; col < shape[row].size(); ++col) {
-      int insert_row = pos.row() + row;
-      int insert_col = pos.col() + col;
+      auto insert_row = pos.row() + row;
+      auto insert_col = pos.col() + col;
 
       if (shape[row][col] == kEmptyID) {
         continue;
@@ -170,8 +170,7 @@ Matrix::CommitReturnTyoe Matrix::Commit(Tetromino::Type type, Tetromino::Move la
 
   CollapseMatrix(lines_cleared, master_matrix_);
 
-  bool perfect_clear = (lines_cleared.size() > 0 && DetectPerfectClear(master_matrix_));
-
+  auto perfect_clear = (lines_cleared.size() > 0 && DetectPerfectClear(master_matrix_));
 
   return std::make_tuple(lines_cleared, tspin_type, perfect_clear);
 }

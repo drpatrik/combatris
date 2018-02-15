@@ -2,26 +2,27 @@
 
 ![screenshots](screenshots/combatris-demo-1.png)
 
+An modern C++11/14/17 implementation of Tetris Battle using the scoring system as of 2006. The game uses the
+BPS Random Generator and Wall Kicks accoring to the Super Rotating system. It is fairly easy to change both
+the random generator and wall kicks / alternativly no-wall kicks. At some time I might make the systems plugable.
 
-An accurate competition version of Tetris allowing several players to compete each other using the "official" rules.
-
-This is very much work in progress and right now focus is on getting the game elements to work - after that work on the multiplayer support will start.
+The multiplayer part is not developed yet, I have one animation more to add and then I cannot procrastrinate the
+network part any longer.
 
 **Status**
-- [x] Game is fully playable
-- [x] Status such as score, level, next piece, etc
 - [x] Rotate left / right
 - [x] Soft / Hard drop
 - [x] BPS Random Generator
 - [x] Wall kicks (Super Rotating System)
 - [X] Hold piece
 - [x] T-Spin (scoring)
-- [x] B2B T-Spin Double (scoring)
+- [x] T-Spin mini (scoring)
+- [x] B2B T-Spin (scoring)
+- [x] B2B Tetris (scoring)
 - [x] Combos (scoring)
 - [X] Perfect clear (cleared matrix after game started)
 - [X] Hard Drop & Soft Drop (scoring)
-- [X] Panes for score / next tetrominos / hold piece / level
-- [X] High Score pane
+- [X] Panes for score / next tetrominos / hold piece / level and high score
 - [X] Pane showing the last clearing move (B2B / Combo / T-Spin / Single / Double /etc.)
 - [X] Joystick support (PS3 joystick tested)
 - [X] Hot add / remove joystick device
@@ -128,11 +129,11 @@ Generate Visual Studio project files with CMakeSetup.exe
 
 ## Credits
 
-        Wall kick tables from https://harddrop.com/wiki/SRS
-        Tetris info from http://tetris.wikia.com and https://tetris.wiki/SRS
-        Tetrominoes from https://commons.wikimedia.org/wiki/File:Tetrominoes_IJLO_STZ_Worlds.svg
-        All sfx and music are from www.freesound.org
-        Fonts http://www.dafont.com/cabin.font
-        FindSDL2_mixer https://github.com/rlsosborne/doom
-        DeltaTimer adapted from http://headerphile.com/sdl2/sdl2-part-9-no-more-delays/
-        https://github.com/philsquared/Catch
+* Wall kick tables from https://harddrop.com/wiki/SRS
+* Tetris info from http://tetris.wikia.com and https://tetris.wiki
+* Tetrominoes from https://commons.wikimedia.org/wiki/File:Tetrominoes_IJLO_STZ_Worlds.svg
+* All sfx and music are from www.freesound.org
+* Fonts http://www.dafont.com/cabin.font
+* Original FindSDL2_mixer https://github.com/rlsosborne/doom
+* DeltaTimer adapted from http://headerphile.com/sdl2/sdl2-part-9-no-more-delays/
+* https://github.com/philsquared/Catch

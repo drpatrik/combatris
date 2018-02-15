@@ -12,21 +12,22 @@ class HoldPiece final : public TextPane, public EventSink {
                       kMatrixStartY - kBlockHeight, "HOLD", assets),
          tetromino_generator_(tetromino_generator) {}
 
-  std::shared_ptr<TetrominoSprite> Hold(Tetromino::Type tetromino) {
-     std::shared_ptr<TetrominoSprite> tetromino_sprite;
+  std::shared_ptr<TetrominoSprite> Hold(const std::shared_ptr<TetrominoSprite>& old_tetromino_sprite) {
+    if (!CanHold()) {
+      return old_tetromino_sprite;
+    }
+    std::shared_ptr<TetrominoSprite> tetromino_sprite;
 
-     if (Tetromino::Type::Empty == tetromino_) {
-       tetromino_sprite = tetromino_generator_->Get();
-     } else {
-       tetromino_sprite = tetromino_generator_->Get(tetromino_);
-     }
-     tetromino_ = tetromino;
-     wait_for_lock_ = true;
+    if (Tetromino::Type::Empty == tetromino_) {
+      tetromino_sprite = tetromino_generator_->Get();
+    } else {
+      tetromino_sprite = tetromino_generator_->Get(tetromino_);
+    }
+    tetromino_ = old_tetromino_sprite->type();
+    wait_for_lock_ = true;
 
-     return tetromino_sprite;
+    return tetromino_sprite;
   }
-
-  bool CanHold() const { return !wait_for_lock_; }
 
   virtual void Update(const Event& event) override {
     if (!event.Is(Event::Type::NextPiece)) {
@@ -50,6 +51,9 @@ class HoldPiece final : public TextPane, public EventSink {
     wait_for_lock_ = false;
     tetromino_ = Tetromino::Type::Empty;
   }
+
+ protected:
+  bool CanHold() const { return !wait_for_lock_; }
 
  private:
   bool wait_for_lock_ = false;
