@@ -77,7 +77,7 @@ Board::~Board() noexcept {
 }
 
 void Board::GameControl(Controls control_pressed) {
-  if (!tetromino_in_play_) {
+  if (!tetromino_in_play_ || game_paused_) {
     return;
   }
   switch (control_pressed) {
@@ -116,20 +116,24 @@ void Board::EventHandler(Events& events) {
   switch (event.type()) {
     case Event::Type::Pause:
       next_piece_->Hide();
-      AddAnimation<PauseAnimation>(renderer_, assets_, game_paused_);
+      AddAnimation<PauseAnimation>(renderer_, assets_, unpause_pressed_);
       break;
     case Event::Type::UnPause:
-      AddAnimation<CountDownAnimation>(renderer_, assets_, Event::Type::CountdownAnimationDone);
+      AddAnimation<CountDownAnimation>(renderer_, assets_, Event::Type::CountdownAfterUnPauseDone);
       break;
-    case Event::Type::CountdownAnimationDone:
-      level_->ResetTime();
+    case Event::Type::CountdownAfterUnPauseDone:
       next_piece_->Show();
+      level_->ResetTime();
+      unpause_pressed_ = game_paused_ = false;
       break;
     case Event::Type::NextPiece:
+      next_piece_->Show();
       tetromino_in_play_ = tetromino_generator_->Get();
       if (tetromino_in_play_->is_game_over()) {
+        events.Clear();
+        animations_.clear();
         tetromino_in_play_.reset();
-        events.PushFront(Event::Type::GameOver);
+        AddAnimation<GameOverAnimation>(renderer_, assets_);
       }
       break;
     case Event::Type::LevelUp:
@@ -138,22 +142,13 @@ void Board::EventHandler(Events& events) {
     case Event::Type::Score:
       AddAnimation<ScoreAnimation>(renderer_, assets_, event.pos_, event.score_);
       break;
-    case Event::Type::GameOver:
-      events.Clear();
-      animations_.clear();
-      tetromino_in_play_.reset();
-      AddAnimation<GameOverAnimation>(renderer_, assets_);
-      break;
     case Event::Type::NewGame:
-      AddAnimation<CountDownAnimation>(renderer_, assets_, Event::Type::ResetGame);
-      break;
-    case Event::Type::ResetGame:
       events.Clear();
-      next_piece_->Show();
+      next_piece_->Hide();
       tetromino_generator_->Reset();
-      game_paused_ = false;
+      unpause_pressed_ = game_paused_ = false;
       std::for_each(panes_.begin(), panes_.end(), [](const auto& r) { r->Reset(); });
-      tetromino_in_play_ = tetromino_generator_->Get();
+      AddAnimation<CountDownAnimation>(renderer_, assets_, Event::Type::NextPiece);
       break;
     case Event::Type::PerfectClear:
       std::cout << "Perfect Clear" << std::endl;

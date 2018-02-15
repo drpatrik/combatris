@@ -202,8 +202,8 @@ private:
 
 class PauseAnimation final : public Animation {
  public:
-  PauseAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets> &assets, bool &game_paused)
-      : Animation(renderer, assets), game_paused_(game_paused) {
+  PauseAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets> &assets, bool &unpause_pressed)
+      : Animation(renderer, assets), unpause_pressed_(unpause_pressed) {
     int width, height;
 
     std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal45), "Paused ... ", Color::White);
@@ -216,10 +216,10 @@ class PauseAnimation final : public Animation {
     RenderCopy(texture_.get(), rc_);
   }
 
-  virtual std::pair<bool, Event::Type> IsReady() override { return std::make_pair(!game_paused_, Event::Type::UnPause); }
+  virtual std::pair<bool, Event::Type> IsReady() override { return std::make_pair(unpause_pressed_, Event::Type::UnPause); }
 
 private:
-  bool& game_paused_;
+  bool& unpause_pressed_;
   UniqueTexturePtr texture_;
   SDL_Rect rc_;
 };

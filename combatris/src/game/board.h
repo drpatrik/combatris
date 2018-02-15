@@ -29,9 +29,12 @@ class Board final {
     if (!tetromino_in_play_) {
       return;
     }
-    game_paused_ = !game_paused_;
-    if (game_paused_) {
+    if (!game_paused_) {
+      unpause_pressed_ = false;
+      game_paused_ = true;
       events_.Push(Event::Type::Pause);
+    } else if (!unpause_pressed_) {
+      unpause_pressed_ = true;
     }
   }
 
@@ -77,5 +80,6 @@ class Board final {
   std::vector<EventSink*> event_sinks_;
   Events events_;
   bool game_paused_ = false;
+  bool unpause_pressed_ = false;
   std::deque<std::shared_ptr<Animation>> animations_;
 };

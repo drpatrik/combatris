@@ -22,20 +22,18 @@ struct Event {
     None,
     Pause,
     UnPause,
-    GameOver,
     NewGame,
     NextPiece,
     ScoringData,
     Score,
     Moves,
     LevelUp,
-    ResetGame,
     PerfectClear,
     FloorReached,
     FloorLeft,
     SendLines,
     GotLines,
-    CountdownAnimationDone
+    CountdownAfterUnPauseDone
   };
 
   explicit Event(Type type)
