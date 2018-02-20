@@ -21,7 +21,7 @@ class Tetromino final {
 
   Type type() const { return type_; }
 
-  inline void Render(const Position& pos) const { RenderBlock(renderer_, pos.x(), pos.y(), texture_.get()); }
+  inline void Render(const Position& pos) const { RenderMino(renderer_, pos.x(), pos.y(), texture_.get()); }
 
   inline void RenderGhost(const Position& pos) const { ::RenderGhost(renderer_, pos.x(), pos.y(), color_); }
 
@@ -34,24 +34,24 @@ class Tetromino final {
       auto t_x = x;
       for (size_t col = 0; col < rotation.shape_.at(row).size(); ++col) {
         const auto& shape = rotation.shape_;
-        const SDL_Rect rc = { t_x, y, kBlockWidth, kBlockHeight };
+        const SDL_Rect rc = { t_x, y, kMinoWidth, kMinoHeight };
 
         if (shape[row][col] != 0) {
           SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 0);
           SDL_RenderFillRect(renderer_, &rc);
-          RenderBlock(renderer_, t_x, y, texture);
+          RenderMino(renderer_, t_x, y, texture);
         }
-        t_x += kBlockWidth;
+        t_x += kMinoWidth;
       }
-      y += kBlockHeight;
+      y += kMinoHeight;
     }
   }
 
   void Render(int x, int y) const {
     const auto& rotation = rotations_[0];
 
-    x += (((kBlockWidth * 4) - rotation.width_) / 2);
-    y -= (((kBlockHeight * 2) - rotation.height_) / 2);
+    x += (((kMinoWidth * 4) - rotation.width_) / 2);
+    y -= (((kMinoHeight * 2) - rotation.height_) / 2);
 
     for (size_t row = 0; row < rotation.shape_.size(); ++row) {
       auto t_x = x;
@@ -59,11 +59,11 @@ class Tetromino final {
         const auto& shape = rotation.shape_;
 
         if (shape[row][col] != 0) {
-          RenderBlock(renderer_, t_x, y, texture_.get());
+          RenderMino(renderer_, t_x, y, texture_.get());
         }
-        t_x += kBlockWidth;
+        t_x += kMinoWidth;
       }
-      y += kBlockHeight;
+      y += kMinoHeight;
     }
   }
 

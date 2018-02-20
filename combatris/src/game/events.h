@@ -23,7 +23,7 @@ struct Event {
     Pause,
     UnPause,
     NewGame,
-    NextPiece,
+    NextTetromino,
     ScoringData,
     Score,
     Moves,

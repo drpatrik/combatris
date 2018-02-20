@@ -3,11 +3,11 @@
 #include "game/tetromino_generator.h"
 #include "game/panes/pane.h"
 
-class NextPiece final : public TextPane {
+class NextQueue final : public TextPane {
  public:
-  NextPiece(SDL_Renderer* renderer, const std::shared_ptr<TetrominoGenerator>& tetromino_generator, const std::shared_ptr<Assets>& assets)
-      : TextPane(renderer,  kMatrixEndX + kBlockWidth + 8,
-                 kMatrixStartY - kBlockHeight, "NEXT", assets), tetromino_generator_(tetromino_generator) {
+  NextQueue(SDL_Renderer* renderer, const std::shared_ptr<TetrominoGenerator>& tetromino_generator, const std::shared_ptr<Assets>& assets)
+      : TextPane(renderer,  kMatrixEndX + kMinoWidth + 8,
+                 kMatrixStartY - kMinoHeight, "NEXT", assets), tetromino_generator_(tetromino_generator) {
     SetCaptionOrientation(TextPane::Orientation::Left);
   }
 

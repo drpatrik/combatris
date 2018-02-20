@@ -2,12 +2,13 @@
 
 ![screenshots](screenshots/combatris-demo-1.png)
 
-An modern C++11/14/17 implementation of Tetris Battle using the scoring system as of 2006. The game uses the
-BPS Random Generator and Wall Kicks accoring to the Super Rotating system. It is fairly easy to change both
+An modern C++11/14/17 implementation of Tetris using the scoring system as of 2006. The game uses the
+BPS Random Generator and Wall Kicks according to the Super Rotating system. It is fairly easy to change both
 the random generator and wall kicks / alternativly no-wall kicks. At some time I might make the systems plugable.
 
-The multiplayer part is not developed yet, I have one animation more to add and then I cannot procrastrinate the
-network part any longer.
+The plan is to implement three modes Marathon, Battle and Single Player. The single player is under development
+and will soon be considered done. I will then implement Battle and Network support and after that the Marathon
+mode or maybe if I feel like the vice versa.
 
 **Status**
 - [x] Rotate left / right
@@ -26,7 +27,6 @@ network part any longer.
 - [X] Pane showing the last clearing move (B2B / Combo / T-Spin / Single / Double /etc.)
 - [X] Joystick support (PS3 joystick tested)
 - [X] Hot add / remove joystick device
-- [ ] Configure which joystick to use (if many available)
 - [X] Tetromino Locked (animations)
 - [X] Level up (animations)
 - [X] Score animation
@@ -35,9 +35,18 @@ network part any longer.
 - [X] Pause Screen
 - [X] Splash Screen
 - [ ] Sound
-- [ ] Network functionality (P2P based on UDP)
-- [ ] Own display for Battle game statistics
+- [ ] Configure which joystick to use (if many available)
+- [ ] Battle Mode (P2P based on UDP)
+- [ ] Own Window for Battle game statistics
 - [ ] Unit tests // Two in place right now
+- [ ] Introduce Marathon mode
+
+**Improvements**
+- [X] Delay counter can be resetted upto 15 times for each successful move
+- [ ] Remove the score pane and show the score directly on the frame
+- [ ] Remove the pane for showing combo/latest move and display combo / last move direct on the frame
+- [ ] Add animation for combo/last clearing move (expanding text)
+- [ ] Change font to https://www.dafont.com/obelixpro.font
 
 **Keyboard Commands**
 

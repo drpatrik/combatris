@@ -1,10 +1,8 @@
-#include "game/board.h"
+#include "game/tetrion.h"
 
 #include <iostream>
 
 namespace {
-
-
 
 void RenderWindowBackground(SDL_Renderer* renderer) {
   SDL_Rect rc { 0, 0, kWidth, kHeight };
@@ -35,7 +33,7 @@ void RemoveAnimation(std::deque<std::shared_ptr<Animation>>& animations) {
 
 } // namespace
 
-Board::Board() : events_() {
+Tetrion::Tetrion() : events_() {
   window_ = SDL_CreateWindow("COMBATRIS", SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED, kWidth, kHeight, SDL_WINDOW_RESIZABLE);
   if (nullptr == window_) {
@@ -60,10 +58,10 @@ Board::Board() : events_() {
   AddPane(scoring_.get());
   high_score_ = std::make_unique<HighScore>(renderer_, assets_);
   AddPane(high_score_.get());
-  next_piece_ = std::make_unique<NextPiece>(renderer_, tetromino_generator_, assets_);
-  AddPane(next_piece_.get());
-  hold_piece_ = std::make_unique<HoldPiece>(renderer_, tetromino_generator_, assets_);
-  AddPane(hold_piece_.get());
+  next_queue_ = std::make_unique<NextQueue>(renderer_, tetromino_generator_, assets_);
+  AddPane(next_queue_.get());
+  hold_queue_ = std::make_unique<HoldQueue>(renderer_, tetromino_generator_, assets_);
+  AddPane(hold_queue_.get());
   total_lines_ = std::make_unique<TotalLines>(renderer_, assets_);
   AddPane(total_lines_.get());
   moves_ = std::make_unique<Moves>(renderer_, assets_);
@@ -71,12 +69,12 @@ Board::Board() : events_() {
   AddAnimation<SplashScreenAnimation>(renderer_, assets_);
 }
 
-Board::~Board() noexcept {
+Tetrion::~Tetrion() noexcept {
   SDL_DestroyRenderer(renderer_);
   SDL_DestroyWindow(window_);
 }
 
-void Board::GameControl(Controls control_pressed) {
+void Tetrion::GameControl(Controls control_pressed) {
   if (!tetromino_in_play_ || game_paused_) {
     return;
   }
@@ -99,13 +97,13 @@ void Board::GameControl(Controls control_pressed) {
     case Controls::Right:
       tetromino_in_play_->Right();
       break;
-    case Controls::HoldPiece:
-      tetromino_in_play_ = hold_piece_->Hold(tetromino_in_play_);
+    case Controls::HoldQueue:
+      tetromino_in_play_ = hold_queue_->Hold(tetromino_in_play_);
       break;
   }
 }
 
-void Board::EventHandler(Events& events) {
+void Tetrion::EventHandler(Events& events) {
   if (events.IsEmpty()) {
     return;
   }
@@ -115,19 +113,19 @@ void Board::EventHandler(Events& events) {
 
   switch (event.type()) {
     case Event::Type::Pause:
-      next_piece_->Hide();
+      next_queue_->Hide();
       AddAnimation<PauseAnimation>(renderer_, assets_, unpause_pressed_);
       break;
     case Event::Type::UnPause:
       AddAnimation<CountDownAnimation>(renderer_, assets_, Event::Type::CountdownAfterUnPauseDone);
       break;
     case Event::Type::CountdownAfterUnPauseDone:
-      next_piece_->Show();
+      next_queue_->Show();
       level_->ResetTime();
       unpause_pressed_ = game_paused_ = false;
       break;
-    case Event::Type::NextPiece:
-      next_piece_->Show();
+    case Event::Type::NextTetromino:
+      next_queue_->Show();
       tetromino_in_play_ = tetromino_generator_->Get();
       if (tetromino_in_play_->is_game_over()) {
         events.Clear();
@@ -144,11 +142,11 @@ void Board::EventHandler(Events& events) {
       break;
     case Event::Type::NewGame:
       events.Clear();
-      next_piece_->Hide();
+      next_queue_->Hide();
       tetromino_generator_->Reset();
       unpause_pressed_ = game_paused_ = false;
       std::for_each(panes_.begin(), panes_.end(), [](const auto& r) { r->Reset(); });
-      AddAnimation<CountDownAnimation>(renderer_, assets_, Event::Type::NextPiece);
+      AddAnimation<CountDownAnimation>(renderer_, assets_, Event::Type::NextTetromino);
       break;
     case Event::Type::PerfectClear:
       std::cout << "Perfect Clear" << std::endl;
@@ -168,7 +166,7 @@ void Board::EventHandler(Events& events) {
   }
 }
 
-void Board::Render(double delta_time) {
+void Tetrion::Render(double delta_time) {
   SDL_RenderClear(renderer_);
 
   RenderWindowBackground(renderer_);
@@ -180,12 +178,12 @@ void Board::Render(double delta_time) {
   SDL_RenderPresent(renderer_);
 }
 
-void Board::Update(double delta_time) {
+void Tetrion::Update(double delta_time) {
   EventHandler(events_);
   if (!game_paused_) {
     if (tetromino_in_play_ && tetromino_in_play_->Down(delta_time) == TetrominoSprite::Status::Commited) {
       tetromino_in_play_.reset();
-      events_.Push(Event::Type::NextPiece);
+      events_.Push(Event::Type::NextTetromino);
     }
   }
   Render(delta_time);

@@ -4,13 +4,13 @@
 
 #include <iostream>
 
-inline int row_to_pixel(size_t row) { return static_cast<int>((row * kBlockHeight) + kMatrixStartY); }
+inline int row_to_pixel(size_t row) { return static_cast<int>((row * kMinoHeight) + kMatrixStartY); }
 
-inline int col_to_pixel(size_t col) { return static_cast<int>((col * kBlockWidth) + kMatrixStartX); }
+inline int col_to_pixel(size_t col) { return static_cast<int>((col * kMinoWidth) + kMatrixStartX); }
 
-inline int row_to_pixel_adjusted(size_t row) { return static_cast<int>((row * kBlockHeight) + (kMatrixStartY - (kVisibleRowStart * kBlockHeight))); }
+inline int row_to_pixel_adjusted(size_t row) { return static_cast<int>((row * kMinoHeight) + (kMatrixStartY - (kVisibleRowStart * kMinoHeight))); }
 
-inline int col_to_pixel_adjusted(size_t col) { return static_cast<int>((col * kBlockWidth) + (kMatrixStartX - (kVisibleColStart  * kBlockWidth))); }
+inline int col_to_pixel_adjusted(size_t col) { return static_cast<int>((col * kMinoWidth) + (kMatrixStartX - (kVisibleColStart  * kMinoWidth))); }
 
 inline int row_to_visible(int row) { return row - kVisibleRowStart; }
 

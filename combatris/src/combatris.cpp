@@ -1,5 +1,5 @@
 #include "utility/timer.h"
-#include "game/board.h"
+#include "game/tetrion.h"
 
 #include <SDL_mixer.h>
 
@@ -74,7 +74,7 @@ class Combatris {
 
   void Play() {
     bool quit = false;
-    Board board;
+    Tetrion board;
     DeltaTimer delta_timer;
     bool button_pressed = false;
     uint32_t repeat_counter = 0;
@@ -98,24 +98,24 @@ class Combatris {
             if (event.key.keysym.scancode == SDL_SCANCODE_N) {
               board.NewGame();
             } else if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
-              board.GameControl(Board::Controls::HardDrop);
+              board.GameControl(Tetrion::Controls::HardDrop);
             } else if (event.key.keysym.scancode == SDL_SCANCODE_Z) {
-              function_to_repeat = [&board]() { board.GameControl(Board::Controls::RotateCounterClockwise); };
+              function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::RotateCounterClockwise); };
               function_to_repeat();
             } else if (event.key.keysym.scancode == SDL_SCANCODE_UP || event.key.keysym.scancode == SDL_SCANCODE_X) {
-              function_to_repeat = [&board]() { board.GameControl(Board::Controls::RotateClockwise); };
+              function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::RotateClockwise); };
               function_to_repeat();
             } else if (event.key.keysym.scancode == SDL_SCANCODE_LEFT) {
-              function_to_repeat = [&board]() { board.GameControl(Board::Controls::Left); };
+              function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::Left); };
               function_to_repeat();
             } else if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
-              function_to_repeat = [&board]() { board.GameControl(Board::Controls::Right); };
+              function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::Right); };
               function_to_repeat();
             } else if (event.key.keysym.scancode == SDL_SCANCODE_DOWN) {
-              function_to_repeat = [&board]() { board.GameControl(Board::Controls::SoftDrop); };
+              function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::SoftDrop); };
               function_to_repeat();
             } else if (event.key.keysym.scancode == SDL_SCANCODE_LSHIFT || event.key.keysym.scancode == SDL_SCANCODE_C) {
-              board.GameControl(Board::Controls::HoldPiece);
+              board.GameControl(Tetrion::Controls::HoldQueue);
             } else if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE || event.key.keysym.scancode == SDL_SCANCODE_F1 || event.key.keysym.scancode == SDL_SCANCODE_P) {
               board.Pause();
             }
@@ -125,28 +125,28 @@ class Combatris {
               repeat_counter = SDL_GetTicks();
               button_pressed = true;
             }
-            if (event.jbutton.button == kJoystick_SoftDrop) { // pad down
-              function_to_repeat = [&board]() { board.GameControl(Board::Controls::SoftDrop); };
+            if (event.jbutton.button == kJoystick_SoftDrop) {
+              function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::SoftDrop); };
               function_to_repeat();
-            }  else if (event.jbutton.button == kJoystick_Left) { // pad left
-              function_to_repeat = [&board]() { board.GameControl(Board::Controls::Left); };
+            }  else if (event.jbutton.button == kJoystick_Left) {
+              function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::Left); };
               function_to_repeat();
-            }  else if (event.jbutton.button == kJoystick_Right) { // pad right
-              function_to_repeat = [&board]() { board.GameControl(Board::Controls::Right); };
+            }  else if (event.jbutton.button == kJoystick_Right) {
+              function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::Right); };
               function_to_repeat();
-            } else if (event.jbutton.button == kJoystick_RotateCounterClockwise) { // Square
-              function_to_repeat = [&board]() { board.GameControl(Board::Controls::RotateCounterClockwise); };
+            } else if (event.jbutton.button == kJoystick_RotateCounterClockwise) {
+              function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::RotateCounterClockwise); };
               function_to_repeat();
-            }  else if (event.jbutton.button == kJoystick_RotateClockwise) { // Circle
-              function_to_repeat = [&board]() { board.GameControl(Board::Controls::RotateClockwise); };
+            }  else if (event.jbutton.button == kJoystick_RotateClockwise) {
+              function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::RotateClockwise); };
               function_to_repeat();
-            }  else if (event.jbutton.button == kJoystick_HoldPiece) { // Triangle
-              board.GameControl(Board::Controls::HoldPiece);
-            }  else if (event.jbutton.button == kJoystick_HardDrop) { // X
-              board.GameControl(Board::Controls::HardDrop);
-            }  else if (event.jbutton.button == kJoystick_Start) { // Start
+            }  else if (event.jbutton.button == kJoystick_HoldPiece) {
+              board.GameControl(Tetrion::Controls::HoldQueue);
+            }  else if (event.jbutton.button == kJoystick_HardDrop) {
+              board.GameControl(Tetrion::Controls::HardDrop);
+            }  else if (event.jbutton.button == kJoystick_Start) {
               board.NewGame();
-            } else if (event.jbutton.button == kJoystick_Pause) { // Select
+            } else if (event.jbutton.button == kJoystick_Pause) {
               board.Pause();
             }
             break;

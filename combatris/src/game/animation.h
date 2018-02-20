@@ -50,7 +50,7 @@ class ScoreAnimation final : public Animation {
     int width, height;
     std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold25), std::to_string(score), Color::White);
 
-    auto x = col_to_pixel_adjusted(pos.col()) + Center(kBlockWidth * 4, width);
+    auto x = col_to_pixel_adjusted(pos.col()) + Center(kMinoWidth * 4, width);
     auto y = row_to_pixel_adjusted(pos.row());
 
     if (x + width > kMatrixEndX) {
@@ -63,7 +63,7 @@ class ScoreAnimation final : public Animation {
     }
     rc_ = { x, y, width, height };
     y_ = rc_.y;
-    end_pos_ = y_ - (kBlockHeight * 2);
+    end_pos_ = y_ - (kMinoHeight * 2);
   }
 
   virtual void Render(double delta) override {
@@ -141,7 +141,7 @@ class LevelUpAnimation final : public Animation {
 
     rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + Center(kMatrixHeight, height), width, height };
     y_ = rc_.y;
-    end_pos_ = y_ - (kBlockHeight * 3);
+    end_pos_ = y_ - (kMinoHeight * 3);
   }
 
   virtual void Render(double delta) override {
@@ -168,32 +168,25 @@ class FloorReachedAnimation final : public Animation {
       : Animation(renderer, assets), tetromino_sprite_(tetromino_sprite), tetromino_(tetromino_sprite->tetromino()) {
     alpha_texture_ = assets->GetAlphaTextures(tetromino_sprite_->type());
     SDL_GetTextureAlphaMod(alpha_texture_.get(), &alpha_saved_);
+    SDL_SetTextureAlphaMod(alpha_texture_.get(), static_cast<Uint8>(alpha_));
   }
 
   virtual ~FloorReachedAnimation() { SDL_SetTextureAlphaMod(alpha_texture_.get(), alpha_saved_); }
 
-  virtual void Render(double delta) override {
+  virtual void Render(double) override {
     const auto& pos = tetromino_sprite_->pos();
 
     SDL_RenderSetClipRect(*this, &kMatrixRc);
-    SDL_SetTextureAlphaMod(alpha_texture_.get(), static_cast<Uint8>(alpha_));
     tetromino_.Render(pos.x(), pos.y(), alpha_texture_.get(), tetromino_sprite_->angle());
     SDL_RenderSetClipRect(*this, nullptr);
-
-    alpha_ -= delta * 400.0;
-    if (alpha_ < 0) {
-      alpha_ = 0;
-    }
-    ticks_ += delta;
   }
 
   virtual std::pair<bool, Event::Type> IsReady() override {
-    return std::make_pair(ticks_ > tetromino_sprite_->lock_delay(), Event::Type::None);
+    return std::make_pair(tetromino_sprite_->WaitForLockDelay(), Event::Type::None);
   }
 
 private:
-  double alpha_ = 255.0;
-  double ticks_ = 0.0;
+  Uint8 alpha_ = 150.0;
   Uint8 alpha_saved_;
   std::shared_ptr<SDL_Texture> alpha_texture_;
   std::shared_ptr<TetrominoSprite> tetromino_sprite_;

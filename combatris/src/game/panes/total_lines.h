@@ -5,8 +5,8 @@
 class TotalLines final : public TextPane, public EventSink {
  public:
   TotalLines(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets)
-       : TextPane(renderer, kMatrixStartX - kBlockWidth - (kBoxWidth + 8),
-                  (kMatrixStartY - kBlockHeight) + 578, "LINES", assets) { Reset(); }
+       : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + 8),
+                  (kMatrixStartY - kMinoHeight) + 578, "LINES", assets) { Reset(); }
 
   virtual void Reset() override { total_lines_ = 0;  SetCenteredText(std::to_string(0)); }
 

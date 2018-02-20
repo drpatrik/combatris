@@ -6,7 +6,7 @@
 class Moves final : public TextPane, public EventSink {
  public:
   Moves(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets) :
-      TextPane(renderer,  kMatrixEndX + kBlockWidth + 8, (kMatrixStartY - kBlockHeight) + 578 + 32, assets) {
+      TextPane(renderer,  kMatrixEndX + kMinoWidth + 8, (kMatrixStartY - kMinoHeight) + 578 + 32, assets) {
     SetCaptionOrientation(TextPane::Orientation::Left);
   }
 

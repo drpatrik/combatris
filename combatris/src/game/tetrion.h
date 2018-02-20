@@ -3,22 +3,22 @@
 #include "game/panes/total_lines.h"
 #include "game/panes/scoring.h"
 #include "game/panes/high_score.h"
-#include "game/panes/next_piece.h"
-#include "game/panes/hold_piece.h"
+#include "game/panes/next_queue.h"
+#include "game/panes/hold_queue.h"
 #include "game/panes/moves.h"
 #include "game/animation.h"
 
-class Board final {
+class Tetrion final {
  public:
-  enum class Controls { RotateClockwise, RotateCounterClockwise, SoftDrop, HardDrop, Left, Right, HoldPiece };
+  enum class Controls { RotateClockwise, RotateCounterClockwise, SoftDrop, HardDrop, Left, Right, HoldQueue };
 
-  Board();
+  Tetrion();
 
-  Board(const Board&) = delete;
+  Tetrion(const Tetrion&) = delete;
 
-  Board(const Board&&) = delete;
+  Tetrion(const Tetrion&&) = delete;
 
-  ~Board() noexcept;
+  ~Tetrion() noexcept;
 
   void NewGame() {
     animations_.clear();
@@ -72,8 +72,8 @@ class Board final {
   std::shared_ptr<Level> level_;
   std::unique_ptr<Scoring> scoring_;
   std::unique_ptr<HighScore> high_score_;
-  std::unique_ptr<NextPiece> next_piece_;
-  std::unique_ptr<HoldPiece> hold_piece_;
+  std::unique_ptr<NextQueue> next_queue_;
+  std::unique_ptr<HoldQueue> hold_queue_;
   std::unique_ptr<TotalLines> total_lines_;
   std::unique_ptr<Moves> moves_;
   std::vector<PaneInterface*> panes_;

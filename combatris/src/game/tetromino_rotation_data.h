@@ -52,7 +52,7 @@ struct TetrominoRotationData {
 
 // I Tetromino 1
 
-const TetrominoRotationData kTetrominoRotationShape_I_0D(kBlockWidth * 4, kBlockHeight, {
+const TetrominoRotationData kTetrominoRotationShape_I_0D(kMinoWidth * 4, kMinoHeight, {
     {0, 0, 0, 0},
     {1, 1, 1, 1},
     {0, 0, 0, 0},
@@ -89,7 +89,7 @@ const std::vector<TetrominoRotationData> kTetromino_I_Rotations = {
 
 // J Tetromino 2
 
-const TetrominoRotationData kTetrominoRotationShape_J_0D(kBlockWidth * 3, kBlockHeight * 2, {
+const TetrominoRotationData kTetrominoRotationShape_J_0D(kMinoWidth * 3, kMinoHeight * 2, {
     {2, 0, 0},
     {2, 2, 2},
     {0, 0, 0}
@@ -122,7 +122,7 @@ const std::vector<TetrominoRotationData> kTetromino_J_Rotations = {
 
 // L Tetromino 3
 
-const TetrominoRotationData kTetrominoRotationShape_L_0D(kBlockWidth * 3, kBlockHeight * 2, {
+const TetrominoRotationData kTetrominoRotationShape_L_0D(kMinoWidth * 3, kMinoHeight * 2, {
     {0, 0, 3},
     {3, 3, 3},
     {0, 0, 0}
@@ -155,7 +155,7 @@ const std::vector<TetrominoRotationData> kTetromino_L_Rotations = {
 
 // O Tetromino 4
 
-const TetrominoRotationData kTetrominoRotationShape_O(kBlockWidth * 4, kBlockHeight * 2, {
+const TetrominoRotationData kTetrominoRotationShape_O(kMinoWidth * 4, kMinoHeight * 2, {
     {0, 4, 4, 0},
     {0, 4, 4, 0},
     {0, 0, 0, 0}
@@ -170,7 +170,7 @@ const std::vector<TetrominoRotationData> kTetromino_O_Rotations = {
 
 // S Tetromino 5
 
-const TetrominoRotationData kTetrominoRotationShape_S_0D(kBlockWidth * 3, kBlockHeight * 2, {
+const TetrominoRotationData kTetrominoRotationShape_S_0D(kMinoWidth * 3, kMinoHeight * 2, {
     {0, 5, 5},
     {5, 5, 0},
     {0, 0, 0}
@@ -203,7 +203,7 @@ const std::vector<TetrominoRotationData> kTetromino_S_Rotations = {
 
 // T Tetromino 6
 
-const TetrominoRotationData kTetrominoRotationShape_T_0D(0, kBlockWidth * 3, kBlockHeight * 2,  {
+const TetrominoRotationData kTetrominoRotationShape_T_0D(0, kMinoWidth * 3, kMinoHeight * 2,  {
     {0, 6, 0},
     {6, 6, 6},
     {0, 0, 0}
@@ -236,7 +236,7 @@ const std::vector<TetrominoRotationData> kTetromino_T_Rotations = {
 
 // Z Tetromino 7
 
-const TetrominoRotationData kTetrominoRotationShape_Z_0D(kBlockWidth * 3, kBlockHeight * 2, {
+const TetrominoRotationData kTetrominoRotationShape_Z_0D(kMinoWidth * 3, kMinoHeight * 2, {
     {7, 7, 0},
     {0, 7, 7},
     {0, 0, 0}

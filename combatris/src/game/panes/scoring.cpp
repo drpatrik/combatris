@@ -18,10 +18,8 @@ void Scoring::UpdateEvents(int score, ComboType combo_type, const Event& event) 
     case ComboType::None:
       break;
     case ComboType::B2BTSpin:
-      counter = b2b_tspin_counter_ - 1;
-      break;
     case ComboType::B2BTetris:
-      counter = b2b_tetris_counter_ - 1;
+      counter = b2b_counter_ - 1;
       break;
     case ComboType::Combo:
       counter = combo_counter_ - 1;
@@ -43,28 +41,27 @@ std::tuple<int, int, ComboType> Scoring::Calculate(const Event& event) {
   switch (event.tspin_type_) {
     case TSpinType::None:
     case TSpinType::TSpinMini:
-      b2b_tspin_counter_ = 0;
       if (TSpinType::TSpinMini == event.tspin_type_) {
         base_score = (event.lines_cleared() == 0) ? 100 : 200;
       } else {
         base_score = kScoreForLines.at(event.lines_cleared());
       }
-      if (event.lines_cleared() == 4 && ++b2b_tetris_counter_ > 1) {
+      if (event.lines_cleared() == 4 && ++b2b_counter_ > 1) {
         combo_score = 1200;
         combo_type = ComboType::B2BTetris;
       } else if (event.lines_cleared() > 0 && combo_counter_ > 1) {
+        b2b_counter_ = 0;
         combo_score = ((combo_counter_ - 1) * 50);
         combo_type = ComboType::Combo;
       } else if (event.lines_cleared() == 0) {
-        ClearCounter();
+        ClearCounters();
       }
       break;
     case TSpinType::TSpin:
-      b2b_tetris_counter_ = 0;
       base_score = kScoreForTSpin.at(event.lines_cleared());
-      if (event.lines_cleared() > 0 && ++b2b_tspin_counter_ > 1) {
-        combo_type = ComboType::B2BTSpin;
+      if (event.lines_cleared() > 0 && ++b2b_counter_ > 1) {
         combo_score = kB2BScoreForTSpin.at(event.lines_cleared());
+        combo_type = ComboType::B2BTSpin;
       }
       break;
   }

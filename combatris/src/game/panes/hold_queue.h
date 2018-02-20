@@ -3,13 +3,13 @@
 #include "game/panes/pane.h"
 #include "game/tetromino_generator.h"
 
-class HoldPiece final : public TextPane, public EventSink {
+class HoldQueue final : public TextPane, public EventSink {
  public:
-   HoldPiece(SDL_Renderer *renderer,
+   HoldQueue(SDL_Renderer *renderer,
              const std::shared_ptr<TetrominoGenerator> &tetromino_generator,
              const std::shared_ptr<Assets> &assets)
-       : TextPane(renderer, kMatrixStartX - kBlockWidth - (kBoxWidth + 8),
-                      kMatrixStartY - kBlockHeight, "HOLD", assets),
+       : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + 8),
+                      kMatrixStartY - kMinoHeight, "HOLD", assets),
          tetromino_generator_(tetromino_generator) {}
 
   std::shared_ptr<TetrominoSprite> Hold(const std::shared_ptr<TetrominoSprite>& old_tetromino_sprite) {
@@ -30,7 +30,7 @@ class HoldPiece final : public TextPane, public EventSink {
   }
 
   virtual void Update(const Event& event) override {
-    if (!event.Is(Event::Type::NextPiece)) {
+    if (!event.Is(Event::Type::NextTetromino)) {
       return;
     }
     wait_for_lock_ = false;

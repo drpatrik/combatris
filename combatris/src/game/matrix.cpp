@@ -31,15 +31,15 @@ void RenderGrid(SDL_Renderer* renderer) {
 
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 
-  rc = { 0, kMatrixStartY + 1, kBlockWidth - 2, kBlockHeight - 2 };
+  rc = { 0, kMatrixStartY + 1, kMinoWidth - 2, kMinoHeight - 2 };
 
   for (int row = 0; row < kVisibleRows; ++row) {
     rc.x = kMatrixStartX + 1;
     for (int col = 0; col < kVisibleCols; ++col) {
       SDL_RenderFillRect(renderer, &rc);
-      rc.x += kBlockWidth;
+      rc.x += kMinoWidth;
     }
-    rc.y += kBlockHeight;
+    rc.y += kMinoHeight;
   }
 }
 
@@ -49,7 +49,7 @@ void SetupPlayableArea(Matrix::Type& matrix) {
   }
 }
 
-Lines RemoveClearedLines(Matrix::Type& matrix) {
+Lines RemoveLinesCleared(Matrix::Type& matrix) {
   Lines lines;
 
   for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
@@ -66,7 +66,7 @@ Lines RemoveClearedLines(Matrix::Type& matrix) {
   return lines;
 }
 
-void MoveBlockDown(int end_row, Matrix::Type& matrix) {
+void MoveLineDown(int end_row, Matrix::Type& matrix) {
   Matrix::Type tmp;
 
   std::copy(matrix.begin() + kVisibleRowStart, matrix.begin() + end_row, std::back_inserter(tmp));
@@ -76,7 +76,7 @@ void MoveBlockDown(int end_row, Matrix::Type& matrix) {
 
 void CollapseMatrix(const Lines& lines_cleared, Matrix::Type& matrix) {
   for (const auto& line : lines_cleared) {
-    MoveBlockDown(line.row_, matrix);
+    MoveLineDown(line.row_, matrix);
   }
 }
 
@@ -166,7 +166,7 @@ Matrix::CommitReturnTyoe Matrix::Commit(Tetromino::Type type, Tetromino::Move la
     tspin_type = DetectTSpin(master_matrix_, pos, rotation_data.angle_index_);
   }
 
-  auto lines_cleared = RemoveClearedLines(master_matrix_);
+  auto lines_cleared = RemoveLinesCleared(master_matrix_);
 
   CollapseMatrix(lines_cleared, master_matrix_);
 

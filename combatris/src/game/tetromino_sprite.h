@@ -25,7 +25,7 @@ class TetrominoSprite {
 
   const Tetromino& tetromino() const { return tetromino_; }
 
-  double lock_delay() const { return level_->lock_delay(); }
+  bool WaitForLockDelay() { return level_->WaitForLockDelay(); }
 
   bool is_game_over() const { return game_over_; }
 
@@ -44,11 +44,12 @@ class TetrominoSprite {
   Status Down(double delta_time);
 
  protected:
+  void ResetDelayCounter();
+
   std::tuple<bool, Position, Tetromino::Angle> TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate);
 
  private:
   const Position kSpawnPosition = Position(0, 5);
-
   const Tetromino& tetromino_;
   Tetromino::Angle angle_ = Tetromino::Angle::A0;
   Position pos_ = kSpawnPosition;
@@ -59,4 +60,5 @@ class TetrominoSprite {
   bool floor_reached_ = false;
   Tetromino::Move last_move_ = Tetromino::Move::None;
   bool game_over_ = true;
+  int reset_delay_counter_ = 0;
 };
