@@ -29,8 +29,8 @@ struct Event {
     Moves,
     LevelUp,
     PerfectClear,
-    FloorReached,
-    FloorLeft,
+    OnFloor,
+    Falling,
     SendLines,
     GotLines,
     CountdownAfterUnPauseDone
@@ -60,6 +60,8 @@ struct Event {
 
   inline int score() const { return score_; }
 
+  bool operator==(Event::Type type) { return type == type_; }
+
   Type type_;
   Lines lines_cleared_;
   Position pos_ = Position(-1, -1);
@@ -84,29 +86,34 @@ class Events {
 
   Events(const Events&) = delete;
 
-  Events(const Events&&) = delete;
+  inline bool IsEmpty() const { return events_.empty(); }
 
-  bool IsEmpty() const { return events_.empty(); }
+  void Push(Event::Type type, bool remove_if_already_exists = false) {
+    if (remove_if_already_exists) {
+      Remove(type);
+    }
+    events_.emplace_back(type);
+  }
 
-  void Push(Event::Type type) { events_.emplace_back(type); }
+  inline void PushFront(Event::Type type) { events_.emplace_front(type); }
 
-  void PushFront(Event::Type type) { events_.emplace_front(type); }
+  inline void Push(const Event& event) { events_.push_back(event); }
 
-  void Push(const Event& event) { events_.push_back(event); }
-
-  void Push(Event::Type type, const Lines& lines, const Position& pos, TSpinType tspin_type = TSpinType::None) {
+  inline void Push(Event::Type type, const Lines& lines, const Position& pos, TSpinType tspin_type = TSpinType::None) {
     events_.emplace_back(type, lines, pos, tspin_type);
   }
 
-  void Push(Event::Type type, const Position& pos, int score) {
+  inline void Push(Event::Type type, const Position& pos, int score) {
     events_.emplace_back(type, pos, score);
   }
 
-  void Push(Event::Type type, int lines) { events_.emplace_back(type, lines); }
+  inline void Push(Event::Type type, int lines) { events_.emplace_back(type, lines); }
 
-  void Push(Event::Type type, const Lines& lines_cleared, TSpinType tspin_type, ComboType combo_type, int counter) {
+  inline void Push(Event::Type type, const Lines& lines_cleared, TSpinType tspin_type, ComboType combo_type, int counter) {
     events_.emplace_back(type, lines_cleared, tspin_type, combo_type, counter);
   }
+
+  inline void Remove(Event::Type type) { events_.erase(std::remove(events_.begin(), events_.end(), type), events_.end()); }
 
   Event Pop() {
     auto event = events_.front();

@@ -3,6 +3,12 @@
 #include <chrono>
 #include <algorithm>
 
+inline int64_t time_in_ms() {
+  auto current_time = std::chrono::high_resolution_clock::now();
+
+  return std::chrono::duration_cast<std::chrono::milliseconds>(current_time.time_since_epoch()).count();
+}
+
 class Timer final {
  public:
   using SystemClock = std::chrono::system_clock;

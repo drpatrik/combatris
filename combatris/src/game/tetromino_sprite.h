@@ -3,31 +3,38 @@
 #include "game/matrix.h"
 #include "game/panes/level.h"
 
+namespace {
+
+const Position kSpawnPosition = Position(0, 5);
+const Tetromino::Angle kSpawnAngle = Tetromino::Angle::A0;
+
+} // namespace
+
 class TetrominoSprite {
  public:
-  enum class Status { Continue, Commited };
+  enum class State { Falling, OnFloor, Commit, Commited, GameOver };
   enum class Rotation { Clockwise, CounterClockwise };
 
   TetrominoSprite(const Tetromino& tetromino, const std::shared_ptr<Level>& level, Events& events, const std::shared_ptr<Matrix>& matrix)
-      : tetromino_(tetromino), matrix_(matrix), level_(level), events_(events), rotation_data_(tetromino.GetRotationData(angle_)) {
+      : tetromino_(tetromino), level_(level), events_(events), matrix_(matrix), rotation_data_(tetromino.GetRotationData(kSpawnAngle)) {
     if (matrix_->IsValid(pos_, rotation_data_)) {
       matrix_->Insert(pos_, rotation_data_);
       level_->ResetTime();
-      game_over_ = false;
+      state_ = State::Falling;
     }
   }
 
-  Tetromino::Type type() { return tetromino_.type(); }
+  void Render(const std::shared_ptr<SDL_Texture>& texture) const {
+    const Position adjusted_pos(pos_.row() - kVisibleRowStart, pos_.col() - kVisibleColStart);
 
-  Tetromino::Angle angle() const { return angle_; }
+    tetromino_.Render(adjusted_pos.x(), adjusted_pos.y(), texture.get(), angle_);
+  }
 
-  Position pos() const { return Position(pos_.row() - kVisibleRowStart, pos_.col() - kVisibleColStart); }
+  inline const Tetromino& tetromino() const { return tetromino_; }
 
-  const Tetromino& tetromino() const { return tetromino_; }
+  inline bool is_game_over() const { return (State::GameOver == state_); }
 
-  bool WaitForLockDelay() { return level_->WaitForLockDelay(); }
-
-  bool is_game_over() const { return game_over_; }
+  inline bool WaitForLockDelay() { return level_->WaitForLockDelay(); }
 
   void RotateClockwise();
 
@@ -41,7 +48,7 @@ class TetrominoSprite {
 
   void Right();
 
-  Status Down(double delta_time);
+  State Down(double delta_time);
 
  protected:
   void ResetDelayCounter();
@@ -49,16 +56,14 @@ class TetrominoSprite {
   std::tuple<bool, Position, Tetromino::Angle> TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate);
 
  private:
-  const Position kSpawnPosition = Position(0, 5);
   const Tetromino& tetromino_;
-  Tetromino::Angle angle_ = Tetromino::Angle::A0;
-  Position pos_ = kSpawnPosition;
-  std::shared_ptr<Matrix> matrix_;
   std::shared_ptr<Level> level_;
   Events& events_;
+  std::shared_ptr<Matrix> matrix_;
   TetrominoRotationData rotation_data_;
-  bool floor_reached_ = false;
+  Tetromino::Angle angle_ = kSpawnAngle;
+  Position pos_ = kSpawnPosition;
   Tetromino::Move last_move_ = Tetromino::Move::None;
-  bool game_over_ = true;
   int reset_delay_counter_ = 0;
+  State state_ = State::GameOver;
 };

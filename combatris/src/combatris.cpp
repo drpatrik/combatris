@@ -5,8 +5,9 @@
 
 namespace {
 
-uint32_t kRepeatDelay = 150; // milliseconds
-uint32_t kRepeatInterval = 50; // milliseconds
+// DAS settings
+uint32_t kRepeatDelay = 145; // milliseconds
+uint32_t kRepeatInterval = 80; // milliseconds
 // PS3 Controller Mappings
 int kJoystick_SoftDrop = 6; // Pad Down
 int kJoystick_Left = 7; // Pad Left
@@ -73,12 +74,12 @@ class Combatris {
   }
 
   void Play() {
-    bool quit = false;
     Tetrion board;
+    bool quit = false;
     DeltaTimer delta_timer;
     bool button_pressed = false;
-    uint32_t repeat_counter = 0;
-    uint32_t repeat_threshold = kRepeatDelay;
+    int64_t repeat_counter = 0;
+    int64_t repeat_threshold = kRepeatDelay;
     std::function<void()> function_to_repeat;
 
     while (!quit) {
@@ -91,20 +92,18 @@ class Combatris {
         }
         switch (event.type) {
           case SDL_KEYDOWN:
-            if (!button_pressed) {
-              repeat_counter = SDL_GetTicks();
-              button_pressed = true;
+            if (button_pressed) {
+              break;
             }
+            button_pressed = true;
             if (event.key.keysym.scancode == SDL_SCANCODE_N) {
               board.NewGame();
             } else if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
               board.GameControl(Tetrion::Controls::HardDrop);
             } else if (event.key.keysym.scancode == SDL_SCANCODE_Z) {
-              function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::RotateCounterClockwise); };
-              function_to_repeat();
+              board.GameControl(Tetrion::Controls::RotateCounterClockwise);
             } else if (event.key.keysym.scancode == SDL_SCANCODE_UP || event.key.keysym.scancode == SDL_SCANCODE_X) {
-              function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::RotateClockwise); };
-              function_to_repeat();
+              board.GameControl(Tetrion::Controls::RotateClockwise);
             } else if (event.key.keysym.scancode == SDL_SCANCODE_LEFT) {
               function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::Left); };
               function_to_repeat();
@@ -119,12 +118,13 @@ class Combatris {
             } else if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE || event.key.keysym.scancode == SDL_SCANCODE_F1 || event.key.keysym.scancode == SDL_SCANCODE_P) {
               board.Pause();
             }
+            repeat_counter = time_in_ms();
             break;
           case SDL_JOYBUTTONDOWN:
-            if (!button_pressed) {
-              repeat_counter = SDL_GetTicks();
-              button_pressed = true;
+            if (button_pressed) {
+              break;
             }
+            button_pressed = true;
             if (event.jbutton.button == kJoystick_SoftDrop) {
               function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::SoftDrop); };
               function_to_repeat();
@@ -135,11 +135,9 @@ class Combatris {
               function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::Right); };
               function_to_repeat();
             } else if (event.jbutton.button == kJoystick_RotateCounterClockwise) {
-              function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::RotateCounterClockwise); };
-              function_to_repeat();
+              board.GameControl(Tetrion::Controls::RotateCounterClockwise);;
             }  else if (event.jbutton.button == kJoystick_RotateClockwise) {
-              function_to_repeat = [&board]() { board.GameControl(Tetrion::Controls::RotateClockwise); };
-              function_to_repeat();
+              board.GameControl(Tetrion::Controls::RotateClockwise);
             }  else if (event.jbutton.button == kJoystick_HoldPiece) {
               board.GameControl(Tetrion::Controls::HoldQueue);
             }  else if (event.jbutton.button == kJoystick_HardDrop) {
@@ -149,9 +147,13 @@ class Combatris {
             } else if (event.jbutton.button == kJoystick_Pause) {
               board.Pause();
             }
+            repeat_counter = time_in_ms();
             break;
           case SDL_KEYUP:
           case SDL_JOYBUTTONUP:
+            if (!button_pressed) {
+              break;
+            }
             button_pressed = false;
             function_to_repeat = nullptr;
             repeat_threshold = kRepeatDelay;
@@ -166,12 +168,12 @@ class Combatris {
             break;
         }
       }
-      if (button_pressed && (SDL_GetTicks() - repeat_counter) > repeat_threshold) {
+      if (button_pressed && (time_in_ms() - repeat_counter) > repeat_threshold) {
         if (function_to_repeat) {
           function_to_repeat();
         }
-        repeat_counter = SDL_GetTicks();
         repeat_threshold = kRepeatInterval;
+        repeat_counter = time_in_ms();
       }
       board.Update(delta_timer.GetDelta());
     }

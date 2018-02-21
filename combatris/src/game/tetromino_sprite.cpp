@@ -37,8 +37,11 @@ Tetromino::Angle GetNextAngle(Tetromino::Angle current_angle, Rotation rotate) {
 } // namespace
 
 void TetrominoSprite::ResetDelayCounter() {
-  if (floor_reached_ && ++reset_delay_counter_ < kResetsAllowed) {
+  if (State::OnFloor == state_ && reset_delay_counter_ < kResetsAllowed) {
+    ++reset_delay_counter_;
     level_->ResetTime();
+  } else if (reset_delay_counter_ > 0) {
+    ++reset_delay_counter_;
   }
 }
 
@@ -84,7 +87,7 @@ void TetrominoSprite::RotateCounterClockwise() {
 }
 
 void TetrominoSprite::SoftDrop() {
-  if (floor_reached_) {
+  if (State::OnFloor == state_) {
     return;
   }
   if (pos_.row() >= kVisibleRowStart - 1) {
@@ -94,14 +97,14 @@ void TetrominoSprite::SoftDrop() {
 }
 
 void TetrominoSprite::HardDrop() {
-  if (floor_reached_) {
+  if (State::OnFloor == state_) {
     return;
   }
   auto drop_row = pos_.row();
 
   pos_ = matrix_->GetDropPosition(pos_, rotation_data_);
   level_->Release();
-  floor_reached_ = true;
+  state_ = State::Commit;
   last_move_ = Tetromino::Move::Down;
   events_.Push(Event::Type::ScoringData, (kVisibleRows - drop_row) * 2);
 }
@@ -124,39 +127,46 @@ void TetrominoSprite::Right() {
   }
 }
 
-TetrominoSprite::Status TetrominoSprite::Down(double delta_time) {
-  auto status = Status::Continue;
+TetrominoSprite::State TetrominoSprite::Down(double delta_time) {
+  switch (state_) {
+    case State::Falling:
+      last_move_ = Tetromino::Move::Down;
+      if (level_->WaitForMoveDown(delta_time)) {
+        if (reset_delay_counter_ >= kResetsAllowed) {
+          state_ = State::Commit;
+        } else if (matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
+          pos_.inc_row();
+          matrix_->Insert(pos_, rotation_data_);
+          if (!matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
+            events_.Push(Event::Type::OnFloor, true);
+            state_ = State::OnFloor;
+          }
+        } else {
+          events_.Push(Event::Type::OnFloor, true);
+          state_ = State::OnFloor;
+        }
+      }
+      break;
+    case State::OnFloor:
+      if (level_->WaitForLockDelay(delta_time)) {
+        state_ = State::Commit;
+      } else if (matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
+        events_.Push(Event::Type::Falling, true);
+        state_ = State::Falling;
+      }
+      break;
+    case State::Commit: {
+        auto [lines_cleared, tspin_type, perfect_clear] = matrix_->Commit(tetromino_.type(), last_move_, pos_, rotation_data_);
 
-  if (!floor_reached_ && !level_->WaitForMoveDown(delta_time)) {
-    return status;
+        if (perfect_clear) {
+          events_.Push(Event::Type::PerfectClear);
+        }
+        events_.Push(Event::Type::ScoringData, lines_cleared, pos_, tspin_type);
+        state_ = State::Commited;
+      }
+      break;
+    default:
+      break;
   }
-  const Position try_new_pos(pos_.row() + 1, pos_.col());
-
-  if (matrix_->IsValid(try_new_pos, rotation_data_)) {
-    pos_ = try_new_pos;
-    matrix_->Insert(pos_, rotation_data_);
-    auto floor_is_reached = !matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_);
-
-    if (!floor_reached_ && floor_is_reached) {
-      floor_reached_ = true;
-      reset_delay_counter_ = 0;
-      events_.Push(Event::Type::FloorReached);
-    } else if (floor_reached_ && !floor_is_reached) {
-      floor_reached_ = false;
-      events_.Push(Event::Type::FloorLeft);
-      level_->ResetTime();
-    }
-    last_move_ = Tetromino::Move::Down;
-  } else if (floor_reached_ && !level_->WaitForLockDelay(delta_time)) {
-    return status;
-  } else {
-    auto [lines_cleared, tspin_type, perfect_clear] = matrix_->Commit(tetromino_.type(), last_move_, pos_, rotation_data_);
-
-    if (perfect_clear) {
-      events_.Push(Event::Type::PerfectClear);
-    }
-    events_.Push(Event::Type::ScoringData, lines_cleared, pos_, tspin_type);
-    status = Status::Commited;
-  }
-  return status;
+  return state_;
 }

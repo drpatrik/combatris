@@ -162,22 +162,20 @@ private:
   double end_pos_;
 };
 
-class FloorReachedAnimation final : public Animation {
+class OnFloorAnimation final : public Animation {
  public:
-  FloorReachedAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets> &assets, const std::shared_ptr<TetrominoSprite>& tetromino_sprite)
+  OnFloorAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets> &assets, const std::shared_ptr<TetrominoSprite>& tetromino_sprite)
       : Animation(renderer, assets), tetromino_sprite_(tetromino_sprite), tetromino_(tetromino_sprite->tetromino()) {
-    alpha_texture_ = assets->GetAlphaTextures(tetromino_sprite_->type());
+    alpha_texture_ = assets->GetAlphaTextures(tetromino_sprite_->tetromino().type());
     SDL_GetTextureAlphaMod(alpha_texture_.get(), &alpha_saved_);
-    SDL_SetTextureAlphaMod(alpha_texture_.get(), static_cast<Uint8>(alpha_));
+    SDL_SetTextureAlphaMod(alpha_texture_.get(), static_cast<Uint8>(kAlpha));
   }
 
-  virtual ~FloorReachedAnimation() { SDL_SetTextureAlphaMod(alpha_texture_.get(), alpha_saved_); }
+  virtual ~OnFloorAnimation() { SDL_SetTextureAlphaMod(alpha_texture_.get(), alpha_saved_); }
 
   virtual void Render(double) override {
-    const auto& pos = tetromino_sprite_->pos();
-
     SDL_RenderSetClipRect(*this, &kMatrixRc);
-    tetromino_.Render(pos.x(), pos.y(), alpha_texture_.get(), tetromino_sprite_->angle());
+    tetromino_sprite_->Render(alpha_texture_);
     SDL_RenderSetClipRect(*this, nullptr);
   }
 
@@ -186,7 +184,7 @@ class FloorReachedAnimation final : public Animation {
   }
 
 private:
-  Uint8 alpha_ = 150.0;
+  const Uint8 kAlpha = 150.0;
   Uint8 alpha_saved_;
   std::shared_ptr<SDL_Texture> alpha_texture_;
   std::shared_ptr<TetrominoSprite> tetromino_sprite_;

@@ -151,11 +151,11 @@ void Tetrion::EventHandler(Events& events) {
     case Event::Type::PerfectClear:
       std::cout << "Perfect Clear" << std::endl;
       break;
-    case Event::Type::FloorReached:
-      AddAnimation<FloorReachedAnimation>(renderer_, assets_, tetromino_in_play_);
+    case Event::Type::OnFloor:
+      AddAnimation<OnFloorAnimation>(renderer_, assets_, tetromino_in_play_);
       break;
-    case Event::Type::FloorLeft:
-      RemoveAnimation<FloorReachedAnimation>(animations_);
+    case Event::Type::Falling:
+      RemoveAnimation<OnFloorAnimation>(animations_);
       break;
     case Event::Type::SendLines:
       break;
@@ -181,7 +181,7 @@ void Tetrion::Render(double delta_time) {
 void Tetrion::Update(double delta_time) {
   EventHandler(events_);
   if (!game_paused_) {
-    if (tetromino_in_play_ && tetromino_in_play_->Down(delta_time) == TetrominoSprite::Status::Commited) {
+    if (tetromino_in_play_ && tetromino_in_play_->Down(delta_time) == TetrominoSprite::State::Commited) {
       tetromino_in_play_.reset();
       events_.Push(Event::Type::NextTetromino);
     }

@@ -23,7 +23,7 @@ class HoldQueue final : public TextPane, public EventSink {
     } else {
       tetromino_sprite = tetromino_generator_->Get(tetromino_);
     }
-    tetromino_ = old_tetromino_sprite->type();
+    tetromino_ = old_tetromino_sprite->tetromino().type();
     wait_for_lock_ = true;
 
     return tetromino_sprite;
