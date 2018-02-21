@@ -4,7 +4,7 @@
 
 An modern C++11/14/17 implementation of Tetris. The game uses the following settings and rules:
 
-Feature | Rule
+Feature | Support
 --- | ------
 Hold Piece | Yes
 Next Pieces shown | 3
