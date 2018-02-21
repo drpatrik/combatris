@@ -1,10 +1,23 @@
-# Combatris - Tetris Battle
+# Combatris - A Tetris Battle clone
 
 ![screenshots](screenshots/combatris-demo-1.png)
 
-An modern C++11/14/17 implementation of Tetris using the scoring system as of 2006. The game uses the
-BPS Random Generator and Wall Kicks according to the Super Rotating system. It is fairly easy to change both
-the random generator and wall kicks / alternativly no-wall kicks. At some time I might make the systems plugable.
+An modern C++11/14/17 implementation of Tetris. The game uses the following settings and rules:
+
+Feature | Rule
+--- | ------
+Hold Piece | Yes
+Next Pieces shown | 3
+Lock Delay with cancel | Yes
+Wall kicks | SRS
+Infinity limit | 15
+Bag randomiser | 7-bag
+Top out | Line at 22
+Levels | 15
+Level advancement | 10 lines
+T-Spin recognition | 3-corner with kicks
+Back-to-back Recognition | Tetris / T-spin
+Platform | PC / Linux / OSX
 
 The plan is to implement three modes Marathon, Battle and Single Player. The single player is under development
 and will soon be considered done. I will then implement Battle and Network support and after that the Marathon
