@@ -79,6 +79,8 @@ void Tetrion::GameControl(Controls control_pressed) {
     return;
   }
   switch (control_pressed) {
+    case Controls::None:
+      break;
     case Controls::RotateClockwise:
       tetromino_in_play_->RotateClockwise();
       break;
