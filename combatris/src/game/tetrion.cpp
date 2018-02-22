@@ -21,7 +21,6 @@ bool RenderAnimations(std::deque<std::shared_ptr<Animation>>& animations, double
       ++it;
     }
   }
-
   return (animations.size() == 0);
 }
 
@@ -79,8 +78,6 @@ void Tetrion::GameControl(Controls control_pressed) {
     return;
   }
   switch (control_pressed) {
-    case Controls::None:
-      break;
     case Controls::RotateClockwise:
       tetromino_in_play_->RotateClockwise();
       break;
@@ -101,6 +98,8 @@ void Tetrion::GameControl(Controls control_pressed) {
       break;
     case Controls::HoldQueue:
       tetromino_in_play_ = hold_queue_->Hold(tetromino_in_play_);
+      break;
+    default:
       break;
   }
 }
