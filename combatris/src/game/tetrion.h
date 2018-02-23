@@ -10,7 +10,7 @@
 
 class Tetrion final {
  public:
-  enum class Controls { None, RotateClockwise, RotateCounterClockwise, SoftDrop, HardDrop, Left, Right, HoldQueue, Pause, Start };
+  enum class Controls { None, RotateClockwise, RotateCounterClockwise, SoftDrop, HardDrop, Left, Right, Hold, Pause, Start };
 
   Tetrion();
 

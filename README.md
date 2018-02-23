@@ -66,7 +66,7 @@ mode or maybe if I feel like the vice versa.
 Key | Action
 --- | ------
 N  | New game
-F1 / ESC / P | Pause
+P | Pause
 A | Rotate counter clockwise
 Up / S | Rotate clockwise
 Left | Move Left

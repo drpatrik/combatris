@@ -96,7 +96,7 @@ void Tetrion::GameControl(Controls control_pressed) {
     case Controls::Right:
       tetromino_in_play_->Right();
       break;
-    case Controls::HoldQueue:
+    case Controls::Hold:
       tetromino_in_play_ = hold_queue_->Hold(tetromino_in_play_);
       break;
     default:

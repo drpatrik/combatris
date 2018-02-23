@@ -103,7 +103,7 @@ class Combatris {
     } else if (!button_pressed && (event.key.keysym.scancode == SDL_SCANCODE_UP || event.key.keysym.scancode == SDL_SCANCODE_X)) {
       current_control = Tetrion::Controls::RotateClockwise;
     } else if (event.key.keysym.scancode == SDL_SCANCODE_LSHIFT || event.key.keysym.scancode == SDL_SCANCODE_C) {
-      current_control = Tetrion::Controls::HoldQueue;
+      current_control = Tetrion::Controls::Hold;
     } else if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
       current_control = Tetrion::Controls::HardDrop;
     } else if (event.key.keysym.scancode == SDL_SCANCODE_N) {
@@ -128,7 +128,7 @@ class Combatris {
     }  else if (event.jbutton.button == kJoystick_RotateClockwise) {
       current_control = Tetrion::Controls::RotateClockwise;
     }  else if (event.jbutton.button == kJoystick_HoldQueue) {
-      current_control = Tetrion::Controls::HoldQueue;
+      current_control = Tetrion::Controls::Hold;
     }  else if (event.jbutton.button == kJoystick_HardDrop) {
       current_control = Tetrion::Controls::HardDrop;
     }  else if (event.jbutton.button == kJoystick_Start) {
@@ -207,8 +207,8 @@ class Combatris {
           case Tetrion::Controls::HardDrop:
             tetrion_->GameControl(Tetrion::Controls::HardDrop);
             break;
-          case Tetrion::Controls::HoldQueue:
-            tetrion_->GameControl(Tetrion::Controls::HoldQueue);
+          case Tetrion::Controls::Hold:
+            tetrion_->GameControl(Tetrion::Controls::Hold);
             break;
           case Tetrion::Controls::Start:
             tetrion_->NewGame();
