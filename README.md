@@ -67,8 +67,8 @@ Key | Action
 --- | ------
 N  | New game
 P | Pause
-A | Rotate counter clockwise
-Up / S | Rotate clockwise
+Z | Rotate counter clockwise
+Up / X | Rotate clockwise
 Left | Move Left
 Right | Move Right
 Down | Soft Drop
