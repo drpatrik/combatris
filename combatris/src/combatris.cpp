@@ -3,22 +3,44 @@
 
 #include <SDL_mixer.h>
 #include <set>
+#include <unordered_map>
 
 namespace {
 
 // DAS settings
-uint32_t kRepeatDelay = 150; // milliseconds
-uint32_t kRepeatInterval = 85; // milliseconds
-// PS3 Controller Mappings
-int kJoystick_SoftDrop = 6; // Pad Down
-int kJoystick_Left = 7; // Pad Left
-int kJoystick_Right = 5; // Pad Right
-int kJoystick_RotateCounterClockwise = 15; // Square button
-int kJoystick_RotateClockwise = 13; // Circle button
-int kJoystick_HoldQueue = 12; // Triangle Button
-int kJoystick_HardDrop = 14; // X button
-int kJoystick_Start = 3; // Start button
-int kJoystick_Pause = 0; // Select button
+uint32_t kAutoRepeatInitialDelay = 150; // milliseconds
+uint32_t kAutoRepeatInterval = 85; // milliseconds
+
+constexpr int HatValueToButtonValue(Uint8 value) {
+  return (0xFF << 8) | value;
+}
+
+const std::unordered_map<std::string, const std::unordered_map<int, Tetrion::Controls>> kJoystickMappings = {
+  {"Logitech Dual Action", {
+      { HatValueToButtonValue(8), Tetrion::Controls::Left }, // Mapped to hat motion
+      { HatValueToButtonValue(2), Tetrion::Controls::Right }, // Mapped to hat motion
+      { HatValueToButtonValue(4), Tetrion::Controls::SoftDrop }, // Mapped to hat motion
+      { 0, Tetrion::Controls::RotateCounterClockwise },
+      { 2, Tetrion::Controls::RotateClockwise },
+      { 3, Tetrion::Controls::Hold },
+      { 1, Tetrion::Controls::HardDrop },
+      { 9, Tetrion::Controls::Start },
+      { 8, Tetrion::Controls::Pause }
+    }
+  },
+  {"PLAYSTATION(R)3 Controller", {
+      { 7, Tetrion::Controls::Left },
+      { 5, Tetrion::Controls::Right },
+      { 6, Tetrion::Controls::SoftDrop },
+      { 15, Tetrion::Controls::RotateCounterClockwise },
+      { 13, Tetrion::Controls::RotateClockwise },
+      { 12, Tetrion::Controls::Hold },
+      { 14, Tetrion::Controls::HardDrop },
+      { 3, Tetrion::Controls::Start },
+      { 0, Tetrion::Controls::Pause }
+    }
+  }
+};
 
 const std::set<Tetrion::Controls> kAutoRepeatControls = { Tetrion::Controls::SoftDrop, Tetrion::Controls::Left, Tetrion::Controls::Right };
 
@@ -26,6 +48,7 @@ const std::set<Tetrion::Controls> kAutoRepeatControls = { Tetrion::Controls::Sof
 
 class Combatris {
  public:
+  enum class ButtonType { HatButton, JoyButton };
   using RepeatFunc = std::function<void()>;
 
   Combatris() {
@@ -57,16 +80,6 @@ class Combatris {
     Mix_Quit();
   }
 
-  void Repeat(const bool button_pressed, const Tetrion::Controls control, Tetrion::Controls& previous_control, RepeatFunc& func, int64_t& counter) {
-    if (button_pressed && previous_control == control) {
-      return;
-    }
-    previous_control = control;
-    func = [this, control]() { tetrion_->GameControl(control); };
-    func();
-    counter = time_in_ms();
-  }
-
   void AttachJoystick(int index) {
     if (nullptr != joystick_) {
       return;
@@ -77,7 +90,8 @@ class Combatris {
       exit(-1);
     }
     joystick_index_ = index;
-    std::cout << "Joystick found: " << SDL_JoystickName(joystick_) << std::endl;
+    joystick_name_ = SDL_JoystickName(joystick_);
+    std::cout << "Joystick found: " <<  joystick_name_ << std::endl;
   }
 
   void DetachJoystick(int index) {
@@ -87,17 +101,18 @@ class Combatris {
     SDL_JoystickClose(joystick_);
     joystick_ = nullptr;
     joystick_index_ = -1;
+    joystick_name_ = "";
   }
 
-  Tetrion::Controls TranslateKeyboardCommands(const SDL_Event& event, bool button_pressed) {
+  Tetrion::Controls TranslateKeyboardCommands(const SDL_Event& event, bool button_pressed) const {
     auto current_control = Tetrion::Controls::None;
 
-    if (event.key.keysym.scancode == SDL_SCANCODE_DOWN) {
-      current_control = Tetrion::Controls::SoftDrop;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_LEFT) {
+    if (event.key.keysym.scancode == SDL_SCANCODE_LEFT) {
       current_control = Tetrion::Controls::Left;
     } else if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
       current_control = Tetrion::Controls::Right;
+    }  if (event.key.keysym.scancode == SDL_SCANCODE_DOWN) {
+      current_control = Tetrion::Controls::SoftDrop;
     } else if (!button_pressed && event.key.keysym.scancode == SDL_SCANCODE_Z) {
       current_control = Tetrion::Controls::RotateCounterClockwise;
     } else if (!button_pressed && (event.key.keysym.scancode == SDL_SCANCODE_UP || event.key.keysym.scancode == SDL_SCANCODE_X)) {
@@ -114,43 +129,37 @@ class Combatris {
     return current_control;
   }
 
-  Tetrion::Controls TranslateJoystickCommands(const SDL_Event& event) {
-    auto current_control = Tetrion::Controls::None;
+  Tetrion::Controls TranslateJoystickCommands(Uint8 index, ButtonType type, Uint8 button) const {
+    const auto& mapping = kJoystickMappings.at(joystick_name_);
+    int v = (type == ButtonType::JoyButton) ? button : HatValueToButtonValue(button);
 
-    if (event.jbutton.button == kJoystick_SoftDrop) {
-      current_control = Tetrion::Controls::SoftDrop;
-    } else if (event.jbutton.button == kJoystick_Left) {
-      current_control = Tetrion::Controls::Left;
-    } else if (event.jbutton.button == kJoystick_Right) {
-      current_control = Tetrion::Controls::Right;
-    } else if (event.jbutton.button == kJoystick_RotateCounterClockwise) {
-      current_control = Tetrion::Controls::RotateCounterClockwise;
-    }  else if (event.jbutton.button == kJoystick_RotateClockwise) {
-      current_control = Tetrion::Controls::RotateClockwise;
-    }  else if (event.jbutton.button == kJoystick_HoldQueue) {
-      current_control = Tetrion::Controls::Hold;
-    }  else if (event.jbutton.button == kJoystick_HardDrop) {
-      current_control = Tetrion::Controls::HardDrop;
-    }  else if (event.jbutton.button == kJoystick_Start) {
-      current_control = Tetrion::Controls::Start;
-    } else if (event.jbutton.button == kJoystick_Pause) {
-      current_control = Tetrion::Controls::Pause;
+    if (index != joystick_index_ || !mapping.count(v)) {
+      return Tetrion::Controls::None;
     }
-    return current_control;
+    return mapping.at(v);
+  }
+
+  void Repeatable(const bool button_pressed, const Tetrion::Controls control, Tetrion::Controls& previous_control, RepeatFunc& func, int64_t& time_since_last_auto_repeat) {
+    if (button_pressed && previous_control == control) {
+      return;
+    }
+    previous_control = control;
+    func = [this, control]() { tetrion_->GameControl(control); };
+    func();
+    time_since_last_auto_repeat = time_in_ms();
   }
 
   void Play() {
     bool quit = false;
     DeltaTimer delta_timer;
     bool button_pressed = false;
-    int64_t repeat_counter = 0;
-    int64_t repeat_threshold = kRepeatDelay;
+    int64_t time_since_last_auto_repeat = 0;
+    int64_t auto_repeat_threshold = kAutoRepeatInitialDelay;
     std::function<void()> function_to_repeat;
     Tetrion::Controls current_control;
     Tetrion::Controls previous_control = Tetrion::Controls::None;
 
     tetrion_ = std::make_shared<Tetrion>();
-
     while (!quit) {
       SDL_Event event;
 
@@ -159,44 +168,53 @@ class Combatris {
           quit = true;
           break;
         }
+        auto button_type = ButtonType::JoyButton;
+
+        if (SDL_JOYHATMOTION == event.type) {
+          button_type = ButtonType::HatButton;
+          event.type = (event.jhat.value == 0) ? SDL_JOYBUTTONUP : SDL_JOYBUTTONDOWN;
+
+          if (event.type == SDL_JOYBUTTONDOWN) {
+            event.jbutton.button = event.jhat.value;
+          }
+        }
         current_control = Tetrion::Controls::None;
+
         switch (event.type) {
           case SDL_KEYDOWN:
             current_control = TranslateKeyboardCommands(event, button_pressed);
             button_pressed = true;
             break;
           case SDL_JOYBUTTONDOWN:
-            current_control = TranslateJoystickCommands(event);
+            current_control = TranslateJoystickCommands(event.jbutton.which, button_type, event.jbutton.button);
             button_pressed = true;
             break;
           case SDL_KEYUP:
           case SDL_JOYBUTTONUP:
             button_pressed = false;
             function_to_repeat = nullptr;
-            repeat_threshold = kRepeatDelay;
+            auto_repeat_threshold = kAutoRepeatInitialDelay;
             previous_control = Tetrion::Controls::None;
             break;
           case SDL_JOYDEVICEADDED:
             AttachJoystick(event.jbutton.which);
-            std::cout << "Joystick device added: " << event.jbutton.which << std::endl;
             break;
           case SDL_JOYDEVICEREMOVED:
             DetachJoystick(event.jbutton.which);
-            std::cout << "Joystick device removed: " << event.jbutton.which << std::endl;
             break;
         }
         if (Tetrion::Controls::None == current_control) {
           continue;
         }
         switch (current_control) {
-          case Tetrion::Controls::SoftDrop:
-            Repeat(button_pressed, Tetrion::Controls::SoftDrop, previous_control, function_to_repeat, repeat_counter);
-            break;
           case Tetrion::Controls::Left:
-            Repeat(button_pressed, Tetrion::Controls::Left, previous_control, function_to_repeat, repeat_counter);
+            Repeatable(button_pressed, Tetrion::Controls::Left, previous_control, function_to_repeat, time_since_last_auto_repeat);
             break;
           case Tetrion::Controls::Right:
-            Repeat(button_pressed, Tetrion::Controls::Right, previous_control, function_to_repeat, repeat_counter);
+            Repeatable(button_pressed, Tetrion::Controls::Right, previous_control, function_to_repeat, time_since_last_auto_repeat);
+            break;
+          case Tetrion::Controls::SoftDrop:
+            Repeatable(button_pressed, Tetrion::Controls::SoftDrop, previous_control, function_to_repeat, time_since_last_auto_repeat);
             break;
           case Tetrion::Controls::RotateCounterClockwise:
             tetrion_->GameControl(Tetrion::Controls::RotateCounterClockwise);;
@@ -224,12 +242,12 @@ class Combatris {
           previous_control = Tetrion::Controls::None;
         }
       }
-      if (button_pressed && (time_in_ms() - repeat_counter) >= repeat_threshold) {
+      if (button_pressed && (time_in_ms() - time_since_last_auto_repeat) >= auto_repeat_threshold) {
         if (function_to_repeat) {
           function_to_repeat();
         }
-        repeat_threshold = kRepeatInterval;
-        repeat_counter = time_in_ms();
+        auto_repeat_threshold = kAutoRepeatInterval;
+        time_since_last_auto_repeat = time_in_ms();
       }
       tetrion_->Update(delta_timer.GetDelta());
     }
@@ -237,6 +255,7 @@ class Combatris {
 
  private:
   int joystick_index_ = -1;
+  std::string joystick_name_;
   SDL_Joystick* joystick_ = nullptr;
   std::shared_ptr<Tetrion> tetrion_ = nullptr;
 };

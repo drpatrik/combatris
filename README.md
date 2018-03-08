@@ -38,7 +38,8 @@ mode or maybe if I feel like the vice versa.
 - [X] Hard Drop & Soft Drop (scoring)
 - [X] Panes for score / next tetrominos / hold piece / level and high score
 - [X] Pane showing the last clearing move (B2B / Combo / T-Spin / Single / Double /etc.)
-- [X] Joystick support (PS3 joystick tested)
+- [X] Joystick support (PS3 joystick and Logitech F310 tested)
+- [X] Joystick Mapping to enable support for different brands
 - [X] Hot add / remove joystick device
 - [X] Tetromino Locked (animations)
 - [X] Level up (animations)
@@ -48,7 +49,8 @@ mode or maybe if I feel like the vice versa.
 - [X] Pause Screen
 - [X] Splash Screen
 - [ ] Sound
-- [ ] Configure which joystick to use (if many available)
+- [ ] Configure which joystick to use (if many availabl)
+- [ ] Move joystick mapping and other settings to a config-file
 - [ ] Battle Mode (P2P based on UDP)
 - [ ] Own Window for Battle game statistics
 - [ ] Unit tests // Two in place right now
@@ -87,8 +89,21 @@ Circle | Rotate clockwise
 Left | Move Left
 Right | Move Right
 Down | Soft Drop
-X | Hard Drop
 Triangle | Hold piece
+X | Hard Drop
+**Joystick Commands (Logitech F310 Gamepad**
+
+Key | Action
+--- | ------
+Start  | New game
+Select | Pause
+X | Rotate counter clockwise
+B | Rotate clockwise
+Left | Move Left
+Right | Move Right
+Down | Soft Drop
+Y | Hold piece
+A | Hard Drop
 ## Build Combatris
 
 **Dependencies:**
