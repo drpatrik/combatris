@@ -91,6 +91,7 @@ Right | Move Right
 Down | Soft Drop
 Triangle | Hold piece
 X | Hard Drop
+
 **Joystick Commands (Logitech F310 Gamepad**
 
 Key | Action
