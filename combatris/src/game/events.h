@@ -8,10 +8,6 @@
 struct Line {
   Line(int row, const std::vector<int>& minos) : row_(row), minos_(minos) {}
 
-  size_t size() const { return minos_.size(); }
-
-  int row() const { return row_; }
-
   int row_;
   std::vector<int> minos_;
 };
@@ -29,7 +25,7 @@ struct Event {
     NewGame,
     NextTetromino,
     ScoringData,
-    Score,
+    CalculatedScore,
     Moves,
     LevelUp,
     PerfectClear,

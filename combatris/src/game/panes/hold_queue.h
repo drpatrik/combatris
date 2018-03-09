@@ -52,7 +52,6 @@ class HoldQueue final : public TextPane, public EventSink {
     tetromino_ = Tetromino::Type::Empty;
   }
 
- protected:
   bool CanHold() const { return !wait_for_lock_; }
 
  private:

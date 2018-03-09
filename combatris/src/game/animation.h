@@ -85,14 +85,14 @@ class ScoreAnimation final : public Animation {
 class LinesClearedAnimation final : public Animation {
  public:
   LinesClearedAnimation(SDL_Renderer *renderer, const std::shared_ptr<Assets> &assets, const Lines &lines)
-      : Animation(renderer, assets), lines_(lines), end_pos_(kMinoHeight * 4) {}
+      : Animation(renderer, assets), lines_(lines), end_pos_((kMinoHeight * 3) + lines.size()) {}
 
   virtual void Render(double delta) override {
     const double kIncY = delta * 450.0;
     const double direction = (abs_y_ < kMinoHeight) ? -1 : 1;
 
     for (const auto &line : lines_) {
-      auto y = row_to_pixel_adjusted(line.row()) + y_;
+      auto y = row_to_pixel_adjusted(line.row_) + y_;
 
       const auto &minos = line.minos_;
 

@@ -97,7 +97,10 @@ void Tetrion::GameControl(Controls control_pressed) {
       tetromino_in_play_->Right();
       break;
     case Controls::Hold:
-      tetromino_in_play_ = hold_queue_->Hold(tetromino_in_play_);
+      if (hold_queue_->CanHold()) {
+        RemoveAnimation<OnFloorAnimation>(animations_);
+        tetromino_in_play_ = hold_queue_->Hold(tetromino_in_play_);
+      }
       break;
     default:
       break;
@@ -141,7 +144,7 @@ void Tetrion::EventHandler(Events& events) {
     case Event::Type::LinesCleared:
       AddAnimation<LinesClearedAnimation>(renderer_, assets_, event.lines_cleared_);
       break;
-    case Event::Type::Score:
+    case Event::Type::CalculatedScore:
       AddAnimation<ScoreAnimation>(renderer_, assets_, event.pos_, event.score_);
       break;
     case Event::Type::NewGame:
@@ -175,7 +178,7 @@ void Tetrion::Render(double delta_time) {
 
   RenderWindowBackground(renderer_);
 
-  std::for_each(panes_.begin(), panes_.end(), [delta_time](const auto& r) { r->Render(delta_time); });
+  std::for_each(panes_.begin(), panes_.end(), [delta_time](const auto& pane) { pane->Render(delta_time); });
 
   RenderAnimations(animations_, delta_time, events_);
 

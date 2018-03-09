@@ -26,7 +26,7 @@ void Scoring::UpdateEvents(int score, ComboType combo_type, const Event& event) 
       break;
   }
   events_.Push(Event::Type::LinesCleared, event.lines_cleared_);
-  events_.Push(Event::Type::Score, event.pos_, score);
+  events_.Push(Event::Type::CalculatedScore, event.pos_, score);
   events_.Push(Event::Type::Moves, event.lines_cleared_, event.tspin_type_, combo_type, counter);
 }
 

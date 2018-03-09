@@ -17,7 +17,7 @@ class HighScore final : public TextPane, public EventSink {
   virtual void Reset() override { score_ = 0; }
 
   virtual void Update(const Event& event) override {
-    if (event.Is(Event::Type::Score) || event.Is(Event::Type::ScoringData)) {
+    if (event.Is(Event::Type::CalculatedScore) || event.Is(Event::Type::ScoringData)) {
       score_ += event.score_;
       score_ += event.lines_dropped_;
       if (score_ > highscore_) {
