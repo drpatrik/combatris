@@ -59,7 +59,7 @@ mode or maybe if I feel like the vice versa.
 
 **Improvements**
 - [X] Delay counter can be resetted upto 15 times for each successful move
-- [ ] Remove the score pane and show the score directly on the frame
+- [ ] Added a font manager
 - [ ] Remove the pane for showing combo/latest move and display combo / last move direct on the frame
 - [ ] Add animation for combo/last clearing move (expanding text)
 - [ ] Change font to https://www.dafont.com/obelixpro.font
