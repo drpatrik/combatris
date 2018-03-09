@@ -138,6 +138,9 @@ void Tetrion::EventHandler(Events& events) {
     case Event::Type::LevelUp:
       AddAnimation<LevelUpAnimation>(renderer_, assets_);
       break;
+    case Event::Type::LinesCleared:
+      AddAnimation<LinesClearedAnimation>(renderer_, assets_, event.lines_cleared_);
+      break;
     case Event::Type::Score:
       AddAnimation<ScoreAnimation>(renderer_, assets_, event.pos_, event.score_);
       break;

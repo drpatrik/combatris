@@ -57,12 +57,11 @@ bool Level::WaitForLockDelay(double time_delta) {
 }
 
 void Level::Update(const Event& event) {
-  auto lines_cleared = event.lines_cleared();
-
-  if (0 == lines_cleared) {
+  if (!event.Is(Event::Type::ScoringData) || event.lines_cleared() == 0) {
     return;
   }
-  lines_this_level_ += lines_cleared;
+  lines_this_level_ += event.lines_cleared();
+
   if (lines_this_level_ >= kLevelUp) {
     events_.Push(Event::Type::LevelUp);
     lines_this_level_ = 0;

@@ -9,17 +9,15 @@ namespace {
 
 // DAS settings
 uint32_t kAutoRepeatInitialDelay = 150; // milliseconds
-uint32_t kAutoRepeatInterval = 85; // milliseconds
+uint32_t kAutoRepeatSubsequentDelay = 85; // milliseconds
 
-constexpr int HatValueToButtonValue(Uint8 value) {
-  return (0xFF << 8) | value;
-}
+constexpr int HatValueToButtonValue(Uint8 value) { return (0xFF << 8) | value; }
 
 const std::unordered_map<std::string, const std::unordered_map<int, Tetrion::Controls>> kJoystickMappings = {
   {"Logitech Dual Action", {
-      { HatValueToButtonValue(8), Tetrion::Controls::Left }, // Mapped to hat motion
-      { HatValueToButtonValue(2), Tetrion::Controls::Right }, // Mapped to hat motion
-      { HatValueToButtonValue(4), Tetrion::Controls::SoftDrop }, // Mapped to hat motion
+      { HatValueToButtonValue(8), Tetrion::Controls::Left },
+      { HatValueToButtonValue(2), Tetrion::Controls::Right },
+      { HatValueToButtonValue(4), Tetrion::Controls::SoftDrop },
       { 0, Tetrion::Controls::RotateCounterClockwise },
       { 2, Tetrion::Controls::RotateClockwise },
       { 3, Tetrion::Controls::Hold },
@@ -139,8 +137,8 @@ class Combatris {
     return mapping.at(v);
   }
 
-  void Repeatable(const bool button_pressed, const Tetrion::Controls control, Tetrion::Controls& previous_control, RepeatFunc& func, int64_t& time_since_last_auto_repeat) {
-    if (button_pressed && previous_control == control) {
+  void Repeatable(const Tetrion::Controls control, Tetrion::Controls& previous_control, RepeatFunc& func, int64_t& time_since_last_auto_repeat) {
+    if (control == previous_control) {
       return;
     }
     previous_control = control;
@@ -208,13 +206,13 @@ class Combatris {
         }
         switch (current_control) {
           case Tetrion::Controls::Left:
-            Repeatable(button_pressed, Tetrion::Controls::Left, previous_control, function_to_repeat, time_since_last_auto_repeat);
+            Repeatable(Tetrion::Controls::Left, previous_control, function_to_repeat, time_since_last_auto_repeat);
             break;
           case Tetrion::Controls::Right:
-            Repeatable(button_pressed, Tetrion::Controls::Right, previous_control, function_to_repeat, time_since_last_auto_repeat);
+            Repeatable(Tetrion::Controls::Right, previous_control, function_to_repeat, time_since_last_auto_repeat);
             break;
           case Tetrion::Controls::SoftDrop:
-            Repeatable(button_pressed, Tetrion::Controls::SoftDrop, previous_control, function_to_repeat, time_since_last_auto_repeat);
+            Repeatable(Tetrion::Controls::SoftDrop, previous_control, function_to_repeat, time_since_last_auto_repeat);
             break;
           case Tetrion::Controls::RotateCounterClockwise:
             tetrion_->GameControl(Tetrion::Controls::RotateCounterClockwise);;
@@ -246,7 +244,7 @@ class Combatris {
         if (function_to_repeat) {
           function_to_repeat();
         }
-        auto_repeat_threshold = kAutoRepeatInterval;
+        auto_repeat_threshold = kAutoRepeatSubsequentDelay;
         time_since_last_auto_repeat = time_in_ms();
       }
       tetrion_->Update(delta_timer.GetDelta());

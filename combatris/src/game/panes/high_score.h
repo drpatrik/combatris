@@ -9,7 +9,7 @@ class HighScore final : public TextPane, public EventSink {
       TextPane(renderer,  kMatrixEndX + kMinoWidth + 8, (kMatrixStartY - kMinoHeight) + 428, "HIGH", assets) {
     SetCaptionOrientation(TextPane::Orientation::Left);
     Read();
-    SetCenteredText(highscore_);
+    SetCenteredText(highscore_, Color::SteelGray, Normal35);
   }
 
   virtual ~HighScore() noexcept { Save(); }
@@ -24,7 +24,7 @@ class HighScore final : public TextPane, public EventSink {
         highscore_ = score_;
       }
     }
-    TextPane::SetCenteredText(highscore_);
+    SetCenteredText(highscore_, Color::SteelGray, Normal35);
   }
 
  protected:

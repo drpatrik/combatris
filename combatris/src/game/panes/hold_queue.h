@@ -44,7 +44,7 @@ class HoldQueue final : public TextPane, public EventSink {
     if (Tetromino::Type::Empty == tetromino_) {
       return;
     }
-    assets_->GetTetromino(tetromino_)->Render(x_ + 10, y_ + caption_height_ + 15);
+    assets_->GetTetromino(tetromino_)->RenderTetromino(x_ + 10, y_ + caption_height_ + 15);
   }
 
   virtual void Reset() override {

@@ -6,10 +6,14 @@
 #include <vector>
 
 struct Line {
-  Line(int row, const std::vector<int>& line) : row_(row), line_(line) {}
+  Line(int row, const std::vector<int>& minos) : row_(row), minos_(minos) {}
+
+  size_t size() const { return minos_.size(); }
+
+  int row() const { return row_; }
 
   int row_;
-  std::vector<int> line_;
+  std::vector<int> minos_;
 };
 
 using Lines = std::vector<Line>;
@@ -29,6 +33,7 @@ struct Event {
     Moves,
     LevelUp,
     PerfectClear,
+    LinesCleared,
     OnFloor,
     Falling,
     SendLines,
@@ -41,6 +46,8 @@ struct Event {
 
   Event(Type type, const Lines& lines_cleared, const Position& pos, TSpinType tspin_type = TSpinType::None)
       : type_(type), lines_cleared_(lines_cleared), pos_(pos), tspin_type_(tspin_type) {}
+
+  Event(Type type, const Lines& lines_cleared) : type_(type), lines_cleared_(lines_cleared) {}
 
   Event(Type type, const Position& pos, int score) : type_(type), pos_(pos), score_(score) {}
 
@@ -102,6 +109,8 @@ class Events {
   inline void Push(Event::Type type, const Lines& lines, const Position& pos, TSpinType tspin_type = TSpinType::None) {
     events_.emplace_back(type, lines, pos, tspin_type);
   }
+
+  inline void Push(Event::Type type, const Lines& lines) { events_.emplace_back(type, lines); }
 
   inline void Push(Event::Type type, const Position& pos, int score) {
     events_.emplace_back(type, pos, score);

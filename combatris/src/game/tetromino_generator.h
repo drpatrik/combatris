@@ -32,7 +32,7 @@ class TetrominoGenerator final {
     GenerateTetrominos();
   }
 
-  void RenderFromQueue(size_t n, int x, int y) const { assets_->GetTetromino(tetrominos_queue_.at(n))->Render(x, y); }
+  void RenderFromQueue(size_t n, int x, int y) const { assets_->GetTetromino(tetrominos_queue_.at(n))->RenderTetromino(x, y); }
 
  protected:
   const std::deque<Tetromino::Type> kTetrominos = { Tetromino::Type::I, Tetromino::Type::J, Tetromino::Type::L, Tetromino::Type::O, Tetromino::Type::S, Tetromino::Type::T, Tetromino::Type::Z };

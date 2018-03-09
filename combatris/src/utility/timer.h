@@ -50,7 +50,7 @@ public:
 
     // 2. Get the time difference as seconds
     // ...represented as a double
-    std::chrono::duration<double> delta{current_time - previous_time_};
+    std::chrono::duration<double> delta{ current_time - previous_time_ };
 
     // 3. Reset the timePrev to the current point in time
     previous_time_ = HighResClock::now();

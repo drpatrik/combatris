@@ -6,12 +6,12 @@ class Scoring final : public TextPane, public EventSink {
  public:
   Scoring(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Level>& level) :
       TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + 8), (kMatrixStartY - kMinoHeight) + 150, "SCORE", assets),
-      level_(level), events_(level->GetEvents()) { SetCenteredText(0); }
+      level_(level), events_(level->GetEvents()) { Reset(); }
 
   virtual void Reset() override {
     score_ = 0;
     ClearCounters();
-    SetCenteredText(0);
+    SetCenteredText(0, Color::SteelGray, Normal35);
   }
 
   inline void ClearCounters() { combo_counter_ = b2b_counter_ = 0; }

@@ -25,6 +25,7 @@ void Scoring::UpdateEvents(int score, ComboType combo_type, const Event& event) 
       counter = combo_counter_ - 1;
       break;
   }
+  events_.Push(Event::Type::LinesCleared, event.lines_cleared_);
   events_.Push(Event::Type::Score, event.pos_, score);
   events_.Push(Event::Type::Moves, event.lines_cleared_, event.tspin_type_, combo_type, counter);
 }
@@ -81,5 +82,5 @@ void Scoring::Update(const Event& event) {
   score_ += event.lines_dropped_;
   score_ += score;
 
-  TextPane::SetCenteredText(score_);
+  TextPane::SetCenteredText(score_, Color::SteelGray, Normal35);
 }

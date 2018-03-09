@@ -42,9 +42,10 @@ mode or maybe if I feel like the vice versa.
 - [X] Joystick Mapping to enable support for different brands
 - [X] Hot add / remove joystick device
 - [X] Tetromino Locked (animations)
-- [X] Level up (animations)
+- [X] Level up animations
 - [X] Score animation
-- [X] Count down before game start (animations)
+- [X] Lines Cleared Animation
+- [X] Count down before game start animations
 - [X] Game Over Screen
 - [X] Pause Screen
 - [X] Splash Screen

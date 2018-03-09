@@ -24,7 +24,7 @@ public:
 
   virtual void Render(double) = 0;
 
-  virtual std::pair<bool, Event::Type> IsReady()  = 0;
+  virtual std::pair<bool, Event::Type> IsReady() const  = 0;
 
   operator SDL_Renderer *() const { return renderer_; }
 
@@ -48,7 +48,7 @@ class ScoreAnimation final : public Animation {
   ScoreAnimation(SDL_Renderer* renderer,  const std::shared_ptr<Assets>& assets,  const Position& pos, int score)
       : Animation(renderer, assets) {
     int width, height;
-    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold25), std::to_string(score), Color::White);
+    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold30), std::to_string(score), Color::Yellow);
 
     auto x = col_to_pixel_adjusted(pos.col()) + Center(kMinoWidth * 4, width);
     auto y = row_to_pixel_adjusted(pos.row());
@@ -67,12 +67,14 @@ class ScoreAnimation final : public Animation {
   }
 
   virtual void Render(double delta) override {
+    const double kIncY = delta * 75.0;
+
     rc_.y = static_cast<int>(y_);
     RenderCopy(texture_.get(), rc_);
-    y_ -= delta * 65.0;
+    y_ -= kIncY;
   }
 
-  virtual std::pair<bool, Event::Type> IsReady() override { return std::make_pair(y_ <= end_pos_, Event::Type::None); }
+  virtual std::pair<bool, Event::Type> IsReady() const override { return std::make_pair(y_ <= end_pos_, Event::Type::None); }
 
  private:
   SDL_Rect rc_;
@@ -80,20 +82,38 @@ class ScoreAnimation final : public Animation {
   double end_pos_;
 };
 
-class ClearedLinesAnimation final : public Animation {
-public:
-  ClearedLinesAnimation(SDL_Renderer *renderer,const std::shared_ptr<Assets> &assets, const Lines& lines)
-      : Animation(renderer, assets), lines_(lines) {}
+class LinesClearedAnimation final : public Animation {
+ public:
+  LinesClearedAnimation(SDL_Renderer *renderer, const std::shared_ptr<Assets> &assets, const Lines &lines)
+      : Animation(renderer, assets), lines_(lines), end_pos_(kMinoHeight * 4) {}
 
   virtual void Render(double delta) override {
-    const double kIncY = delta * 350;
-    y_ += kIncY;
+    const double kIncY = delta * 450.0;
+    const double direction = (abs_y_ < kMinoHeight) ? -1 : 1;
+
+    for (const auto &line : lines_) {
+      auto y = row_to_pixel_adjusted(line.row()) + y_;
+
+      const auto &minos = line.minos_;
+
+      for (size_t l = kVisibleColStart; l < kVisibleColEnd; ++l) {
+        auto x = col_to_pixel_adjusted(l);
+
+        const auto &tetromino = GetAsset().GetTetromino(static_cast<Tetromino::Type>(minos[l]));
+
+        tetromino->Render(x, y);
+      }
+    }
+    y_ += (kIncY * direction);
+    abs_y_ += kIncY;
   }
 
-  virtual std::pair<bool, Event::Type> IsReady() override { return std::make_pair(true, Event::Type::None); }
+  virtual std::pair<bool, Event::Type> IsReady() const override { return std::make_pair(abs_y_ >= end_pos_, Event::Type::None); }
 
-private:
+ private:
+  double abs_y_ = 0.0;
   Lines lines_;
+  double end_pos_;
 };
 
 class CountDownAnimation final : public Animation {
@@ -114,7 +134,7 @@ class CountDownAnimation final : public Animation {
     }
   }
 
-  virtual  std::pair<bool, Event::Type> IsReady() override { return std::make_pair(countdown_ - 1 < 0.0, type_); }
+  virtual std::pair<bool, Event::Type> IsReady() const override { return std::make_pair(countdown_ - 1 < 0.0, type_); }
 
   void CreateTexture(int i) {
     int width, height;
@@ -149,11 +169,11 @@ class LevelUpAnimation final : public Animation {
     rc_.y = static_cast<int>(y_);
     RenderCopy(texture_.get(), rc_);
 
-    alpha_ -= delta * 150.0;
-    y_ -= delta * 65.0;
+    alpha_ -= delta * 100.0;
+    y_ -= delta * 45.0;
   }
 
-  virtual std::pair<bool, Event::Type> IsReady() override { return std::make_pair(y_ <= end_pos_, Event::Type::None); }
+  virtual std::pair<bool, Event::Type> IsReady() const override { return std::make_pair(y_ <= end_pos_, Event::Type::None); }
 
 private:
   double alpha_ = 255.0;
@@ -179,7 +199,7 @@ class OnFloorAnimation final : public Animation {
     SDL_RenderSetClipRect(*this, nullptr);
   }
 
-  virtual std::pair<bool, Event::Type> IsReady() override {
+  virtual std::pair<bool, Event::Type> IsReady() const override {
     return std::make_pair(tetromino_sprite_->WaitForLockDelay(), Event::Type::None);
   }
 
@@ -207,7 +227,7 @@ class PauseAnimation final : public Animation {
     RenderCopy(texture_.get(), rc_);
   }
 
-  virtual std::pair<bool, Event::Type> IsReady() override { return std::make_pair(unpause_pressed_, Event::Type::UnPause); }
+  virtual std::pair<bool, Event::Type> IsReady() const override { return std::make_pair(unpause_pressed_, Event::Type::UnPause); }
 
 private:
   bool& unpause_pressed_;
@@ -233,7 +253,7 @@ class SplashScreenAnimation final : public Animation {
     RenderCopy(texture_2_.get(), rc_2_);
   }
 
-  virtual std::pair<bool, Event::Type> IsReady() override { return std::make_pair(false, Event::Type::None); }
+  virtual std::pair<bool, Event::Type> IsReady() const override { return std::make_pair(false, Event::Type::None); }
 
 private:
   UniqueTexturePtr texture_1_;
@@ -262,7 +282,7 @@ class GameOverAnimation final : public Animation {
     RenderCopy(texture_2_.get(), rc_2_);
   }
 
-  virtual std::pair<bool, Event::Type> IsReady() override { return std::make_pair(false, Event::Type::None); }
+  virtual std::pair<bool, Event::Type> IsReady() const override { return std::make_pair(false, Event::Type::None); }
 
 private:
   UniqueTexturePtr texture_1_;

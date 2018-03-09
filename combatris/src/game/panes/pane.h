@@ -54,7 +54,7 @@ class TextPane : public Pane {
 
   void SetCaptionOrientation(Orientation orientation) { orientation_ = orientation; }
 
-  void SetCenteredText(int text) { SetCenteredText(std::to_string(text)); }
+  void SetCenteredText(int text, Color color = Color::SteelGray, Font font = Bold45) { SetCenteredText(std::to_string(text), color, font); }
 
   void SetCenteredText(const std::string& text, Color color = Color::SteelGray, Font font = Bold45) {
     lines_.resize(1);

@@ -21,6 +21,8 @@ class Tetromino final {
 
   Type type() const { return type_; }
 
+  inline void Render(int x, int y) const { RenderMino(renderer_, x, y, texture_.get()); }
+
   inline void Render(const Position& pos) const { RenderMino(renderer_, pos.x(), pos.y(), texture_.get()); }
 
   inline void RenderGhost(const Position& pos) const { ::RenderGhost(renderer_, pos.x(), pos.y(), color_); }
@@ -47,7 +49,7 @@ class Tetromino final {
     }
   }
 
-  void Render(int x, int y) const {
+  void RenderTetromino(int x, int y) const {
     const auto& rotation = rotations_[0];
 
     x += (((kMinoWidth * 4) - rotation.width_) / 2);

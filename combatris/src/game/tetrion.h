@@ -44,7 +44,7 @@ class Tetrion final {
 
  protected:
   template<class T, class ...Args>
-  void AddAnimation(Args&&... args) { animations_.push_front(std::make_shared<T>(std::forward<Args>(args)...)); }
+  void AddAnimation(Args&&... args) { animations_.push_back(std::make_shared<T>(std::forward<Args>(args)...)); }
 
   void AddPane(PaneInterface* pane) { panes_.push_back(pane); }
 
