@@ -138,11 +138,11 @@ TetrominoSprite::State TetrominoSprite::Down(double delta_time) {
           pos_.inc_row();
           matrix_->Insert(pos_, rotation_data_);
           if (!matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
-            events_.Push(Event::Type::OnFloor, true);
+            events_.Push(Event::Type::OnFloor, Events::QueueRule::NoDuplicates);
             state_ = State::OnFloor;
           }
         } else {
-          events_.Push(Event::Type::OnFloor, true);
+          events_.Push(Event::Type::OnFloor, Events::QueueRule::NoDuplicates);
           state_ = State::OnFloor;
         }
       }
@@ -151,7 +151,7 @@ TetrominoSprite::State TetrominoSprite::Down(double delta_time) {
       if (level_->WaitForLockDelay(delta_time)) {
         state_ = State::Commit;
       } else if (matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
-        events_.Push(Event::Type::Falling, true);
+        events_.Push(Event::Type::Falling, Events::QueueRule::NoDuplicates);
         state_ = State::Falling;
       }
       break;

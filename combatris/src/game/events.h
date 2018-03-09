@@ -37,8 +37,7 @@ struct Event {
     CountdownAfterUnPauseDone
   };
 
-  explicit Event(Type type)
-      : type_(type), lines_cleared_() {}
+  explicit Event(Type type) : type_(type), lines_cleared_() {}
 
   Event(Type type, const Lines& lines_cleared, const Position& pos, TSpinType tspin_type = TSpinType::None)
       : type_(type), lines_cleared_(lines_cleared), pos_(pos), tspin_type_(tspin_type) {}
@@ -85,20 +84,23 @@ class EventSink {
 
 class Events {
  public:
+  enum class QueueRule { AllowDuplicates, NoDuplicates };
+
   Events() = default;
 
   Events(const Events&) = delete;
 
   inline bool IsEmpty() const { return events_.empty(); }
 
-  void Push(Event::Type type, bool remove_if_already_exists = false) {
-    if (remove_if_already_exists) {
+  void Push(Event::Type type, QueueRule queue_rule = QueueRule::AllowDuplicates) {
+    if (Event::Type::None == type) {
+      return;
+    }
+    if (QueueRule::NoDuplicates == queue_rule) {
       Remove(type);
     }
     events_.emplace_back(type);
   }
-
-  inline void PushFront(Event::Type type) { events_.emplace_front(type); }
 
   inline void Push(const Event& event) { events_.push_back(event); }
 
