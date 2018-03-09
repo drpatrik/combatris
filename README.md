@@ -19,9 +19,8 @@ T-Spin recognition | 3-corner with kicks
 Back-to-back Recognition | Tetris / T-spin
 Platform | PC / Linux / OSX
 
-The plan is to implement three modes Marathon, Battle and Single Player. The single player is under development
-and will soon be considered done. I will then implement Battle and Network support and after that the Marathon
-mode or maybe if I feel like the vice versa.
+The plan is to implement three modes Single Player, Battle and Marathon. The single player is done except for
+the cosmetic improvements listed below. Its now time to implement network support and battle mode.
 
 **Status**
 - [x] Rotate left / right
@@ -49,20 +48,18 @@ mode or maybe if I feel like the vice versa.
 - [X] Game Over Screen
 - [X] Pause Screen
 - [X] Splash Screen
-- [ ] Sound
-- [ ] Configure which joystick to use (if many available)
-- [ ] Move joystick mapping and other settings to a config-file
 - [ ] Battle Mode (P2P based on UDP)
-- [ ] Own Window for Battle game statistics
-- [ ] Unit tests // Two in place right now
 - [ ] Introduce Marathon mode
+- [ ] More unit tests // Two in place right now which is far to few
 
 **Improvements**
-- [X] Delay counter can be resetted upto 15 times for each successful move
-- [ ] Added a font manager
+- [ ] Add a font manager
 - [ ] Remove the pane for showing combo/latest move and display combo / last move direct on the frame
 - [ ] Add animation for combo/last clearing move (expanding text)
 - [ ] Change font to https://www.dafont.com/obelixpro.font
+- [ ] Sound
+- [ ] Configure which joystick to use (if many available)
+- [ ] Move joystick mapping and other settings to a config-file
 
 **Keyboard Commands**
 
