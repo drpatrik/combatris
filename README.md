@@ -41,7 +41,7 @@ mode or maybe if I feel like the vice versa.
 - [X] Joystick support (PS3 joystick and Logitech F310 tested)
 - [X] Joystick Mapping to enable support for different brands
 - [X] Hot add / remove joystick device
-- [X] Tetromino Locked (animations)
+- [X] Tetromino Locked animations
 - [X] Level up animations
 - [X] Score animation
 - [X] Lines Cleared Animation
@@ -50,7 +50,7 @@ mode or maybe if I feel like the vice versa.
 - [X] Pause Screen
 - [X] Splash Screen
 - [ ] Sound
-- [ ] Configure which joystick to use (if many availabl)
+- [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
 - [ ] Battle Mode (P2P based on UDP)
 - [ ] Own Window for Battle game statistics
