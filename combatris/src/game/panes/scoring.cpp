@@ -47,15 +47,19 @@ std::tuple<int, int, ComboType> Scoring::Calculate(const Event& event) {
       } else {
         base_score = kScoreForLines.at(event.lines_cleared());
       }
-      if (event.lines_cleared() == 4 && ++b2b_counter_ > 1) {
-        combo_score = 1200;
-        combo_type = ComboType::B2BTetris;
+      if (event.lines_cleared() == 4) {
+        if (++b2b_counter_ > 1) {
+          combo_score = 1200;
+          combo_type = ComboType::B2BTetris;
+        }
       } else if (event.lines_cleared() > 0 && combo_counter_ > 1) {
         b2b_counter_ = 0;
         combo_score = ((combo_counter_ - 1) * 50);
         combo_type = ComboType::Combo;
-      } else if (event.lines_cleared() == 0) {
-        ClearCounters();
+      } else if (event.lines_cleared() > 1) {
+        b2b_counter_ = 0;
+      } else {
+        combo_counter_ = 0;
       }
       break;
     case TSpinType::TSpin:
