@@ -85,10 +85,12 @@ class ScoreAnimation final : public Animation {
 class LinesClearedAnimation final : public Animation {
  public:
   LinesClearedAnimation(SDL_Renderer *renderer, const std::shared_ptr<Assets> &assets, const Lines &lines)
-      : Animation(renderer, assets), lines_(lines), end_pos_((kMinoHeight * 3) + lines.size()) {}
+      : Animation(renderer, assets), lines_(lines) {
+    end_pos_ = ((kRows - lines[0].row_) + lines.size() + 1.5) * kMinoHeight;
+  }
 
   virtual void Render(double delta) override {
-    const double kIncY = delta * 450.0;
+    const double kIncY = delta * 550.0;
     const double direction = (abs_y_ < kMinoHeight) ? -1 : 1;
 
     for (const auto &line : lines_) {
