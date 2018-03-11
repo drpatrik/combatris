@@ -1,10 +1,11 @@
-# Combatris - A Tetris Battle clone
+# Combatris - A Tetris clone
 
 ![screenshots](screenshots/combatris-demo-1.png)
 
-An modern C++11/14/17 implementation of Tetris. The game uses the following settings and rules:
+A modern C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only)
+and OSX 10.12/10.13. Linux should work but has not been tested.
 
-Combatris has been tested and works under Windows 10 (x64 only) and OSX High Sierra. Linux should work both has not been tested.
+The game uses the following settings and rules:
 
 Feature | Support
 --- | ------
@@ -22,7 +23,7 @@ Back-to-back Recognition | Tetris / T-spin
 Platform | PC / OSX / (Linux)
 
 The plan is to implement three modes Single Player, Battle and Marathon. The single player is done except for
-the cosmetic improvements listed below. Its now time to implement network support and battle mode.
+some cosmetic improvements listed below. Its now time to implement network support and battle mode.
 
 **Status**
 - [x] Rotate left / right
@@ -53,12 +54,12 @@ the cosmetic improvements listed below. Its now time to implement network suppor
 - [ ] Battle Mode (P2P based on UDP)
 - [ ] Introduce Marathon mode
 - [ ] More unit tests // Two in place right now which is far to few
+- [ ] Sound
 
 **Improvements**
 - [ ] Remove the pane for showing combo/latest move and display combo / last move direct on the frame
 - [ ] Add animation for combo/last clearing move (expanding text)
 - [ ] Change font to https://www.dafont.com/obelixpro.font
-- [ ] Sound
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
 
@@ -108,13 +109,11 @@ A | Hard Drop
 
 **Dependencies:**
 * C++17 compliant compiler (e.g. clang 4, clang-9.0.0, Visual Studio 2017.3)
-* C++14 compliant STL implementation
 * cmake 3.10.0 or later
 * git
 * SDL2 (x64 only)
 * SDL2_ttf (x64 only)
 * SDL2_mixer (x64 only)
-* Network support when implemented will require boost
 
 The test suit requires catch - Catch will be automatically downloaded and installed
 as part of the build process
@@ -148,7 +147,9 @@ make cppcheck
 
 **64-bit Windows 10**
 
-The code has been tested with Visual Studio Community Edition 15.6.1
+The code has been tested with Visual Studio Community Edition 15.6.1. Using the following settings:
+
+Download the latest versions of the development libraries at https://www.libsdl.org.
 
 Set the following environment variables (see System Properties/Environment Variables...):
 
