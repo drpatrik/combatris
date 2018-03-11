@@ -4,6 +4,8 @@
 
 An modern C++11/14/17 implementation of Tetris. The game uses the following settings and rules:
 
+Combatris has been tested and works under Windows 10 (x64 only) and OSX High Sierra. Linux should work both has not been tested.
+
 Feature | Support
 --- | ------
 Hold Piece | Yes
@@ -17,7 +19,7 @@ Levels | 15
 Level advancement | 10 lines
 T-Spin recognition | 3-corner with kicks
 Back-to-back Recognition | Tetris / T-spin
-Platform | PC / Linux / OSX
+Platform | PC / OSX / (Linux)
 
 The plan is to implement three modes Single Player, Battle and Marathon. The single player is done except for
 the cosmetic improvements listed below. Its now time to implement network support and battle mode.
@@ -107,7 +109,7 @@ A | Hard Drop
 **Dependencies:**
 * C++17 compliant compiler (e.g. clang 4, clang-9.0.0, Visual Studio 2017.3)
 * C++14 compliant STL implementation
-* cmake 3.10.0 or later (for Windows version, for OSX 2.8.0 or later will work)
+* cmake 3.10.0 or later
 * git
 * SDL2 (x64 only)
 * SDL2_ttf (x64 only)
@@ -162,7 +164,7 @@ The PATH environmen variable should include all three libraries lib\x64 director
 *Example:*
 PATH C:\SDL2-2.0.5\lib\x64;C:\SDL2_mixer\lib\x64;C:\SDL2_ttf-2.0.14\lib\x64
 
-Generate Visual Studio project files with CMakeSetup.exe
+Generate Visual Studio project files with CMakeSetup.exe (Choose Visual Studio 15 2017 Win64 as generator)
 
 ## Credits
 
