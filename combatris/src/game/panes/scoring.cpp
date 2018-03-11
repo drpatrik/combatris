@@ -41,6 +41,7 @@ std::tuple<int, int, ComboType> Scoring::Calculate(const Event& event) {
   ++combo_counter_;
   switch (event.tspin_type_) {
     case TSpinType::None:
+      base_score = kScoreForLines.at(event.lines_cleared());
       if (event.lines_cleared() == 4) {
         if (++b2b_counter_ > 1) {
           combo_score = 1200;
@@ -58,6 +59,7 @@ std::tuple<int, int, ComboType> Scoring::Calculate(const Event& event) {
       break;
     case TSpinType::TSpin:
     case TSpinType::TSpinMini:
+      base_score = kScoreForTSpin.at(event.lines_cleared());
       if (TSpinType::TSpinMini == event.tspin_type_) {
         if (event.lines_cleared() > 0) {
           base_score = 200;
@@ -65,8 +67,6 @@ std::tuple<int, int, ComboType> Scoring::Calculate(const Event& event) {
           b2b_counter_ = 0;
           base_score =  100;
         }
-      } else {
-        base_score = kScoreForTSpin.at(event.lines_cleared());
       }
       if (event.lines_cleared() > 0 && ++b2b_counter_ > 1) {
         combo_score = kB2BScoreForTSpin.at(event.lines_cleared());

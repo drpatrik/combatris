@@ -1,4 +1,4 @@
-#include "assets.h"
+#include "game/assets.h"
 
 #include <string>
 #include <iostream>
@@ -31,21 +31,6 @@ SDL_Texture* LoadTexture(SDL_Renderer *renderer, const std::string& name) {
   return texture;
 }
 
-TTF_Font *LoadFont(const std::string& name, int size) {
-  if (TTF_WasInit() == 0) {
-    return nullptr;
-  }
-  auto full_path = kAssetFolder + "fonts/" + name;
-  auto font = TTF_OpenFont(full_path.c_str(), size);
-
-  if (nullptr == font) {
-    std::cout << "Failed to load text " << full_path << " error : " << SDL_GetError() << std::endl;
-    exit(-1);
-  }
-
-  return font;
-}
-
 struct TetrominoAssetData {
   TetrominoAssetData(Tetromino::Type type, Color color, const std::vector<TetrominoRotationData>& rotations, const std::string& image_name) :
       type_(type), color_(GetColor(color)), rotations_(rotations), image_name_(image_name) {}
@@ -68,25 +53,6 @@ std::vector<TetrominoAssetData> kTetrominoAssetData {
   TetrominoAssetData(Tetromino::Type::Border, Color::Black, kTetromino_No_Rotations, "Border.bmp")
 };
 
-const std::vector<std::pair<std::string, int>> kFonts {
-  std::make_pair("Cabin-Regular.ttf", 15),
-  std::make_pair("Cabin-Bold.ttf", 15),
-  std::make_pair("Cabin-Regular.ttf", 20),
-  std::make_pair("Cabin-Bold.ttf", 20),
-  std::make_pair("Cabin-Regular.ttf", 25),
-  std::make_pair("Cabin-Bold.ttf", 25),
-  std::make_pair("Cabin-Regular.ttf", 30),
-  std::make_pair("Cabin-Bold.ttf", 30),
-  std::make_pair("Cabin-Regular.ttf", 35),
-  std::make_pair("Cabin-Bold.ttf", 35),
-  std::make_pair("Cabin-Regular.ttf", 45),
-  std::make_pair("Cabin-Bold.ttf", 45),
-  std::make_pair("Cabin-Regular.ttf", 55),
-  std::make_pair("Cabin-Bold.ttf", 55),
-  std::make_pair("Cabin-Regular.ttf", 100),
-  std::make_pair("Cabin-Regular.ttf", 200),
-};
-
 } // namespace
 
 Assets::Assets(SDL_Renderer *renderer) {
@@ -96,7 +62,5 @@ Assets::Assets(SDL_Renderer *renderer) {
         std::shared_ptr<SDL_Texture>(LoadTexture(renderer, data.image_name_), DeleteTexture)));
     alpha_textures_.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, data.image_name_), DeleteTexture));
   }
-  for (const auto& f:kFonts) {
-    fonts_.push_back(UniqueFontPtr{ LoadFont(f.first, f.second) });
-  }
+  std::for_each(kAllFonts.begin(), kAllFonts.end(), [this](const auto& f) { fonts_.Get(f); });
 }

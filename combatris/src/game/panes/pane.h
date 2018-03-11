@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utility/color.h"
+#include "utility/text.h"
 #include "game/assets.h"
 #include "game/panes/pane_interface.h"
 
@@ -11,7 +12,7 @@ class Pane : public PaneInterface {
   Pane(const Pane&) = delete;
 
  protected:
-  void RenderText(int x, int y, Font font, const std::string& text, Color text_color) const {
+  void RenderText(int x, int y, const Font& font, const std::string& text, Color text_color) const {
     ::RenderText(renderer_, x_ + x, y_ + y, assets_->GetFont(font), text, text_color);
   }
 
@@ -54,9 +55,9 @@ class TextPane : public Pane {
 
   void SetCaptionOrientation(Orientation orientation) { orientation_ = orientation; }
 
-  void SetCenteredText(int text, Color color = Color::SteelGray, Font font = Bold45) { SetCenteredText(std::to_string(text), color, font); }
+  void SetCenteredText(int text, Color color = Color::SteelGray, const Font& font = Bold45) { SetCenteredText(std::to_string(text), color, font); }
 
-  void SetCenteredText(const std::string& text, Color color = Color::SteelGray, Font font = Bold45) {
+  void SetCenteredText(const std::string& text, Color color = Color::SteelGray, const Font& font = Bold45) {
     lines_.resize(1);
     auto& line = lines_[0];
 

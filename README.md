@@ -53,7 +53,6 @@ the cosmetic improvements listed below. Its now time to implement network suppor
 - [ ] More unit tests // Two in place right now which is far to few
 
 **Improvements**
-- [ ] Add a font manager
 - [ ] Remove the pane for showing combo/latest move and display combo / last move direct on the frame
 - [ ] Add animation for combo/last clearing move (expanding text)
 - [ ] Change font to https://www.dafont.com/obelixpro.font
@@ -165,11 +164,14 @@ Generate Visual Studio project files with CMakeSetup.exe
 
 ## Credits
 
+Some sources has there own license and is not covered by the source codes license.
+
+* All sfx and music are from www.freesound.org
+* Fonts https://www.dafont.com/cabin.font
+* Fonts https://www.dafont.com/obelixpro.font
 * Wall kick tables from https://harddrop.com/wiki/SRS
 * Tetris info from http://tetris.wikia.com and https://tetris.wiki
 * Tetrominoes from https://commons.wikimedia.org/wiki/File:Tetrominoes_IJLO_STZ_Worlds.svg
-* All sfx and music are from www.freesound.org
-* Fonts http://www.dafont.com/cabin.font
 * Original FindSDL2_mixer https://github.com/rlsosborne/doom
 * DeltaTimer adapted from http://headerphile.com/sdl2/sdl2-part-9-no-more-delays/
 * https://github.com/philsquared/Catch
