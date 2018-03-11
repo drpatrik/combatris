@@ -4,10 +4,11 @@
 #include "game/tetromino.h"
 #include "game/panes/pane_interface.h"
 
+#include <tuple>
 class Matrix final : public PaneInterface {
  public:
   using Type = std::vector<std::vector<int>>;
-  using CommitReturnTyoe = std::tuple<Lines, TSpinType, bool>;
+  using CommitReturnType = std::tuple<Lines, TSpinType, bool>;
 
   Matrix(SDL_Renderer* renderer, const std::vector<std::shared_ptr<const Tetromino>>& tetrominos)
       : renderer_(renderer), tetrominos_(tetrominos) {
@@ -47,7 +48,7 @@ class Matrix final : public PaneInterface {
     Insert(matrix_, pos, rotation_data);
   }
 
-  CommitReturnTyoe Commit(Tetromino::Type type, Tetromino::Move latest_move, const Position& pos, const TetrominoRotationData& rotation_data);
+  CommitReturnType Commit(Tetromino::Type type, Tetromino::Move latest_move, const Position& pos, const TetrominoRotationData& rotation_data);
 
   Position GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const;
 

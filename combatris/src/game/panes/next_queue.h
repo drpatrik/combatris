@@ -22,7 +22,7 @@ class NextQueue final : public TextPane {
     }
     tetromino_generator_->RenderFromQueue(0, x_ + 10, y_ + caption_height_ + 15);
 
-    for (size_t i = 1; i < 3; ++i) {
+    for (int i = 1; i < 3; ++i) {
       tetromino_generator_->RenderFromQueue(i, x_ + 10, y_ + caption_height_ + 15 + (90 * i));
     }
   }

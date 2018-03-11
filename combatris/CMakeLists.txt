@@ -11,6 +11,7 @@ add_executable(combatris ${SourceFiles})
 target_link_libraries(combatris ${SDL2_LIBRARY})
 target_link_libraries(combatris ${SDL2_TTF_LIBRARIES})
 target_link_libraries(combatris ${SDL2_MIXER_LIBRARIES})
+set_property(TARGET combatris PROPERTY CXX_STANDARD 17)
 
 # Build the test
 include_directories(combatris src/)
@@ -23,3 +24,5 @@ add_dependencies(combatris_test catch)
 target_link_libraries(combatris_test ${SDL2_LIBRARY})
 target_link_libraries(combatris_test ${SDL2_TTF_LIBRARIES})
 target_link_libraries(combatris_test ${SDL2_MIXER_LIBRARIES})
+
+set_property(TARGET combatris_test PROPERTY CXX_STANDARD 17)

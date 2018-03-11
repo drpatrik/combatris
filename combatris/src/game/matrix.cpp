@@ -155,7 +155,7 @@ void Matrix::Insert(Type& matrix, const Position& pos, const TetrominoRotationDa
   }
 }
 
-Matrix::CommitReturnTyoe Matrix::Commit(Tetromino::Type type, Tetromino::Move latest_move, const Position& current_pos, const TetrominoRotationData& rotation_data) {
+Matrix::CommitReturnType Matrix::Commit(Tetromino::Type type, Tetromino::Move latest_move, const Position& current_pos, const TetrominoRotationData& rotation_data) {
   TSpinType tspin_type = TSpinType::None;
 
   auto pos = GetDropPosition(current_pos, rotation_data);

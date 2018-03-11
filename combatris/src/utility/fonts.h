@@ -27,6 +27,7 @@ inline std::string ToString(Font::Typeface typeface) {
     case Font::Typeface::ObelixPro:
       return "ObelixPro";
   }
+  return "";
 }
 
 inline std::string ToString(Font::Emphasis emphasis) {
@@ -36,6 +37,7 @@ inline std::string ToString(Font::Emphasis emphasis) {
     case Font::Emphasis::Bold:
       return "Bold";
   }
+  return "";
 }
 
 namespace std {

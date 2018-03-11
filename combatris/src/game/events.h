@@ -4,6 +4,7 @@
 
 #include <deque>
 #include <vector>
+#include <algorithm>
 
 struct Line {
   Line(int row, const std::vector<int>& minos) : row_(row), minos_(minos) {}
@@ -58,11 +59,13 @@ struct Event {
 
   inline bool IsDrop() const { return lines_dropped_ > 0; }
 
-  inline int lines_cleared() const { return lines_cleared_.size(); }
+  inline int lines_cleared() const { return static_cast<int>(lines_cleared_.size()); }
 
   inline int score() const { return score_; }
 
   bool operator==(Event::Type type) { return type == type_; }
+
+  bool operator==(const Event& e) { return e.type_ == type_; }
 
   Type type_;
   Lines lines_cleared_;

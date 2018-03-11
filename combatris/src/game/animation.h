@@ -103,7 +103,7 @@ class LinesClearedAnimation final : public Animation {
 
         const auto &tetromino = GetAsset().GetTetromino(static_cast<Tetromino::Type>(minos[l]));
 
-        tetromino->Render(x, y);
+        tetromino->Render(x, static_cast<int>(y));
       }
     }
     y_ += (kIncY * direction);
@@ -206,7 +206,7 @@ class OnFloorAnimation final : public Animation {
   }
 
 private:
-  const Uint8 kAlpha = 150.0;
+  const Uint8 kAlpha = 150;
   Uint8 alpha_saved_;
   std::shared_ptr<SDL_Texture> alpha_texture_;
   std::shared_ptr<TetrominoSprite> tetromino_sprite_;

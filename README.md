@@ -105,9 +105,9 @@ A | Hard Drop
 ## Build Combatris
 
 **Dependencies:**
-* C++17 compliant compiler (e.g. clang 4, clang-9.0.0, Visual Studio 2017.3 [P2])
+* C++17 compliant compiler (e.g. clang 4, clang-9.0.0, Visual Studio 2017.3)
 * C++14 compliant STL implementation
-* cmake 2.8.8 or later
+* cmake 3.10.0 or later (for Windows version, for OSX 2.8.0 or later will work)
 * git
 * SDL2 (x64 only)
 * SDL2_ttf (x64 only)
@@ -146,6 +146,8 @@ make cppcheck
 
 **64-bit Windows 10**
 
+The code has been tested with Visual Studio Community Edition 15.6.1
+
 Set the following environment variables (see System Properties/Environment Variables...):
 
 SDL2DIR
@@ -155,7 +157,7 @@ SDL2TTFDIR
 *Example:*
 SDL2DIR C:\SDL2-2.0.5
 
-The PATH should include all three libraries lib\x64 directories
+The PATH environmen variable should include all three libraries lib\x64 directories
 
 *Example:*
 PATH C:\SDL2-2.0.5\lib\x64;C:\SDL2_mixer\lib\x64;C:\SDL2_ttf-2.0.14\lib\x64

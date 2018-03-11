@@ -3,6 +3,7 @@
 
 #include <SDL_mixer.h>
 #include <set>
+#include <functional>
 #include <unordered_map>
 
 namespace {

@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 3.10.0)
 project(combatris)
 
-cmake_policy(SET CMP0054 OLD)
-cmake_policy(SET CMP0045 OLD)
+cmake_policy(SET CMP0054 NEW)
+cmake_policy(SET CMP0045 NEW)
 
 # 3rdparty Libraries
 include(CMakeLists-Catch.txt)
