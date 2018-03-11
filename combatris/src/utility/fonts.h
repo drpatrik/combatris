@@ -42,14 +42,11 @@ inline std::string ToString(Font::Emphasis emphasis) {
 
 namespace std {
 
-template<> struct hash<Font>
-{
-  typedef Font argument_type;
-  typedef std::size_t result_type;
-  result_type operator()(argument_type const& f) const noexcept {
+template<> struct hash<Font> {
+  size_t operator()(const Font& f) const noexcept {
     std::string key = std::to_string(static_cast<int>(f.typeface_)) + std::to_string(static_cast<int>(f.emphasis_)) + std::to_string(f.size_);
 
-    return std::hash<std::string>{}(key);
+    return std::hash<std::string>{}(std::move(key));
   }
 };
 
