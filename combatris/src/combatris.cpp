@@ -146,7 +146,7 @@ class Combatris {
     return current_control;
   }
 
-  Tetrion::Controls TranslateJoystickCommands(Uint8 index, ButtonType type, Uint8 button) const {
+  Tetrion::Controls TranslateJoystickCommands(SDL_JoystickID index, ButtonType type, Uint8 button) const {
     const auto& mapping = kJoystickMappings.at(joystick_name_);
     int v = (type == ButtonType::JoyButton) ? button : HatValueToButtonValue(button);
 
