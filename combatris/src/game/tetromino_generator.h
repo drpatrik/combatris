@@ -57,5 +57,4 @@ class TetrominoGenerator final {
   std::shared_ptr<Assets> assets_;
   std::deque<Tetromino::Type> tetrominos_queue_;
   mutable std::mt19937 engine_ { std::random_device{}() };
-  mutable std::uniform_int_distribution<int> distribution_{ 0, static_cast<int>(kTetrominos.size()) - 1 };
 };

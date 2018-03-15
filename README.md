@@ -2,8 +2,8 @@
 
 ![screenshots](screenshots/combatris-demo-1.png)
 
-A modern C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only)
-and OSX 10.12/10.13. Linux should work but has not been tested.
+A modern C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only),
+OSX 10.12/10.13 and Raspian GNU/Linux 9 (stretch)
 
 The game uses the following settings and rules:
 
@@ -92,7 +92,7 @@ Down | Soft Drop
 Triangle | Hold piece
 X | Hard Drop
 
-**Joystick Commands (Logitech F310 Gamepad**
+**Joystick Commands (Logitech F310 Gamepad)**
 
 Key | Action
 --- | ------
@@ -108,8 +108,8 @@ A | Hard Drop
 ## Build Combatris
 
 **Dependencies:**
-* C++17 compliant compiler (e.g. clang 4, clang-9.0.0, Visual Studio 2017.3)
-* cmake 3.10.0 or later
+* C++17 compliant compiler (e.g. clang 4, clang-9.0.0, Visual Studio 2017.3, GCC 7)
+* cmake 3.10.0 or later (Windows) or 3.7.0 or later (OSX/Linux)
 * git
 * SDL2 (x64 only)
 * SDL2_ttf (x64 only)
@@ -120,7 +120,7 @@ as part of the build process
 
 **OSX / Linux**
 
-Install the required libraries with (linux)brew or any other package manager.
+Install the required libraries with apt/brew or any other package manager.
 
 Builds the project, default is a release build. Ninja is used if available:
 
@@ -143,6 +143,21 @@ Run cppcheck (if installed) on the codebase with all checks turned-on:
 
 ```bash
 make cppcheck
+```
+
+**Raspian GNU/Linux**
+You need to activate the OpenGL driver otherwise the game will be far to slow.
+
+The code builts cleanly and has been tested with GCC 7.3.0, instructions how
+to build the compiler can be found here:
+
+https://solarianprogrammer.com/2017/12/08/raspberry-pi-raspbian-install-gcc-compile-cpp-17-programs/
+
+You need to set these flag before running make:
+
+```bash
+export PATH=/usr/local/gcc-7.3.0/bin:$PATH
+export CXX=gcc-7.3.0
 ```
 
 **64-bit Windows 10**

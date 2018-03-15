@@ -6,7 +6,11 @@
 
 namespace {
 
+#if defined(__linux__)
+const std::string kAssetFolder = "assets/";
+#else
 const std::string kAssetFolder = "../../assets/";
+#endif
 
 void DeleteTexture(SDL_Texture* texture) {
   if (texture != nullptr) {

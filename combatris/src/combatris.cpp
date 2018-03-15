@@ -27,6 +27,18 @@ const std::unordered_map<std::string, const std::unordered_map<int, Tetrion::Con
       { 8, Tetrion::Controls::Pause }
     }
   },
+  {"Logitech Logitech Dual Action", {
+      { HatValueToButtonValue(8), Tetrion::Controls::Left },
+      { HatValueToButtonValue(2), Tetrion::Controls::Right },
+      { HatValueToButtonValue(4), Tetrion::Controls::SoftDrop },
+      { 0, Tetrion::Controls::RotateCounterClockwise },
+      { 2, Tetrion::Controls::RotateClockwise },
+      { 3, Tetrion::Controls::Hold },
+      { 1, Tetrion::Controls::HardDrop },
+      { 9, Tetrion::Controls::Start },
+      { 8, Tetrion::Controls::Pause }
+    }
+  },
   {"PLAYSTATION(R)3 Controller", {
       { 7, Tetrion::Controls::Left },
       { 5, Tetrion::Controls::Right },
@@ -90,7 +102,13 @@ class Combatris {
     }
     joystick_index_ = index;
     joystick_name_ = SDL_JoystickName(joystick_);
-    std::cout << "Joystick found: " <<  joystick_name_ << std::endl;
+
+    if (kJoystickMappings.count(joystick_name_) == 0) {
+      std::cout << "Non supported joystick found: " <<  joystick_name_ << " it will be DISABLED" << std::endl;
+      DetachJoystick(joystick_index_);
+    } else {
+      std::cout << "Joystick found: " <<  joystick_name_ << std::endl;
+    }
   }
 
   void DetachJoystick(int index) {

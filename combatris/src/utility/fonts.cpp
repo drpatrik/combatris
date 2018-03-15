@@ -4,7 +4,11 @@
 
 namespace {
 
+#if defined(__linux__)
+const std::string kAssetFolder = "assets/";
+#else
 const std::string kAssetFolder = "../../assets/";
+#endif
 
 const std::unordered_map<Font::Typeface, const std::unordered_map<Font::Emphasis, std::string>> kFonts = {
   { Font::Typeface::Cabin, { { Font::Emphasis::Normal, "Cabin-Regular.ttf" }, { Font::Emphasis::Bold, "Cabin-Bold.ttf" } } },

@@ -34,7 +34,7 @@ void RemoveAnimation(std::deque<std::shared_ptr<Animation>>& animations) {
 
 Tetrion::Tetrion() : events_() {
   window_ = SDL_CreateWindow("COMBATRIS", SDL_WINDOWPOS_UNDEFINED,
-                             SDL_WINDOWPOS_UNDEFINED, kWidth, kHeight, SDL_WINDOW_RESIZABLE);
+                             SDL_WINDOWPOS_UNDEFINED, kWidth, kHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
   if (nullptr == window_) {
     std::cout << "Failed to create window : " << SDL_GetError() << std::endl;
     exit(-1);

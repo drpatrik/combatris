@@ -19,7 +19,8 @@ class Timer final {
   int GetTimeInSeconds() {
     if (std::chrono::duration_cast<std::chrono::milliseconds>(SystemClock::now() - start_).count() >= 1000) {
       start_ = SystemClock::now();
-      count_down_ = std::max(--count_down_, 0);
+      --count_down_;
+      count_down_ = std::max(count_down_, 0);
     }
     return count_down_;
   }
