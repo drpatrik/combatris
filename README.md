@@ -113,7 +113,6 @@ A | Hard Drop
 * git
 * SDL2 (x64 only)
 * SDL2_ttf (x64 only)
-* SDL2_mixer (x64 only)
 
 The test suit requires catch - Catch will be automatically downloaded and installed
 as part of the build process
@@ -174,16 +173,15 @@ Download the latest versions of the development libraries at https://www.libsdl.
 Set the following environment variables (see System Properties/Environment Variables...):
 
 SDL2DIR
-SDL2MIXER
 SDL2TTFDIR
 
 *Example:*
 SDL2DIR C:\SDL2-2.0.5
 
-The PATH environmen variable should include all three libraries lib\x64 directories
+The PATH environmen variable should include both libraries lib\x64 directories
 
 *Example:*
-PATH C:\SDL2-2.0.5\lib\x64;C:\SDL2_mixer\lib\x64;C:\SDL2_ttf-2.0.14\lib\x64
+PATH C:\SDL2-2.0.5\lib\x64;C:\SDL2_ttf-2.0.14\lib\x64
 
 Generate Visual Studio project files with CMakeSetup.exe (Choose Visual Studio 15 2017 Win64 as generator)
 
