@@ -105,11 +105,12 @@ Right | Move Right
 Down | Soft Drop
 Y | Hold piece
 A | Hard Drop
+
 ## Build Combatris
 
 **Dependencies:**
-* C++17 compliant compiler (e.g. clang 4, clang-9.0.0, Visual Studio 2017.3, GCC 7)
-* cmake 3.10.0 or later (Windows) or 3.7.0 or later (OSX/Linux)
+* C++17 compliant compiler (e.g. clang 4/5, clang-9.0.0, Visual Studio 2017.3, GCC 7.x.x)
+* cmake 3.10.0 or later (Windows) or 3.5.0 or later (OSX/Linux)
 * git
 * SDL2 (x64 only)
 * SDL2_ttf (x64 only)
