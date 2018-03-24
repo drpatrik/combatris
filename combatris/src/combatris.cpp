@@ -1,7 +1,6 @@
 #include "utility/timer.h"
 #include "game/tetrion.h"
 
-#include <SDL_mixer.h>
 #include <set>
 #include <functional>
 #include <unordered_map>
@@ -71,10 +70,6 @@ class Combatris {
       std::cout << "TTF_Init Error: " << TTF_GetError() << std::endl;
       exit(-1);
     }
-    if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024) != 0) {
-      std::cout << "Mix_OpenAudio Error: " << Mix_GetError() << std::endl;
-      exit(-1);
-    }
     SDL_JoystickEventState(SDL_ENABLE);
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
     if (SDL_NumJoysticks() > 0) {
@@ -87,8 +82,6 @@ class Combatris {
     DetachJoystick(joystick_index_);
     SDL_Quit();
     TTF_Quit();
-    Mix_CloseAudio();
-    Mix_Quit();
   }
 
   void AttachJoystick(int index) {
