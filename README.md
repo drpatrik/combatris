@@ -150,7 +150,7 @@ make cppcheck
 You need to activate the OpenGL driver otherwise the game will be far to slow.
 
 The code builds cleanly and has been tested with GCC 7.3.0, instructions how
-to build the compiler can be found here:
+to install the compiler can be found here:
 
 https://solarianprogrammer.com/2017/12/08/raspberry-pi-raspbian-install-gcc-compile-cpp-17-programs/
 
