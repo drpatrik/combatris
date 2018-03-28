@@ -25,6 +25,8 @@ Platform | PC / OSX / (Linux)
 The plan is to implement three modes Single Player, Battle and Marathon. The single player is done except for
 some cosmetic improvements listed below. Its now time to implement network support and battle mode.
 
+This easter network support is on the agenda.
+
 **Status**
 - [x] Rotate left / right
 - [x] Soft / Hard drop
