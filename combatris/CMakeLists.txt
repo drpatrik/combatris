@@ -28,8 +28,7 @@ endif()
 # Build the test
 include_directories(${CATCH_INCLUDE_DIR} ${COMMON_INCLUDES})
 
-file(GLOB_RECURSE SourceFiles src/game/*.cpp src/utility/*.cpp)
-list(APPEND SourceFiles test/combatris_test.cpp)
+file(GLOB_RECURSE SourceFiles src/game/* src/utility/*.cpp src/network/*.cpp test/*.cpp)
 
 add_executable(combatris_test ${SourceFiles})
 add_dependencies(combatris_test catch)

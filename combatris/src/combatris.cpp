@@ -26,18 +26,6 @@ const std::unordered_map<std::string, const std::unordered_map<int, Tetrion::Con
       { 8, Tetrion::Controls::Pause }
     }
   },
-  {"Logitech Logitech Dual Action", {
-      { HatValueToButtonValue(8), Tetrion::Controls::Left },
-      { HatValueToButtonValue(2), Tetrion::Controls::Right },
-      { HatValueToButtonValue(4), Tetrion::Controls::SoftDrop },
-      { 0, Tetrion::Controls::RotateCounterClockwise },
-      { 2, Tetrion::Controls::RotateClockwise },
-      { 3, Tetrion::Controls::Hold },
-      { 1, Tetrion::Controls::HardDrop },
-      { 9, Tetrion::Controls::Start },
-      { 8, Tetrion::Controls::Pause }
-    }
-  },
   {"PLAYSTATION(R)3 Controller", {
       { 7, Tetrion::Controls::Left },
       { 5, Tetrion::Controls::Right },
@@ -50,6 +38,12 @@ const std::unordered_map<std::string, const std::unordered_map<int, Tetrion::Con
       { 0, Tetrion::Controls::Pause }
     }
   }
+};
+
+const std::unordered_map<std::string, std::string> kTranslateJoystickName = {
+  { "Logitech Dual Action", "Logitech Dual Action"},
+  { "Logitech Logitech Dual Action", "Logitech Dual Action"},
+  { "PLAYSTATION(R)3 Controller", "PLAYSTATION(R)3 Controller"}
 };
 
 const std::set<Tetrion::Controls> kAutoRepeatControls = { Tetrion::Controls::SoftDrop, Tetrion::Controls::Left, Tetrion::Controls::Right };
@@ -100,6 +94,7 @@ class Combatris {
       std::cout << "Non supported joystick found: " <<  joystick_name_ << " it will be DISABLED" << std::endl;
       DetachJoystick(joystick_index_);
     } else {
+      joystick_name_ = kTranslateJoystickName.at(joystick_name_);
       std::cout << "Joystick found: " <<  joystick_name_ << std::endl;
     }
   }
