@@ -5,8 +5,29 @@
 
 namespace network {
 
-const std::string kDefaultServer = "0.0.0.0";
+const std::string kEnvServer = "COMBATRIS_BROADCAST_IP";
+const std::string kEnvPort = "COMBATRIS_BROADCAST_PORT";
+
+const std::string kDefaultServer = "192.168.1.255";
 const int kDefaultPort = 3001;
+
+inline std::string GetServer() {
+  auto env = getenv(kEnvServer.c_str());
+
+  if (nullptr == env) {
+    return kDefaultServer;
+  }
+  return env;
+}
+
+inline int GetPort() {
+  auto env = getenv(kEnvPort.c_str());
+
+  if (nullptr == env) {
+    return kDefaultPort;
+  }
+  return std::stoi(env);
+}
 
 #pragma pack(push, 1)
 
@@ -49,16 +70,16 @@ inline std::string ToString(GameState state) {
 }
 
 struct Header {
-  Header() : request_(Request::Empty), sequence_nr_(0) {
+  Header() :  sequence_nr_(0), request_(Request::Empty) {
     host_name_[0] = '\0';
   }
-  Header(const std::string& name, Request request, uint64_t sequence_nr) :
-      request_(request), sequence_nr_(sequence_nr) {
+  Header(const std::string& name, Request request, size_t sequence_nr) :
+      sequence_nr_(sequence_nr), request_(request) {
     std::copy(std::begin(name), std::end(name), host_name_);
   }
   char host_name_[_POSIX_HOST_NAME_MAX + 1];
-  Request request_;
   size_t sequence_nr_;
+  Request request_;
 };
 
 struct Payload {

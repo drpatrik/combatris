@@ -15,8 +15,11 @@ int kWaitTime = 100;
 
 using namespace network;
 
+// This test might fail since there is no guarantee for a UDP
+// to be received
+
 void server(std::promise<int> result_promise) {
-  Server server(kDefaultServer, kDefaultPort);
+  Server server(GetServer(), GetPort());
   Header header;
   size_t n = 0;
 
@@ -34,7 +37,7 @@ TEST_CASE("ClientServerTest") {
   std::promise<int> result_promise;
   std::future<int> result_future{ result_promise.get_future() };
   std::thread server_thread{ server, std::move(result_promise) };
-  Client client(kDefaultServer, kDefaultPort);
+  Client client(GetServer(), GetPort());
 
   for (size_t n = 0; n < kHeartBeats; n++) {
     Header header(client.host_name(), Request::HeartBeat, n);

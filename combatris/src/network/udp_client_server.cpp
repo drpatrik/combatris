@@ -9,6 +9,9 @@
 
 namespace {
 
+const int kPortLowerRange = 1024;
+const int kPortUpperRange = 49151;
+
 std::string GetHostName() {
   char host_name[_POSIX_HOST_NAME_MAX + 1];
 
@@ -19,12 +22,39 @@ std::string GetHostName() {
   return host_name;
 }
 
+void EnableBroadcast(const std::string& name, int socket) {
+  int enable_broadcast = 1;
+
+  if (setsockopt(socket, SOL_SOCKET, SO_BROADCAST, &enable_broadcast, sizeof(enable_broadcast)) < 0) {
+    std::cout << name << ": setsockopt failed - " << strerror(errno) << std::endl;
+    exit(-1);
+  }
+}
+
+void SetCloseOnExit(const std::string& name, int socket) {
+  if (fcntl(socket, F_SETFD, FD_CLOEXEC) < 0) {
+    std::cout << name << ": fcntl failed - " << strerror(errno) << std::endl;
+    exit(-1);
+  }
+}
+
+void VerifyAddressAndPort(const std::string& broadcast_address, int port) {
+  if (broadcast_address.empty()) {
+    std::cout << "Server Broadcast Broadcast_Addressess cannot be empty" << std::endl;
+    exit(-1);
+  }
+  if (port < kPortLowerRange || port > kPortUpperRange) {
+    std::cout << "Invalid port (" << kPortLowerRange << " <= " << port << " <= " << kPortUpperRange << std::endl;
+    exit(-1);
+  }
+}
+
 } // namespace
 
 namespace network {
 
-Client::Client(const std::string& addr, int port) {
-  const auto port_str(std::to_string(port));
+Client::Client(const std::string& broadcast_address, int port) {
+  VerifyAddressAndPort(broadcast_address, port);
 
   addrinfo hints{};
 
@@ -32,25 +62,22 @@ Client::Client(const std::string& addr, int port) {
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_protocol = IPPROTO_UDP;
 
-  const auto ret_value(getaddrinfo(addr.c_str(), port_str.c_str(), &hints, &addr_info_));
+  const auto ret_value(getaddrinfo(broadcast_address.c_str(), std::to_string(port).c_str(), &hints, &addr_info_));
 
   if (ret_value != 0 || addr_info_ == nullptr) {
-    std::cout << "Client: " << "invalid address or port: \"" << addr << ":" << port << "\"" << std::endl;
-    std::cout << "Client: error message: " << strerror(errno) << std::endl;
+    std::cout << "Client: " << "invalid address or port - \"" << broadcast_address << ":" << port << "\"" << std::endl;
+    std::cout << "Client: error message - " << strerror(errno) << std::endl;
     exit(-1);
   }
   socket_ = socket(addr_info_->ai_family, SOCK_DGRAM, IPPROTO_UDP);
 
   if (socket_ < 0) {
-    std::cout << "Client: could not create socket for:  \"" << addr << ":" << port << "\"" << std::endl;
-    std::cout << "Client: error message: " << strerror(errno) << std::endl;
+    std::cout << "Client: could not create socket for -  \"" << broadcast_address << ":" << port << "\"" << std::endl;
+    std::cout << "Client: error message - " << strerror(errno) << std::endl;
     exit(-1);
   }
-  if (fcntl(socket_, F_SETFD, FD_CLOEXEC) < 0) {
-    std::cout << "Client: fcntl failed: " << errno << std::endl;
-    std::cout << "Client: error message: " << strerror(errno) << std::endl;
-    exit(-1);
-  }
+  SetCloseOnExit("Client", socket_);
+  EnableBroadcast("Client", socket_);
   host_name_ = GetHostName();
 }
 
@@ -73,37 +100,36 @@ ssize_t Client::Send(void* buff, size_t size) {
   return ret_value;
 }
 
-Server::Server(const std::string& addr, int port) {
+Server::Server(const std::string& broadcast_address, int port) {
+  VerifyAddressAndPort(broadcast_address, port);
   addrinfo hints{};
 
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_protocol = IPPROTO_UDP;
 
-  auto ret_value(getaddrinfo(addr.c_str(), std::to_string(port).c_str(), &hints, &addr_info_));
+  auto ret_value(getaddrinfo(broadcast_address.c_str(), std::to_string(port).c_str(), &hints, &addr_info_));
 
   if (ret_value != 0 || addr_info_ == nullptr) {
-    std::cout << "Server: " << "invalid address or port: \"" << addr << ":" << port << "\"" << std::endl;
-    std::cout << "Server: error message: " << strerror(errno) << std::endl;
+    std::cout << "Server: " << "invalid address or port - \"" << broadcast_address << ":" << port << "\"" << std::endl;
+    std::cout << "Server: error message - " << strerror(errno) << std::endl;
     exit(-1);
   }
   socket_ = socket(addr_info_->ai_family, SOCK_DGRAM, IPPROTO_UDP);
 
   if (socket_ < 0) {
-    std::cout << "Server: could not create socket for:  \"" << addr << ":" << port << "\"" << std::endl;
-    std::cout << "Server: error message: " << strerror(errno) << std::endl;
+    std::cout << "Server: could not create socket for - \"" << broadcast_address << ":" << port << "\"" << std::endl;
+    std::cout << "Server: error message: - " << strerror(errno) << std::endl;
     exit(-1);
   }
-  if (fcntl(socket_, F_SETFD, FD_CLOEXEC) < 0) {
-    std::cout << "Server: fcntl failed: " << errno << std::endl;
-    std::cout << "Server: error message: " << strerror(errno) << std::endl;
-    exit(-1);
-  }
+  SetCloseOnExit("Server", socket_);
+  EnableBroadcast("Server", socket_);
+
   ret_value = bind(socket_, addr_info_->ai_addr, addr_info_->ai_addrlen);
 
   if (ret_value != 0) {
-    std::cout << "Server: could not bind socket with:  \"" << addr << ":" << port << "\" " << std::endl;
-    std::cout << "Server: error message: " << strerror(errno) << std::endl;
+    std::cout << "Server: could not bind socket with - \"" << broadcast_address << ":" << port << "\" " << std::endl;
+    std::cout << "Server: error message - " << strerror(errno) << std::endl;
   }
 }
 
@@ -127,7 +153,7 @@ ssize_t Server::Receive(void* buff, size_t max_size, int max_wait_ms) {
   const auto ret_val(select(socket_ + 1, &fds, nullptr, &fds, &timeout));
 
   if (ret_val == -1) {
-    std::cout << "Server::Receive error message: " << strerror(errno) << std::endl;
+    std::cout << "Server::Receive error message - " << strerror(errno) << std::endl;
     return -1;
   }
   if (ret_val > 0) {

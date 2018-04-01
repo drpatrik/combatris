@@ -11,7 +11,7 @@ class Client {
  public:
   Client(const Client&) = delete;
 
-  Client(const std::string& addr, int port);
+  Client(const std::string& broadcast_address, int port);
 
   ~Client() noexcept;
 
@@ -29,7 +29,7 @@ class Server {
  public:
   Server(const Server&) = delete;
 
-  Server(std::string const &addr, int port);
+  Server(std::string const &broadcast_address, int port);
 
   ~Server() noexcept;
 
