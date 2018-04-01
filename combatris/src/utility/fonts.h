@@ -5,6 +5,8 @@
 #include <string>
 #include <memory>
 
+namespace utility {
+
 struct Font {
   enum class Typeface { Cabin, ObelixPro };
   enum class Emphasis { Normal, Bold };
@@ -40,7 +42,11 @@ inline std::string ToString(Font::Emphasis emphasis) {
   return "";
 }
 
+} // namespace utility
+
 namespace std {
+
+using namespace utility;
 
 template<> struct hash<Font> {
   size_t operator()(const Font& f) const noexcept {
@@ -51,6 +57,8 @@ template<> struct hash<Font> {
 };
 
 } // namespace std;
+
+namespace utility {
 
 class Fonts final {
  public:
@@ -67,3 +75,5 @@ class Fonts final {
  private:
   mutable std::unordered_map<Font, std::shared_ptr<TTF_Font>> font_cache_;
 };
+
+} // namespace utility

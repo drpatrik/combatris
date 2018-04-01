@@ -1,5 +1,7 @@
 #include "utility/text.h"
 
+namespace utility {
+
 std::tuple<UniqueTexturePtr, int, int> CreateTextureFromText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text,
                                                          Color text_color) {
   SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), GetColor(text_color, 0));
@@ -47,3 +49,5 @@ std::tuple<UniqueTexturePtr, int, int> CreateTextureFromFramedText(SDL_Renderer*
 
   return std::make_tuple(std::move(target_texture), width, height);
 }
+
+} // namespace utility

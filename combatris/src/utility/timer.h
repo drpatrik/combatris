@@ -3,6 +3,8 @@
 #include <chrono>
 #include <algorithm>
 
+namespace utility {
+
 inline int64_t time_in_ms() {
   auto current_time = std::chrono::high_resolution_clock::now();
 
@@ -65,3 +67,5 @@ public:
 private:
   TimePoint previous_time_;
 };
+
+} // namespace utility

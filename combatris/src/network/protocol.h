@@ -12,7 +12,41 @@ const int kDefaultPort = 3001;
 
 enum Request { Empty, Join, Leave, Start, Stop, Progress, HeartBeat };
 
-enum GameState { None, Waiting, Playing, GameOver };
+inline std::string ToString(Request request) {
+  switch (request) {
+    case Empty:
+      return "Request::Empty";
+    case Join:
+      return "Request::Join";
+    case Leave:
+      return "Request::Leave";
+    case Start:
+      return "Request::Start";
+    case Stop:
+      return "Request::Stop";
+    case Progress:
+      return "Request::Progress";
+    case HeartBeat:
+      return "Request::HeartBeat";
+  }
+  return "";
+}
+
+enum GameState { None, Idle, Playing, GameOver };
+
+inline std::string ToString(GameState state) {
+  switch (state) {
+    case None:
+      return "GameState::None";
+    case Idle:
+      return "GameState::Idle";
+    case Playing:
+      return "GameState::Playing";
+    case GameOver:
+      return "GameState::GameOver";
+  }
+  return "";
+}
 
 struct Header {
   Header() : request_(Request::Empty), sequence_nr_(0) {

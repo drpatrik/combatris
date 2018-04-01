@@ -4,6 +4,8 @@
 
 #include <vector>
 
+using namespace utility;
+
 const Font Normal200 = Font(Font::Typeface::Cabin, Font::Emphasis::Normal, 200);
 const Font Normal55 = Font(Font::Typeface::Cabin, Font::Emphasis::Normal, 55);
 const Font Bold55 = Font(Font::Typeface::Cabin, Font::Emphasis::Bold, 55);

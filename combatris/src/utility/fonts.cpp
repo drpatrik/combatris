@@ -4,6 +4,8 @@
 
 namespace {
 
+using namespace utility;
+
 #if defined(__linux__)
 const std::string kAssetFolder = "assets/";
 #else
@@ -32,6 +34,8 @@ TTF_Font *LoadFont(const std::string& name, int size) {
 
 }  // namespace
 
+namespace utility {
+
 TTF_Font* Fonts::Get(const Font& font) const {
   if (font_cache_.count(font)) {
     return font_cache_.at(font).get();
@@ -50,3 +54,5 @@ TTF_Font* Fonts::Get(const Font& font) const {
 
   return font_ptr.get();
 }
+
+} // namespace utility

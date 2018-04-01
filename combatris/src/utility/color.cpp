@@ -1,5 +1,7 @@
 #include "utility/color.h"
 
+namespace utility {
+
 SDL_Color GetColor(Color color, uint8_t alpha) {
   if (color == Color::SteelGray) {
     return { 182, 195, 201, alpha };
@@ -25,3 +27,5 @@ SDL_Color GetColor(Color color, uint8_t alpha) {
     return { 255, 255, 255, alpha };
   }
 }
+
+} // namespace utility
