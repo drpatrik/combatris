@@ -58,3 +58,34 @@ TEST_CASE("ClientServerTest") {
 
   REQUIRE(result == kHeartBeats + 1);
 }
+
+void echo_server() {
+
+}
+
+TEST_CASE("RunServer") {
+  Server server(GetPort());
+
+  for(;;) {
+    Header header{};
+    auto size = server.Receive(&header, sizeof(Header), kWaitTime);
+
+    if (size > 0) {
+      std::cout << header.host_name_ << "," << ToString(header.request_) << std::endl;
+    }
+  }
+
+}
+
+TEST_CASE("RunClient") {
+  Client client(GetBroadcastIP(), GetPort());
+
+  for (size_t n = 0; n < kHeartBeats; n++) {
+    Header header(client.host_name(), Request::HeartBeat, n);
+    client.Send(&header, sizeof(header));
+    std::this_thread::sleep_for(std::chrono::milliseconds(kWaitTime));
+  }
+  Header header(client.host_name(), Request::Leave, 6);
+
+  client.Send(&header, sizeof(header));
+}
