@@ -18,30 +18,33 @@ using namespace network;
 // This test might fail since there is no guarantee for a UDP
 // to be received
 
-void server(std::promise<int> result_promise) {
-  Server server(GetServer(), GetPort());
+void server(std::promise<bool> started, std::promise<int> recieved_broadcasts) {
+  Server server(GetPort());
   Header header;
   size_t n = 0;
+
+  started.set_value(true);
 
   do {
     header = {};
     auto size = server.Receive(&header, sizeof(Header), kWaitTime);
 
-    n += (header.request_ == Request::HeartBeat);
-    n += (header.request_ == Request::Leave);
+    n +=  (size > 0);
   } while (header.request_ != Request::Leave);
-  result_promise.set_value(n);
+  recieved_broadcasts.set_value(n);
 }
 
 TEST_CASE("ClientServerTest") {
-  std::promise<int> result_promise;
-  std::future<int> result_future{ result_promise.get_future() };
-  std::thread server_thread{ server, std::move(result_promise) };
-  Client client(GetServer(), GetPort());
+  std::promise<bool> server_started;
+  std::future<bool> result_server_started{ server_started.get_future() };
+  std::promise<int> recieved_broadcasts;
+  std::future<int> result_recieved_broadcasts{ recieved_broadcasts.get_future() };
+  std::thread server_thread{ server, std::move(server_started), std::move(recieved_broadcasts) };
+  Client client(GetBroadcastIP(), GetPort());
 
+  result_server_started.get();
   for (size_t n = 0; n < kHeartBeats; n++) {
     Header header(client.host_name(), Request::HeartBeat, n);
-
     client.Send(&header, sizeof(header));
     std::this_thread::sleep_for(std::chrono::milliseconds(kWaitTime));
   }
@@ -49,7 +52,7 @@ TEST_CASE("ClientServerTest") {
 
   client.Send(&header, sizeof(header));
 
-  int result = result_future.get();
+  int result = result_recieved_broadcasts.get();
 
   server_thread.join();
 

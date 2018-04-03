@@ -8,14 +8,14 @@ namespace network {
 const std::string kEnvServer = "COMBATRIS_BROADCAST_IP";
 const std::string kEnvPort = "COMBATRIS_BROADCAST_PORT";
 
-const std::string kDefaultServer = "192.168.1.255";
-const int kDefaultPort = 3001;
+const std::string kDefaultBroadcastIP = "192.168.1.255";
+const int kDefaultPort = 11000;
 
-inline std::string GetServer() {
+inline std::string GetBroadcastIP() {
   auto env = getenv(kEnvServer.c_str());
 
   if (nullptr == env) {
-    return kDefaultServer;
+    return kDefaultBroadcastIP;
   }
   return env;
 }

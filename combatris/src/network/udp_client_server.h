@@ -21,7 +21,7 @@ class Client {
 
  private:
   int socket_ = -1;
-  addrinfo* addr_info_ = nullptr;
+  sockaddr_in addr_info_;
   std::string host_name_;
 };
 
@@ -29,7 +29,7 @@ class Server {
  public:
   Server(const Server&) = delete;
 
-  Server(std::string const &broadcast_address, int port);
+  Server(int port);
 
   ~Server() noexcept;
 
@@ -37,9 +37,12 @@ class Server {
 
   ssize_t Receive(void* buff, size_t max_size, int max_wait_ms);
 
+  const std::string& host_name() const { return host_name_; }
+
  private:
   int socket_ = -1;
   addrinfo* addr_info_ = nullptr;
+  std::string host_name_;
 };
 
 }  // namespace network

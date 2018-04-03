@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <string.h>
 #include <limits.h>
+#include <arpa/inet.h>
 #include <sys/types.h>
 
 #include <iostream>
@@ -58,20 +59,7 @@ namespace network {
 Client::Client(const std::string& broadcast_address, int port) {
   VerifyAddressAndPort(broadcast_address, port);
 
-  addrinfo hints{};
-
-  hints.ai_family = AF_UNSPEC;
-  hints.ai_socktype = SOCK_DGRAM;
-  hints.ai_protocol = IPPROTO_UDP;
-
-  const auto ret_value(getaddrinfo(broadcast_address.c_str(), std::to_string(port).c_str(), &hints, &addr_info_));
-
-  if (ret_value != 0 || addr_info_ == nullptr) {
-    std::cout << "Client: " << "invalid address or port - \"" << broadcast_address << ":" << port << "\"" << std::endl;
-    std::cout << "Client: error message - " << strerror(errno) << std::endl;
-    exit(-1);
-  }
-  socket_ = socket(addr_info_->ai_family, SOCK_DGRAM, IPPROTO_UDP);
+  socket_ = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
   if (socket_ < 0) {
     std::cout << "Client: could not create socket for -  \"" << broadcast_address << ":" << port << "\"" << std::endl;
@@ -80,20 +68,24 @@ Client::Client(const std::string& broadcast_address, int port) {
   }
   SetCloseOnExit("Client", socket_);
   EnableBroadcast("Client", socket_);
+
+  addr_info_ = {};
+  memset(&addr_info_, 0, sizeof(addr_info_));
+  addr_info_.sin_family = AF_INET;
+  addr_info_.sin_addr.s_addr = inet_addr(broadcast_address.c_str());
+  addr_info_.sin_port = htons(port);
+
   host_name_ = GetHostName();
 }
 
 Client::~Client() noexcept {
-  if (addr_info_ != nullptr) {
-    freeaddrinfo(addr_info_);
-  }
   if (socket_ != -1) {
     close(socket_);
   }
 }
 
 ssize_t Client::Send(void* buff, size_t size) {
-  auto ret_value = sendto(socket_, buff, size, 0, addr_info_->ai_addr, addr_info_->ai_addrlen);
+  auto ret_value = sendto(socket_, buff, size, 0, reinterpret_cast<sockaddr *>(&addr_info_), sizeof(addr_info_));
 
   if (ret_value == -1) {
     std::cout << "Client::Send error message: " << strerror(errno) << std::endl;
@@ -102,25 +94,27 @@ ssize_t Client::Send(void* buff, size_t size) {
   return ret_value;
 }
 
-Server::Server(const std::string& broadcast_address, int port) {
-  VerifyAddressAndPort(broadcast_address, port);
+Server::Server(int port) {
+  const std::string kBroadcastAddress = "0.0.0.0";
+
+  VerifyAddressAndPort(kBroadcastAddress, port);
   addrinfo hints{};
 
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_protocol = IPPROTO_UDP;
 
-  auto ret_value(getaddrinfo(broadcast_address.c_str(), std::to_string(port).c_str(), &hints, &addr_info_));
+  auto ret_value(getaddrinfo(kBroadcastAddress.c_str(), std::to_string(port).c_str(), &hints, &addr_info_));
 
   if (ret_value != 0 || addr_info_ == nullptr) {
-    std::cout << "Server: " << "invalid address or port - \"" << broadcast_address << ":" << port << "\"" << std::endl;
+    std::cout << "Server: " << "invalid address or port - \"" << kBroadcastAddress << ":" << port << "\"" << std::endl;
     std::cout << "Server: error message - " << strerror(errno) << std::endl;
     exit(-1);
   }
   socket_ = socket(addr_info_->ai_family, SOCK_DGRAM, IPPROTO_UDP);
 
   if (socket_ < 0) {
-    std::cout << "Server: could not create socket for - \"" << broadcast_address << ":" << port << "\"" << std::endl;
+    std::cout << "Server: could not create socket for - \"" << kBroadcastAddress << ":" << port << "\"" << std::endl;
     std::cout << "Server: error message: - " << strerror(errno) << std::endl;
     exit(-1);
   }
@@ -130,9 +124,10 @@ Server::Server(const std::string& broadcast_address, int port) {
   ret_value = bind(socket_, addr_info_->ai_addr, addr_info_->ai_addrlen);
 
   if (ret_value != 0) {
-    std::cout << "Server: could not bind socket with - \"" << broadcast_address << ":" << port << "\" " << std::endl;
+    std::cout << "Server: could not bind socket with - \"" << kBroadcastAddress << ":" << port << "\" " << std::endl;
     std::cout << "Server: error message - " << strerror(errno) << std::endl;
   }
+  host_name_ = GetHostName();
 }
 
 Server::~Server() noexcept {
