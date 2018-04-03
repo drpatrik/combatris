@@ -77,7 +77,7 @@ class Header {
   Header(const std::string& name, Request request, size_t sequence_nr) :
       sequence_nr_(htonl(sequence_nr)), request_(static_cast<Request>(htons(request))) {
     std::copy(std::begin(name), std::end(name), host_name_);
-    host_name_[name.size() + 1] = '\0';
+    host_name_[name.size()] = '\0';
   }
 
   std::string host_name() const { return host_name_; }

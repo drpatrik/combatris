@@ -76,6 +76,7 @@ Client::Client(const std::string& broadcast_address, int port) {
   addr_info_.sin_port = htons(port);
 
   host_name_ = GetHostName();
+  std::cout << host_name_ << std::endl;
 }
 
 Client::~Client() noexcept {
