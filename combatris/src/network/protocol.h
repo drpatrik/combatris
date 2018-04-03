@@ -31,7 +31,7 @@ inline int GetPort() {
 
 #pragma pack(push, 1)
 
-enum Request { Empty, Join, Leave, Start, Stop, Progress, HeartBeat };
+enum Request : uint16_t { Empty, Join, Leave, Start, Stop, Progress, HeartBeat };
 
 inline std::string ToString(Request request) {
   switch (request) {
@@ -53,7 +53,7 @@ inline std::string ToString(Request request) {
   return "";
 }
 
-enum GameState { None, Idle, Playing, GameOver };
+enum GameState : uint16_t { None, Idle, Playing, GameOver };
 
 inline std::string ToString(GameState state) {
   switch (state) {
@@ -69,24 +69,55 @@ inline std::string ToString(GameState state) {
   return "";
 }
 
-struct Header {
-  Header() :  sequence_nr_(0), request_(Request::Empty) {
-    host_name_[0] = '\0';
-  }
+class Header {
+ public:
+  Header() :  sequence_nr_(htonl(0)), request_(static_cast<Request>(htons(Request::Empty))) { host_name_[0] = '\0'; }
+
   Header(const std::string& name, Request request, size_t sequence_nr) :
-      sequence_nr_(sequence_nr), request_(request) {
+      sequence_nr_(htonl(sequence_nr)), request_(static_cast<Request>(htons(request))) {
     std::copy(std::begin(name), std::end(name), host_name_);
   }
+
+  std::string host_name() const { return host_name_; }
+
+  Request request() const { return static_cast<Request>(ntohs(request_)); }
+
+  uint32_t sequence_nr() const { return ntohl(sequence_nr_); }
+
+  bool operator==(const Header& header) const { return header.host_name_ == host_name_; }
+
+  bool operator==(const std::string& host_name) const { return host_name == host_name_; }
+
+  bool operator==(Request r) const { return r == request(); }
+
+ private:
   char host_name_[_POSIX_HOST_NAME_MAX + 1];
-  size_t sequence_nr_;
+  uint32_t sequence_nr_;
   Request request_;
 };
 
-struct Payload {
-  int lines_ = 0;
-  int score_ = 0;
-  int level_ = 0;
-  GameState state_ = GameState::None;
+class Payload {
+ public:
+  Payload(uint16_t lines, uint32_t score, uint16_t level, GameState state) {
+    lines_ = htons(lines);
+    score_ = htonl(score);
+    level_ = htons(level);
+    state_ = static_cast<GameState>(htons(state));
+  }
+
+  uint16_t lines() const { return htons(lines_); }
+
+  uint32_t score() const { return htonl(score_); }
+
+  uint16_t level() const { return htons(level_); }
+
+  GameState state() const { return static_cast<GameState>(htons(state_)); }
+
+ private:
+  uint16_t lines_;
+  uint32_t score_;
+  uint16_t level_;
+  GameState state_;
 };
 
 struct Package {

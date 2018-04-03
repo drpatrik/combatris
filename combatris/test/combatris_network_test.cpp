@@ -24,13 +24,11 @@ void server(std::promise<bool> started, std::promise<int> recieved_broadcasts) {
   size_t n = 0;
 
   started.set_value(true);
-
   do {
     header = {};
     auto size = server.Receive(&header, sizeof(Header), kWaitTime);
-
     n +=  (size > 0);
-  } while (header.request_ != Request::Leave);
+  } while (!(header == Request::Leave));
   recieved_broadcasts.set_value(n);
 }
 
@@ -63,7 +61,7 @@ void echo_server() {
 
 }
 
-TEST_CASE("RunServer") {
+TEST_CASE("RunServer", "[!hide]") {
   Server server(GetPort());
 
   for(;;) {
@@ -71,18 +69,20 @@ TEST_CASE("RunServer") {
     auto size = server.Receive(&header, sizeof(Header), kWaitTime);
 
     if (size > 0) {
-      std::cout << header.host_name_ << "," << ToString(header.request_) << std::endl;
+      std::cout << header.host_name() << "," << ToString(header.request()) << std::endl;
     }
   }
 
 }
 
-TEST_CASE("RunClient") {
+TEST_CASE("RunClient", "[!hide]") {
   Client client(GetBroadcastIP(), GetPort());
 
   for (size_t n = 0; n < kHeartBeats; n++) {
     Header header(client.host_name(), Request::HeartBeat, n);
     client.Send(&header, sizeof(header));
+    std::cout << header.host_name() << "," << ToString(header.request()) << std::endl;
+
     std::this_thread::sleep_for(std::chrono::milliseconds(kWaitTime));
   }
   Header header(client.host_name(), Request::Leave, 6);
