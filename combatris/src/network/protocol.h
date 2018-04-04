@@ -1,11 +1,20 @@
 #pragma once
 
+#if defined(_WIN64)
+#define WIN32_LEAN_AND_MEAN
+#pragma warning(disable:4996) // _CRT_SECURE_NO_WARNINGS
+#pragma warning(disable:4267) // conversion from size_t to int
+#include <winsock2.h>
+#else
+#include <arpa/inet.h>
+#endif
+
 #include <string>
 #include <limits.h>
-#include <arpa/inet.h>
 
 namespace network {
 
+const int kHostNameMax = 25;
 const std::string kEnvServer = "COMBATRIS_BROADCAST_IP";
 const std::string kEnvPort = "COMBATRIS_BROADCAST_PORT";
 
@@ -72,9 +81,9 @@ inline std::string ToString(GameState state) {
 
 class Header {
  public:
-  Header() :  sequence_nr_(htonl(0)), request_(static_cast<Request>(htons(Request::Empty))) { host_name_[0] = '\0'; }
+  Header() : sequence_nr_(htonl(0)), request_(static_cast<Request>(htons(Request::Empty))) { host_name_[0] = '\0'; }
 
-  Header(const std::string& name, Request request, size_t sequence_nr) :
+  Header(const std::string& name, Request request, uint32_t sequence_nr) :
       sequence_nr_(htonl(sequence_nr)), request_(static_cast<Request>(htons(request))) {
     std::copy(std::begin(name), std::end(name), host_name_);
     host_name_[name.size()] = '\0';
@@ -93,7 +102,7 @@ class Header {
   bool operator==(Request r) const { return r == request(); }
 
  private:
-  char host_name_[_POSIX_HOST_NAME_MAX + 1];
+  char host_name_[kHostNameMax + 1];
   uint32_t sequence_nr_;
   Request request_;
 };

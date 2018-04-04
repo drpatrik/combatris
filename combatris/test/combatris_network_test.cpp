@@ -33,6 +33,8 @@ void server(std::promise<bool> started, std::promise<int> recieved_broadcasts) {
 }
 
 TEST_CASE("ClientServerTest") {
+	Startup();
+
   std::promise<bool> server_started;
   std::future<bool> result_server_started{ server_started.get_future() };
   std::promise<int> recieved_broadcasts;
@@ -55,13 +57,12 @@ TEST_CASE("ClientServerTest") {
   server_thread.join();
 
   REQUIRE(result == kHeartBeats + 1);
-}
 
-void echo_server() {
-
+	Cleanup();
 }
 
 TEST_CASE("RunServer", "[!hide]") {
+	Startup();
   Server server(GetPort());
 
   for(;;) {
@@ -72,10 +73,11 @@ TEST_CASE("RunServer", "[!hide]") {
       std::cout << header.host_name() << "," << ToString(header.request()) << std::endl;
     }
   }
-
+	Cleanup();
 }
 
 TEST_CASE("RunClient", "[!hide]") {
+	Startup();
   Client client(GetBroadcastIP(), GetPort());
 
   for (size_t n = 0; n < kHeartBeats; n++) {
@@ -88,4 +90,5 @@ TEST_CASE("RunClient", "[!hide]") {
   Header header(client.host_name(), Request::Leave, 6);
 
   client.Send(&header, sizeof(header));
+	Cleanup();
 }

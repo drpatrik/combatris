@@ -8,6 +8,10 @@
 
 namespace {
 
+#if defined(_WIN64)
+#pragma warning(disable:4101) // conversion from size_t to int
+#endif
+
 std::tuple<std::shared_ptr<Assets>, std::shared_ptr<Matrix>> SetupTestHarness(const Matrix::Type& test_matrix) {
   auto asset_manager = std::make_shared<Assets>(nullptr);
   auto matrix = std::make_shared<Matrix>(test_matrix, asset_manager->GetTetrominos());

@@ -1,22 +1,61 @@
+#include "network/protocol.h"
 #include "network/udp_client_server.h"
 
+#if defined(_WIN64)
+	#pragma warning(disable:4267) // conversion from size_t to int
+	#pragma warning(disable:4100) // unreferenced formal parameters
+	#pragma warning(disable:4244) // SOCKET to int	
+	#include <ws2tcpip.h>
+#else
+	#include <arpa/inet.h>
+	#include <unistd.h>
+#endif
 #include <fcntl.h>
-#include <unistd.h>
 #include <errno.h>
 #include <string.h>
 #include <limits.h>
-#include <arpa/inet.h>
 #include <sys/types.h>
 
 #include <iostream>
 
 namespace {
 
+#if defined(_WIN64)
+	#pragma comment(lib, "ws2_32.lib")
+
+	int get_last_error() { return WSAGetLastError();  }
+
+	std::string get_error_string(int error_code) {
+		char msg[256];
+
+		msg[0] = '\0';
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+			nullptr,
+			error_code,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			msg,
+			sizeof(msg),
+			nullptr);
+
+		if ('\0' == msg[0]) {
+			return "no message found for error code: " + std::to_string(error_code);
+		}
+
+		return msg;
+	}
+
+	#define close closesocket
+#else
+	int get_last_error() { return errno ; }
+
+	std::string get_error_string(int error_code) { return strerror(error_code); }
+#endif
+
 const int kPortLowerRange = 1024;
 const int kPortUpperRange = 49151;
 
-std::string GetHostName() {
-  char host_name[_POSIX_HOST_NAME_MAX + 1];
+std::string GetHostName() { 
+  char host_name[network::kHostNameMax + 1];
 
   if (gethostname(host_name, sizeof(host_name)) < 0) {
     std::cout << "Failed to retrieve host name" << std::endl;
@@ -25,30 +64,37 @@ std::string GetHostName() {
   return host_name;
 }
 
-void EnableBroadcast(const std::string& name, int socket) {
+void Exit() {
+	network::Cleanup();
+	exit(-1);
+}
+
+void EnableBroadcast(const std::string& name, SOCKET socket) {
   int enable_broadcast = 1;
 
-  if (setsockopt(socket, SOL_SOCKET, SO_BROADCAST, &enable_broadcast, sizeof(enable_broadcast)) < 0) {
-    std::cout << name << ": setsockopt failed - " << strerror(errno) << std::endl;
-    exit(-1);
+  if (setsockopt(socket, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<char*>(&enable_broadcast), sizeof(enable_broadcast)) < 0) {
+    std::cout << name << ": setsockopt failed - " << get_error_string(get_last_error()) << std::endl;
+    Exit();
   }
 }
 
-void SetCloseOnExit(const std::string& name, int socket) {
+void SetCloseOnExit(const std::string& name, SOCKET socket) {
+#if !defined(_WIN64)
   if (fcntl(socket, F_SETFD, FD_CLOEXEC) < 0) {
-    std::cout << name << ": fcntl failed - " << strerror(errno) << std::endl;
-    exit(-1);
+    std::cout << name << ": fcntl failed - " << get_error_string(get_last_error()) << std::endl;
+    Exit();
   }
+#endif
 }
 
 void VerifyAddressAndPort(const std::string& broadcast_address, int port) {
   if (broadcast_address.empty()) {
     std::cout << "Server Broadcast Broadcast_Addressess cannot be empty" << std::endl;
-    exit(-1);
+    Exit();
   }
   if (port < kPortLowerRange || port > kPortUpperRange) {
     std::cout << "Invalid port (" << kPortLowerRange << " <= " << port << " <= " << kPortUpperRange << std::endl;
-    exit(-1);
+    Exit();
   }
 }
 
@@ -59,37 +105,48 @@ namespace network {
 Client::Client(const std::string& broadcast_address, int port) {
   VerifyAddressAndPort(broadcast_address, port);
 
-  socket_ = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	addrinfo hints{};
+
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_protocol = IPPROTO_UDP;
+
+	auto ret_value(getaddrinfo(broadcast_address.c_str(), std::to_string(port).c_str(), &hints, &addr_info_));
+
+	if (ret_value != 0 || nullptr == addr_info_) {
+		std::cout << "Client: " << "invalid address or port - \"" << broadcast_address << ":" << port << "\"" << std::endl;
+		std::cout << "Client: error message - " << get_error_string(get_last_error()) << std::endl;
+		Cleanup();
+		Exit();
+	}
+
+  socket_ = socket(addr_info_->ai_family, addr_info_->ai_socktype, addr_info_->ai_protocol);
 
   if (socket_ < 0) {
     std::cout << "Client: could not create socket for -  \"" << broadcast_address << ":" << port << "\"" << std::endl;
-    std::cout << "Client: error message - " << strerror(errno) << std::endl;
-    exit(-1);
+    std::cout << "Client: error message - " << get_error_string(get_last_error()) << std::endl;
+    Exit();
   }
   SetCloseOnExit("Client", socket_);
   EnableBroadcast("Client", socket_);
 
-  addr_info_ = {};
-  memset(&addr_info_, 0, sizeof(addr_info_));
-  addr_info_.sin_family = AF_INET;
-  addr_info_.sin_addr.s_addr = inet_addr(broadcast_address.c_str());
-  addr_info_.sin_port = htons(port);
-
   host_name_ = GetHostName();
-  std::cout << host_name_ << std::endl;
 }
 
 Client::~Client() noexcept {
+	if (addr_info_ != nullptr) {
+		freeaddrinfo(addr_info_);
+	}
   if (socket_ != -1) {
     close(socket_);
   }
 }
 
 ssize_t Client::Send(void* buff, size_t size) {
-  auto ret_value = sendto(socket_, buff, size, 0, reinterpret_cast<sockaddr *>(&addr_info_), sizeof(addr_info_));
+  auto ret_value = sendto(socket_, static_cast<char*>(buff), size, 0, addr_info_->ai_addr, addr_info_->ai_addrlen);
 
   if (ret_value == -1) {
-    std::cout << "Client::Send error message: " << strerror(errno) << std::endl;
+    std::cout << "Client::Send error message: " << get_error_string(get_last_error()) << std::endl;
   }
 
   return ret_value;
@@ -107,17 +164,17 @@ Server::Server(int port) {
 
   auto ret_value(getaddrinfo(kBroadcastAddress.c_str(), std::to_string(port).c_str(), &hints, &addr_info_));
 
-  if (ret_value != 0 || addr_info_ == nullptr) {
+  if (ret_value != 0 || nullptr == addr_info_) {
     std::cout << "Server: " << "invalid address or port - \"" << kBroadcastAddress << ":" << port << "\"" << std::endl;
-    std::cout << "Server: error message - " << strerror(errno) << std::endl;
-    exit(-1);
+    std::cout << "Server: error message - " << get_error_string(get_last_error()) << std::endl;
+    Exit();
   }
-  socket_ = socket(addr_info_->ai_family, SOCK_DGRAM, IPPROTO_UDP);
+  socket_ = socket(addr_info_->ai_family, addr_info_->ai_socktype, addr_info_->ai_protocol);
 
-  if (socket_ < 0) {
+  if (socket_ == INVALID_SOCKET) {
     std::cout << "Server: could not create socket for - \"" << kBroadcastAddress << ":" << port << "\"" << std::endl;
-    std::cout << "Server: error message: - " << strerror(errno) << std::endl;
-    exit(-1);
+    std::cout << "Server: error message: - " << get_error_string(get_last_error()) << std::endl;
+    Exit();
   }
   SetCloseOnExit("Server", socket_);
   EnableBroadcast("Server", socket_);
@@ -126,7 +183,7 @@ Server::Server(int port) {
 
   if (ret_value != 0) {
     std::cout << "Server: could not bind socket with - \"" << kBroadcastAddress << ":" << port << "\" " << std::endl;
-    std::cout << "Server: error message - " << strerror(errno) << std::endl;
+    std::cout << "Server: error message - " << get_error_string(get_last_error()) << std::endl;
   }
   host_name_ = GetHostName();
 }
@@ -135,7 +192,7 @@ Server::~Server() noexcept {
   if (addr_info_ != nullptr) {
     freeaddrinfo(addr_info_);
   }
-  if (socket_ != -1) {
+  if (socket_ != INVALID_SOCKET) {
     close(socket_);
   }
 }
@@ -150,15 +207,40 @@ ssize_t Server::Receive(void* buff, size_t max_size, int max_wait_ms) {
   timeout.tv_usec = (max_wait_ms % 1000) * 1000;
   const auto ret_val(select(socket_ + 1, &fds, nullptr, &fds, &timeout));
 
-  if (ret_val == -1) {
-    std::cout << "Server::Receive error message - " << strerror(errno) << std::endl;
+  if (ret_val == SOCKET_ERROR) {
+    std::cout << "Server::Receive error message - " << get_error_string(get_last_error()) << std::endl;
     return -1;
   }
   if (ret_val > 0) {
-    return recv(socket_, buff, max_size, 0);
+    return recv(socket_, static_cast<char*>(buff), max_size, 0);
   }
   errno = EAGAIN;
   return -1;
 }
+
+#if defined(_WIN64)
+
+void Startup() {
+	WSADATA wsaData;
+
+	auto error_code = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	
+	if (error_code != 0) {
+		std::cout << "WSAStartup failed with error: " + get_error_string(error_code) << std::endl;
+		Exit();
+	}
+}
+
+void Cleanup() {
+	WSACleanup();
+}
+
+#else
+
+void Startup() {}
+
+void Cleanup() {}
+
+#endif
 
 }  // namespace network

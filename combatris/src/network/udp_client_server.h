@@ -1,7 +1,17 @@
 #pragma once
 
+#if defined(_WIN64)
+#define WIN32_LEAN_AND_MEAN
+#include <winsock2.h>
+#include <BaseTsd.h>
+using ssize_t = SSIZE_T;
+#else
 #include <sys/socket.h>
 #include <netdb.h>
+using SOCKET = int;
+const int INVALID_SOCKET = -1;
+const int SOCKET_ERROR = -1;
+#endif
 
 #include <string>
 
@@ -20,8 +30,8 @@ class Client {
   const std::string& host_name() const { return host_name_; }
 
  private:
-  int socket_ = -1;
-  sockaddr_in addr_info_;
+  SOCKET socket_ = INVALID_SOCKET;
+	addrinfo* addr_info_ = nullptr;
   std::string host_name_;
 };
 
@@ -33,16 +43,20 @@ class Server {
 
   ~Server() noexcept;
 
-  ssize_t Receive(void* buff, size_t max_size) { return recv(socket_, buff, max_size, 0); }
+  ssize_t Receive(void* buff, size_t max_size) { return recv(socket_, static_cast<char*>(buff), max_size, 0); }
 
   ssize_t Receive(void* buff, size_t max_size, int max_wait_ms);
 
   const std::string& host_name() const { return host_name_; }
 
  private:
-  int socket_ = -1;
+  SOCKET socket_ = INVALID_SOCKET;
   addrinfo* addr_info_ = nullptr;
   std::string host_name_;
 };
+
+void Startup();
+
+void Cleanup();
 
 }  // namespace network
