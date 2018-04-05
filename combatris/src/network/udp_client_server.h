@@ -17,13 +17,13 @@ const int SOCKET_ERROR = -1;
 
 namespace network {
 
-class Client {
+class UDPClient {
  public:
-  Client(const Client&) = delete;
+  UDPClient(const UDPClient&) = delete;
 
-  Client(const std::string& broadcast_address, int port);
+  UDPClient(const std::string& broadcast_address, int port);
 
-  ~Client() noexcept;
+  ~UDPClient() noexcept;
 
   ssize_t Send(void* buff, size_t size);
 
@@ -31,17 +31,17 @@ class Client {
 
  private:
   SOCKET socket_ = INVALID_SOCKET;
-	addrinfo* addr_info_ = nullptr;
+  addrinfo* addr_info_ = nullptr;
   std::string host_name_;
 };
 
-class Server {
+class UDPServer {
  public:
-  Server(const Server&) = delete;
+  UDPServer(const UDPServer&) = delete;
 
-  Server(int port);
+  UDPServer(int port);
 
-  ~Server() noexcept;
+  ~UDPServer() noexcept;
 
   ssize_t Receive(void* buff, size_t max_size) { return recv(socket_, static_cast<char*>(buff), max_size, 0); }
 
@@ -58,5 +58,7 @@ class Server {
 void Startup();
 
 void Cleanup();
+
+std::string GetHostName();
 
 }  // namespace network

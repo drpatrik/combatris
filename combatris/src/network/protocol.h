@@ -41,7 +41,7 @@ inline int GetPort() {
 
 #pragma pack(push, 1)
 
-enum Request : uint16_t { Empty, Join, Leave, Start, Stop, Progress, HeartBeat };
+enum Request : uint8_t { Empty, Join, Leave, ResetCounter, StartGame, ProgressUpdate, HeartBeat };
 
 inline std::string ToString(Request request) {
   switch (request) {
@@ -51,19 +51,19 @@ inline std::string ToString(Request request) {
       return "Request::Join";
     case Leave:
       return "Request::Leave";
-    case Start:
-      return "Request::Start";
-    case Stop:
-      return "Request::Stop";
-    case Progress:
-      return "Request::Progress";
-    case HeartBeat:
+    case ResetCounter:
+      return "Request::ResetCounter";
+    case StartGame:
       return "Request::HeartBeat";
+    case ProgressUpdate:
+      return "Request::ProgressUpdate";
+    case HeartBeat:
+      return "Request::Heartbeat";
   }
   return "";
 }
 
-enum GameState : uint16_t { None, Idle, Playing, GameOver };
+enum GameState : uint8_t { None, Idle, Waiting, Playing, GameOver };
 
 inline std::string ToString(GameState state) {
   switch (state) {
@@ -71,6 +71,8 @@ inline std::string ToString(GameState state) {
       return "GameState::None";
     case Idle:
       return "GameState::Idle";
+    case Waiting:
+      return "GameState::Waiting";
     case Playing:
       return "GameState::Playing";
     case GameOver:
@@ -79,21 +81,29 @@ inline std::string ToString(GameState state) {
   return "";
 }
 
-class Header {
+class Header final {
  public:
   Header() : sequence_nr_(htonl(0)), request_(static_cast<Request>(htons(Request::Empty))) { host_name_[0] = '\0'; }
 
+  Header(Request r) : sequence_nr_(htonl(0)), request_(r) { host_name_[0] = '\0'; }
+
   Header(const std::string& name, Request request, uint32_t sequence_nr) :
-      sequence_nr_(htonl(sequence_nr)), request_(static_cast<Request>(htons(request))) {
-    std::copy(std::begin(name), std::end(name), host_name_);
-    host_name_[name.size()] = '\0';
+      sequence_nr_(htonl(sequence_nr)), request_(request) {
+    set_host_name(name);
   }
 
   std::string host_name() const { return host_name_; }
 
-  Request request() const { return static_cast<Request>(ntohs(request_)); }
+  void set_host_name(const std::string& name) {
+    std::copy(std::begin(name), std::end(name), host_name_);
+    host_name_[name.size()] = '\0';
+  }
+
+  Request request() const { return request_; }
 
   uint32_t sequence_nr() const { return ntohl(sequence_nr_); }
+
+  void set_seqence_nr(uint32_t n) { sequence_nr_ = htonl(n); }
 
   bool operator==(const Header& header) const { return header.host_name_ == host_name_; }
 
@@ -102,36 +112,43 @@ class Header {
   bool operator==(Request r) const { return r == request(); }
 
  private:
-  char host_name_[kHostNameMax + 1];
   uint32_t sequence_nr_;
   Request request_;
+  char host_name_[kHostNameMax + 1];
 };
 
-class Payload {
+class Payload final {
  public:
-  Payload(uint16_t lines, uint32_t score, uint16_t level, GameState state) {
+  Payload() : lines_(0), score_(0), level_(0), garbage_(0), state_(GameState::None) {}
+
+  Payload(uint16_t lines, uint32_t score, uint8_t level, uint8_t garbage, GameState state) {
     lines_ = htons(lines);
     score_ = htonl(score);
-    level_ = htons(level);
-    state_ = static_cast<GameState>(htons(state));
+    level_ = level;
+    garbage_ = garbage;
+    state_ = state;
   }
 
   uint16_t lines() const { return htons(lines_); }
 
   uint32_t score() const { return htonl(score_); }
 
-  uint16_t level() const { return htons(level_); }
+  uint8_t level() const { return level_; }
 
-  GameState state() const { return static_cast<GameState>(htons(state_)); }
+  uint8_t garbage() const { return garbage_; }
+
+  GameState state() const { return state_; }
 
  private:
   uint16_t lines_;
   uint32_t score_;
-  uint16_t level_;
+  uint8_t level_;
+  uint8_t garbage_;
   GameState state_;
 };
 
 struct Package {
+ public:
   Header header_;
   Payload payload_;
 };

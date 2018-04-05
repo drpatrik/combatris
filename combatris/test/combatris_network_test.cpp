@@ -19,7 +19,7 @@ using namespace network;
 // to be received
 
 void server(std::promise<bool> started, std::promise<int> recieved_broadcasts) {
-  Server server(GetPort());
+  UDPServer server(GetPort());
   Header header;
   size_t n = 0;
 
@@ -33,14 +33,13 @@ void server(std::promise<bool> started, std::promise<int> recieved_broadcasts) {
 }
 
 TEST_CASE("ClientServerTest") {
-	Startup();
-
+  Startup();
   std::promise<bool> server_started;
   std::future<bool> result_server_started{ server_started.get_future() };
   std::promise<int> recieved_broadcasts;
   std::future<int> result_recieved_broadcasts{ recieved_broadcasts.get_future() };
   std::thread server_thread{ server, std::move(server_started), std::move(recieved_broadcasts) };
-  Client client(GetBroadcastIP(), GetPort());
+  UDPClient client(GetBroadcastIP(), GetPort());
 
   result_server_started.get();
   for (size_t n = 0; n < kHeartBeats; n++) {
@@ -58,12 +57,12 @@ TEST_CASE("ClientServerTest") {
 
   REQUIRE(result == kHeartBeats + 1);
 
-	Cleanup();
+  Cleanup();
 }
 
 TEST_CASE("RunServer", "[!hide]") {
-	Startup();
-  Server server(GetPort());
+  Startup();
+  UDPServer server(GetPort());
 
   for(;;) {
     Header header{};
@@ -73,12 +72,12 @@ TEST_CASE("RunServer", "[!hide]") {
       std::cout << header.host_name() << "," << ToString(header.request()) << std::endl;
     }
   }
-	Cleanup();
+  Cleanup();
 }
 
 TEST_CASE("RunClient", "[!hide]") {
-	Startup();
-  Client client(GetBroadcastIP(), GetPort());
+  Startup();
+  UDPClient client(GetBroadcastIP(), GetPort());
 
   for (size_t n = 0; n < kHeartBeats; n++) {
     Header header(client.host_name(), Request::HeartBeat, n);
@@ -90,5 +89,5 @@ TEST_CASE("RunClient", "[!hide]") {
   Header header(client.host_name(), Request::Leave, 6);
 
   client.Send(&header, sizeof(header));
-	Cleanup();
+  Cleanup();
 }

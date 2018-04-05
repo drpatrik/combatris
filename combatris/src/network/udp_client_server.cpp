@@ -2,13 +2,13 @@
 #include "network/udp_client_server.h"
 
 #if defined(_WIN64)
-	#pragma warning(disable:4267) // conversion from size_t to int
-	#pragma warning(disable:4100) // unreferenced formal parameters
-	#pragma warning(disable:4244) // SOCKET to int	
-	#include <ws2tcpip.h>
+#pragma warning(disable:4267) // conversion from size_t to int
+#pragma warning(disable:4100) // unreferenced formal parameters
+#pragma warning(disable:4244) // SOCKET to int
+#include <ws2tcpip.h>
 #else
-	#include <arpa/inet.h>
-	#include <unistd.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 #endif
 #include <fcntl.h>
 #include <errno.h>
@@ -21,52 +21,38 @@
 namespace {
 
 #if defined(_WIN64)
-	#pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "ws2_32.lib")
 
-	int get_last_error() { return WSAGetLastError();  }
+int get_last_error() { return WSAGetLastError();  }
 
-	std::string get_error_string(int error_code) {
-		char msg[256];
+std::string get_error_string(int error_code) {
+  char msg[256];
 
-		msg[0] = '\0';
-		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-			nullptr,
-			error_code,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			msg,
-			sizeof(msg),
-			nullptr);
+  msg[0] = '\0';
+  FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, error_code,
+                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, sizeof(msg), nullptr);
 
-		if ('\0' == msg[0]) {
-			return "no message found for error code: " + std::to_string(error_code);
-		}
+  if ('\0' == msg[0]) {
+    return "no message found for error code: " + std::to_string(error_code);
+  }
 
-		return msg;
-	}
+  return msg;
+}
 
-	#define close closesocket
+#define close closesocket
+
 #else
-	int get_last_error() { return errno ; }
+int get_last_error() { return errno; }
 
-	std::string get_error_string(int error_code) { return strerror(error_code); }
+std::string get_error_string(int error_code) { return strerror(error_code); }
 #endif
 
 const int kPortLowerRange = 1024;
 const int kPortUpperRange = 49151;
 
-std::string GetHostName() { 
-  char host_name[network::kHostNameMax + 1];
-
-  if (gethostname(host_name, sizeof(host_name)) < 0) {
-    std::cout << "Failed to retrieve host name" << std::endl;
-  }
-
-  return host_name;
-}
-
 void Exit() {
-	network::Cleanup();
-	exit(-1);
+  network::Cleanup();
+  exit(-1);
 }
 
 void EnableBroadcast(const std::string& name, SOCKET socket) {
@@ -102,57 +88,58 @@ void VerifyAddressAndPort(const std::string& broadcast_address, int port) {
 
 namespace network {
 
-Client::Client(const std::string& broadcast_address, int port) {
+UDPClient::UDPClient(const std::string& broadcast_address, int port) {
   VerifyAddressAndPort(broadcast_address, port);
 
-	addrinfo hints{};
+  addrinfo hints{};
 
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_protocol = IPPROTO_UDP;
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_DGRAM;
+  hints.ai_protocol = IPPROTO_UDP;
 
-	auto ret_value(getaddrinfo(broadcast_address.c_str(), std::to_string(port).c_str(), &hints, &addr_info_));
+  auto ret_value(getaddrinfo(broadcast_address.c_str(), std::to_string(port).c_str(), &hints, &addr_info_));
 
-	if (ret_value != 0 || nullptr == addr_info_) {
-		std::cout << "Client: " << "invalid address or port - \"" << broadcast_address << ":" << port << "\"" << std::endl;
-		std::cout << "Client: error message - " << get_error_string(get_last_error()) << std::endl;
-		Cleanup();
-		Exit();
-	}
+  if (ret_value != 0 || nullptr == addr_info_) {
+    std::cout << "UDPClient: "
+              << "invalid address or port - \"" << broadcast_address << ":" << port << "\"" << std::endl;
+    std::cout << "UDPClient: error message - " << get_error_string(get_last_error()) << std::endl;
+    Cleanup();
+    Exit();
+  }
 
   socket_ = socket(addr_info_->ai_family, addr_info_->ai_socktype, addr_info_->ai_protocol);
 
   if (socket_ < 0) {
-    std::cout << "Client: could not create socket for -  \"" << broadcast_address << ":" << port << "\"" << std::endl;
-    std::cout << "Client: error message - " << get_error_string(get_last_error()) << std::endl;
+    std::cout << "UDPClient: could not create socket for -  \"" << broadcast_address << ":" << port << "\"" << std::endl;
+    std::cout << "UDPClient: error message - " << get_error_string(get_last_error()) << std::endl;
     Exit();
   }
-  SetCloseOnExit("Client", socket_);
-  EnableBroadcast("Client", socket_);
+  SetCloseOnExit("UDPClient", socket_);
+  EnableBroadcast("UDPClient", socket_);
 
   host_name_ = GetHostName();
 }
 
-Client::~Client() noexcept {
-	if (addr_info_ != nullptr) {
-		freeaddrinfo(addr_info_);
-	}
+UDPClient::~UDPClient() noexcept {
+  if (addr_info_ != nullptr) {
+    freeaddrinfo(addr_info_);
+  }
   if (socket_ != -1) {
     close(socket_);
   }
 }
 
-ssize_t Client::Send(void* buff, size_t size) {
+ssize_t UDPClient::Send(void* buff, size_t size) {
   auto ret_value = sendto(socket_, static_cast<char*>(buff), size, 0, addr_info_->ai_addr, addr_info_->ai_addrlen);
 
   if (ret_value == -1) {
-    std::cout << "Client::Send error message: " << get_error_string(get_last_error()) << std::endl;
+    std::cout << "UDPClient::Send error message: " << get_error_string(get_last_error()) << std::endl;
   }
 
   return ret_value;
 }
 
-Server::Server(int port) {
+UDPServer::UDPServer(int port) {
   const std::string kBroadcastAddress = "0.0.0.0";
 
   VerifyAddressAndPort(kBroadcastAddress, port);
@@ -165,30 +152,31 @@ Server::Server(int port) {
   auto ret_value(getaddrinfo(kBroadcastAddress.c_str(), std::to_string(port).c_str(), &hints, &addr_info_));
 
   if (ret_value != 0 || nullptr == addr_info_) {
-    std::cout << "Server: " << "invalid address or port - \"" << kBroadcastAddress << ":" << port << "\"" << std::endl;
-    std::cout << "Server: error message - " << get_error_string(get_last_error()) << std::endl;
+    std::cout << "UDPServer: " << "invalid address or port - \"" << kBroadcastAddress << ":" << port << "\"" << std::endl;
+    std::cout << "UDPServer: error message - " << get_error_string(get_last_error()) << std::endl;
     Exit();
   }
   socket_ = socket(addr_info_->ai_family, addr_info_->ai_socktype, addr_info_->ai_protocol);
 
   if (socket_ == INVALID_SOCKET) {
-    std::cout << "Server: could not create socket for - \"" << kBroadcastAddress << ":" << port << "\"" << std::endl;
-    std::cout << "Server: error message: - " << get_error_string(get_last_error()) << std::endl;
+    std::cout << "UDPServer: could not create socket for - \"" << kBroadcastAddress << ":" << port << "\"" << std::endl;
+    std::cout << "UDPServer: error message: - " << get_error_string(get_last_error()) << std::endl;
     Exit();
   }
-  SetCloseOnExit("Server", socket_);
-  EnableBroadcast("Server", socket_);
+  SetCloseOnExit("UDPServer", socket_);
+  EnableBroadcast("UDPServer", socket_);
 
   ret_value = bind(socket_, addr_info_->ai_addr, addr_info_->ai_addrlen);
 
   if (ret_value != 0) {
-    std::cout << "Server: could not bind socket with - \"" << kBroadcastAddress << ":" << port << "\" " << std::endl;
-    std::cout << "Server: error message - " << get_error_string(get_last_error()) << std::endl;
+    std::cout << "UDPServer: could not bind socket with - \"" << kBroadcastAddress << ":" << port << "\" " << std::endl;
+    std::cout << "UDPServer: error message - " << get_error_string(get_last_error()) << std::endl;
   }
   host_name_ = GetHostName();
+  std::cout << "Server listening on port - " << port << std::endl;
 }
 
-Server::~Server() noexcept {
+UDPServer::~UDPServer() noexcept {
   if (addr_info_ != nullptr) {
     freeaddrinfo(addr_info_);
   }
@@ -197,7 +185,7 @@ Server::~Server() noexcept {
   }
 }
 
-ssize_t Server::Receive(void* buff, size_t max_size, int max_wait_ms) {
+ssize_t UDPServer::Receive(void* buff, size_t max_size, int max_wait_ms) {
   fd_set fds;
   FD_ZERO(&fds);
   FD_SET(socket_, &fds);
@@ -208,32 +196,40 @@ ssize_t Server::Receive(void* buff, size_t max_size, int max_wait_ms) {
   const auto ret_val(select(socket_ + 1, &fds, nullptr, &fds, &timeout));
 
   if (ret_val == SOCKET_ERROR) {
-    std::cout << "Server::Receive error message - " << get_error_string(get_last_error()) << std::endl;
-    return -1;
+    std::cout << "UDPServer::Receive error message - " << get_error_string(get_last_error()) << std::endl;
+    return SOCKET_ERROR;
   }
   if (ret_val > 0) {
     return recv(socket_, static_cast<char*>(buff), max_size, 0);
   }
   errno = EAGAIN;
-  return -1;
+  return SOCKET_ERROR;
+}
+
+std::string GetHostName() {
+  char host_name[network::kHostNameMax + 1];
+
+  if (gethostname(host_name, sizeof(host_name)) < 0) {
+    std::cout << "Failed to retrieve host name" << std::endl;
+  }
+
+  return host_name;
 }
 
 #if defined(_WIN64)
 
 void Startup() {
-	WSADATA wsaData;
+  WSADATA wsaData;
 
-	auto error_code = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	
-	if (error_code != 0) {
-		std::cout << "WSAStartup failed with error: " + get_error_string(error_code) << std::endl;
-		Exit();
-	}
+  auto error_code = WSAStartup(MAKEWORD(2, 2), &wsaData);
+
+  if (error_code != 0) {
+    std::cout << "WSAStartup failed with error: " + get_error_string(error_code) << std::endl;
+    Exit();
+  }
 }
 
-void Cleanup() {
-	WSACleanup();
-}
+void Cleanup() { WSACleanup(); }
 
 #else
 
