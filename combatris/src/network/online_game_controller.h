@@ -1,6 +1,8 @@
 #pragma once
 
-#include "network/game_server.h"
+#include "network/listener.h"
+
+namespace network {
 
 class ListenerInterface {
  public:
@@ -16,7 +18,7 @@ class ListenerInterface {
 
   virtual void StartGame(const std::string& name) = 0;
 
-  virtual void Update(const std::string& name, size_t lines, size_t score, size_t level, network::GameState state) = 0;
+  virtual void Update(const std::string& name, size_t lines, size_t score, size_t level, GameState state) = 0;
 
   virtual void GotLines(const std::string& name, size_t lines) = 0;
 };
@@ -37,7 +39,9 @@ class OnlineGameController {
 
   void SendUpdate(size_t lines, size_t score, size_t level, size_t garbage);
 
-  void SetState(network::GameState state) { game_state_ = state; }
+  GameState State() const { return game_state_; }
+
+  void SetState(GameState state) { game_state_ = state; }
 
   void Dispatch();
 
@@ -51,6 +55,9 @@ class OnlineGameController {
     if (send_thread_->joinable()) {
       send_thread_->join();
     }
+    if (heartbeat_thread_->joinable()) {
+      heartbeat_thread_->join();
+    }
   }
 
   void Cancel() noexcept {
@@ -58,16 +65,20 @@ class OnlineGameController {
       return;
     }
     cancelled_.store(true, std::memory_order_release);
+    queue_->Cancel();
+    listener_->Cancel();
     Wait();
   }
 
  private:
   std::string our_hostname_;
-  network::GameState game_state_ = network::GameState::None;
-  ListenerInterface* listener_;
-  std::unique_ptr<network::GameServer> server_;
-  std::shared_ptr<ThreadSafeQueue<network::Package>> queue_;
+  GameState game_state_ = GameState::Idle;
   std::atomic<bool> cancelled_;
+  ListenerInterface* listener_if_;
+  std::unique_ptr<Listener> listener_;
+  std::shared_ptr<ThreadSafeQueue<Package>> queue_;
   std::unique_ptr<std::thread> send_thread_;
   std::unique_ptr<std::thread> heartbeat_thread_;
 };
+
+} // namespace listener

@@ -14,7 +14,8 @@
 
 namespace network {
 
-const int kHostNameMax = 25;
+const int kHostNameMax = 31;
+const uint32_t kID = 0x50415243; // PARC
 const std::string kEnvServer = "COMBATRIS_BROADCAST_IP";
 const std::string kEnvPort = "COMBATRIS_BROADCAST_PORT";
 
@@ -63,12 +64,10 @@ inline std::string ToString(Request request) {
   return "";
 }
 
-enum GameState : uint8_t { None, Idle, Waiting, Playing, GameOver };
+enum GameState : uint8_t { Idle, Waiting, Playing, GameOver };
 
 inline std::string ToString(GameState state) {
   switch (state) {
-    case None:
-      return "GameState::None";
     case Idle:
       return "GameState::Idle";
     case Waiting:
@@ -83,27 +82,31 @@ inline std::string ToString(GameState state) {
 
 class Header final {
  public:
-  Header() : sequence_nr_(htonl(0)), request_(static_cast<Request>(htons(Request::Empty))) { host_name_[0] = '\0'; }
+  Header() : id_(htonl(kID)), sequence_nr_(htonl(0)), request_(static_cast<Request>(htons(Request::Empty))) {
+    host_name_[0] = '\0';
+  }
 
-  Header(Request r) : sequence_nr_(htonl(0)), request_(r) { host_name_[0] = '\0'; }
+  Header(Request r) : id_(htonl(kID)), sequence_nr_(htonl(0)), request_(r) { host_name_[0] = '\0'; }
 
   Header(const std::string& name, Request request, uint32_t sequence_nr) :
       sequence_nr_(htonl(sequence_nr)), request_(request) {
-    set_host_name(name);
+    SetHostName(name);
   }
 
   std::string host_name() const { return host_name_; }
 
-  void set_host_name(const std::string& name) {
+  void SetHostName(const std::string& name) {
     std::copy(std::begin(name), std::end(name), host_name_);
     host_name_[name.size()] = '\0';
   }
 
-  Request request() const { return request_; }
-
   uint32_t sequence_nr() const { return ntohl(sequence_nr_); }
 
-  void set_seqence_nr(uint32_t n) { sequence_nr_ = htonl(n); }
+  void SetSeqenceNr(uint32_t n) { sequence_nr_ = htonl(n); }
+
+  Request request() const { return request_; }
+
+  bool VerifyHeader() const { return htonl(kID) == id_; }
 
   bool operator==(const Header& header) const { return header.host_name_ == host_name_; }
 
@@ -112,6 +115,7 @@ class Header final {
   bool operator==(Request r) const { return r == request(); }
 
  private:
+  uint32_t id_;
   uint32_t sequence_nr_;
   Request request_;
   char host_name_[kHostNameMax + 1];
@@ -119,7 +123,7 @@ class Header final {
 
 class Payload final {
  public:
-  Payload() : lines_(0), score_(0), level_(0), garbage_(0), state_(GameState::None) {}
+  Payload() : lines_(0), score_(0), level_(0), garbage_(0), state_(GameState::Idle) {}
 
   Payload(uint16_t lines, uint32_t score, uint8_t level, uint8_t garbage, GameState state) {
     lines_ = htons(lines);
@@ -138,6 +142,8 @@ class Payload final {
   uint8_t garbage() const { return garbage_; }
 
   GameState state() const { return state_; }
+
+  void SetState(GameState state) { state_ = state; }
 
  private:
   uint16_t lines_;

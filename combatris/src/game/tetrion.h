@@ -8,6 +8,8 @@
 #include "game/panes/moves.h"
 #include "game/animation.h"
 
+#include "network/online_game_controller.h"
+
 class Tetrion final {
  public:
   enum class Controls { None, RotateClockwise, RotateCounterClockwise, SoftDrop, HardDrop, Left, Right, Hold, Pause, Start };
@@ -78,6 +80,7 @@ class Tetrion final {
   std::unique_ptr<Moves> moves_;
   std::vector<PaneInterface*> panes_;
   std::vector<EventSink*> event_sinks_;
+  std::unique_ptr<network::OnlineGameController> online_game_controller_;
   Events events_;
   bool game_paused_ = false;
   bool unpause_pressed_ = false;

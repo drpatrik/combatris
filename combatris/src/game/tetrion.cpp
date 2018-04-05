@@ -66,9 +66,11 @@ Tetrion::Tetrion() : events_() {
   moves_ = std::make_unique<Moves>(renderer_, assets_);
   AddPane(moves_.get());
   AddAnimation<SplashScreenAnimation>(renderer_, assets_);
+  online_game_controller_ = std::make_unique<network::OnlineGameController>(nullptr);
 }
 
 Tetrion::~Tetrion() noexcept {
+  online_game_controller_->Leave();
   SDL_DestroyRenderer(renderer_);
   SDL_DestroyWindow(window_);
 }
@@ -108,6 +110,8 @@ void Tetrion::GameControl(Controls control_pressed) {
 }
 
 void Tetrion::EventHandler(Events& events) {
+  online_game_controller_->Dispatch();
+
   if (events.IsEmpty()) {
     return;
   }
