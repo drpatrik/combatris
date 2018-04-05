@@ -72,7 +72,6 @@ TEST_CASE("RunServer", "[!hide]") {
       std::cout << header.host_name() << "," << ToString(header.request()) << std::endl;
     }
   }
-  Cleanup();
 }
 
 TEST_CASE("RunClient", "[!hide]") {
