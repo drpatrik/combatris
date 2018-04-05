@@ -9,8 +9,8 @@
 #include <memory>
 #include <thread>
 #include <atomic>
-#include <iostream>
 #include <string>
+#include <functional>
 #include <unordered_map>
 
 namespace network {

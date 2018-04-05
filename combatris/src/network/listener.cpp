@@ -1,5 +1,7 @@
 #include "network/listener.h"
 
+#include <iostream>
+
 namespace {
   const int kWaitTime = 500;
 } // namespace
