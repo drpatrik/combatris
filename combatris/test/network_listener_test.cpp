@@ -91,6 +91,15 @@ TEST_CASE("TestGapDetection") {
   sliding_window.push_front(PreparePackage(2, Request::ProgressUpdate));
   Send(sliding_window, client);
   REQUIRE_FALSE(WaitForPackage(listener));
+
+  sliding_window.clear();
+  sliding_window.push_front(PreparePackage(0, Request::Join));
+  sliding_window.push_front(PreparePackage(1, Request::ProgressUpdate));
+  sliding_window.push_front(PreparePackage(2, Request::ProgressUpdate));
+  sliding_window.push_front(PreparePackage(3, Request::HeartBeat));
+  sliding_window.push_front(PreparePackage(4, Request::StartGame));
+  Send(sliding_window, client);
+  CheckResponse(listener, client.host_name(), Request::StartGame);
 }
 
 TEST_CASE("LostTooManyPackagesDetection") {

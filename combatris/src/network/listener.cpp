@@ -6,7 +6,7 @@ namespace {
 
 const int kWaitTime = 500;
 const int kTimeOut = 5000;
-const int kConnectionVerificationInterval = 1000;
+const int64_t kIsConnectionAliveCheckInterval = 1000;
 
 } // namespace
 
@@ -40,7 +40,7 @@ void Listener::TerminateTimedOutConnections() {
 void Listener::Run() {
   UDPServer server(GetPort());
   Packages packages;
-  size_t last_check  = utility::time_in_ms();
+  auto last_timeout_check  = utility::time_in_ms();
 
   for (;;) {
     if (cancelled_.load(std::memory_order_acquire)) {
@@ -51,9 +51,9 @@ void Listener::Run() {
     if (cancelled_.load(std::memory_order_acquire)) {
       break;
     }
-    if (utility::time_in_ms() - last_check >= kConnectionVerificationInterval) {
+    if (utility::time_in_ms() - last_timeout_check >= kIsConnectionAliveCheckInterval) {
       TerminateTimedOutConnections();
-      last_check = utility::time_in_ms();
+      last_timeout_check = utility::time_in_ms();
     }
     if (size == SOCKET_ERROR) {
       continue;

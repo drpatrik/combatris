@@ -8,8 +8,8 @@
 namespace {
 
 // DAS settings
-uint32_t kAutoRepeatInitialDelay = 150; // milliseconds
-uint32_t kAutoRepeatSubsequentDelay = 85; // milliseconds
+int64_t kAutoRepeatInitialDelay = 150; // milliseconds
+int64_t kAutoRepeatSubsequentDelay = 85; // milliseconds
 
 constexpr int HatValueToButtonValue(Uint8 value) { return (0xFF << 8) | value; }
 

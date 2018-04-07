@@ -80,6 +80,8 @@ TEST_CASE("ClearLinesAtTop") {
 
   REQUIRE(lines_cleared.size() == 1);
   REQUIRE(*matrix == kClearTopRowAfter);
+  REQUIRE(TSpinType::None == tspin_type);
+  REQUIRE_FALSE(perfect_clear);
 }
 
 const std::vector<std::vector<int>> kClearedLineWithGarbageBetweenBefore {
@@ -142,6 +144,8 @@ TEST_CASE("ClearedLineWithGarbageBetween") {
 
   REQUIRE(lines_cleared.size() == 2);
   REQUIRE(*matrix == kClearedLineWithGarbageBetweenAfter);
+  REQUIRE(TSpinType::None == tspin_type);
+  REQUIRE_FALSE(perfect_clear);
 }
 
 // Test Data to be used within time

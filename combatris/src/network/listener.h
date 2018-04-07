@@ -68,7 +68,7 @@ class Listener final {
 
     uint32_t sequence_nr_ = 0;
     GameState state_ = GameState::Idle;
-    size_t timestamp_;
+    int64_t timestamp_;
   };
 
   void Run();

@@ -22,10 +22,7 @@ T-Spin recognition | 3-corner with kicks
 Back-to-back Recognition | Tetris / T-spin
 Platform | PC / OSX / (Linux)
 
-The plan is to implement three modes Single Player, Battle and Marathon. The single player is done except for
-some cosmetic improvements listed below. Its now time to implement network support and battle mode.
-
-This easter network support is on the agenda.
+The plan is to implement two modes single player marathon and Battle (multiplayer marathon).
 
 **Status**
 - [x] Rotate left / right
@@ -55,7 +52,7 @@ This easter network support is on the agenda.
 - [X] Splash Screen
 - [ ] Battle Mode (P2P based on UDP)
 - [ ] Introduce Marathon mode
-- [ ] More unit tests // Two in place right now which is far to few
+- [ ] More unit tests
 - [ ] Sound
 
 **Improvements**
@@ -64,6 +61,8 @@ This easter network support is on the agenda.
 - [ ] Change font to https://www.dafont.com/obelixpro.font
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
+- [ ] Keyboard handling
+- [ ] Auto discovery of broadcast address (e.g. 192.168.1.255)
 
 **Keyboard Commands**
 
