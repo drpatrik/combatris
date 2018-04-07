@@ -11,6 +11,12 @@ namespace {
 int kHeartBeats = 5;
 int kWaitTime = 100;
 
+class Initialize {
+ public:
+  Initialize() { network::Startup(); }
+  ~Initialize() { network::Cleanup(); }
+};
+
 struct TestPackage {
   TestPackage() {}
   TestPackage(const std::string& host_name, network::Request request) {
@@ -20,6 +26,8 @@ struct TestPackage {
   network::Header header_;
   network::PackageHeader package_header_;
 };
+
+Initialize initialize;
 
 } // namespace
 
@@ -43,7 +51,6 @@ void server(std::promise<bool> started, std::promise<int> recieved_broadcasts) {
 }
 
 TEST_CASE("ClientServerTest") {
-  Startup();
   std::promise<bool> server_started;
   std::future<bool> result_server_started{ server_started.get_future() };
   std::promise<int> recieved_broadcasts;
@@ -66,12 +73,9 @@ TEST_CASE("ClientServerTest") {
   server_thread.join();
 
   REQUIRE(result == kHeartBeats + 1);
-
-  Cleanup();
 }
 
 TEST_CASE("RunServer", "[!hide]") {
-  Startup();
   UDPServer server(GetPort());
 
   for(;;) {
@@ -85,7 +89,6 @@ TEST_CASE("RunServer", "[!hide]") {
 }
 
 TEST_CASE("RunClient", "[!hide]") {
-  Startup();
   UDPClient client(GetBroadcastIP(), GetPort());
 
   for (int n = 0; n < kHeartBeats; n++) {
@@ -98,5 +101,4 @@ TEST_CASE("RunClient", "[!hide]") {
   TestPackage package(client.host_name(), Request::Leave);
 
   client.Send(&package, sizeof(package));
-  Cleanup();
 }

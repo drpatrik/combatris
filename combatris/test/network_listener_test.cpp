@@ -25,7 +25,7 @@ void Send(const std::deque<Package>& sliding_window, UDPClient& client) {
 
 bool WaitForPackage(Listener& listener) {
   for (int i = 0;i < 2; ++i) {
-    if (listener.packages_available() > 0) {
+    if (listener.packages_available()) {
       return true;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
