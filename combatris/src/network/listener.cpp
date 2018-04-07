@@ -5,7 +5,8 @@
 namespace {
 
 const int kWaitTime = 500;
-const int kTimeOut = 10000;
+const int kTimeOut = 5000;
+const int kConnectionVerificationInterval = 1000;
 
 } // namespace
 
@@ -38,20 +39,24 @@ void Listener::TerminateTimedOutConnections() {
 
 void Listener::Run() {
   UDPServer server(GetPort());
+  Packages packages;
+  size_t last_check  = utility::time_in_ms();
 
   for (;;) {
     if (cancelled_.load(std::memory_order_acquire)) {
       break;
     }
-    Packages packages;
     auto size = server.Receive(&packages, sizeof(packages), kWaitTime);
 
-    if (size == SOCKET_ERROR) {
-      TerminateTimedOutConnections();
-      continue;
-    }
     if (cancelled_.load(std::memory_order_acquire)) {
       break;
+    }
+    if (utility::time_in_ms() - last_check >= kConnectionVerificationInterval) {
+      TerminateTimedOutConnections();
+      last_check = utility::time_in_ms();
+    }
+    if (size == SOCKET_ERROR) {
+      continue;
     }
     if (size < static_cast<ssize_t>(sizeof(packages))) {
       std::cout << "Incomplete package - " << size << std::endl;
