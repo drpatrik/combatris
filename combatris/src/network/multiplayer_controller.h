@@ -8,13 +8,11 @@ namespace network {
 
 class ListenerInterface {
  public:
-  ~ListenerInterface() {}
+  virtual ~ListenerInterface() {}
 
   virtual void Join(const std::string& name) = 0;
 
   virtual void Leave(const std::string& name) = 0;
-
-  virtual void StartCounter() = 0;
 
   virtual void ResetCounter() = 0;
 
@@ -25,21 +23,21 @@ class ListenerInterface {
   virtual void GotLines(const std::string& name, size_t lines) = 0;
 };
 
-class OnlineGameController {
+class MultiPlayerController {
  public:
-  OnlineGameController(ListenerInterface* listener);
+  MultiPlayerController(ListenerInterface* listener);
 
-  ~OnlineGameController();
+  ~MultiPlayerController();
 
   void Join();
 
   void Leave();
 
+  void Play();
+
   void ResetCounter();
 
   void StartGame();
-
-  void PlayAgain();
 
   void SendUpdate(size_t lines, size_t score, size_t level, size_t garbage);
 

@@ -34,8 +34,11 @@ struct Event {
     OnFloor,
     Falling,
     SendLines,
-    GotLines,
-    CountdownAfterUnPauseDone
+    CountdownAfterUnPauseDone,
+    GameOver,
+    MultiPlayerStartGame,
+    MultiPlayerResetCounter,
+    MultiPlayerGotLines,
   };
 
   explicit Event(Type type) : type_(type), lines_cleared_() {}
@@ -62,6 +65,10 @@ struct Event {
   inline int lines_cleared() const { return static_cast<int>(lines_cleared_.size()); }
 
   inline int score() const { return score_; }
+
+  inline int garbage_lines() const { return garbage_lines_; }
+
+  inline void SetGarbageLines(int lines) { garbage_lines_ = lines; }
 
   bool operator==(Event::Type type) { return type == type_; }
 

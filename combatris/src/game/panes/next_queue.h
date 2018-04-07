@@ -6,7 +6,7 @@
 class NextQueue final : public TextPane {
  public:
   NextQueue(SDL_Renderer* renderer, const std::shared_ptr<TetrominoGenerator>& tetromino_generator, const std::shared_ptr<Assets>& assets)
-      : TextPane(renderer,  kMatrixEndX + kMinoWidth + 8,
+      : TextPane(renderer,  kMatrixEndX + kMinoWidth + kSpace,
                  kMatrixStartY - kMinoHeight, "NEXT", assets), tetromino_generator_(tetromino_generator) {
     SetCaptionOrientation(TextPane::Orientation::Left);
   }

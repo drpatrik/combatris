@@ -122,7 +122,7 @@ void Listener::Run() {
           // connection has sent their StartGame
           connection.SetState(GameState::Playing);
           break;
-        case Request::PlayAgain:
+        case Request::Play:
           connection.SetState(GameState::Waiting);
           break;
         default:

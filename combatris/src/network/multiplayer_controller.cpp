@@ -1,4 +1,4 @@
-#include "network/online_game_controller.h"
+#include "network/multiplayer_controller.h"
 
 #include <chrono>
 #include <iostream>
@@ -26,28 +26,31 @@ void HeartbeatController(std::atomic<bool>& quit, std::shared_ptr<ThreadSafeQueu
 
 } // namespace
 
-OnlineGameController::OnlineGameController(ListenerInterface* listener_if) : listener_if_(listener_if) {
+MultiPlayerController::MultiPlayerController(ListenerInterface* listener_if) : listener_if_(listener_if) {
   Startup();
   our_hostname_ = GetHostName();
   cancelled_.store(false, std::memory_order_release);
   queue_ = std::make_shared<ThreadSafeQueue<Package>>();
   listener_ = std::make_unique<Listener>();
-  send_thread_ = std::make_unique<std::thread>(std::bind(&OnlineGameController::Run, this));
+  send_thread_ = std::make_unique<std::thread>(std::bind(&MultiPlayerController::Run, this));
 }
 
-OnlineGameController::~OnlineGameController() {
+MultiPlayerController::~MultiPlayerController() {
+  do {
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  } while (queue_->size() > 0);
   Cancel();
   Cleanup();
 }
 
-void OnlineGameController::Join() {
+void MultiPlayerController::Join() {
   if (!heartbeat_thread_) {
     heartbeat_thread_ = std::make_unique<std::thread>(HeartbeatController, std::ref(cancelled_), queue_);
   }
   queue_->Push(CreatePackage(Request::Join));
 }
 
-void OnlineGameController::Leave()  {
+void MultiPlayerController::Leave()  {
   if (GameState::Idle == game_state_) {
     return;
   }
@@ -55,28 +58,28 @@ void OnlineGameController::Leave()  {
   queue_->Push(CreatePackage(Request::Leave));
 }
 
-void OnlineGameController::ResetCounter() {
+void MultiPlayerController::Play() {
+  if (GameState::Idle == game_state_) {
+    return;
+  }
+  queue_->Push(CreatePackage(Request::Play));
+}
+
+void MultiPlayerController::ResetCounter() {
   if (GameState::Idle == game_state_) {
     return;
   }
   queue_->Push(CreatePackage(Request::ResetCounter));
 }
 
-void OnlineGameController::StartGame() {
+void MultiPlayerController::StartGame() {
   if (GameState::Idle == game_state_) {
     return;
   }
   queue_->Push(CreatePackage(Request::StartGame));
 }
 
-void OnlineGameController::PlayAgain() {
-  if (GameState::Idle == game_state_) {
-    return;
-  }
-  queue_->Push(CreatePackage(Request::PlayAgain));
-}
-
-void OnlineGameController::SendUpdate(size_t lines, size_t score, size_t level, size_t garbage) {
+void MultiPlayerController::SendUpdate(size_t lines, size_t score, size_t level, size_t garbage) {
   if (GameState::Idle == game_state_) {
     return;
   }
@@ -86,7 +89,7 @@ void OnlineGameController::SendUpdate(size_t lines, size_t score, size_t level, 
   queue_->Push(package);
 }
 
-void OnlineGameController::Dispatch() {
+void MultiPlayerController::Dispatch() {
   if (nullptr == listener_if_) {
     return;
   }
@@ -96,18 +99,22 @@ void OnlineGameController::Dispatch() {
     switch (package.header_.request()) {
       case Request::Join:
         if (host_name == our_hostname_) {
-          game_state_ = GameState::Waiting;
+          game_state_ = GameState::Idle;
         }
         listener_if_->Join(host_name);
-        if (host_name != our_hostname_) {
-          listener_if_->StartCounter();
-        }
         break;
       case Request::Leave:
         if (host_name == our_hostname_) {
           game_state_ = GameState::Idle;
         }
         listener_if_->Leave(host_name);
+        break;
+      case Request::Play:
+        if (host_name == our_hostname_) {
+          game_state_ = GameState::Waiting;
+          ResetCounter();
+        }
+        listener_if_->Update(host_name, 0, 0, 0, game_state_);
         break;
       case Request::ResetCounter:
         listener_if_->ResetCounter();
@@ -118,19 +125,12 @@ void OnlineGameController::Dispatch() {
         }
         listener_if_->StartGame(host_name);
         break;
-      case Request::PlayAgain:
-        if (host_name == our_hostname_) {
-          game_state_ = GameState::Waiting;
-        }
-        listener_if_->Update(host_name, 0, 0, 0, GameState::Waiting);
-        break;
       case ProgressUpdate:
         listener_if_->Update(host_name, package.payload_.lines(), package.payload_.score(),
                           package.payload_.level(), package.payload_.state());
+        listener_if_->GotLines(host_name, package.payload_.garbage());
         if (host_name == our_hostname_) {
           game_state_ = package.payload_.state();
-        } else {
-          listener_if_->StartCounter();
         }
         break;
       default:
@@ -139,7 +139,7 @@ void OnlineGameController::Dispatch() {
   }
 }
 
-void OnlineGameController::Run() {
+void MultiPlayerController::Run() {
   uint32_t sequence_nr = 0;
   UDPClient client(GetBroadcastIP(), GetPort());
 

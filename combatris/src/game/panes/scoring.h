@@ -5,7 +5,7 @@
 class Scoring final : public TextPane, public EventSink {
  public:
   Scoring(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Level>& level) :
-      TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + 8), (kMatrixStartY - kMinoHeight) + 150, "SCORE", assets),
+      TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace), (kMatrixStartY - kMinoHeight) + 150, "SCORE", assets),
       level_(level), events_(level->GetEvents()) { Reset(); }
 
   virtual void Reset() override {

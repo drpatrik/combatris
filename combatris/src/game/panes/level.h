@@ -5,9 +5,9 @@
 
 class Level final : public TextPane, public EventSink {
  public:
-   Level(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets)
-       : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + 8), (kMatrixStartY - kMinoHeight) + 428, "LEVEL", assets),
-         events_(events) { SetCenteredText(1); SetThresholds(); }
+  Level(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets)
+      : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace), (kMatrixStartY - kMinoHeight) + 428, "LEVEL", assets),
+        events_(events) { SetCenteredText(1); SetThresholds(); }
 
   bool WaitForMoveDown(double time_delta);
 

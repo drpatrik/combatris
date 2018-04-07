@@ -66,12 +66,11 @@ Tetrion::Tetrion() : events_() {
   moves_ = std::make_unique<Moves>(renderer_, assets_);
   AddPane(moves_.get());
   AddAnimation<SplashScreenAnimation>(renderer_, assets_);
-  online_game_controller_ = std::make_unique<network::OnlineGameController>(nullptr);
-  online_game_controller_->Join();
+  multiplayer_ = std::make_unique<MultiPlayerPanel>(renderer_, events_, assets_);
+  AddPane(multiplayer_.get());
 }
 
 Tetrion::~Tetrion() noexcept {
-  online_game_controller_->Leave();
   SDL_DestroyRenderer(renderer_);
   SDL_DestroyWindow(window_);
 }
@@ -111,8 +110,6 @@ void Tetrion::GameControl(Controls control_pressed) {
 }
 
 void Tetrion::EventHandler(Events& events) {
-  online_game_controller_->Dispatch();
-
   if (events.IsEmpty()) {
     return;
   }
@@ -141,6 +138,7 @@ void Tetrion::EventHandler(Events& events) {
         animations_.clear();
         tetromino_in_play_.reset();
         AddAnimation<GameOverAnimation>(renderer_, assets_);
+        events.Push(Event::Type::GameOver);
       }
       break;
     case Event::Type::LevelUp:
@@ -161,18 +159,13 @@ void Tetrion::EventHandler(Events& events) {
       std::for_each(panes_.begin(), panes_.end(), [](const auto& r) { r->Reset(); });
       AddAnimation<CountDownAnimation>(renderer_, assets_, Event::Type::NextTetromino);
       break;
-    case Event::Type::PerfectClear:
-      std::cout << "Perfect Clear" << std::endl;
-      break;
     case Event::Type::OnFloor:
       AddAnimation<OnFloorAnimation>(renderer_, assets_, tetromino_in_play_);
       break;
     case Event::Type::Falling:
       RemoveAnimation<OnFloorAnimation>(animations_);
       break;
-    case Event::Type::SendLines:
-      break;
-    case Event::Type::GotLines:
+    case Event::Type::MultiPlayerGotLines:
       break;
     default:
       break;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game/panes/multi_player.h"
 #include "game/panes/total_lines.h"
 #include "game/panes/scoring.h"
 #include "game/panes/high_score.h"
@@ -7,8 +8,6 @@
 #include "game/panes/hold_queue.h"
 #include "game/panes/moves.h"
 #include "game/animation.h"
-
-#include "network/online_game_controller.h"
 
 class Tetrion final {
  public:
@@ -78,9 +77,9 @@ class Tetrion final {
   std::unique_ptr<HoldQueue> hold_queue_;
   std::unique_ptr<TotalLines> total_lines_;
   std::unique_ptr<Moves> moves_;
+  std::unique_ptr<MultiPlayerPanel> multiplayer_;
   std::vector<PaneInterface*> panes_;
   std::vector<EventSink*> event_sinks_;
-  std::unique_ptr<network::OnlineGameController> online_game_controller_;
   Events events_;
   bool game_paused_ = false;
   bool unpause_pressed_ = false;

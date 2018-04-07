@@ -8,7 +8,7 @@ class HoldQueue final : public TextPane, public EventSink {
    HoldQueue(SDL_Renderer *renderer,
              const std::shared_ptr<TetrominoGenerator> &tetromino_generator,
              const std::shared_ptr<Assets> &assets)
-       : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + 8),
+       : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace),
                       kMatrixStartY - kMinoHeight, "HOLD", assets),
          tetromino_generator_(tetromino_generator) {}
 

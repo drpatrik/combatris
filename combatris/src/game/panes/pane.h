@@ -11,26 +11,32 @@ class Pane : public PaneInterface {
 
   Pane(const Pane&) = delete;
 
+  static void SetDrawColor(SDL_Renderer* renderer, const Color& c) {
+    auto color = GetColor(c);
+
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+  }
+
+  static void FillRect(SDL_Renderer* renderer, int x, int y, int w, int h) {
+    SDL_Rect rc = { x, y, w, h };
+    SDL_RenderFillRect(renderer, &rc);
+  }
+
+  static void RenderCopy(SDL_Renderer* renderer, SDL_Texture *texture, int x, int y, int w, int h) {
+    SDL_Rect rc = { x, y, w, h };
+    SDL_RenderCopy(renderer, texture, nullptr, &rc);
+  }
+
  protected:
   void RenderText(int x, int y, const Font& font, const std::string& text, Color text_color) const {
     ::RenderText(renderer_, x_ + x, y_ + y, assets_->GetFont(font), text, text_color);
   }
 
-  void SetDrawColor(const Color& c) const {
-    auto color = GetColor(c);
+  void SetDrawColor(const Color& c) const { SetDrawColor(renderer_, c); }
 
-    SDL_SetRenderDrawColor(renderer_, color.r, color.g, color.b, color.a);
-  }
+  void FillRect(int x, int y, int w, int h) const { FillRect(renderer_, x_ + x, y_ + y, w, h); }
 
-  void FillRect(int x, int y, int w, int h) const {
-    SDL_Rect rc = { x_ + x, y_ + y, w, h };
-    SDL_RenderFillRect(renderer_, &rc);
-  }
-
-  void RenderCopy(SDL_Texture *texture, int x, int y, int w, int h) const {
-    SDL_Rect rc = { x_ + x, y_ + y, w, h };
-    SDL_RenderCopy(renderer_, texture, nullptr, &rc);
-  }
+  void RenderCopy(SDL_Texture *texture, int x, int y, int w, int h) const { RenderCopy(renderer_, texture, x_ + x, y_ + y, w, h); }
 
   SDL_Renderer* renderer_;
   int x_;
