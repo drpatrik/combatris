@@ -17,9 +17,9 @@ namespace network {
 
 class Listener final {
  public:
-  Listener() : cancelled_(false) {
+  explicit Listener() : cancelled_(false) {
     cancelled_.store(false, std::memory_order_release);
-    queue_ = std::make_unique<ThreadSafeQueue<Package>>();
+    queue_ = std::make_unique<ThreadSafeQueue<std::pair<std::string, Package>>>();
     thread_ = std::make_unique<std::thread>(std::bind(&Listener::Run, this));
   }
 
@@ -29,7 +29,7 @@ class Listener final {
 
   inline bool packages_available() const { return queue_->size() > 0; }
 
-  inline Package NextPackage() { return queue_->Pop(); }
+  inline std::pair<std::string, Package> NextPackage() { return queue_->Pop(); }
 
   void Wait() {
     if (!thread_) {
@@ -50,22 +50,18 @@ class Listener final {
   }
 
  private:
-  struct ConnectionData {
-    explicit ConnectionData(uint32_t sequence_nr) : sequence_nr_(sequence_nr) {
+  struct Connection {
+    explicit Connection(uint32_t sequence_nr) : sequence_nr_(sequence_nr) {
       state_ = GameState::Waiting;
       timestamp_ = utility::time_in_ms();
     }
 
-    void UpdateTime() {
-      ms_since_last_call_ = utility::time_in_ms() - timestamp_;
-      timestamp_ = utility::time_in_ms();
-    }
-
-    void UpdateState(Request request, const Payload& payload) {
-      if (Request::ProgressUpdate == request) {
+    void Update(const PackageHeader& header, const Payload& payload) {
+      if (Request::ProgressUpdate == header.request()) {
         state_ = payload.state();
       }
-      UpdateTime();
+      sequence_nr_ = header.sequence_nr();
+      timestamp_ = utility::time_in_ms();
     }
 
     void SetState(GameState state) { state_ = state; }
@@ -73,15 +69,16 @@ class Listener final {
     uint32_t sequence_nr_ = 0;
     GameState state_ = GameState::Idle;
     size_t timestamp_;
-    size_t ms_since_last_call_ = 0;
   };
 
   void Run();
 
-  bool VerifySequenceNumber(ConnectionData& connection_data, const Header& header);
+  int64_t VerifySequenceNumber(Connection& connection_data, const std::string& host_name, const PackageHeader& header);
 
-  std::unordered_map<std::string, ConnectionData> connections_;
-  std::unique_ptr<ThreadSafeQueue<Package>> queue_;
+  void TerminateTimedOutConnections();
+
+  std::unordered_map<std::string, Connection> connections_;
+  std::unique_ptr<ThreadSafeQueue<std::pair<std::string, Package>>> queue_;
   std::atomic<bool> cancelled_;
   std::unique_ptr<std::thread> thread_;
 };

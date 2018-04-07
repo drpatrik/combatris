@@ -8,8 +8,18 @@
 
 namespace {
 
-size_t kHeartBeats = 5;
+int kHeartBeats = 5;
 int kWaitTime = 100;
+
+struct TestPackage {
+  TestPackage() {}
+  TestPackage(const std::string& host_name, network::Request request) {
+    header_.SetHostName(host_name);
+    package_header_ = network::PackageHeader(request);
+  }
+  network::Header header_;
+  network::PackageHeader package_header_;
+};
 
 } // namespace
 
@@ -20,15 +30,15 @@ using namespace network;
 
 void server(std::promise<bool> started, std::promise<int> recieved_broadcasts) {
   UDPServer server(GetPort());
-  Header header;
+  TestPackage package;
   size_t n = 0;
 
   started.set_value(true);
   do {
-    header = {};
-    auto size = server.Receive(&header, sizeof(Header), kWaitTime);
+    package = {};
+    auto size = server.Receive(&package, sizeof(package), kWaitTime);
     n +=  (size > 0);
-  } while (!(header == Request::Leave));
+  } while (!(package.package_header_ == Request::Leave));
   recieved_broadcasts.set_value(n);
 }
 
@@ -42,14 +52,14 @@ TEST_CASE("ClientServerTest") {
   UDPClient client(GetBroadcastIP(), GetPort());
 
   result_server_started.get();
-  for (size_t n = 0; n < kHeartBeats; n++) {
-    Header header(client.host_name(), Request::HeartBeat, n);
-    client.Send(&header, sizeof(header));
+  for (int n = 0; n < kHeartBeats; n++) {
+    TestPackage package(client.host_name(), Request::HeartBeat);
+    client.Send(&package, sizeof(package));
     std::this_thread::sleep_for(std::chrono::milliseconds(kWaitTime));
   }
-  Header header(client.host_name(), Request::Leave, 6);
+  TestPackage package(client.host_name(), Request::Leave);
 
-  client.Send(&header, sizeof(header));
+  client.Send(&package, sizeof(package));
 
   int result = result_recieved_broadcasts.get();
 
@@ -65,11 +75,11 @@ TEST_CASE("RunServer", "[!hide]") {
   UDPServer server(GetPort());
 
   for(;;) {
-    Header header{};
-    auto size = server.Receive(&header, sizeof(Header), kWaitTime);
+    TestPackage package;
+    auto size = server.Receive(&package, sizeof(package), kWaitTime);
 
     if (size > 0) {
-      std::cout << header.host_name() << "," << ToString(header.request()) << std::endl;
+      std::cout << package.header_.host_name() << "," << ToString(package.package_header_.request()) << std::endl;
     }
   }
 }
@@ -78,15 +88,15 @@ TEST_CASE("RunClient", "[!hide]") {
   Startup();
   UDPClient client(GetBroadcastIP(), GetPort());
 
-  for (size_t n = 0; n < kHeartBeats; n++) {
-    Header header(client.host_name(), Request::HeartBeat, n);
-    client.Send(&header, sizeof(header));
-    std::cout << header.host_name() << "," << ToString(header.request()) << std::endl;
+  for (int n = 0; n < kHeartBeats; n++) {
+    TestPackage package(client.host_name(), Request::HeartBeat);
+    client.Send(&package, sizeof(package));
+    std::cout << package.header_.host_name() << "," << ToString(package.package_header_.request()) << std::endl;
 
     std::this_thread::sleep_for(std::chrono::milliseconds(kWaitTime));
   }
-  Header header(client.host_name(), Request::Leave, 6);
+  TestPackage package(client.host_name(), Request::Leave);
 
-  client.Send(&header, sizeof(header));
+  client.Send(&package, sizeof(package));
   Cleanup();
 }

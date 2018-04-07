@@ -2,6 +2,8 @@
 
 #include "network/listener.h"
 
+#include <deque>
+
 namespace network {
 
 class ListenerInterface {
@@ -37,6 +39,8 @@ class OnlineGameController {
 
   void StartGame();
 
+  void PlayAgain();
+
   void SendUpdate(size_t lines, size_t score, size_t level, size_t garbage);
 
   GameState State() const { return game_state_; }
@@ -55,8 +59,10 @@ class OnlineGameController {
     if (send_thread_->joinable()) {
       send_thread_->join();
     }
-    if (heartbeat_thread_->joinable()) {
-      heartbeat_thread_->join();
+    if (heartbeat_thread_) {
+      if (heartbeat_thread_->joinable()) {
+        heartbeat_thread_->join();
+      }
     }
   }
 
@@ -79,6 +85,7 @@ class OnlineGameController {
   std::shared_ptr<ThreadSafeQueue<Package>> queue_;
   std::unique_ptr<std::thread> send_thread_;
   std::unique_ptr<std::thread> heartbeat_thread_;
+  std::deque<Package> sliding_window_;
 };
 
 } // namespace listener

@@ -67,6 +67,7 @@ Tetrion::Tetrion() : events_() {
   AddPane(moves_.get());
   AddAnimation<SplashScreenAnimation>(renderer_, assets_);
   online_game_controller_ = std::make_unique<network::OnlineGameController>(nullptr);
+  online_game_controller_->Join();
 }
 
 Tetrion::~Tetrion() noexcept {

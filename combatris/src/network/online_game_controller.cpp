@@ -18,18 +18,10 @@ void HeartbeatController(std::atomic<bool>& quit, std::shared_ptr<ThreadSafeQueu
     }
     Package package;
 
-    package.header_ = Header(Request::HeartBeat);
+    package.header_ = PackageHeader(Request::HeartBeat);
 
     queue->Push(package);
   }
-}
-
-Package CreatePackage(Request request) {
-  Package package;
-
-  package.header_ = Header(request);
-
-  return package;
 }
 
 } // namespace
@@ -41,7 +33,6 @@ OnlineGameController::OnlineGameController(ListenerInterface* listener_if) : lis
   queue_ = std::make_shared<ThreadSafeQueue<Package>>();
   listener_ = std::make_unique<Listener>();
   send_thread_ = std::make_unique<std::thread>(std::bind(&OnlineGameController::Run, this));
-  heartbeat_thread_ = std::make_unique<std::thread>(HeartbeatController, std::ref(cancelled_), queue_);
 }
 
 OnlineGameController::~OnlineGameController() {
@@ -49,15 +40,46 @@ OnlineGameController::~OnlineGameController() {
   Cleanup();
 }
 
-void OnlineGameController::Join() { queue_->Push(CreatePackage(Request::Join)); }
+void OnlineGameController::Join() {
+  if (!heartbeat_thread_) {
+    heartbeat_thread_ = std::make_unique<std::thread>(HeartbeatController, std::ref(cancelled_), queue_);
+  }
+  queue_->Push(CreatePackage(Request::Join));
+}
 
-void OnlineGameController::Leave()  { queue_->Push(CreatePackage(Request::Leave)); }
+void OnlineGameController::Leave()  {
+  if (GameState::Idle == game_state_) {
+    return;
+  }
+  heartbeat_thread_.release();
+  queue_->Push(CreatePackage(Request::Leave));
+}
 
-void OnlineGameController::ResetCounter() { queue_->Push(CreatePackage(Request::ResetCounter)); }
+void OnlineGameController::ResetCounter() {
+  if (GameState::Idle == game_state_) {
+    return;
+  }
+  queue_->Push(CreatePackage(Request::ResetCounter));
+}
 
-void OnlineGameController::StartGame() { queue_->Push(CreatePackage(Request::StartGame)); }
+void OnlineGameController::StartGame() {
+  if (GameState::Idle == game_state_) {
+    return;
+  }
+  queue_->Push(CreatePackage(Request::StartGame));
+}
+
+void OnlineGameController::PlayAgain() {
+  if (GameState::Idle == game_state_) {
+    return;
+  }
+  queue_->Push(CreatePackage(Request::PlayAgain));
+}
 
 void OnlineGameController::SendUpdate(size_t lines, size_t score, size_t level, size_t garbage) {
+  if (GameState::Idle == game_state_) {
+    return;
+  }
   auto package = CreatePackage(Request::ProgressUpdate);
 
   package.payload_ = Payload(lines, score, level, garbage, game_state_);
@@ -69,39 +91,47 @@ void OnlineGameController::Dispatch() {
     return;
   }
   while (listener_->packages_available()) {
-    auto package = listener_->NextPackage();
+    auto [host_name, package] = listener_->NextPackage();
 
     switch (package.header_.request()) {
       case Request::Join:
-        if (package.header_.host_name() == our_hostname_) {
+        if (host_name == our_hostname_) {
           game_state_ = GameState::Waiting;
         }
-        listener_if_->Join(package.header_.host_name());
-        if (package.header_.host_name() != our_hostname_) {
+        listener_if_->Join(host_name);
+        if (host_name != our_hostname_) {
           listener_if_->StartCounter();
         }
         break;
       case Request::Leave:
-        if (package.header_.host_name() == our_hostname_) {
+        if (host_name == our_hostname_) {
           game_state_ = GameState::Idle;
         }
-        listener_if_->Leave(package.header_.host_name());
+        listener_if_->Leave(host_name);
         break;
       case Request::ResetCounter:
         listener_if_->ResetCounter();
         break;
       case Request::StartGame:
-        if (package.header_.host_name() == our_hostname_) {
+        if (host_name == our_hostname_) {
           game_state_ = GameState::Playing;
         }
-        listener_if_->StartGame(package.header_.host_name());
+        listener_if_->StartGame(host_name);
+        break;
+      case Request::PlayAgain:
+        if (host_name == our_hostname_) {
+          game_state_ = GameState::Waiting;
+        }
+        listener_if_->Update(host_name, 0, 0, 0, GameState::Waiting);
         break;
       case ProgressUpdate:
-        if (package.header_.host_name() == our_hostname_) {
-          game_state_ = package.payload_.state();
-        }
-        listener_if_->Update(package.header_.host_name(), package.payload_.lines(), package.payload_.score(),
+        listener_if_->Update(host_name, package.payload_.lines(), package.payload_.score(),
                           package.payload_.level(), package.payload_.state());
+        if (host_name == our_hostname_) {
+          game_state_ = package.payload_.state();
+        } else {
+          listener_if_->StartCounter();
+        }
         break;
       default:
         break;
@@ -111,7 +141,7 @@ void OnlineGameController::Dispatch() {
 
 void OnlineGameController::Run() {
   uint32_t sequence_nr = 0;
-  network::UDPClient client(GetBroadcastIP(), GetPort());
+  UDPClient client(GetBroadcastIP(), GetPort());
 
   for (;;) {
     if (cancelled_.load(std::memory_order_acquire)) {
@@ -125,13 +155,20 @@ void OnlineGameController::Run() {
     if (cancelled_.load(std::memory_order_acquire)) {
       break;
     }
-    package.header_.SetHostName(client.host_name());
     package.header_.SetSeqenceNr(sequence_nr);
     package.payload_.SetState(game_state_);
     if (package.header_.request() != Request::HeartBeat) {
       std::cout << "Sending: " << client.host_name() << " - " << ToString(package.header_.request()) << std::endl;
     }
-    client.Send(&package, sizeof(package));
+    if (sliding_window_.size() == kWindowSize) {
+      sliding_window_.pop_back();
+    }
+    sliding_window_.push_front(package);
+
+    Packages packages(client.host_name(), sliding_window_.size());
+
+    std::copy(std::begin(sliding_window_), std::end(sliding_window_), packages.array_);
+    client.Send(&packages, sizeof(packages));
     sequence_nr++;
   }
 }

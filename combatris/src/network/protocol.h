@@ -16,6 +16,8 @@ namespace network {
 
 const int kHostNameMax = 31;
 const uint32_t kID = 0x50415243; // PARC
+const int kMTU = 512;
+const int kWindowSize = 10;
 const std::string kEnvServer = "COMBATRIS_BROADCAST_IP";
 const std::string kEnvPort = "COMBATRIS_BROADCAST_PORT";
 
@@ -42,7 +44,7 @@ inline int GetPort() {
 
 #pragma pack(push, 1)
 
-enum Request : uint8_t { Empty, Join, Leave, ResetCounter, StartGame, ProgressUpdate, HeartBeat };
+enum Request : uint8_t { Empty, Join, Leave, ResetCounter, StartGame, ProgressUpdate, PlayAgain, HeartBeat };
 
 inline std::string ToString(Request request) {
   switch (request) {
@@ -58,6 +60,8 @@ inline std::string ToString(Request request) {
       return "Request::HeartBeat";
     case ProgressUpdate:
       return "Request::ProgressUpdate";
+    case PlayAgain:
+      return "Request::PlayAgain";
     case HeartBeat:
       return "Request::Heartbeat";
   }
@@ -82,16 +86,7 @@ inline std::string ToString(GameState state) {
 
 class Header final {
  public:
-  Header() : id_(htonl(kID)), sequence_nr_(htonl(0)), request_(static_cast<Request>(htons(Request::Empty))) {
-    host_name_[0] = '\0';
-  }
-
-  Header(Request r) : id_(htonl(kID)), sequence_nr_(htonl(0)), request_(r) { host_name_[0] = '\0'; }
-
-  Header(const std::string& name, Request request, uint32_t sequence_nr) :
-      sequence_nr_(htonl(sequence_nr)), request_(request) {
-    SetHostName(name);
-  }
+  Header() : id_(htonl(kID)) { host_name_[0] = '\0'; }
 
   std::string host_name() const { return host_name_; }
 
@@ -100,17 +95,34 @@ class Header final {
     host_name_[name.size()] = '\0';
   }
 
+  bool VerifyHeader() const { return htonl(kID) == id_; }
+
+  bool operator==(const Header& header) const { return header.host_name_ == host_name_; }
+
+  bool operator==(const std::string& host_name) const { return host_name == host_name_; }
+
+ private:
+  uint32_t id_;
+  char host_name_[kHostNameMax + 1];
+};
+
+class PackageHeader final {
+ public:
+  PackageHeader() : id_(htonl(kID)), sequence_nr_(htonl(0)), request_(static_cast<Request>(htons(Request::Empty))) {}
+
+  PackageHeader(Request request) : id_(htonl(kID)), sequence_nr_(htonl(0)), request_(request) {}
+
+  PackageHeader(Request request, uint32_t sequence_nr) : id_(htonl(kID)), sequence_nr_(htonl(sequence_nr)), request_(request) {}
+
+  bool VerifyHeader() const { return htonl(kID) == id_; }
+
   uint32_t sequence_nr() const { return ntohl(sequence_nr_); }
 
   void SetSeqenceNr(uint32_t n) { sequence_nr_ = htonl(n); }
 
   Request request() const { return request_; }
 
-  bool VerifyHeader() const { return htonl(kID) == id_; }
-
-  bool operator==(const Header& header) const { return header.host_name_ == host_name_; }
-
-  bool operator==(const std::string& host_name) const { return host_name == host_name_; }
+  void SetRequest(Request r) { request_ = r; }
 
   bool operator==(Request r) const { return r == request(); }
 
@@ -118,7 +130,6 @@ class Header final {
   uint32_t id_;
   uint32_t sequence_nr_;
   Request request_;
-  char host_name_[kHostNameMax + 1];
 };
 
 class Payload final {
@@ -154,10 +165,32 @@ class Payload final {
 };
 
 struct Package {
- public:
-  Header header_;
+  PackageHeader header_;
   Payload payload_;
 };
+
+struct Packages {
+  Packages() : size_(0) {}
+
+  Packages(const std::string& host_name, uint8_t size) : size_(size) {
+    static_assert(sizeof(Packages) <= kMTU);
+    header_.SetHostName(host_name);
+  }
+
+  int64_t size() const { return size_; }
+
+  Header header_;
+  Package array_[kWindowSize];
+  uint8_t size_;
+};
+
+inline Package CreatePackage(Request request) {
+  Package package;
+
+  package.header_ = PackageHeader(request);
+
+  return package;
+}
 
 #pragma pack(pop)
 

@@ -144,6 +144,10 @@ TEST_CASE("ClearedLineWithGarbageBetween") {
   REQUIRE(*matrix == kClearedLineWithGarbageBetweenAfter);
 }
 
+// Test Data to be used within time
+
+/*
+
 const std::vector<std::vector<int>> kTSpinMatrix {
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 01
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 02
@@ -166,11 +170,6 @@ const std::vector<std::vector<int>> kTSpinMatrix {
   {1, 0, 0, 1, 1, 1, 1, 0, 0, 1}, // 19
   {1, 1, 0, 1, 1, 1, 1, 0, 1, 1}  // 20
 };
-
-TEST_CASE("MatchT-spin") {
-  REQUIRE(true);
-}
-
 
 const std::vector<std::vector<int>> kTSpinMatrix1 {
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 01
@@ -263,3 +262,5 @@ const std::vector<std::vector<int>> kTSpinCombo {
   {1, 1, 1, 1, 1, 1, 1, 0, 0, 1}, // 19
   {1, 1, 1, 1, 1, 1, 1, 0, 1, 1}  // 20
 };
+
+*/

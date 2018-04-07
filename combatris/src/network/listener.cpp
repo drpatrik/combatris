@@ -3,25 +3,37 @@
 #include <iostream>
 
 namespace {
-  const int kWaitTime = 500;
+
+const int kWaitTime = 500;
+const int kTimeOut = 10000;
+
 } // namespace
 
 namespace network {
 
-bool Listener::VerifySequenceNumber(Listener::ConnectionData& connection_data, const Header& header) {
-  auto status = true;
-  auto new_sequence_nr_ = header.sequence_nr();
-  auto old_sequence_nr_ = connection_data.sequence_nr_;
-  auto gap = std::abs(int64_t(new_sequence_nr_) - int64_t(old_sequence_nr_));
+int64_t Listener::VerifySequenceNumber(Listener::Connection& connection, const std::string& host_name, const PackageHeader& header) {
+  const int64_t new_sequence_nr = header.sequence_nr();
+  const int64_t old_sequence_nr = connection.sequence_nr_;
+  const auto gap = new_sequence_nr - old_sequence_nr;
 
-  if (gap > 1) {
-    std::cout << "Gap detected: " << header.host_name() << ", got - " << new_sequence_nr_ << ", expected - "
-              << old_sequence_nr_ + 1 << std::endl;
-    status = false;
+  if (gap < 0 || gap > 1) {
+    std::cout << "Gap detected: " << host_name << ", got - " << new_sequence_nr << ", expected - "
+              << old_sequence_nr + 1 << std::endl;
   }
-  connection_data.sequence_nr_ = new_sequence_nr_;
 
-  return status;
+  return (gap - 1);
+}
+
+void Listener::TerminateTimedOutConnections() {
+  for (auto it = connections_.begin(); it != connections_.end();) {
+    if (utility::time_in_ms() - it->second.timestamp_ >= kTimeOut) {
+      queue_->Push(std::make_pair(it->first, CreatePackage(Request::Leave)));
+      std::cout << it->first << " timed out, connection terminated" << std::endl;
+      it = connections_.erase(it);
+    } else {
+      ++it;
+    }
+  }
 }
 
 void Listener::Run() {
@@ -31,63 +43,93 @@ void Listener::Run() {
     if (cancelled_.load(std::memory_order_acquire)) {
       break;
     }
-    Package package{};
-    auto size = server.Receive(&package, sizeof(package), kWaitTime);
+    Packages packages;
+    auto size = server.Receive(&packages, sizeof(packages), kWaitTime);
 
     if (size == SOCKET_ERROR) {
+      TerminateTimedOutConnections();
       continue;
     }
     if (cancelled_.load(std::memory_order_acquire)) {
       break;
     }
-    if (size < static_cast<ssize_t>(sizeof(Package))) {
+    if (size < static_cast<ssize_t>(sizeof(packages))) {
       std::cout << "Incomplete package - " << size << std::endl;
       continue;
     }
-    auto header = package.header_;
-    auto payload = package.payload_;
-
-    if (!header.VerifyHeader()) {
+    if (!packages.header_.VerifyHeader()) {
       std::cout << "Unknown package ignored" << std::endl;
       continue;
     }
-    auto host_name = header.host_name();
+    int64_t index = 0;
+    std::vector<Package> package_vector;
+    const auto& host_name = packages.header_.host_name();
 
-    if (header.request() == Request::HeartBeat) {
-      if (connections_.count(host_name) > 0) {
-        auto& connection_data = connections_.at(host_name);
+    if (connections_.count(host_name) > 0) {
+      auto& connection = connections_.at(host_name);
 
-        VerifySequenceNumber(connection_data, package.header_);
-        connection_data.UpdateTime();
-      }
-      continue;
-    }
-    if (header.request() == Request::Join) {
-      connections_.insert(std::make_pair(host_name, ConnectionData(header.sequence_nr())));
-    }
-    if (connections_.count(host_name) == 0) {
-      continue;
-    }
-    auto& connection_data = connections_.at(host_name);
+      index = VerifySequenceNumber(connection, host_name, packages.array_[0].header_);
 
-    switch (header.request()) {
-      case Request::Join:
-        std::cout << "Client: " << host_name << " joined" << std::endl;
-        break;
-      case Request::Leave:
+      if (index > packages.size() || index >= kWindowSize) {
+        std::cout << host_name << " has lost too many packages, connection will be terminated" << std::endl;
         connections_.erase(host_name);
-        std::cout << "Client: " << host_name << " left" << std::endl;
-        break;
-      case Request::StartGame:
-        connection_data.SetState(GameState::Playing);
-        break;
-      default:
-        break;
+        queue_->Push(std::make_pair(host_name, CreatePackage(Request::Leave)));
+        continue;
+      }
+      if (index < 0) {
+        std::cout << "Old package(s) ignored" << std::endl;
+        continue;
+      }
     }
-    VerifySequenceNumber(connection_data, header);
+    for (auto i = index; i >= 0; --i) {
+      package_vector.push_back(packages.array_[i]);
+    }
+    for (auto& package : package_vector) {
+      const auto& header = package.header_;
+      const auto& payload = package.payload_;
 
-    connection_data.UpdateState(header.request(), payload);
-    queue_->Push(package);
+      if (!header.VerifyHeader()) {
+        std::cout << "Unknown package ignored" << std::endl;
+        continue;
+      }
+      if (header.request() == Request::Join) {
+        if (connections_.count(host_name) != 0) {
+          std::cout << host_name << " has already joined" << std::endl;
+          continue;
+        }
+        connections_.insert(std::make_pair(host_name, Connection(header.sequence_nr())));
+      }
+      if (connections_.count(host_name) == 0) {
+        continue;
+      }
+      auto& connection = connections_.at(host_name);
+
+      switch (header.request()) {
+        case Request::Join:
+          std::cout << "Client: " << host_name << " joined" << std::endl;
+          break;
+        case Request::Leave:
+          connections_.erase(host_name);
+          std::cout << "Client: " << host_name << " left" << std::endl;
+          break;
+        case Request::StartGame:
+          // Propagate StartGame first when all
+          // connection has sent their StartGame
+          connection.SetState(GameState::Playing);
+          break;
+        case Request::PlayAgain:
+          connection.SetState(GameState::Waiting);
+          break;
+        default:
+          break;
+      }
+      connection.Update(header, payload);
+      VerifySequenceNumber(connection, host_name, header);
+      if (header.request() != Request::HeartBeat) {
+        queue_->Push(std::make_pair(host_name, package));
+      }
+      std::cout << ToString(package.header_.request()) << std::endl;
+    }
   }
 }
 
