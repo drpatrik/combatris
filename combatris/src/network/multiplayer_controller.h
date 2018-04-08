@@ -69,7 +69,7 @@ class MultiPlayerController {
       return;
     }
     cancelled_.store(true, std::memory_order_release);
-    queue_->Cancel();
+    send_queue_->Cancel();
     listener_->Cancel();
     Wait();
   }
@@ -80,7 +80,7 @@ class MultiPlayerController {
   std::atomic<bool> cancelled_;
   ListenerInterface* listener_if_;
   std::unique_ptr<Listener> listener_;
-  std::shared_ptr<ThreadSafeQueue<Package>> queue_;
+  std::shared_ptr<ThreadSafeQueue<Package>> send_queue_;
   std::unique_ptr<std::thread> send_thread_;
   std::unique_ptr<std::thread> heartbeat_thread_;
   std::deque<Package> sliding_window_;

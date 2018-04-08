@@ -36,7 +36,7 @@ protected:
   double x_ = 0.0;
   double y_ = 0.0;
 
-  void RenderCopy(SDL_Texture *texture, const SDL_Rect &rc) { SDL_RenderCopy(*this, texture, nullptr, &rc); }
+  void RenderCopy(SDL_Texture *texture, const SDL_Rect& rc) { SDL_RenderCopy(*this, texture, nullptr, &rc); }
 
 private:
   SDL_Renderer* renderer_;
@@ -84,7 +84,7 @@ class ScoreAnimation final : public Animation {
 
 class LinesClearedAnimation final : public Animation {
  public:
-  LinesClearedAnimation(SDL_Renderer *renderer, const std::shared_ptr<Assets> &assets, const Lines &lines)
+  LinesClearedAnimation(SDL_Renderer *renderer, const std::shared_ptr<Assets>& assets, const Lines& lines)
       : Animation(renderer, assets), lines_(lines) {
     end_pos_ = ((kRows - lines.at(0).row_) + lines.size() + 1.5) * kMinoHeight;
   }
@@ -93,15 +93,15 @@ class LinesClearedAnimation final : public Animation {
     const double kIncY = delta * 550.0;
     const double direction = (abs_y_ < kMinoHeight) ? -1 : 1;
 
-    for (const auto &line : lines_) {
+    for (const auto& line : lines_) {
       auto y = row_to_pixel_adjusted(line.row_) + y_;
 
-      const auto &minos = line.minos_;
+      const auto& minos = line.minos_;
 
       for (size_t l = kVisibleColStart; l < kVisibleColEnd; ++l) {
         auto x = col_to_pixel_adjusted(l);
 
-        const auto &tetromino = GetAsset().GetTetromino(static_cast<Tetromino::Type>(minos[l]));
+        const auto& tetromino = GetAsset().GetTetromino(static_cast<Tetromino::Type>(minos[l]));
 
         tetromino->Render(x, static_cast<int>(y));
       }
@@ -120,8 +120,8 @@ class LinesClearedAnimation final : public Animation {
 
 class CountDownAnimation final : public Animation {
  public:
-  CountDownAnimation(SDL_Renderer *renderer, const std::shared_ptr<Assets> &assets, Event::Type type)
-      : Animation(renderer, assets), type_(type) {
+  CountDownAnimation(SDL_Renderer *renderer, const std::shared_ptr<Assets>& assets, int countdown, Event::Type type)
+      : Animation(renderer, assets), type_(type), countdown_(countdown) {
     CreateTexture(countdown_);
   }
 
@@ -145,17 +145,17 @@ class CountDownAnimation final : public Animation {
     rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100, width, height };
   }
 
-private:
+ private:
   Event::Type type_;
-  int countdown_ = 3;
+  int countdown_;
   double ticks_ = 0.0;
   SDL_Rect rc_;
   UniqueTexturePtr texture_;
-  };
+};
 
 class LevelUpAnimation final : public Animation {
  public:
-  LevelUpAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets> &assets)
+  LevelUpAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets>& assets)
       : Animation(renderer, assets) {
     int width, height;
 
@@ -186,7 +186,7 @@ private:
 
 class OnFloorAnimation final : public Animation {
  public:
-  OnFloorAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets> &assets, const std::shared_ptr<TetrominoSprite>& tetromino_sprite)
+  OnFloorAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets>& assets, const std::shared_ptr<TetrominoSprite>& tetromino_sprite)
       : Animation(renderer, assets), tetromino_sprite_(tetromino_sprite), tetromino_(tetromino_sprite->tetromino()) {
     alpha_texture_ = assets->GetAlphaTextures(tetromino_sprite_->tetromino().type());
     SDL_GetTextureAlphaMod(alpha_texture_.get(), &alpha_saved_);
@@ -215,7 +215,7 @@ private:
 
 class PauseAnimation final : public Animation {
  public:
-  PauseAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets> &assets, bool &unpause_pressed)
+  PauseAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets>& assets, bool& unpause_pressed)
       : Animation(renderer, assets), unpause_pressed_(unpause_pressed) {
     int width, height;
 
@@ -239,7 +239,7 @@ private:
 
 class SplashScreenAnimation final : public Animation {
  public:
-  SplashScreenAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets> &assets)
+  SplashScreenAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets>& assets)
       : Animation(renderer, assets) {
     int width, height;
 
@@ -266,7 +266,7 @@ private:
 
 class GameOverAnimation final : public Animation {
  public:
-  GameOverAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets> &assets)
+  GameOverAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets>& assets)
       : Animation(renderer, assets) {
     int width, height;
 

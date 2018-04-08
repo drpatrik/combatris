@@ -14,6 +14,7 @@
 
 namespace network {
 
+const int kMaxPlayers = 9;
 const int kHostNameMax = 31;
 const uint32_t kID = 0x50415243; // PARC
 const int kMTU = 512;
@@ -68,10 +69,12 @@ inline std::string ToString(Request request) {
   return "";
 }
 
-enum GameState : uint8_t { Idle, Waiting, Playing, GameOver };
+enum GameState : uint8_t { None, Idle, Waiting, Playing, GameOver };
 
 inline std::string ToString(GameState state) {
   switch (state) {
+    case None:
+      return "None";
     case Idle:
       return "Idle";
     case Waiting:

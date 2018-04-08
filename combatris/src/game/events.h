@@ -36,6 +36,7 @@ struct Event {
     SendLines,
     CountdownAfterUnPauseDone,
     GameOver,
+    GameStatistics,
     MultiPlayerStartGame,
     MultiPlayerResetCounter,
     MultiPlayerGotLines,
@@ -64,12 +65,6 @@ struct Event {
 
   inline int lines_cleared() const { return static_cast<int>(lines_cleared_.size()); }
 
-  inline int score() const { return score_; }
-
-  inline int garbage_lines() const { return garbage_lines_; }
-
-  inline void SetGarbageLines(int lines) { garbage_lines_ = lines; }
-
   bool operator==(Event::Type type) { return type == type_; }
 
   bool operator==(const Event& e) { return e.type_ == type_; }
@@ -83,6 +78,7 @@ struct Event {
   int score_ = 0;
   ComboType combo_type_ = ComboType::None;
   int combo_counter_ = 0;
+  int current_level_ = 0;
 };
 
 class EventSink {

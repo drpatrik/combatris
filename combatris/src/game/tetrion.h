@@ -11,7 +11,23 @@
 
 class Tetrion final {
  public:
-  enum class Controls { None, RotateClockwise, RotateCounterClockwise, SoftDrop, HardDrop, Left, Right, Hold, Pause, Start };
+  const char* kWindowTileTournament = "COMBATRIS - Tournament";
+  const char* kWindowTileBattle = "COMBATRIS - Battle";
+  enum class GameMode { Tournament, Battle };
+  enum class Controls {
+    None,
+    RotateClockwise,
+    RotateCounterClockwise,
+    SoftDrop,
+    HardDrop,
+    Left,
+    Right,
+    Hold,
+    Pause,
+    Start,
+    ToggleGameMode,
+    ResetCounter
+  };
 
   Tetrion();
 
@@ -27,7 +43,7 @@ class Tetrion final {
   }
 
   void Pause() {
-    if (!tetromino_in_play_) {
+    if (game_mode_ == GameMode::Battle || !tetromino_in_play_) {
       return;
     }
     if (!game_paused_) {
@@ -38,6 +54,23 @@ class Tetrion final {
       unpause_pressed_ = true;
     }
   }
+
+  void ToggleGameMode() {
+    if (tetromino_in_play_) {
+      return;
+    }
+    if (GameMode::Tournament == game_mode_) {
+      multi_player_->Enable();
+      game_mode_ = GameMode::Battle;
+      SDL_SetWindowTitle(window_, kWindowTileBattle);
+    } else {
+      multi_player_->Disable();
+      game_mode_ = GameMode::Tournament;
+      SDL_SetWindowTitle(window_, kWindowTileTournament);
+    }
+  }
+
+  void ResetCountDown();
 
   void GameControl(Controls control_pressed);
 
@@ -63,6 +96,8 @@ class Tetrion final {
 
   void Render(double delta_timer);
 
+  int GetCountDown() { return (GameMode::Tournament == game_mode_) ? 3 : 9; }
+
  private:
   SDL_Window* window_ = nullptr;
   SDL_Renderer* renderer_ = nullptr;
@@ -77,11 +112,12 @@ class Tetrion final {
   std::unique_ptr<HoldQueue> hold_queue_;
   std::unique_ptr<TotalLines> total_lines_;
   std::unique_ptr<Moves> moves_;
-  std::unique_ptr<MultiPlayerPanel> multiplayer_;
+  std::unique_ptr<MultiPlayer> multi_player_;
   std::vector<PaneInterface*> panes_;
   std::vector<EventSink*> event_sinks_;
   Events events_;
   bool game_paused_ = false;
   bool unpause_pressed_ = false;
+  GameMode game_mode_ = GameMode::Tournament;
   std::deque<std::shared_ptr<Animation>> animations_;
 };

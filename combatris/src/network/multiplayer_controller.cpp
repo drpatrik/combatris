@@ -30,63 +30,51 @@ MultiPlayerController::MultiPlayerController(ListenerInterface* listener_if) : l
   Startup();
   our_hostname_ = GetHostName();
   cancelled_.store(false, std::memory_order_release);
-  queue_ = std::make_shared<ThreadSafeQueue<Package>>();
+  send_queue_ = std::make_shared<ThreadSafeQueue<Package>>();
   listener_ = std::make_unique<Listener>();
   send_thread_ = std::make_unique<std::thread>(std::bind(&MultiPlayerController::Run, this));
 }
 
 MultiPlayerController::~MultiPlayerController() {
   do {
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-  } while (queue_->size() > 0);
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+  } while (send_queue_->size() > 0);
   Cancel();
   Cleanup();
 }
 
 void MultiPlayerController::Join() {
   if (!heartbeat_thread_) {
-    heartbeat_thread_ = std::make_unique<std::thread>(HeartbeatController, std::ref(cancelled_), queue_);
+    heartbeat_thread_ = std::make_unique<std::thread>(HeartbeatController, std::ref(cancelled_), send_queue_);
   }
-  queue_->Push(CreatePackage(Request::Join));
+  send_queue_->Push(CreatePackage(Request::Join));
 }
 
 void MultiPlayerController::Leave()  {
-  if (GameState::Idle == game_state_) {
-    return;
-  }
   heartbeat_thread_.release();
-  queue_->Push(CreatePackage(Request::Leave));
+  send_queue_->Push(CreatePackage(Request::Leave));
 }
 
 void MultiPlayerController::Play() {
   if (GameState::Idle == game_state_) {
     return;
   }
-  queue_->Push(CreatePackage(Request::Play));
+  send_queue_->Push(CreatePackage(Request::Play));
 }
 
 void MultiPlayerController::ResetCounter() {
-  if (GameState::Idle == game_state_) {
-    return;
-  }
-  queue_->Push(CreatePackage(Request::ResetCounter));
+  send_queue_->Push(CreatePackage(Request::ResetCounter));
 }
 
 void MultiPlayerController::StartGame() {
-  if (GameState::Idle == game_state_) {
-    return;
-  }
-  queue_->Push(CreatePackage(Request::StartGame));
+  send_queue_->Push(CreatePackage(Request::StartGame));
 }
 
 void MultiPlayerController::SendUpdate(size_t lines, size_t score, size_t level, size_t garbage) {
-  if (GameState::Idle == game_state_) {
-    return;
-  }
   auto package = CreatePackage(Request::ProgressUpdate);
 
   package.payload_ = Payload(lines, score, level, garbage, game_state_);
-  queue_->Push(package);
+  send_queue_->Push(package);
 }
 
 void MultiPlayerController::Dispatch() {
@@ -114,7 +102,6 @@ void MultiPlayerController::Dispatch() {
           game_state_ = GameState::Waiting;
           ResetCounter();
         }
-        listener_if_->Update(host_name, 0, 0, 0, game_state_);
         break;
       case Request::ResetCounter:
         listener_if_->ResetCounter();
@@ -128,7 +115,9 @@ void MultiPlayerController::Dispatch() {
       case ProgressUpdate:
         listener_if_->Update(host_name, package.payload_.lines(), package.payload_.score(),
                           package.payload_.level(), package.payload_.state());
-        listener_if_->GotLines(host_name, package.payload_.garbage());
+        if (package.payload_.garbage() != 0) {
+          listener_if_->GotLines(host_name, package.payload_.garbage());
+        }
         if (host_name == our_hostname_) {
           game_state_ = package.payload_.state();
         }
@@ -149,11 +138,12 @@ void MultiPlayerController::Run() {
     }
     Package package;
 
-    if (!queue_->Pop(package)) {
+    if (!send_queue_->Pop(package)) {
       break;
     }
     if (cancelled_.load(std::memory_order_acquire)) {
       break;
+
     }
     package.header_.SetSeqenceNr(sequence_nr);
     package.payload_.SetState(game_state_);

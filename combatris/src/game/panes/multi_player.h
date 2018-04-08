@@ -7,48 +7,57 @@
 #include <vector>
 #include <unordered_map>
 
-class PlayerStatistic {
+class PlayerData {
  public:
-  PlayerStatistic(SDL_Renderer* renderer, const std::string name, const std::shared_ptr<Assets>& assets)
-      : renderer_(renderer), name_(name), assets_(assets) {}
+  enum TextureID { Name, State, ScoreCaption, Score, LevelCaption, Level, LinesCaption, Lines };
 
-  void Update(size_t lines, size_t score, size_t level, network::GameState state) {
-    lines_ = lines;
-    score_ = score;
-    level_ = level;
-    state_ = state;
-    is_dirty_ = true;
-  }
+  PlayerData(SDL_Renderer* renderer, const std::string name, const std::shared_ptr<Assets>& assets);
 
-  void Update(int garbage_sent) { garbage_sent_ += garbage_sent; }
+  bool Update(int lines, int score, int level, network::GameState state);
 
-  void Reset() { garbage_sent_ = 0; }
+  void Reset() {}
 
-  void Render(int y_offset);
+  void Render(int y_offset, bool is_my_status) const;
 
   void SetState(network::GameState state) { state_ = state; }
+
+  const std::string& name() const { return name_; }
 
   int score() const { return score_; }
 
  private:
+  struct Texture {
+    Texture(UniqueTexturePtr&& texture, int w, int h, SDL_Rect rc)
+        : texture_(std::move(texture)), w_(w), h_(h), rc_(rc) {}
+
+    void Set(UniqueTexturePtr&& texture, int w, int h) {
+      texture_ = std::move(texture);
+      w_ = w;
+      h_ = h;
+    }
+    UniqueTexturePtr texture_ = nullptr;
+    int w_;
+    int h_;
+    SDL_Rect rc_;
+  };
+
   SDL_Renderer* renderer_;
   std::string name_;
   const std::shared_ptr<Assets>& assets_;
   int lines_ = 0;
   int score_ = 0;
   int level_ = 0;
-  int garbage_sent_ = 0;
   network::GameState state_ = network::GameState::Waiting;
-  bool is_dirty_ = true;
+  std::unordered_map<TextureID, std::shared_ptr<Texture>> textures_;
 };
 
-class MultiPlayerPanel final : public Pane, public EventSink,  public network::ListenerInterface {
+class MultiPlayer final : public Pane, public EventSink,  public network::ListenerInterface {
  public:
-  MultiPlayerPanel(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets);
+  MultiPlayer(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets);
 
   virtual void Update(const Event& event) override;
 
-  virtual void Reset() override {}
+  virtual void Reset() override { progress_accumulator_.Reset(); }
 
   virtual void Render(double) override;
 
@@ -58,8 +67,16 @@ class MultiPlayerPanel final : public Pane, public EventSink,  public network::L
   }
 
   void Disable() {
+    Leave(our_name_);
     multiplayer_controller_->Leave();
     multiplayer_controller_.reset();
+  }
+
+  void ResetCountDown() {
+    if (!multiplayer_controller_) {
+      return;
+    }
+    multiplayer_controller_->ResetCounter();
   }
 
  protected:
@@ -76,11 +93,32 @@ class MultiPlayerPanel final : public Pane, public EventSink,  public network::L
   virtual void GotLines(const std::string& name, size_t lines) override;
 
  private:
-  using PlayerStatisticPtr = std::shared_ptr<PlayerStatistic>;
+  struct ProgressAccumlator {
+    void AddLines(int lines) { lines_ += lines; is_dirty_ = true; }
+
+    void AddScore(int score) { score_ += score; is_dirty_ = true; }
+
+    void SetLevel(int level) { level_ = level; is_dirty_ = true; }
+
+    int lines_ = 0;
+    int score_ = 0;
+    int level_ = 0;
+    bool is_dirty_ = false;
+
+    void Reset() {
+      lines_ = 0;
+      score_ = 0;
+      level_ = 0;
+      is_dirty_ = false;
+    }
+  };
+  using PlayerDataPtr = std::shared_ptr<PlayerData>;
 
   Events& events_;
-  std::vector<PlayerStatisticPtr> score_board_;
-  std::unordered_map<std::string, PlayerStatisticPtr> players_;
+  std::vector<PlayerDataPtr> score_board_;
+  std::unordered_map<std::string, PlayerDataPtr> players_;
   std::unique_ptr<network::MultiPlayerController> multiplayer_controller_;
   std::string our_name_;
+  ProgressAccumlator progress_accumulator_;
+  double ticks_ = 0.0;
 };

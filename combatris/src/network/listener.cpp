@@ -132,8 +132,8 @@ void Listener::Run() {
       VerifySequenceNumber(connection, host_name, header);
       if (header.request() != Request::HeartBeat) {
         queue_->Push(std::make_pair(host_name, package));
+        std::cout << ToString(package.header_.request()) << std::endl;
       }
-      std::cout << ToString(package.header_.request()) << std::endl;
     }
   }
 }

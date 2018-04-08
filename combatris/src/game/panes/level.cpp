@@ -63,9 +63,12 @@ void Level::Update(const Event& event) {
   lines_this_level_ += event.lines_cleared();
 
   if (lines_this_level_ >= kLevelUp) {
-    events_.Push(Event::Type::LevelUp);
     lines_this_level_ = 0;
     level_++;
+    Event event(Event::Type::LevelUp);
+
+    event.current_level_ = level_ + 1;
+    events_.Push(event);
     SetThresholds();
     SetCenteredText(level());
   }

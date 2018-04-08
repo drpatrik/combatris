@@ -30,10 +30,16 @@ void RemoveAnimation(std::deque<std::shared_ptr<Animation>>& animations) {
     [](const auto &a) { return a->name() == typeid(T).name(); }), animations.end());
 }
 
+template <class T>
+bool IsAnimationActive(std::deque<std::shared_ptr<Animation>>& animations) {
+  return std::find_if(animations.begin(), animations.end(),
+                      [](const auto& a) { return a->name() == typeid(T).name(); }) != animations.end();
+}
+
 } // namespace
 
 Tetrion::Tetrion() : events_() {
-  window_ = SDL_CreateWindow("COMBATRIS", SDL_WINDOWPOS_UNDEFINED,
+  window_ = SDL_CreateWindow(kWindowTileTournament, SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED, kWidth, kHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
   if (nullptr == window_) {
     std::cout << "Failed to create window : " << SDL_GetError() << std::endl;
@@ -66,13 +72,19 @@ Tetrion::Tetrion() : events_() {
   moves_ = std::make_unique<Moves>(renderer_, assets_);
   AddPane(moves_.get());
   AddAnimation<SplashScreenAnimation>(renderer_, assets_);
-  multiplayer_ = std::make_unique<MultiPlayerPanel>(renderer_, events_, assets_);
-  AddPane(multiplayer_.get());
+  multi_player_ = std::make_unique<MultiPlayer>(renderer_, events_, assets_);
+  AddPane(multi_player_.get());
 }
 
 Tetrion::~Tetrion() noexcept {
   SDL_DestroyRenderer(renderer_);
   SDL_DestroyWindow(window_);
+}
+
+void Tetrion::ResetCountDown() {
+  if (GameMode::Battle == game_mode_ && IsAnimationActive<CountDownAnimation>(animations_)) {
+    multi_player_->ResetCountDown();
+  }
 }
 
 void Tetrion::GameControl(Controls control_pressed) {
@@ -123,7 +135,7 @@ void Tetrion::EventHandler(Events& events) {
       AddAnimation<PauseAnimation>(renderer_, assets_, unpause_pressed_);
       break;
     case Event::Type::UnPause:
-      AddAnimation<CountDownAnimation>(renderer_, assets_, Event::Type::CountdownAfterUnPauseDone);
+      AddAnimation<CountDownAnimation>(renderer_, assets_, GetCountDown(), Event::Type::CountdownAfterUnPauseDone);
       break;
     case Event::Type::CountdownAfterUnPauseDone:
       next_queue_->Show();
@@ -157,13 +169,17 @@ void Tetrion::EventHandler(Events& events) {
       tetromino_generator_->Reset();
       unpause_pressed_ = game_paused_ = false;
       std::for_each(panes_.begin(), panes_.end(), [](const auto& r) { r->Reset(); });
-      AddAnimation<CountDownAnimation>(renderer_, assets_, Event::Type::NextTetromino);
+      AddAnimation<CountDownAnimation>(renderer_, assets_, GetCountDown(), Event::Type::NextTetromino);
       break;
     case Event::Type::OnFloor:
       AddAnimation<OnFloorAnimation>(renderer_, assets_, tetromino_in_play_);
       break;
     case Event::Type::Falling:
       RemoveAnimation<OnFloorAnimation>(animations_);
+      break;
+    case Event::Type::MultiPlayerResetCounter:
+      RemoveAnimation<CountDownAnimation>(animations_);
+      AddAnimation<CountDownAnimation>(renderer_, assets_, GetCountDown(), Event::Type::NextTetromino);
       break;
     case Event::Type::MultiPlayerGotLines:
       break;
