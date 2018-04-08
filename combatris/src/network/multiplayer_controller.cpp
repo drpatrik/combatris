@@ -62,8 +62,8 @@ void MultiPlayerController::Play() {
   send_queue_->Push(CreatePackage(Request::Play));
 }
 
-void MultiPlayerController::ResetCounter() {
-  send_queue_->Push(CreatePackage(Request::ResetCounter));
+void MultiPlayerController::ResetCountDown() {
+  send_queue_->Push(CreatePackage(Request::ResetCountDown));
 }
 
 void MultiPlayerController::StartGame() {
@@ -100,11 +100,11 @@ void MultiPlayerController::Dispatch() {
       case Request::Play:
         if (host_name == our_hostname_) {
           game_state_ = GameState::Waiting;
-          ResetCounter();
+          ResetCountDown();
         }
         break;
-      case Request::ResetCounter:
-        listener_if_->ResetCounter();
+      case Request::ResetCountDown:
+        listener_if_->ResetCountDown();
         break;
       case Request::StartGame:
         if (host_name == our_hostname_) {

@@ -23,21 +23,6 @@ const SDL_Rect kLevelFieldRc = { kX + 159, kY + 44, 111, 24 };
 
 const Font kTextFont(Font::Typeface::Cabin, Font::Emphasis::Bold, 15);
 
-inline SDL_Rect* AddBorder(SDL_Rect& tmp, const SDL_Rect& rc) {
-  tmp = { rc.x + kLineThinkness, rc.y + kLineThinkness, rc.w - (kLineThinkness * 2), rc.h - (kLineThinkness * 2) };
-  return &tmp;
-}
-
-inline SDL_Rect* InsideBox(SDL_Rect& tmp, const SDL_Rect& rc, int w, int h) {
-  tmp = { rc.x + (kLineThinkness * 2), rc.y  + kLineThinkness, w, h};
-  return &tmp;
-}
-
-inline const SDL_Rect& AddYOffset(SDL_Rect& tmp, int offset, const SDL_Rect& rc) {
-  tmp = { rc.x, rc.y + offset, rc.w, rc.h };
-  return tmp;
-}
-
 using TextureID = PlayerData::TextureID;
 
 struct Field {
@@ -58,6 +43,21 @@ struct Field {
   Field(TextureID::LinesCaption, "Lines", kLinesCaptionFieldRc),
   Field(TextureID::Lines, "0", kLinesFieldRc, Color::Yellow)
 };
+
+inline SDL_Rect* AddBorder(SDL_Rect& tmp, const SDL_Rect& rc) {
+  tmp = { rc.x + kLineThinkness, rc.y + kLineThinkness, rc.w - (kLineThinkness * 2), rc.h - (kLineThinkness * 2) };
+  return &tmp;
+}
+
+inline SDL_Rect* InsideBox(SDL_Rect& tmp, const SDL_Rect& rc, int w, int h) {
+  tmp = { rc.x + (kLineThinkness * 2), rc.y  + kLineThinkness, w, h};
+  return &tmp;
+}
+
+inline const SDL_Rect& AddYOffset(SDL_Rect& tmp, int offset, const SDL_Rect& rc) {
+  tmp = { rc.x, rc.y + offset, rc.w, rc.h };
+  return tmp;
+}
 
 } // namespace
 
@@ -129,9 +129,7 @@ void PlayerData::Render(int offset,  bool is_my_status) const {
 }
 
 MultiPlayer::MultiPlayer(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets)
-      : Pane(renderer, kX, kY, assets), events_(events) {
-  our_name_ = GetHostName();
-}
+      : Pane(renderer, kX, kY, assets), events_(events) {}
 
 void MultiPlayer::Update(const Event& event) {
   if (!multiplayer_controller_) {
@@ -169,7 +167,7 @@ void MultiPlayer::Render(double delta_time) {
   int offset = 0;
 
   for (const auto& player : score_board_) {
-    player->Render((kBoxHeight + kSpaceBetweenBoxes) * offset, our_name_ == player->name());
+    player->Render((kBoxHeight + kSpaceBetweenBoxes) * offset, multiplayer_controller_->our_host_name() == player->name());
     offset++;
   }
   ticks_ += delta_time;
@@ -196,7 +194,7 @@ void MultiPlayer::Leave(const std::string& name) {
   players_.erase(name);
 }
 
-void MultiPlayer::ResetCounter() { events_.Push(Event::Type::MultiPlayerResetCounter); }
+void MultiPlayer::ResetCountDown() { events_.Push(Event::Type::MultiPlayerResetCounter); }
 
 void MultiPlayer::StartGame(const std::string& name) {
   auto& stat = players_.at(name);
@@ -214,7 +212,7 @@ void MultiPlayer::Update(const std::string& name, size_t lines, size_t score, si
 }
 
 void MultiPlayer::GotLines(const std::string& name, size_t lines) {
-  if (name != our_name_ ) {
+  if (name != multiplayer_controller_->our_host_name()) {
     auto event = Event(Event::Type::MultiPlayerGotLines);
 
     event.garbage_lines_ = lines;

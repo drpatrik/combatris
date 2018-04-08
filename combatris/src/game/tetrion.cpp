@@ -83,7 +83,7 @@ Tetrion::~Tetrion() noexcept {
 
 void Tetrion::ResetCountDown() {
   if (GameMode::Battle == game_mode_ && IsAnimationActive<CountDownAnimation>(animations_)) {
-    multi_player_->ResetCountDown();
+    multi_player_->SendResetCountDown();
   }
 }
 

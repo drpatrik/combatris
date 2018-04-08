@@ -67,16 +67,16 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
   }
 
   void Disable() {
-    Leave(our_name_);
+    Leave(multiplayer_controller_->our_host_name());
     multiplayer_controller_->Leave();
     multiplayer_controller_.reset();
   }
 
-  void ResetCountDown() {
+  void SendResetCountDown() {
     if (!multiplayer_controller_) {
       return;
     }
-    multiplayer_controller_->ResetCounter();
+    multiplayer_controller_->ResetCountDown();
   }
 
  protected:
@@ -84,7 +84,7 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
 
   virtual void Leave(const std::string& name) override;
 
-  virtual void ResetCounter() override;
+  virtual void ResetCountDown() override;
 
   virtual void StartGame(const std::string& name) override;
 
@@ -118,7 +118,6 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
   std::vector<PlayerDataPtr> score_board_;
   std::unordered_map<std::string, PlayerDataPtr> players_;
   std::unique_ptr<network::MultiPlayerController> multiplayer_controller_;
-  std::string our_name_;
   ProgressAccumlator progress_accumulator_;
   double ticks_ = 0.0;
 };
