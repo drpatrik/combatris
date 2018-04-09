@@ -54,6 +54,12 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
  public:
   MultiPlayer(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets);
 
+  virtual ~MultiPlayer() noexcept {
+    if (multiplayer_controller_) {
+      Disable();
+    }
+  }
+
   virtual void Update(const Event& event) override;
 
   virtual void Reset() override {

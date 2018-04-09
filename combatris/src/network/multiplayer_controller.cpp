@@ -94,14 +94,15 @@ void MultiPlayerController::Dispatch() {
     switch (package.header_.request()) {
       case Request::Join:
         listener_if_->GotJoin(host_name);
+        if (host_name != our_hostname_) {
+          send_queue_->Push(CreatePackage(Request::Join, GameState::Idle));
+        }
         break;
       case Request::Leave:
         listener_if_->GotLeave(host_name);
         break;
       case Request::NewGame:
-        if (host_name == our_hostname_) {
-          listener_if_->GotResetCountDown();
-        }
+        listener_if_->GotResetCountDown();
         listener_if_->GotUpdate(host_name, 0, 0, 0, package.payload_.state());
         break;
       case Request::ResetCountDown:
