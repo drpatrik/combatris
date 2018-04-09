@@ -198,7 +198,19 @@ void MultiPlayer::GotLeave(const std::string& name) {
   players_.erase(name);
 }
 
-void MultiPlayer::GotResetCountDown() { events_.Push(Event::Type::BattleResetCountDown); }
+void MultiPlayer::GotResetCountDown(const std::string& name) {
+  const auto& our_name = multiplayer_controller_->our_host_name();
+
+  if (name == our_name) {
+    events_.Push(Event::Type::BattleResetCountDown);
+    return;
+  }
+  auto& stat = players_.at(our_name);
+
+  if (GameState::Waiting == stat->state()) {
+    events_.Push(Event::Type::BattleResetCountDown);
+  }
+}
 
 void MultiPlayer::GotStartGame() { events_.Push(Event::Type::NextTetromino); }
 
@@ -206,7 +218,7 @@ void MultiPlayer::GotUpdate(const std::string& name, size_t lines, size_t score,
   auto& stat = players_.at(name);
 
   if (stat->Update(lines, score, level, state)) {
-    std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) { return a->score() < b->score(); });
+    std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) { return a->score() > b->score(); });
   }
 }
 

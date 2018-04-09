@@ -14,7 +14,7 @@ class ListenerInterface {
 
   virtual void GotLeave(const std::string& name) = 0;
 
-  virtual void GotResetCountDown() = 0;
+  virtual void GotResetCountDown(const std::string& name) = 0;
 
   virtual void GotStartGame() = 0;
 

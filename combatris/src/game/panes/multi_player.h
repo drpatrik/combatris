@@ -24,6 +24,8 @@ class PlayerData {
 
   int score() const { return score_; }
 
+  network::GameState state() const { return state_; }
+
  private:
   struct Texture {
     Texture(UniqueTexturePtr&& texture, int w, int h, SDL_Rect rc)
@@ -92,7 +94,7 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
 
   virtual void GotLeave(const std::string& name) override;
 
-  virtual void GotResetCountDown() override;
+  virtual void GotResetCountDown(const std::string& name) override;
 
   virtual void GotStartGame() override;
 

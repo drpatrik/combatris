@@ -90,6 +90,7 @@ void Listener::Run() {
       package_vector.push_back(packages.array_[i]);
     }
     for (auto& package : package_vector) {
+      bool process_request = true;
       const auto& header = package.header_;
       const auto& payload = package.payload_;
 
@@ -98,11 +99,11 @@ void Listener::Run() {
         continue;
       }
       if (header.request() == Request::Join) {
-        if (connections_.count(host_name) != 0) {
-          std::cout << host_name << " has already joined" << std::endl;
-          continue;
+        if (connections_.count(host_name) == 0) {
+          connections_.insert(std::make_pair(host_name, Connection(header.sequence_nr())));
+        } else {
+          process_request = false;
         }
-        connections_.insert(std::make_pair(host_name, Connection(header.sequence_nr())));
       }
       if (connections_.count(host_name) == 0) {
         continue;
@@ -117,12 +118,15 @@ void Listener::Run() {
           connections_.erase(host_name);
           std::cout << host_name << " left" << std::endl;
           break;
+        case Request::HeartBeat:
+          process_request = false;
+          break;
         default:
           break;
       }
       connection.Update(header, payload);
       VerifySequenceNumber(connection, host_name, header);
-      if (header.request() != Request::HeartBeat) {
+      if (process_request) {
         queue_->Push(std::make_pair(host_name, package));
         std::cout << "got " << ToString(package.header_.request()) << std::endl;
       }
