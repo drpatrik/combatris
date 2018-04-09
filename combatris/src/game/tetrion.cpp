@@ -39,7 +39,7 @@ bool IsAnimationActive(std::deque<std::shared_ptr<Animation>>& animations) {
 } // namespace
 
 Tetrion::Tetrion() : events_() {
-  window_ = SDL_CreateWindow(kWindowTileTournament, SDL_WINDOWPOS_UNDEFINED,
+  window_ = SDL_CreateWindow(kWindowTitleMarathon, SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED, kWidth, kHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
   if (nullptr == window_) {
     std::cout << "Failed to create window : " << SDL_GetError() << std::endl;
@@ -83,7 +83,7 @@ Tetrion::~Tetrion() noexcept {
 
 void Tetrion::ResetCountDown() {
   if (GameMode::Battle == game_mode_ && IsAnimationActive<CountDownAnimation>(animations_)) {
-    multi_player_->SendResetCountDown();
+    multi_player_->ResetCountDown();
   }
 }
 
@@ -169,7 +169,11 @@ void Tetrion::EventHandler(Events& events) {
       tetromino_generator_->Reset();
       unpause_pressed_ = game_paused_ = false;
       std::for_each(panes_.begin(), panes_.end(), [](const auto& r) { r->Reset(); });
-      AddAnimation<CountDownAnimation>(renderer_, assets_, GetCountDown(), Event::Type::NextTetromino);
+      if (GameMode::Marathon == game_mode_) {
+        AddAnimation<CountDownAnimation>(renderer_, assets_, GetCountDown(), Event::Type::NextTetromino);
+      } else {
+        multi_player_->NewGame();
+      }
       break;
     case Event::Type::OnFloor:
       AddAnimation<OnFloorAnimation>(renderer_, assets_, tetromino_in_play_);
@@ -177,11 +181,14 @@ void Tetrion::EventHandler(Events& events) {
     case Event::Type::Falling:
       RemoveAnimation<OnFloorAnimation>(animations_);
       break;
-    case Event::Type::MultiPlayerResetCounter:
-      RemoveAnimation<CountDownAnimation>(animations_);
-      AddAnimation<CountDownAnimation>(renderer_, assets_, GetCountDown(), Event::Type::NextTetromino);
+    case Event::Event::Type::BattleStartGame:
+      multi_player_->StartGame();
       break;
-    case Event::Type::MultiPlayerGotLines:
+    case Event::Type::BattleResetCountDown:
+      RemoveAnimation<CountDownAnimation>(animations_);
+      AddAnimation<CountDownAnimation>(renderer_, assets_, GetCountDown(), Event::Type::BattleStartGame);
+      break;
+    case Event::Type::BattleGotGarbage:
       break;
     default:
       break;

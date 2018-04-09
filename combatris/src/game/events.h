@@ -33,13 +33,13 @@ struct Event {
     LinesCleared,
     OnFloor,
     Falling,
-    SendLines,
     CountdownAfterUnPauseDone,
     GameOver,
     GameStatistics,
-    MultiPlayerStartGame,
-    MultiPlayerResetCounter,
-    MultiPlayerGotLines,
+    BattleSendGarbage,
+    BattleStartGame,
+    BattleResetCountDown,
+    BattleGotGarbage
   };
 
   explicit Event(Type type) : type_(type), lines_cleared_() {}

@@ -57,14 +57,12 @@ class Listener final {
     }
 
     void Update(const PackageHeader& header, const Payload& payload) {
-      if (Request::ProgressUpdate == header.request()) {
+      if (payload.state() != GameState::None) {
         state_ = payload.state();
       }
       sequence_nr_ = header.sequence_nr();
       timestamp_ = utility::time_in_ms();
     }
-
-    void SetState(GameState state) { state_ = state; }
 
     uint32_t sequence_nr_ = 0;
     GameState state_ = GameState::Idle;

@@ -11,15 +11,14 @@ class PlayerData {
  public:
   enum TextureID { Name, State, ScoreCaption, Score, LevelCaption, Level, LinesCaption, Lines };
 
-  PlayerData(SDL_Renderer* renderer, const std::string name, const std::shared_ptr<Assets>& assets);
+  PlayerData(SDL_Renderer* renderer, const std::string name, const std::shared_ptr<Assets>& assets)
+      : renderer_(renderer), name_(name), assets_(assets) { Reset(true); }
 
   bool Update(int lines, int score, int level, network::GameState state);
 
-  void Reset() {}
+  void Reset(bool force_reset = false);
 
   void Render(int y_offset, bool is_my_status) const;
-
-  void SetState(network::GameState state) { state_ = state; }
 
   const std::string& name() const { return name_; }
 
@@ -47,7 +46,7 @@ class PlayerData {
   int lines_ = 0;
   int score_ = 0;
   int level_ = 0;
-  network::GameState state_ = network::GameState::Waiting;
+  network::GameState state_ = network::GameState::None;
   std::unordered_map<TextureID, std::shared_ptr<Texture>> textures_;
 };
 
@@ -57,7 +56,11 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
 
   virtual void Update(const Event& event) override;
 
-  virtual void Reset() override { progress_accumulator_.Reset(); }
+  virtual void Reset() override {
+    for (auto& player : score_board_) {
+      player->Reset();
+    }
+  }
 
   virtual void Render(double) override;
 
@@ -67,30 +70,29 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
   }
 
   void Disable() {
-    Leave(multiplayer_controller_->our_host_name());
+    GotLeave(multiplayer_controller_->our_host_name());
     multiplayer_controller_->Leave();
     multiplayer_controller_.reset();
   }
 
-  void SendResetCountDown() {
-    if (!multiplayer_controller_) {
-      return;
-    }
-    multiplayer_controller_->ResetCountDown();
-  }
+  void NewGame() { multiplayer_controller_->NewGame(); }
+
+  void StartGame() { multiplayer_controller_->StartGame(); }
+
+  void ResetCountDown() { multiplayer_controller_->ResetCountDown(); }
 
  protected:
-  virtual void Join(const std::string& name) override;
+  virtual void GotJoin(const std::string& name) override;
 
-  virtual void Leave(const std::string& name) override;
+  virtual void GotLeave(const std::string& name) override;
 
-  virtual void ResetCountDown() override;
+  virtual void GotResetCountDown() override;
 
-  virtual void StartGame(const std::string& name) override;
+  virtual void GotStartGame() override;
 
-  virtual void Update(const std::string& name, size_t lines, size_t score, size_t level, network::GameState state) override;
+  virtual void GotUpdate(const std::string& name, size_t lines, size_t score, size_t level, network::GameState state) override;
 
-  virtual void GotLines(const std::string& name, size_t lines) override;
+  virtual void GotGarbage(const std::string& name, size_t lines) override;
 
  private:
   struct ProgressAccumlator {

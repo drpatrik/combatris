@@ -4,6 +4,8 @@ using namespace network;
 
 namespace {
 
+const double kProgressUpdateInterval = 0.3;
+
 const int kX = kMatrixEndX + kMinoWidth + (kSpace * 4) + TextPane::kBoxWidth;
 const int kY = kMatrixStartY - kMinoHeight;
 
@@ -12,8 +14,8 @@ const int kBoxWidth = kMultiPlayerPaneWidth;
 const int kBoxHeight = 68;
 const int kSpaceBetweenBoxes = 11;
 
-const SDL_Rect kNameFieldRc = { kX, kY, 150, 24 };
-const SDL_Rect kStateFieldRc = { kX + 148, kY, 72, 24 };
+const SDL_Rect kNameFieldRc = { kX, kY, 140, 24 };
+const SDL_Rect kStateFieldRc = { kX + 138, kY, 82, 24 };
 const SDL_Rect kScoreCaptionFieldRc = { kX, kY + 22, 220, 24 };
 const SDL_Rect kScoreFieldRc = { kX + 50, kY + 22, 220, 24 };
 const SDL_Rect kLinesCaptionFieldRc = { kX, kY + 44, 111, 24 };
@@ -61,18 +63,6 @@ inline const SDL_Rect& AddYOffset(SDL_Rect& tmp, int offset, const SDL_Rect& rc)
 
 } // namespace
 
-PlayerData::PlayerData(SDL_Renderer* renderer, const std::string name, const std::shared_ptr<Assets>& assets)
-      : renderer_(renderer), name_(name), assets_(assets) {
-  auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), name, Color::Yellow);
-
-  textures_.insert(std::make_pair(TextureID::Name, std::make_shared<Texture>(std::move(texture), w, h, kNameFieldRc)));
-  for (const auto& field : kFields) {
-    auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), field.name_, field.color_);
-
-    textures_.insert(std::make_pair(field.id_, std::make_shared<Texture>(std::move(texture), w, h, field.rc_)));
-  }
-}
-
 bool PlayerData::Update(int lines, int score, int level, network::GameState state) {
   auto resort_score_board = false;
 
@@ -108,6 +98,21 @@ bool PlayerData::Update(int lines, int score, int level, network::GameState stat
   }
 
   return resort_score_board;
+}
+
+void PlayerData::Reset(bool force_reset) {
+  if (!force_reset && network::GameState::None == state_) {
+    return;
+  }
+  textures_.clear();
+  auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), name_, Color::Yellow);
+
+  textures_.insert(std::make_pair(TextureID::Name, std::make_shared<Texture>(std::move(texture), w, h, kNameFieldRc)));
+  for (const auto& field : kFields) {
+    auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), field.name_, field.color_);
+
+    textures_.insert(std::make_pair(field.id_, std::make_shared<Texture>(std::move(texture), w, h, field.rc_)));
+  }
 }
 
 void PlayerData::Render(int offset,  bool is_my_status) const {
@@ -146,11 +151,11 @@ void MultiPlayer::Update(const Event& event) {
     case Event::Type::LevelUp:
       progress_accumulator_.SetLevel(event.current_level_);
       break;
-    case Event::Type::SendLines:
-      multiplayer_controller_->SendUpdate(0, 0, 0, event.garbage_lines_);
+    case Event::Type::BattleSendGarbage:
+      multiplayer_controller_->SendUpdate(event.garbage_lines_);
       break;
     case Event::Type::GameOver:
-      multiplayer_controller_->SendUpdate(0, 0, 0, GameState::GameOver);
+      multiplayer_controller_->SendUpdate(GameState::GameOver);
       break;
     default:
       break;
@@ -171,11 +176,10 @@ void MultiPlayer::Render(double delta_time) {
     offset++;
   }
   ticks_ += delta_time;
-  if (ticks_ > 1.0) {
+  if (ticks_ >= kProgressUpdateInterval) {
     ticks_ = 0.0;
     if (multiplayer_controller_ && progress_accumulator_.is_dirty_) {
-      multiplayer_controller_->SendUpdate(progress_accumulator_.lines_, progress_accumulator_.score_,
-                                          progress_accumulator_.level_, GameState::None);
+      multiplayer_controller_->SendUpdate(progress_accumulator_.lines_, progress_accumulator_.score_, progress_accumulator_.level_);
       progress_accumulator_.is_dirty_  = false;
     }
   }
@@ -183,27 +187,22 @@ void MultiPlayer::Render(double delta_time) {
 
 // ListenerInteface
 
-void MultiPlayer::Join(const std::string& name) {
+void MultiPlayer::GotJoin(const std::string& name) {
   score_board_.push_back(players_.insert(std::make_pair(name, std::make_shared<PlayerData>(renderer_, name, assets_))).first->second);
 }
 
-void MultiPlayer::Leave(const std::string& name) {
+void MultiPlayer::GotLeave(const std::string& name) {
   auto it = std::find_if(score_board_.begin(), score_board_.end(), [&name](const auto& e) { return name == e->name(); });
 
   score_board_.erase(it);
   players_.erase(name);
 }
 
-void MultiPlayer::ResetCountDown() { events_.Push(Event::Type::MultiPlayerResetCounter); }
+void MultiPlayer::GotResetCountDown() { events_.Push(Event::Type::BattleResetCountDown); }
 
-void MultiPlayer::StartGame(const std::string& name) {
-  auto& stat = players_.at(name);
+void MultiPlayer::GotStartGame() { events_.Push(Event::Type::NextTetromino); }
 
-  stat->SetState(GameState::Playing);
-  events_.Push(Event::Type::MultiPlayerStartGame);
-}
-
-void MultiPlayer::Update(const std::string& name, size_t lines, size_t score, size_t level, GameState state) {
+void MultiPlayer::GotUpdate(const std::string& name, size_t lines, size_t score, size_t level, GameState state) {
   auto& stat = players_.at(name);
 
   if (stat->Update(lines, score, level, state)) {
@@ -211,9 +210,9 @@ void MultiPlayer::Update(const std::string& name, size_t lines, size_t score, si
   }
 }
 
-void MultiPlayer::GotLines(const std::string& name, size_t lines) {
+void MultiPlayer::GotGarbage(const std::string& name, size_t lines) {
   if (name != multiplayer_controller_->our_host_name()) {
-    auto event = Event(Event::Type::MultiPlayerGotLines);
+    auto event = Event(Event::Type::BattleGotGarbage);
 
     event.garbage_lines_ = lines;
     events_.Push(event);

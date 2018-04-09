@@ -111,19 +111,11 @@ void Listener::Run() {
 
       switch (header.request()) {
         case Request::Join:
-          std::cout << "Client: " << host_name << " joined" << std::endl;
+          std::cout << host_name << " joined" << std::endl;
           break;
         case Request::Leave:
           connections_.erase(host_name);
-          std::cout << "Client: " << host_name << " left" << std::endl;
-          break;
-        case Request::StartGame:
-          // Propagate StartGame first when all
-          // connection has sent their StartGame
-          connection.SetState(GameState::Playing);
-          break;
-        case Request::Play:
-          connection.SetState(GameState::Waiting);
+          std::cout << host_name << " left" << std::endl;
           break;
         default:
           break;
@@ -132,7 +124,7 @@ void Listener::Run() {
       VerifySequenceNumber(connection, host_name, header);
       if (header.request() != Request::HeartBeat) {
         queue_->Push(std::make_pair(host_name, package));
-        std::cout << ToString(package.header_.request()) << std::endl;
+        std::cout << "got " << ToString(package.header_.request()) << std::endl;
       }
     }
   }

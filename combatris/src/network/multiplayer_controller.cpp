@@ -16,11 +16,7 @@ void HeartbeatController(std::atomic<bool>& quit, std::shared_ptr<ThreadSafeQueu
     if (quit.load(std::memory_order_acquire)) {
       return;
     }
-    Package package;
-
-    package.header_ = PackageHeader(Request::HeartBeat);
-
-    queue->Push(package);
+    queue->Push(CreatePackage(Request::HeartBeat));
   }
 }
 
@@ -47,19 +43,16 @@ void MultiPlayerController::Join() {
   if (!heartbeat_thread_) {
     heartbeat_thread_ = std::make_unique<std::thread>(HeartbeatController, std::ref(cancelled_), send_queue_);
   }
-  send_queue_->Push(CreatePackage(Request::Join));
+  send_queue_->Push(CreatePackage(Request::Join, GameState::Idle));
 }
 
 void MultiPlayerController::Leave()  {
   heartbeat_thread_.release();
-  send_queue_->Push(CreatePackage(Request::Leave));
+  send_queue_->Push(CreatePackage(Request::Leave, GameState::Idle));
 }
 
-void MultiPlayerController::Play() {
-  if (GameState::Idle == game_state_) {
-    return;
-  }
-  send_queue_->Push(CreatePackage(Request::Play));
+void MultiPlayerController::NewGame() {
+  send_queue_->Push(CreatePackage(Request::NewGame, GameState::Waiting));
 }
 
 void MultiPlayerController::ResetCountDown() {
@@ -67,13 +60,27 @@ void MultiPlayerController::ResetCountDown() {
 }
 
 void MultiPlayerController::StartGame() {
-  send_queue_->Push(CreatePackage(Request::StartGame));
+  send_queue_->Push(CreatePackage(Request::StartGame, GameState::Playing));
 }
 
-void MultiPlayerController::SendUpdate(size_t lines, size_t score, size_t level, size_t garbage) {
+void MultiPlayerController::SendUpdate(size_t garbage) {
   auto package = CreatePackage(Request::ProgressUpdate);
 
-  package.payload_ = Payload(lines, score, level, garbage, game_state_);
+  package.payload_ = Payload(0, 0, 0, garbage, GameState::None);
+  send_queue_->Push(package);
+}
+
+void MultiPlayerController::SendUpdate(GameState state) {
+  auto package = CreatePackage(Request::ProgressUpdate);
+
+  package.payload_ = Payload(0, 0, 0, 0, state);
+  send_queue_->Push(package);
+}
+
+void MultiPlayerController::SendUpdate(size_t lines, size_t score, size_t level) {
+  auto package = CreatePackage(Request::ProgressUpdate);
+
+  package.payload_ = Payload(lines, score, level, 0, GameState::None);
   send_queue_->Push(package);
 }
 
@@ -86,40 +93,31 @@ void MultiPlayerController::Dispatch() {
 
     switch (package.header_.request()) {
       case Request::Join:
-        if (host_name == our_hostname_) {
-          game_state_ = GameState::Idle;
-        }
-        listener_if_->Join(host_name);
+        listener_if_->GotJoin(host_name);
         break;
       case Request::Leave:
-        if (host_name == our_hostname_) {
-          game_state_ = GameState::Idle;
-        }
-        listener_if_->Leave(host_name);
+        listener_if_->GotLeave(host_name);
         break;
-      case Request::Play:
+      case Request::NewGame:
         if (host_name == our_hostname_) {
-          game_state_ = GameState::Waiting;
-          ResetCountDown();
+          listener_if_->GotResetCountDown();
         }
+        listener_if_->GotUpdate(host_name, 0, 0, 0, package.payload_.state());
         break;
       case Request::ResetCountDown:
-        listener_if_->ResetCountDown();
+        listener_if_->GotResetCountDown();
         break;
       case Request::StartGame:
         if (host_name == our_hostname_) {
-          game_state_ = GameState::Playing;
+          listener_if_->GotStartGame();
         }
-        listener_if_->StartGame(host_name);
+        listener_if_->GotUpdate(host_name, 0, 0, 0, package.payload_.state());
         break;
       case ProgressUpdate:
-        listener_if_->Update(host_name, package.payload_.lines(), package.payload_.score(),
+        listener_if_->GotUpdate(host_name, package.payload_.lines(), package.payload_.score(),
                           package.payload_.level(), package.payload_.state());
         if (package.payload_.garbage() != 0) {
-          listener_if_->GotLines(host_name, package.payload_.garbage());
-        }
-        if (host_name == our_hostname_) {
-          game_state_ = package.payload_.state();
+          listener_if_->GotGarbage(host_name, package.payload_.garbage());
         }
         break;
       default:
@@ -131,6 +129,7 @@ void MultiPlayerController::Dispatch() {
 void MultiPlayerController::Run() {
   uint32_t sequence_nr = 0;
   UDPClient client(GetBroadcastIP(), GetPort());
+  int64_t time_since_last_package = utility::time_in_ms();
 
   for (;;) {
     if (cancelled_.load(std::memory_order_acquire)) {
@@ -143,13 +142,13 @@ void MultiPlayerController::Run() {
     }
     if (cancelled_.load(std::memory_order_acquire)) {
       break;
+    }
+    if (package.header_.request() == Request::HeartBeat && (utility::time_in_ms() - time_since_last_package) < kHeartBeatInterval) {
+      continue;
+    }
+    time_since_last_package = utility::time_in_ms();
 
-    }
     package.header_.SetSeqenceNr(sequence_nr);
-    package.payload_.SetState(game_state_);
-    if (package.header_.request() != Request::HeartBeat) {
-      std::cout << "Sending: " << client.host_name() << " - " << ToString(package.header_.request()) << std::endl;
-    }
     if (sliding_window_.size() == kWindowSize) {
       sliding_window_.pop_back();
     }

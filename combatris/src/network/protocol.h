@@ -45,7 +45,7 @@ inline int GetPort() {
 
 #pragma pack(push, 1)
 
-enum Request : uint8_t { Empty, Join, Leave, Play, ResetCountDown, StartGame, ProgressUpdate, HeartBeat };
+enum Request : uint8_t { Empty, Join, Leave, NewGame, ResetCountDown, StartGame, ProgressUpdate, HeartBeat };
 
 inline std::string ToString(Request request) {
   switch (request) {
@@ -55,8 +55,8 @@ inline std::string ToString(Request request) {
       return "Request::Join";
     case Leave:
       return "Request::Leave";
-    case Play:
-      return "Request::Play";
+    case NewGame:
+      return "Request::NewGame";
     case ResetCountDown:
       return "Request::ResetCountDown";
     case StartGame:
@@ -187,10 +187,11 @@ struct Packages {
   uint8_t size_;
 };
 
-inline Package CreatePackage(Request request) {
+inline Package CreatePackage(Request request, GameState state = GameState::None) {
   Package package;
 
   package.header_ = PackageHeader(request);
+  package.payload_.SetState(state);
 
   return package;
 }

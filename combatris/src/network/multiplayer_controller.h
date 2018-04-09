@@ -10,17 +10,17 @@ class ListenerInterface {
  public:
   virtual ~ListenerInterface() {}
 
-  virtual void Join(const std::string& name) = 0;
+  virtual void GotJoin(const std::string& name) = 0;
 
-  virtual void Leave(const std::string& name) = 0;
+  virtual void GotLeave(const std::string& name) = 0;
 
-  virtual void ResetCountDown() = 0;
+  virtual void GotResetCountDown() = 0;
 
-  virtual void StartGame(const std::string& name) = 0;
+  virtual void GotStartGame() = 0;
 
-  virtual void Update(const std::string& name, size_t lines, size_t score, size_t level, GameState state) = 0;
+  virtual void GotUpdate(const std::string& name, size_t lines, size_t score, size_t level, GameState state) = 0;
 
-  virtual void GotLines(const std::string& name, size_t lines) = 0;
+  virtual void GotGarbage(const std::string& name, size_t lines) = 0;
 };
 
 class MultiPlayerController {
@@ -33,17 +33,22 @@ class MultiPlayerController {
 
   void Leave();
 
-  void Play();
+  void NewGame();
 
   void ResetCountDown();
 
   void StartGame();
 
-  void SendUpdate(size_t lines, size_t score, size_t level, size_t garbage);
+  void SendUpdate(size_t garbage);
+
+  void SendUpdate(GameState state);
+
+  void SendUpdate(size_t lines, size_t score, size_t level);
 
   void Dispatch();
 
   const std::string& our_host_name() const { return our_hostname_; }
+
 
  protected:
   void Run();
@@ -74,7 +79,6 @@ class MultiPlayerController {
 
  private:
   std::string our_hostname_;
-  GameState game_state_ = GameState::Idle;
   std::atomic<bool> cancelled_;
   ListenerInterface* listener_if_;
   std::unique_ptr<Listener> listener_;
