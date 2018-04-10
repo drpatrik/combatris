@@ -19,7 +19,7 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
 
   virtual void Update(const Event& event) override;
 
-  virtual void Reset() override;
+  virtual void Reset() override {};
 
   virtual void Render(double) override;
 

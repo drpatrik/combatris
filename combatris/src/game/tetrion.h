@@ -92,8 +92,6 @@ class Tetrion final {
 
   void Render(double delta_timer);
 
-  int GetCountDown() { return (GameMode::Marathon == game_mode_) ? 3 : 9; }
-
  private:
   SDL_Window* window_ = nullptr;
   SDL_Renderer* renderer_ = nullptr;

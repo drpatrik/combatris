@@ -4,7 +4,8 @@ using namespace network;
 
 namespace {
 
-const double kUpdateInterval = 0.3;
+const size_t kMaxPlayers = 9;
+const double kUpdateInterval = 0.1;
 const int kSpaceBetweenBoxes = 11;
 
 } // namespace
@@ -38,16 +39,6 @@ void MultiPlayer::Update(const Event& event) {
   }
 }
 
-void MultiPlayer::Reset() {
-  if (!multiplayer_controller_) {
-    return;
-  }
-  auto& player = players_.at(our_host_name());
-
-  player->Reset();
-  accumulator_.Reset();
-}
-
 void MultiPlayer::Render(double delta_time) {
   if (multiplayer_controller_) {
     multiplayer_controller_->Dispatch();
@@ -74,6 +65,9 @@ void MultiPlayer::Render(double delta_time) {
 // ListenerInterface
 
 void MultiPlayer::GotJoin(const std::string& name)  {
+  if (score_board_.size() >= kMaxPlayers) {
+    return;
+  }
   if (name != our_host_name()) {
     multiplayer_controller_->Join(game_state_);
   }
@@ -88,17 +82,15 @@ void MultiPlayer::GotLeave(const std::string& name) {
 }
 
 void MultiPlayer::GotNewGame(const std::string& name) {
-  const auto& our_name = our_host_name();
+  auto& player = players_.at(name);
 
-  if (name == our_name) {
+  if (name == our_host_name()) {
+    accumulator_.Reset();
     events_.Push(Event::Type::BattleResetCountDown);
-    return;
-  }
-  auto& player = players_.at(our_name);
-
-  if (GameState::Waiting == player->state()) {
+  } else if (GameState::Waiting == player->state()) {
     events_.Push(Event::Type::BattleResetCountDown);
   }
+  player->Reset();
 }
 
 void MultiPlayer::GotStartGame() { events_.Push(Event::Type::NextTetromino); }

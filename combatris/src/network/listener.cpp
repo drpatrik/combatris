@@ -109,12 +109,8 @@ void Listener::Run() {
       auto& connection = connections_.at(host_name);
 
       switch (header.request()) {
-        case Request::Join:
-          std::cout << host_name << " joined" << std::endl;
-          break;
         case Request::Leave:
           connections_.erase(host_name);
-          std::cout << host_name << " left" << std::endl;
           break;
         case Request::HeartBeat:
           process_request = false;
@@ -126,7 +122,7 @@ void Listener::Run() {
       VerifySequenceNumber(connection, host_name, header);
       if (process_request) {
         queue_->Push(std::make_pair(host_name, package));
-        std::cout << "got " << ToString(package.header_.request()) << std::endl;
+        std::cout << host_name << " sent " << ToString(package.header_.request()) << std::endl;
       }
     }
   }

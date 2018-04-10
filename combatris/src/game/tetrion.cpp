@@ -4,6 +4,9 @@
 
 namespace {
 
+const int kSinglePlayerCountDown = 3;
+const int kMultiPlayerCountDown = 9;
+
 void RenderWindowBackground(SDL_Renderer* renderer) {
   SDL_Rect rc { 0, 0, kWidth, kHeight };
 
@@ -129,7 +132,7 @@ void Tetrion::EventHandler(Events& events) {
       AddAnimation<PauseAnimation>(renderer_, assets_, unpause_pressed_);
       break;
     case Event::Type::UnPause:
-      AddAnimation<CountDownAnimation>(renderer_, assets_, GetCountDown(), Event::Type::CountdownAfterUnPauseDone);
+      AddAnimation<CountDownAnimation>(renderer_, assets_, kSinglePlayerCountDown, Event::Type::CountdownAfterUnPauseDone);
       break;
     case Event::Type::CountdownAfterUnPauseDone:
       next_queue_->Show();
@@ -168,7 +171,7 @@ void Tetrion::EventHandler(Events& events) {
       unpause_pressed_ = game_paused_ = false;
       std::for_each(panes_.begin(), panes_.end(), [](const auto& r) { r->Reset(); });
       if (GameMode::Marathon == game_mode_) {
-        AddAnimation<CountDownAnimation>(renderer_, assets_, GetCountDown(), Event::Type::NextTetromino);
+        AddAnimation<CountDownAnimation>(renderer_, assets_, kSinglePlayerCountDown, Event::Type::NextTetromino);
       } else {
         multi_player_->NewGame();
       }
@@ -184,7 +187,7 @@ void Tetrion::EventHandler(Events& events) {
       break;
     case Event::Type::BattleResetCountDown:
       RemoveAnimation<CountDownAnimation>(animations_);
-      AddAnimation<CountDownAnimation>(renderer_, assets_, GetCountDown(), Event::Type::BattleStartGame);
+      AddAnimation<CountDownAnimation>(renderer_, assets_, kMultiPlayerCountDown, Event::Type::BattleStartGame);
       break;
     case Event::Type::BattleGotLines:
       break;

@@ -96,8 +96,8 @@ void MultiPlayerController::Dispatch() {
         listener_if_->GotLeave(host_name);
         break;
       case Request::NewGame:
-        listener_if_->GotUpdate(host_name, 0, 0, 0, package.payload_.state());
         listener_if_->GotNewGame(host_name);
+        listener_if_->GotUpdate(host_name, 0, 0, 0, package.payload_.state());
         break;
       case Request::StartGame:
         if (host_name == our_hostname_) {
