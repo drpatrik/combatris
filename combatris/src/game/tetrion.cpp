@@ -164,6 +164,10 @@ void Tetrion::EventHandler(Events& events) {
       AddAnimation<ScoreAnimation>(renderer_, assets_, event.pos_, event.score_);
       break;
     case Event::Type::NewGame:
+      if (!multi_player_->CanPressNewGame()) {
+        break;
+      }
+      animations_.clear();
       events.Clear();
       next_queue_->Hide();
       tetromino_generator_->Reset();

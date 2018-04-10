@@ -29,7 +29,7 @@ class MultiPlayerController {
 
   ~MultiPlayerController();
 
-  void Join();
+  void Join(network::GameState state = GameState::Idle);
 
   void Leave();
 

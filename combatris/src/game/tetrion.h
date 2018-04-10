@@ -37,10 +37,7 @@ class Tetrion final {
 
   ~Tetrion() noexcept;
 
-  void NewGame() {
-    animations_.clear();
-    events_.Push(Event::Type::NewGame);
-  }
+  void NewGame() { events_.Push(Event::Type::NewGame); }
 
   void Pause() {
     if (game_mode_ == GameMode::Battle || !tetromino_in_play_) {

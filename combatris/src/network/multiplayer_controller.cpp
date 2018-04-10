@@ -39,11 +39,11 @@ MultiPlayerController::~MultiPlayerController() {
   Cleanup();
 }
 
-void MultiPlayerController::Join() {
+void MultiPlayerController::Join(GameState state) {
   if (!heartbeat_thread_) {
     heartbeat_thread_ = std::make_unique<std::thread>(HeartbeatController, std::ref(cancelled_), send_queue_);
   }
-  send_queue_->Push(CreatePackage(Request::Join, GameState::Idle));
+  send_queue_->Push(CreatePackage(Request::Join, state));
 }
 
 void MultiPlayerController::Leave()  {
@@ -94,9 +94,6 @@ void MultiPlayerController::Dispatch() {
     switch (package.header_.request()) {
       case Request::Join:
         listener_if_->GotJoin(host_name);
-        if (host_name != our_hostname_) {
-          send_queue_->Push(CreatePackage(Request::Join, GameState::Idle));
-        }
         break;
       case Request::Leave:
         listener_if_->GotLeave(host_name);

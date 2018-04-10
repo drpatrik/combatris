@@ -19,11 +19,7 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
 
   virtual void Update(const Event& event) override;
 
-  virtual void Reset() override {
-    for (auto& player : score_board_) {
-      player->Reset();
-    }
-  }
+  virtual void Reset() override;
 
   virtual void Render(double) override;
 
@@ -36,9 +32,16 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
     GotLeave(multiplayer_controller_->our_host_name());
     multiplayer_controller_->Leave();
     multiplayer_controller_.reset();
+    score_board_.clear();
+    players_.clear();
+
   }
 
   network::GameState state() const { return game_state_; }
+
+  bool CanPressNewGame() const {
+    return std::none_of(score_board_.begin(), score_board_.end(), [](const auto& p) { return p->state() != network::GameState::Playing; });
+  }
 
   void NewGame() { multiplayer_controller_->NewGame(); }
 
@@ -47,6 +50,8 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
   void ResetCountDown() { multiplayer_controller_->ResetCountDown(); }
 
  protected:
+  const std::string our_host_name() const { return multiplayer_controller_->our_host_name(); }
+
   virtual void GotJoin(const std::string& name) override;
 
   virtual void GotLeave(const std::string& name) override;

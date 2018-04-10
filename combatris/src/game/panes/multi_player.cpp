@@ -38,6 +38,15 @@ void MultiPlayer::Update(const Event& event) {
   }
 }
 
+void MultiPlayer::Reset() {
+  if (!multiplayer_controller_) {
+    return;
+  }
+  auto& player = players_.at(our_host_name());
+
+  player->Reset();
+}
+
 void MultiPlayer::Render(double delta_time) {
   if (multiplayer_controller_) {
     multiplayer_controller_->Dispatch();
@@ -48,7 +57,7 @@ void MultiPlayer::Render(double delta_time) {
   int offset = 0;
 
   for (const auto& player : score_board_) {
-    player->Render((kBoxHeight + kSpaceBetweenBoxes) * offset, multiplayer_controller_->our_host_name() == player->name());
+    player->Render((kBoxHeight + kSpaceBetweenBoxes) * offset, our_host_name() == player->name());
     offset++;
   }
   ticks_ += delta_time;
@@ -64,6 +73,9 @@ void MultiPlayer::Render(double delta_time) {
 // ListenerInterface
 
 void MultiPlayer::GotJoin(const std::string& name) {
+  if (name != our_host_name()) {
+    multiplayer_controller_->Join(game_state_);
+  }
   score_board_.push_back(players_.insert(std::make_pair(name, std::make_shared<Player>(renderer_, name, assets_))).first->second);
 }
 
@@ -78,15 +90,15 @@ void MultiPlayer::GotResetCountDown(const std::string& name) {
   if (GameState::Playing == game_state_) {
     return;
   }
-  const auto& our_name = multiplayer_controller_->our_host_name();
+  const auto& our_name = our_host_name();
 
   if (name == our_name) {
     events_.Push(Event::Type::BattleResetCountDown);
     return;
   }
-  auto& stat = players_.at(our_name);
+  auto& player = players_.at(our_name);
 
-  if (GameState::Waiting == stat->state()) {
+  if (GameState::Waiting == player->state()) {
     events_.Push(Event::Type::BattleResetCountDown);
   }
 }
@@ -94,21 +106,22 @@ void MultiPlayer::GotResetCountDown(const std::string& name) {
 void MultiPlayer::GotStartGame() { events_.Push(Event::Type::NextTetromino); }
 
 void MultiPlayer::GotUpdate(const std::string& name, size_t lines, size_t score, size_t level, GameState state) {
-  auto& stat = players_.at(name);
+  auto& player = players_.at(name);
 
-  if (name == multiplayer_controller_->our_host_name()) {
+  if (name == our_host_name()) {
     game_state_ = (GameState::None == game_state_) ? game_state_ : state;
   }
-  if (stat->Update(lines, score, level, state)) {
+  if (player->Update(lines, score, level, state)) {
     std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) { return a->score() > b->score(); });
   }
 }
 
 void MultiPlayer::GotLines(const std::string& name, size_t lines) {
-  if (name != multiplayer_controller_->our_host_name()) {
-    auto event = Event(Event::Type::BattleGotLines);
-
-    event.lines_ = lines;
-    events_.Push(event);
+  if (name == our_host_name()) {
+    return;
   }
+  auto event = Event(Event::Type::BattleGotLines);
+
+  event.lines_ = lines;
+  events_.Push(event);
 }
