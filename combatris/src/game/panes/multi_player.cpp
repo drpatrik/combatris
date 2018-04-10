@@ -86,10 +86,7 @@ void MultiPlayer::GotLeave(const std::string& name) {
   players_.erase(name);
 }
 
-void MultiPlayer::GotResetCountDown(const std::string& name) {
-  if (GameState::Playing == game_state_) {
-    return;
-  }
+void MultiPlayer::GotNewGame(const std::string& name) {
   const auto& our_name = our_host_name();
 
   if (name == our_name) {

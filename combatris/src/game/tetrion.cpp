@@ -81,12 +81,6 @@ Tetrion::~Tetrion() noexcept {
   SDL_DestroyWindow(window_);
 }
 
-void Tetrion::ResetCountDown() {
-  if (GameMode::Battle == game_mode_ && IsAnimationActive<CountDownAnimation>(animations_)) {
-    multi_player_->ResetCountDown();
-  }
-}
-
 void Tetrion::GameControl(Controls control_pressed) {
   if (!tetromino_in_play_ || game_paused_) {
     return;

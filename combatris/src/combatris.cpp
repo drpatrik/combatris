@@ -132,8 +132,6 @@ class Combatris {
       current_control = Tetrion::Controls::Pause;
     } else if (event.key.keysym.scancode == SDL_SCANCODE_F1) {
       current_control = Tetrion::Controls::ToggleGameMode;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_R) {
-      current_control = Tetrion::Controls::ResetCounter;
     }
 
     return current_control;
@@ -247,8 +245,6 @@ class Combatris {
           case Tetrion::Controls::ToggleGameMode:
             tetrion_->ToggleGameMode();
             break;
-          case Tetrion::Controls::ResetCounter:
-            tetrion_->ResetCountDown();
           default:
             break;
         }

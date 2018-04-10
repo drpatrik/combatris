@@ -25,8 +25,7 @@ class Tetrion final {
     Hold,
     Pause,
     Start,
-    ToggleGameMode,
-    ResetCounter
+    ToggleGameMode
   };
 
   Tetrion();

@@ -71,7 +71,6 @@ Key | Action
 N  | New game
 P | Pause
 F1 | Toggle marathon / battle mode
-R | Reset Counter (battle mode only)
 Z | Rotate counter clockwise
 Up / X | Rotate clockwise
 Left | Move Left

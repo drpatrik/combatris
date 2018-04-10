@@ -14,7 +14,7 @@ class ListenerInterface {
 
   virtual void GotLeave(const std::string& name) = 0;
 
-  virtual void GotResetCountDown(const std::string& name) = 0;
+  virtual void GotNewGame(const std::string& name) = 0;
 
   virtual void GotStartGame() = 0;
 
@@ -35,8 +35,6 @@ class MultiPlayerController {
 
   void NewGame();
 
-  void ResetCountDown();
-
   void StartGame();
 
   void SendUpdate(size_t garbage);
@@ -48,7 +46,6 @@ class MultiPlayerController {
   void Dispatch();
 
   const std::string& our_host_name() const { return our_hostname_; }
-
 
  protected:
   void Run();

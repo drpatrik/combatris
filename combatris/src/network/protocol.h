@@ -44,7 +44,7 @@ inline int GetPort() {
 
 #pragma pack(push, 1)
 
-enum Request : uint8_t { Empty, Join, Leave, NewGame, ResetCountDown, StartGame, ProgressUpdate, HeartBeat };
+enum Request : uint8_t { Empty, Join, Leave, NewGame, StartGame, ProgressUpdate, HeartBeat };
 
 inline std::string ToString(Request request) {
   switch (request) {
@@ -56,8 +56,6 @@ inline std::string ToString(Request request) {
       return "Request::Leave";
     case NewGame:
       return "Request::NewGame";
-    case ResetCountDown:
-      return "Request::ResetCountDown";
     case StartGame:
       return "Request::StartGame";
     case ProgressUpdate:

@@ -46,8 +46,6 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
 
   void StartGame() { multiplayer_controller_->StartGame(); }
 
-  void ResetCountDown() { multiplayer_controller_->ResetCountDown(); }
-
  protected:
   const std::string our_host_name() const { return multiplayer_controller_->our_host_name(); }
 
@@ -55,7 +53,7 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
 
   virtual void GotLeave(const std::string& name) override;
 
-  virtual void GotResetCountDown(const std::string& name) override;
+  virtual void GotNewGame(const std::string& name) override;
 
   virtual void GotStartGame() override;
 
