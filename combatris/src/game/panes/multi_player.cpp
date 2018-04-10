@@ -45,6 +45,7 @@ void MultiPlayer::Reset() {
   auto& player = players_.at(our_host_name());
 
   player->Reset();
+  accumulator_.Reset();
 }
 
 void MultiPlayer::Render(double delta_time) {
