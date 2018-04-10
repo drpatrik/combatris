@@ -72,7 +72,7 @@ void MultiPlayer::Render(double delta_time) {
 
 // ListenerInterface
 
-void MultiPlayer::GotJoin(const std::string& name) {
+void MultiPlayer::GotJoin(const std::string& name)  {
   if (name != our_host_name()) {
     multiplayer_controller_->Join(game_state_);
   }
@@ -109,6 +109,7 @@ void MultiPlayer::GotUpdate(const std::string& name, size_t lines, size_t score,
   auto& player = players_.at(name);
 
   if (name == our_host_name()) {
+    std::cout << ToString(state) << std::endl;
     game_state_ = (GameState::None == game_state_) ? game_state_ : state;
   }
   if (player->Update(lines, score, level, state)) {

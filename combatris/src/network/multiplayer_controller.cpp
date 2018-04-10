@@ -94,6 +94,7 @@ void MultiPlayerController::Dispatch() {
     switch (package.header_.request()) {
       case Request::Join:
         listener_if_->GotJoin(host_name);
+        listener_if_->GotUpdate(host_name, 0, 0, 0, package.payload_.state());
         break;
       case Request::Leave:
         listener_if_->GotLeave(host_name);

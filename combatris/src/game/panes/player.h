@@ -17,8 +17,11 @@ class Player final {
   enum TextureID { Name, State, ScoreCaption, Score, LevelCaption, Level, LinesCaption, Lines };
   using Ptr = std::shared_ptr<Player>;
 
-  Player(SDL_Renderer* renderer, const std::string name, const std::shared_ptr<Assets>& assets)
-      : renderer_(renderer), name_(name), assets_(assets) { Reset(true); }
+  Player(SDL_Renderer* renderer, const std::string name, const std::shared_ptr<Assets>& assets,
+         network::GameState state = network::GameState::None)
+      : renderer_(renderer), name_(name), assets_(assets), state_(state) {
+    Reset(true);
+  }
 
   Player(const Player&) = delete;
 
