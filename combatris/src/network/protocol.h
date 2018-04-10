@@ -14,11 +14,10 @@
 
 namespace network {
 
-const int kMaxPlayers = 9;
 const int kHostNameMax = 31;
 const uint32_t kID = 0x50415243; // PARC
 const int kMTU = 512;
-const int kWindowSize = 10;
+const int kWindowSize = 20;
 const std::string kEnvServer = "COMBATRIS_BROADCAST_IP";
 const std::string kEnvPort = "COMBATRIS_BROADCAST_PORT";
 
@@ -137,13 +136,13 @@ class PackageHeader final {
 
 class Payload final {
  public:
-  Payload() : lines_(0), score_(0), level_(0), garbage_(0), state_(GameState::Idle) {}
+  Payload() : lines_(0), score_(0), level_(0), extra_lines_(0), state_(GameState::Idle) {}
 
-  Payload(uint16_t lines, uint32_t score, uint8_t level, uint8_t garbage, GameState state) {
+  Payload(uint16_t lines, uint32_t score, uint8_t level, uint8_t extra_lines, GameState state) {
     lines_ = htons(lines);
     score_ = htonl(score);
     level_ = level;
-    garbage_ = garbage;
+    extra_lines_ = extra_lines;
     state_ = state;
   }
 
@@ -153,7 +152,7 @@ class Payload final {
 
   uint8_t level() const { return level_; }
 
-  uint8_t garbage() const { return garbage_; }
+  uint8_t extra_lines() const { return extra_lines_; }
 
   GameState state() const { return state_; }
 
@@ -163,7 +162,7 @@ class Payload final {
   uint16_t lines_;
   uint32_t score_;
   uint8_t level_;
-  uint8_t garbage_;
+  uint8_t extra_lines_;
   GameState state_;
 };
 

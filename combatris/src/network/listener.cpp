@@ -5,8 +5,8 @@
 namespace {
 
 const int kWaitTime = 500;
-const int kTimeOut = 5000;
-const int64_t kIsConnectionAliveCheckInterval = 1000;
+const int kTimeOut = 3000;
+const int64_t kConnectionCheckAliveInterval = 1000;
 
 } // namespace
 
@@ -51,7 +51,7 @@ void Listener::Run() {
     if (cancelled_.load(std::memory_order_acquire)) {
       break;
     }
-    if (utility::time_in_ms() - last_timeout_check >= kIsConnectionAliveCheckInterval) {
+    if ((utility::time_in_ms() - last_timeout_check) >= kConnectionCheckAliveInterval) {
       TerminateTimedOutConnections();
       last_timeout_check = utility::time_in_ms();
     }
@@ -92,7 +92,6 @@ void Listener::Run() {
     for (auto& package : package_vector) {
       bool process_request = true;
       const auto& header = package.header_;
-      const auto& payload = package.payload_;
 
       if (!header.VerifyHeader()) {
         std::cout << "Unknown package ignored" << std::endl;
@@ -104,8 +103,7 @@ void Listener::Run() {
         } else {
           process_request = false;
         }
-      }
-      if (connections_.count(host_name) == 0) {
+      } else if (connections_.count(host_name) == 0) {
         continue;
       }
       auto& connection = connections_.at(host_name);
@@ -124,7 +122,7 @@ void Listener::Run() {
         default:
           break;
       }
-      connection.Update(header, payload);
+      connection.Update(header);
       VerifySequenceNumber(connection, host_name, header);
       if (process_request) {
         queue_->Push(std::make_pair(host_name, package));

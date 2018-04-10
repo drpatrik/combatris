@@ -63,10 +63,10 @@ void MultiPlayerController::StartGame() {
   send_queue_->Push(CreatePackage(Request::StartGame, GameState::Playing));
 }
 
-void MultiPlayerController::SendUpdate(size_t garbage) {
+void MultiPlayerController::SendUpdate(size_t lines) {
   auto package = CreatePackage(Request::ProgressUpdate);
 
-  package.payload_ = Payload(0, 0, 0, garbage, GameState::None);
+  package.payload_ = Payload(0, 0, 0, lines, GameState::None);
   send_queue_->Push(package);
 }
 
@@ -117,8 +117,8 @@ void MultiPlayerController::Dispatch() {
       case ProgressUpdate:
         listener_if_->GotUpdate(host_name, package.payload_.lines(), package.payload_.score(),
                           package.payload_.level(), package.payload_.state());
-        if (package.payload_.garbage() != 0) {
-          listener_if_->GotGarbage(host_name, package.payload_.garbage());
+        if (package.payload_.extra_lines() != 0) {
+          listener_if_->GotLines(host_name, package.payload_.extra_lines());
         }
         break;
       default:

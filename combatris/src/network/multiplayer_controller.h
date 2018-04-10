@@ -20,7 +20,7 @@ class ListenerInterface {
 
   virtual void GotUpdate(const std::string& name, size_t lines, size_t score, size_t level, GameState state) = 0;
 
-  virtual void GotGarbage(const std::string& name, size_t lines) = 0;
+  virtual void GotLines(const std::string& name, size_t lines) = 0;
 };
 
 class MultiPlayerController {
@@ -88,4 +88,4 @@ class MultiPlayerController {
   std::deque<Package> sliding_window_;
 };
 
-} // namespace listener
+} // namespace network

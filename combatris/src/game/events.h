@@ -36,10 +36,10 @@ struct Event {
     CountdownAfterUnPauseDone,
     GameOver,
     GameStatistics,
-    BattleSendGarbage,
     BattleStartGame,
     BattleResetCountDown,
-    BattleGotGarbage
+    BattleSendLines,
+    BattleGotLines
   };
 
   explicit Event(Type type) : type_(type), lines_cleared_() {}
@@ -74,7 +74,7 @@ struct Event {
   Position pos_ = Position(-1, -1);
   TSpinType tspin_type_ = TSpinType::None;
   int lines_dropped_ = 0;
-  int garbage_lines_ = 0;
+  int lines_ = 0;
   int score_ = 0;
   ComboType combo_type_ = ComboType::None;
   int combo_counter_ = 0;

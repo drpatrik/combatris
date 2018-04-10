@@ -51,21 +51,14 @@ class Listener final {
 
  private:
   struct Connection {
-    explicit Connection(uint32_t sequence_nr) : sequence_nr_(sequence_nr) {
-      state_ = GameState::Waiting;
-      timestamp_ = utility::time_in_ms();
-    }
+    Connection(uint32_t sequence_nr) : sequence_nr_(sequence_nr) { timestamp_ = utility::time_in_ms(); }
 
-    void Update(const PackageHeader& header, const Payload& payload) {
-      if (payload.state() != GameState::None) {
-        state_ = payload.state();
-      }
+    void Update(const PackageHeader& header) {
       sequence_nr_ = header.sequence_nr();
       timestamp_ = utility::time_in_ms();
     }
 
     uint32_t sequence_nr_ = 0;
-    GameState state_ = GameState::Idle;
     int64_t timestamp_;
   };
 
@@ -75,9 +68,9 @@ class Listener final {
 
   void TerminateTimedOutConnections();
 
+  std::atomic<bool> cancelled_;
   std::unordered_map<std::string, Connection> connections_;
   std::unique_ptr<ThreadSafeQueue<std::pair<std::string, Package>>> queue_;
-  std::atomic<bool> cancelled_;
   std::unique_ptr<std::thread> thread_;
 };
 

@@ -181,14 +181,14 @@ void Tetrion::EventHandler(Events& events) {
     case Event::Type::Falling:
       RemoveAnimation<OnFloorAnimation>(animations_);
       break;
-    case Event::Event::Type::BattleStartGame:
+    case Event::Type::BattleStartGame:
       multi_player_->StartGame();
       break;
     case Event::Type::BattleResetCountDown:
       RemoveAnimation<CountDownAnimation>(animations_);
       AddAnimation<CountDownAnimation>(renderer_, assets_, GetCountDown(), Event::Type::BattleStartGame);
       break;
-    case Event::Type::BattleGotGarbage:
+    case Event::Type::BattleGotLines:
       break;
     default:
       break;

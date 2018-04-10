@@ -5,6 +5,8 @@
 A modern C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only),
 OSX 10.12/10.13, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
 
+The plan is to implement two modes single player marathon and battle (multiplayer marathon).
+
 The game uses the following settings and rules:
 
 Feature | Support
@@ -21,8 +23,6 @@ Level advancement | 10 lines
 T-Spin recognition | 3-corner with kicks
 Back-to-back Recognition | Tetris / T-spin
 Platform | PC / OSX / (Linux)
-
-The plan is to implement two modes single player marathon and Battle (multiplayer marathon).
 
 **Status**
 - [x] Rotate left / right
@@ -70,6 +70,8 @@ Key | Action
 --- | ------
 N  | New game
 P | Pause
+F1 | Toggle marathon / battle mode
+R | Reset Counter (battle mode only)
 Z | Rotate counter clockwise
 Up / X | Rotate clockwise
 Left | Move Left
@@ -196,7 +198,7 @@ Some sources has there own license and is not covered by the source codes licens
 * Fonts https://www.dafont.com/obelixpro.font
 * Wall kick tables from https://harddrop.com/wiki/SRS
 * Tetris info from http://tetris.wikia.com and https://tetris.wiki
-* Tetrominoes from https://commons.wikimedia.org/wiki/File:Tetrominoes_IJLO_STZ_Worlds.svg
+* Tetrominos from https://commons.wikimedia.org/wiki/File:Tetrominoes_IJLO_STZ_Worlds.svg
 * Original FindSDL2_mixer https://github.com/rlsosborne/doom
 * DeltaTimer adapted from http://headerphile.com/sdl2/sdl2-part-9-no-more-delays/
 * https://github.com/philsquared/Catch
