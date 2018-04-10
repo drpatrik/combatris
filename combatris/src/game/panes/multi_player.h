@@ -34,13 +34,12 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
     multiplayer_controller_.reset();
     score_board_.clear();
     players_.clear();
-
   }
 
   network::GameState state() const { return game_state_; }
 
   bool CanPressNewGame() const {
-    return std::none_of(score_board_.begin(), score_board_.end(), [](const auto& p) { return p->state() != network::GameState::Playing; });
+    return std::none_of(score_board_.begin(), score_board_.end(), [](const auto& p) { return p->state() == network::GameState::Playing; });
   }
 
   void NewGame() { multiplayer_controller_->NewGame(); }
