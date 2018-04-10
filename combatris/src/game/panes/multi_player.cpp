@@ -5,7 +5,7 @@ using namespace network;
 namespace {
 
 const size_t kMaxPlayers = 9;
-const double kUpdateInterval = 0.1;
+const double kUpdateInterval = 0.3;
 const int kSpaceBetweenBoxes = 11;
 
 } // namespace

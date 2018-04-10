@@ -161,9 +161,7 @@ TetrominoSprite::State TetrominoSprite::Down(double delta_time) {
         if (perfect_clear) {
           events_.Push(Event::Type::PerfectClear);
         }
-        if (!lines_cleared.empty() || TSpinType::None != tspin_type) {
-          events_.Push(Event::Type::ScoringData, lines_cleared, pos_, tspin_type);
-        }
+        events_.Push(Event::Type::ScoringData, lines_cleared, pos_, tspin_type);
         state_ = State::Commited;
       }
       break;

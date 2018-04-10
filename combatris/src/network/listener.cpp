@@ -89,7 +89,7 @@ void Listener::Run() {
     for (auto i = index; i >= 0; --i) {
       package_vector.push_back(packages.array_[i]);
     }
-    for (auto& package : package_vector) {
+    for (const auto& package : package_vector) {
       bool process_request = true;
       const auto& header = package.header_;
 
@@ -122,8 +122,8 @@ void Listener::Run() {
       VerifySequenceNumber(connection, host_name, header);
       if (process_request) {
         queue_->Push(std::make_pair(host_name, package));
-        std::cout << host_name << " sent " << ToString(package.header_.request()) << std::endl;
       }
+      std::cout << "got " << ToString(package.header_.request()) << " from " << host_name << std::endl;
     }
   }
 }

@@ -63,11 +63,26 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
 
  private:
   struct GameStatisticsAccumlator {
-    void AddLines(int lines) { lines_ += lines; is_dirty_ = true; }
+    void AddLines(int lines) {
+      if (lines == 0) {
+        return;
+      }
+      lines_ += lines;
+      is_dirty_ = true;
+    }
 
-    void AddScore(int score) { score_ += score; is_dirty_ = true; }
+    void AddScore(int score) {
+      if (score == 0) {
+        return;
+      }
+      score_ += score;
+      is_dirty_ = true;
+    }
 
-    void SetLevel(int level) { level_ = level; is_dirty_ = true; }
+    void SetLevel(int level) {
+      level_ = level;
+      is_dirty_ = true;
+    }
 
     int lines_ = 0;
     int score_ = 0;

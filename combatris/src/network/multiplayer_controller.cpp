@@ -121,7 +121,7 @@ void MultiPlayerController::Dispatch() {
 void MultiPlayerController::Run() {
   uint32_t sequence_nr = 0;
   UDPClient client(GetBroadcastIP(), GetPort());
-  int64_t time_since_last_package = utility::time_in_ms();
+  auto time_since_last_package = utility::time_in_ms();
 
   for (;;) {
     if (cancelled_.load(std::memory_order_acquire)) {
