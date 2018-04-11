@@ -121,18 +121,3 @@ TEST_CASE("LostTooManyPackagesDetection") {
   Send(sliding_window, client);
   CheckResponse(listener, client.host_name(), Request::Leave);
 }
-
-TEST_CASE("TestTimeout") {
-  UDPClient client(GetBroadcastIP(), GetPort());
-  Listener listener;
-
-  std::deque<Package> sliding_window;
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-  sliding_window.push_front(PreparePackage(0, Request::Join));
-  Send(sliding_window, client);
-  CheckResponse(listener, client.host_name(), Request::Join);
-  std::this_thread::sleep_for(std::chrono::seconds(5));
-  CheckResponse(listener, client.host_name(), Request::Leave);
-}

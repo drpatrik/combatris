@@ -1,14 +1,21 @@
 #include "game/matrix.h"
 #include "game/tetromino_tspin_detection.h"
 
+#include <random>
 #include <iomanip>
 
 namespace {
 
+std::mt19937 kGenerator { std::random_device{}() };
+std::uniform_int_distribution<> GetRandomNumber(0, kVisibleCols - 1);
+
 const int kEmptyID =  static_cast<int>(Tetromino::Type::Empty);
 const int kBorderID = static_cast<int>(Tetromino::Type::Border);
+const int kSolidID = static_cast<int>(Tetromino::Type::Solid);
 const int kGhostAddOn = kBorderID + 1;
 const std::vector<int> kEmptyRow = { kBorderID, kBorderID, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, kBorderID, kBorderID };
+const std::vector<int> kSolidRow = { kBorderID, kBorderID, kSolidID, kSolidID, kSolidID, kSolidID,  kSolidID,
+                                    kSolidID,  kSolidID,  kSolidID, kSolidID, kSolidID, kBorderID, kBorderID };
 
 void Print(const Matrix::Type& matrix) {
   for (int row = 0; row < static_cast<int>(matrix.size()); ++row) {
@@ -84,6 +91,44 @@ bool DetectPerfectClear(const Matrix::Type& matrix) {
   return matrix[matrix.size() - 3] == kEmptyRow;
 }
 
+int MoveLinesUp(int lines, Matrix::Type& matrix) {
+  int first_non_empty_row = 0;
+
+  for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
+    const auto& line = matrix[row];
+
+    if (line != kEmptyRow) {
+      break;
+    }
+    first_non_empty_row = row;
+  }
+  Matrix::Type tmp;
+
+  std::copy(matrix.begin() + first_non_empty_row + 1, matrix.end() - 2, std::back_inserter(tmp));
+
+  int offset = 0;
+  int rows_we_can_copy = (first_non_empty_row + 1 - kVisibleRowStart);
+
+  if (rows_we_can_copy <= 0) {
+    return 0;
+  }
+
+  if (rows_we_can_copy < lines) {
+    offset = rows_we_can_copy;
+    lines = rows_we_can_copy;
+  }
+  std::copy(tmp.begin() + offset, tmp.end() - offset, matrix.begin() + kVisibleRowStart + (kVisibleRows - (tmp.size() + lines)));
+
+  return lines;
+}
+
+void InsertSolidLines(int lines, Matrix::Type& matrix) {
+  for (int l = lines - 1; l >= 0; --l) {
+    matrix[kVisibleRowEnd - l - 1] = kSolidRow;
+    matrix[kVisibleRowEnd - l - 1].at(kVisibleRowStart + GetRandomNumber(kGenerator)) = kEmptyID;
+  }
+}
+
 } // namespace
 
 void Matrix::Print(bool master) const { ::Print((master) ? master_matrix_ : matrix_); }
@@ -117,6 +162,18 @@ void Matrix::Render(double) {
       }
     }
   }
+}
+
+bool Matrix::InsertLines(int lines) {
+  lines = MoveLinesUp(lines, master_matrix_);
+
+  if (lines <= 0) {
+    return false;
+  }
+  InsertSolidLines(lines, master_matrix_);
+  matrix_ = master_matrix_;
+
+  return true;
 }
 
 bool Matrix::IsValid(const Position& pos, const TetrominoRotationData& rotation_data) const {

@@ -28,7 +28,6 @@ int64_t Listener::VerifySequenceNumber(Listener::Connection& connection, const s
 void Listener::TerminateTimedOutConnections() {
   for (auto it = connections_.begin(); it != connections_.end();) {
     if (utility::time_in_ms() - it->second.timestamp_ >= kTimeOut) {
-      queue_->Push(std::make_pair(it->first, CreatePackage(Request::Leave)));
       std::cout << it->first << " timed out, connection terminated" << std::endl;
       it = connections_.erase(it);
     } else {

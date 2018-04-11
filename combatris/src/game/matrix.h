@@ -40,6 +40,8 @@ class Matrix final : public PaneInterface {
 
   virtual void Reset() override { Initialize(); }
 
+  bool InsertLines(int lines);
+
   bool IsValid(const Position& pos, const TetrominoRotationData& rotation_data) const;
 
   void Insert(const Position& pos, const TetrominoRotationData& rotation_data) {

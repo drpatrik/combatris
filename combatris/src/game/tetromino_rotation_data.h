@@ -36,11 +36,16 @@ const std::vector<std::vector<std::vector<int>>> kWallKickDataForI = {
 };
 
 struct TetrominoRotationData {
+  TetrominoRotationData() : shape_(std::vector<std::vector<int>>()) {}
+
   explicit TetrominoRotationData(const std::vector<std::vector<int>>& shape) : shape_(shape) {}
+
   TetrominoRotationData(int angle_index, const std::vector<std::vector<int>>& shape) :
       angle_index_(angle_index), shape_(shape) {}
+
   TetrominoRotationData(int width, int height, const std::vector<std::vector<int>>& shape) :
       width_(width), height_(height), shape_(shape) {}
+
   TetrominoRotationData(int angle_index, int width, int height, const std::vector<std::vector<int>>& shape) :
       angle_index_(angle_index), width_(width), height_(height), shape_(shape) {}
 

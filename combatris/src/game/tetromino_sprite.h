@@ -16,12 +16,17 @@ class TetrominoSprite {
   enum class Rotation { Clockwise, CounterClockwise };
 
   TetrominoSprite(const Tetromino& tetromino, const std::shared_ptr<Level>& level, Events& events, const std::shared_ptr<Matrix>& matrix)
-      : tetromino_(tetromino), level_(level), events_(events), matrix_(matrix), rotation_data_(tetromino.GetRotationData(kSpawnAngle)) {
-    if (matrix_->IsValid(pos_, rotation_data_)) {
-      matrix_->Insert(pos_, rotation_data_);
-      level_->ResetTime();
-      state_ = State::Falling;
+      : tetromino_(tetromino), level_(level), events_(events), matrix_(matrix) { MoveToStartPosition(); }
+
+  void MoveToStartPosition() {
+    pos_ = kSpawnPosition;
+    rotation_data_ = tetromino_.GetRotationData(kSpawnAngle);
+    if (!matrix_->IsValid(pos_, rotation_data_)) {
+      return;
     }
+    matrix_->Insert(pos_, rotation_data_);
+    level_->ResetTime();
+    state_ = State::Falling;
   }
 
   void Render(const std::shared_ptr<SDL_Texture>& texture) const {
@@ -49,6 +54,13 @@ class TetrominoSprite {
   void Right();
 
   State Down(double delta_time);
+
+  void InsertLines(int lines) {
+    if (!matrix_->InsertLines(lines)) {
+      state_ = State::GameOver;
+    }
+    MoveToStartPosition();
+  }
 
  protected:
   void ResetDelayCounter();

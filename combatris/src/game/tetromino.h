@@ -11,7 +11,7 @@ class Tetromino final {
  public:
   enum class Move { None, Left, Right, Down, Rotation };
   enum class Angle { A0, A90, A180, A270 };
-  enum class Type { Empty, I, J, L, O, S, T, Z, Filler, Border };
+  enum class Type { Empty, I, J, L, O, S, T, Z, Solid, Bomb, Border };
 
   Tetromino(SDL_Renderer *renderer, Type type, SDL_Color color, const std::vector<TetrominoRotationData>& rotations,
             const std::shared_ptr<SDL_Texture> &texture)
