@@ -4,8 +4,8 @@
 
 namespace {
 
-const int kWaitTime = 500;
-const int kTimeOut = 3000;
+const int kWaitTime = 100;
+const int kTimeOut = 8000;
 const int64_t kConnectionCheckAliveInterval = 1000;
 
 } // namespace
@@ -123,7 +123,6 @@ void Listener::Run() {
       if (process_request) {
         queue_->Push(std::make_pair(host_name, package));
       }
-      std::cout << "got " << ToString(package.header_.request()) << " from " << host_name << std::endl;
     }
   }
 }

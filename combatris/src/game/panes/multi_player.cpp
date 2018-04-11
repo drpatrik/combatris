@@ -87,7 +87,7 @@ void MultiPlayer::GotNewGame(const std::string& name) {
   if (name == our_host_name()) {
     accumulator_.Reset();
     events_.Push(Event::Type::BattleResetCountDown);
-  } else if (GameState::Waiting == player->state()) {
+  } else if (GameState::Waiting == game_state_) {
     events_.Push(Event::Type::BattleResetCountDown);
   }
   player->Reset();
