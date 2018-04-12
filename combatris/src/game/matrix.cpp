@@ -94,31 +94,24 @@ bool DetectPerfectClear(const Matrix::Type& matrix) {
 int MoveLinesUp(int lines, Matrix::Type& matrix) {
   int first_non_empty_row = 0;
 
-  for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
-    const auto& line = matrix[row];
-
-    if (line != kEmptyRow) {
+  for (int row = 0; row < kVisibleRowEnd; ++row) {
+    first_non_empty_row = row;
+    if (matrix[row] != kEmptyRow) {
       break;
     }
-    first_non_empty_row = row;
+  }
+  if (first_non_empty_row == 0) {
+    return 0;
   }
   Matrix::Type tmp;
 
-  std::copy(matrix.begin() + first_non_empty_row + 1, matrix.end() - 2, std::back_inserter(tmp));
+  std::copy(matrix.begin() + first_non_empty_row, matrix.end() - 2, std::back_inserter(tmp));
 
-  int offset = 0;
-  int rows_we_can_copy = (first_non_empty_row + 1 - kVisibleRowStart);
+  lines = std::min(lines, first_non_empty_row - 1);
 
-  if (rows_we_can_copy <= 0) {
-    return 0;
+  if (lines > 0) {
+    std::copy(tmp.begin(), tmp.end(), matrix.end() - 2 - lines - tmp.size());
   }
-
-  if (rows_we_can_copy < lines) {
-    offset = rows_we_can_copy;
-    lines = rows_we_can_copy;
-  }
-  std::copy(tmp.begin() + offset, tmp.end() - offset, matrix.begin() + kVisibleRowStart + (kVisibleRows - (tmp.size() + lines)));
-
   return lines;
 }
 
@@ -170,6 +163,7 @@ bool Matrix::InsertLines(int lines) {
   if (lines <= 0) {
     return false;
   }
+
   InsertSolidLines(lines, master_matrix_);
   matrix_ = master_matrix_;
 

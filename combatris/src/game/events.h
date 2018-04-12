@@ -114,6 +114,8 @@ class Events {
     events_.emplace_back(type, lines, pos, tspin_type);
   }
 
+  inline void PushFront(Event::Type type) { events_.emplace_front(type); }
+
   inline void Push(Event::Type type, const Lines& lines) { events_.emplace_back(type, lines); }
 
   inline void Push(Event::Type type, const Position& pos, int score) {

@@ -64,14 +64,17 @@ void MultiPlayer::Render(double delta_time) {
 
 // ListenerInterface
 
-void MultiPlayer::GotJoin(const std::string& name)  {
+bool MultiPlayer::GotJoin(const std::string& name)  {
   if (score_board_.size() >= kMaxPlayers) {
-    return;
+    std::cout << "Combatris only support - " << kMaxPlayers << " players." << std::endl;
+    return false;
   }
   if (name != our_host_name()) {
     multiplayer_controller_->Join(game_state_);
   }
   score_board_.push_back(players_.insert(std::make_pair(name, std::make_shared<Player>(renderer_, name, assets_))).first->second);
+
+  return true;
 }
 
 void MultiPlayer::GotLeave(const std::string& name) {

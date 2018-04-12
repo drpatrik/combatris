@@ -143,11 +143,8 @@ void Tetrion::EventHandler(Events& events) {
       next_queue_->Show();
       tetromino_in_play_ = tetromino_generator_->Get();
       if (tetromino_in_play_->is_game_over()) {
-        events.Clear();
-        animations_.clear();
         tetromino_in_play_.reset();
-        AddAnimation<GameOverAnimation>(renderer_, assets_);
-        events.Push(Event::Type::GameOver);
+        events.PushFront(Event::Type::GameOver);
       }
       break;
     case Event::Type::LevelUp:
@@ -176,6 +173,11 @@ void Tetrion::EventHandler(Events& events) {
         multi_player_->NewGame();
       }
       break;
+    case Event::Type::GameOver:
+      events.Clear();
+      animations_.clear();
+      AddAnimation<GameOverAnimation>(renderer_, assets_);
+      break;
     case Event::Type::OnFloor:
       AddAnimation<OnFloorAnimation>(renderer_, assets_, tetromino_in_play_);
       break;
@@ -190,6 +192,11 @@ void Tetrion::EventHandler(Events& events) {
       AddAnimation<CountDownAnimation>(renderer_, assets_, kMultiPlayerCountDown, Event::Type::BattleStartGame);
       break;
     case Event::Type::BattleGotLines:
+      tetromino_in_play_->InsertLines(event.lines_);
+      if (tetromino_in_play_->is_game_over()) {
+        events.PushFront(Event::Type::GameOver);
+        tetromino_in_play_.reset();
+      }
       break;
     default:
       break;

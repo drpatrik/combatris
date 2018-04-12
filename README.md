@@ -108,6 +108,12 @@ Down | Soft Drop
 Y | Hold piece
 A | Hard Drop
 
+## Network Considerations
+
+The default port is 11000 and default broadcast IP are 192.168.1.255
+Use the environment variables COMBATRIS_BROADCAST_PORT and COMBATRIS_BROADCAST_IP to
+change the port and broadcast IP accordingly.
+
 ## Build Combatris
 
 **Dependencies:**

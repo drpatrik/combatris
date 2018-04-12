@@ -10,7 +10,7 @@ class ListenerInterface {
  public:
   virtual ~ListenerInterface() {}
 
-  virtual void GotJoin(const std::string& name) = 0;
+  virtual bool GotJoin(const std::string& name) = 0;
 
   virtual void GotLeave(const std::string& name) = 0;
 

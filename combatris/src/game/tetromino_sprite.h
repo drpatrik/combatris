@@ -22,6 +22,7 @@ class TetrominoSprite {
     pos_ = kSpawnPosition;
     rotation_data_ = tetromino_.GetRotationData(kSpawnAngle);
     if (!matrix_->IsValid(pos_, rotation_data_)) {
+      state_ = State::GameOver;
       return;
     }
     matrix_->Insert(pos_, rotation_data_);
@@ -41,6 +42,13 @@ class TetrominoSprite {
 
   inline bool WaitForLockDelay() { return level_->WaitForLockDelay(); }
 
+  void InsertLines(int lines) {
+    if (!matrix_->InsertLines(lines)) {
+      state_ = State::GameOver;
+    }
+    MoveToStartPosition();
+  }
+
   void RotateClockwise();
 
   void RotateCounterClockwise();
@@ -54,13 +62,6 @@ class TetrominoSprite {
   void Right();
 
   State Down(double delta_time);
-
-  void InsertLines(int lines) {
-    if (!matrix_->InsertLines(lines)) {
-      state_ = State::GameOver;
-    }
-    MoveToStartPosition();
-  }
 
  protected:
   void ResetDelayCounter();

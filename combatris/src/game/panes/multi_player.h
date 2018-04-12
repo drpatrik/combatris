@@ -49,7 +49,7 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
  protected:
   const std::string our_host_name() const { return multiplayer_controller_->our_host_name(); }
 
-  virtual void GotJoin(const std::string& name) override;
+  virtual bool GotJoin(const std::string& name) override;
 
   virtual void GotLeave(const std::string& name) override;
 
