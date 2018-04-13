@@ -33,8 +33,9 @@ MultiPlayerController::MultiPlayerController(ListenerInterface* listener_if) : l
 }
 
 MultiPlayerController::~MultiPlayerController() {
+  Leave();
   do {
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
   } while (send_queue_->size() > 0);
   Cancel();
   Cleanup();

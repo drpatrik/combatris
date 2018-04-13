@@ -25,6 +25,7 @@ void Listener::TerminateTimedOutConnections() {
   for (auto it = connections_.begin(); it != connections_.end();) {
     if (utility::time_in_ms() - it->second.timestamp_ >= kTimeOut) {
       std::cout << it->first << " timed out, connection terminated" << std::endl;
+      queue_->Push(std::make_pair(it->first, CreatePackage(Request::Leave)));
       it = connections_.erase(it);
     } else {
       ++it;

@@ -69,8 +69,8 @@ class MultiPlayerController {
       return;
     }
     cancelled_.store(true, std::memory_order_release);
-    send_queue_->Cancel();
     listener_->Cancel();
+    send_queue_->Cancel();
     Wait();
   }
 
