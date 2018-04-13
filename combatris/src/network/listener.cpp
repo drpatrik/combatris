@@ -21,9 +21,10 @@ int64_t Listener::VerifySequenceNumber(Listener::Connection& connection, const s
   if (gap < 0 || gap > 1) {
     std::cout << "Gap detected: " << host_name << ", got - " << new_sequence_nr << ", expected - "
               << old_sequence_nr + 1 << std::endl;
+    return gap;
   }
 
-  return gap;
+  return 0;
 }
 
 void Listener::TerminateTimedOutConnections() {
