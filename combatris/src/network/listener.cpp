@@ -1,12 +1,13 @@
 #include "network/listener.h"
 
 #include <iostream>
+#include <functional>
 
 namespace {
 
 const int kWaitTime = 100;
-const int kTimeOut = 8000;
-const int64_t kConnectionCheckAliveInterval = 1000;
+const int kTimeOut = 5000;
+const int64_t kConnectionCheckAliveInterval = 500;
 
 } // namespace
 
@@ -22,7 +23,7 @@ int64_t Listener::VerifySequenceNumber(Listener::Connection& connection, const s
               << old_sequence_nr + 1 << std::endl;
   }
 
-  return (gap - 1);
+  return gap;
 }
 
 void Listener::TerminateTimedOutConnections() {
@@ -65,26 +66,27 @@ void Listener::Run() {
       std::cout << "Unknown package ignored" << std::endl;
       continue;
     }
-    int64_t index = 0;
-    std::vector<Package> package_vector;
     const auto& host_name = packages.header_.host_name();
 
-    if (connections_.count(host_name) > 0) {
-      auto& connection = connections_.at(host_name);
-
-      index = VerifySequenceNumber(connection, host_name, packages.array_[0].header_);
-
-      if (index > packages.size() || index >= kWindowSize) {
-        std::cout << host_name << " has lost too many packages, connection will be terminated" << std::endl;
-        connections_.erase(host_name);
-        queue_->Push(std::make_pair(host_name, CreatePackage(Request::Leave)));
-        continue;
-      }
-      if (index < 0) {
-        std::cout << "Old package(s) ignored" << std::endl;
-        continue;
-      }
+    if (connections_.count(host_name) == 0) {
+      connections_.insert(std::make_pair(host_name, Connection(packages.array_[0].header_.sequence_nr())));
     }
+    auto& connection = connections_.at(host_name);
+
+    auto index = VerifySequenceNumber(connection, host_name, packages.array_[0].header_);
+
+    if (index < 0) {
+      std::cout << "Old package(s) ignored" << std::endl;
+      continue;
+    }
+    if (index > packages.size() || index >= kWindowSize) {
+      std::cout << host_name << " has lost too many packages, connection will be terminated" << std::endl;
+      connections_.erase(host_name);
+      queue_->Push(std::make_pair(host_name, CreatePackage(Request::Leave)));
+      continue;
+    }
+    std::vector<Package> package_vector;
+
     for (auto i = index; i >= 0; --i) {
       package_vector.push_back(packages.array_[i]);
     }
@@ -96,20 +98,18 @@ void Listener::Run() {
         std::cout << "Unknown package ignored" << std::endl;
         continue;
       }
-      if (header.request() == Request::Join) {
-        if (connections_.count(host_name) == 0) {
-          connections_.insert(std::make_pair(host_name, Connection(header.sequence_nr())));
-        } else {
-          process_request = false;
-        }
-      } else if (connections_.count(host_name) == 0) {
-        continue;
-      }
-      auto& connection = connections_.at(host_name);
-
       switch (header.request()) {
+        case Request::Join:
+          process_request = !connection.has_joined();
+          connection.SetJoined();
+          break;
         case Request::Leave:
-          connections_.erase(host_name);
+          process_request = false;
+          if (connection.has_joined()) {
+            connections_.erase(host_name);
+            connection.SetLeft();
+            process_request = true;
+          }
           break;
         case Request::HeartBeat:
           process_request = false;

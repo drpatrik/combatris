@@ -5,12 +5,10 @@
 #include "network/protocol.h"
 #include "network/udp_client_server.h"
 
-#include <cmath>
 #include <memory>
 #include <thread>
 #include <atomic>
 #include <string>
-#include <functional>
 #include <unordered_map>
 
 namespace network {
@@ -58,6 +56,13 @@ class Listener final {
       timestamp_ = utility::time_in_ms();
     }
 
+    bool has_joined() const { return has_joined_; }
+
+    void SetJoined() { has_joined_ = true; }
+
+    void SetLeft() { has_joined_ = false; }
+
+    bool has_joined_ = false;
     uint32_t sequence_nr_ = 0;
     int64_t timestamp_;
   };

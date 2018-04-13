@@ -42,8 +42,6 @@ inline int GetPort() {
   return std::stoi(env);
 }
 
-#pragma pack(push, 1)
-
 enum Request : uint8_t { Empty, Join, Leave, NewGame, StartGame, ProgressUpdate, HeartBeat };
 
 inline std::string ToString(Request request) {
@@ -83,6 +81,8 @@ inline std::string ToString(GameState state) {
   }
   return "";
 }
+
+#pragma pack(push, 1)
 
 class Header final {
  public:

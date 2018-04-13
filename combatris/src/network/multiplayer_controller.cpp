@@ -1,13 +1,14 @@
 #include "network/multiplayer_controller.h"
 
 #include <chrono>
+#include <vector>
 #include <iostream>
 
 namespace network {
 
 namespace {
 
-const int kHeartBeatInterval = 1000;
+const int kHeartBeatInterval = 500;
 
 void HeartbeatController(std::atomic<bool>& quit, std::shared_ptr<ThreadSafeQueue<Package>> queue) {
   while (true) {
@@ -142,6 +143,7 @@ void MultiPlayerController::Run() {
     time_since_last_package = utility::time_in_ms();
 
     package.header_.SetSeqenceNr(sequence_nr);
+    sequence_nr++;
     if (sliding_window_.size() == kWindowSize) {
       sliding_window_.pop_back();
     }
@@ -151,7 +153,6 @@ void MultiPlayerController::Run() {
 
     std::copy(std::begin(sliding_window_), std::end(sliding_window_), packages.array_);
     client.Send(&packages, sizeof(packages));
-    sequence_nr++;
   }
 }
 
