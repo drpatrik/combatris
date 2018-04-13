@@ -125,6 +125,8 @@ void MultiPlayerController::Run() {
   UDPClient client(GetBroadcastIP(), GetPort());
   auto time_since_last_package = utility::time_in_ms();
 
+  std::cout << "Broadcast IP: " << GetBroadcastIP() << ", Port: " << GetPort() << std::endl;
+
   for (;;) {
     if (cancelled_.load(std::memory_order_acquire)) {
       break;

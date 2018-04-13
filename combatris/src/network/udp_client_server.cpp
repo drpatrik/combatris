@@ -173,7 +173,6 @@ UDPServer::UDPServer(int port) {
     std::cout << "UDPServer: error message - " << get_error_string(get_last_error()) << std::endl;
   }
   host_name_ = GetHostName();
-  std::cout << "Server listening on port - " << port << std::endl;
 }
 
 UDPServer::~UDPServer() noexcept {

@@ -153,13 +153,13 @@ class CountDownAnimation final : public Animation {
   UniqueTexturePtr texture_;
 };
 
-class LevelUpAnimation final : public Animation {
+class MessageAnimation final : public Animation {
  public:
-  LevelUpAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets>& assets)
-      : Animation(renderer, assets) {
+  MessageAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets>& assets, const std::string& msg, double display_speed = 45.0)
+      : Animation(renderer, assets), display_speed_(display_speed) {
     int width, height;
 
-    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold55), "LEVEL UP", Color::SteelGray);
+    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold55), msg, Color::SteelGray);
 
     rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + Center(kMatrixHeight, height), width, height };
     y_ = rc_.y;
@@ -172,13 +172,14 @@ class LevelUpAnimation final : public Animation {
     RenderCopy(texture_.get(), rc_);
 
     alpha_ -= delta * 100.0;
-    y_ -= delta * 45.0;
+    y_ -= delta * display_speed_;
   }
 
   virtual std::pair<bool, Event::Type> IsReady() const override { return std::make_pair(y_ <= end_pos_, Event::Type::None); }
 
 private:
   double alpha_ = 255.0;
+  double display_speed_;
   UniqueTexturePtr texture_;
   SDL_Rect rc_;
   double end_pos_;

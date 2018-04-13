@@ -19,9 +19,9 @@ class Scoring final : public TextPane, public EventSink {
   virtual void Update(const Event& event) override;
 
  protected:
-  void UpdateEvents(int score, ComboType combo_type, const Event& event);
+  void UpdateEvents(int score, ComboType combo_type, int lines_to_send, const Event& event);
 
-  std::tuple<int, int, ComboType> Calculate(const Event& event);
+  std::tuple<int, int, ComboType, int> Calculate(const Event& event);
 
  private:
   std::shared_ptr<Level> level_;

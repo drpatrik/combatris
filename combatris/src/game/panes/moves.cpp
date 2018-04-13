@@ -2,7 +2,7 @@
 
 namespace {
 
-double kDisplayTime = 1.0;
+double kDisplayTime = 0.5;
 
 const std::vector<std::string> kBasicScoreTypes = { "", "SINGLE", "DOUBLE", "TRIPLE", "TETRIS" };
 const std::vector<std::string> kTSpinTypes = { "", "T-Spin", "T-Spin mini" };

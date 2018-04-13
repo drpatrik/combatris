@@ -13,18 +13,12 @@ const int64_t kConnectionCheckAliveInterval = 500;
 
 namespace network {
 
-int64_t Listener::VerifySequenceNumber(Listener::Connection& connection, const std::string& host_name, const PackageHeader& header) {
+int64_t Listener::VerifySequenceNumber(Listener::Connection& connection, const PackageHeader& header) {
   const int64_t new_sequence_nr = header.sequence_nr();
   const int64_t old_sequence_nr = connection.sequence_nr_;
   const auto gap = new_sequence_nr - old_sequence_nr;
 
-  if (gap < 0 || gap > 1) {
-    std::cout << "Gap detected: " << host_name << ", got - " << new_sequence_nr << ", expected - "
-              << old_sequence_nr + 1 << std::endl;
-    return gap;
-  }
-
-  return 0;
+  return (gap < 0 || gap > 1) ? gap : 0;
 }
 
 void Listener::TerminateTimedOutConnections() {
@@ -74,7 +68,7 @@ void Listener::Run() {
     }
     auto& connection = connections_.at(host_name);
 
-    auto index = VerifySequenceNumber(connection, host_name, packages.array_[0].header_);
+    auto index = VerifySequenceNumber(connection, packages.array_[0].header_);
 
     if (index < 0) {
       std::cout << "Old package(s) ignored" << std::endl;
@@ -119,7 +113,7 @@ void Listener::Run() {
           break;
       }
       connection.Update(header);
-      VerifySequenceNumber(connection, host_name, header);
+      VerifySequenceNumber(connection, header);
       if (process_request) {
         queue_->Push(std::make_pair(host_name, package));
       }

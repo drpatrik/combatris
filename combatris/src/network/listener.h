@@ -69,7 +69,7 @@ class Listener final {
 
   void Run();
 
-  int64_t VerifySequenceNumber(Connection& connection_data, const std::string& host_name, const PackageHeader& header);
+  int64_t VerifySequenceNumber(Connection& connection_data, const PackageHeader& header);
 
   void TerminateTimedOutConnections();
 

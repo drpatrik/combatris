@@ -148,7 +148,7 @@ void Tetrion::EventHandler(Events& events) {
       }
       break;
     case Event::Type::LevelUp:
-      AddAnimation<LevelUpAnimation>(renderer_, assets_);
+      AddAnimation<MessageAnimation>(renderer_, assets_, "LEVEL UP");
       break;
     case Event::Type::LinesCleared:
       RemoveAnimation<LinesClearedAnimation>(animations_);
@@ -187,11 +187,20 @@ void Tetrion::EventHandler(Events& events) {
     case Event::Type::BattleStartGame:
       multi_player_->StartGame();
       break;
+    case Event::Type::BattleSendLines:
+      if (GameMode::Marathon == game_mode_) {
+        break;
+      }
+      AddAnimation<MessageAnimation>(renderer_, assets_, "Sent " + std::to_string(event.lines_) + " lines", 100.0);
+      break;
     case Event::Type::BattleResetCountDown:
       RemoveAnimation<CountDownAnimation>(animations_);
       AddAnimation<CountDownAnimation>(renderer_, assets_, kMultiPlayerCountDown, Event::Type::BattleStartGame);
       break;
     case Event::Type::BattleGotLines:
+      if (!tetromino_in_play_) {
+        break;
+      }
       tetromino_in_play_->InsertLines(event.lines_);
       if (tetromino_in_play_->is_game_over()) {
         events.PushFront(Event::Type::GameOver);
