@@ -5,9 +5,10 @@
 A modern C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only),
 OSX 10.12/10.13, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
 
-The plan is to implement two modes single player marathon and battle (multiplayer marathon).
+Combatris allows up to 9 players to play against each other. Any line clear over 1 will send lines over
+to your opponents. Using combo’s and special moves you can send even more lines and secure the victory.
 
-The game uses the following settings and rules:
+You can also play against your self in the single player campaign.
 
 Feature | Support
 --- | ------
@@ -50,7 +51,7 @@ Platform | PC / OSX / (Linux)
 - [X] Game Over Screen
 - [X] Pause Screen
 - [X] Splash Screen
-- [ ] Battle Mode (P2P based on UDP)
+- [X] Battle Mode (P2P based on UDP)
 - [ ] Introduce Marathon mode
 - [ ] More unit tests
 - [ ] Sound
@@ -61,7 +62,7 @@ Platform | PC / OSX / (Linux)
 - [ ] Change font to https://www.dafont.com/obelixpro.font
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
-- [ ] Keyboard handling
+- [ ] Better Keyboard handling
 - [ ] Auto discovery of broadcast address (e.g. 192.168.1.255)
 
 **Keyboard Commands**
@@ -70,7 +71,7 @@ Key | Action
 --- | ------
 N  | New game
 P | Pause
-F1 | Toggle marathon / battle mode
+F1 | Toggle Single Player / Battle mode
 Z | Rotate counter clockwise
 Up / X | Rotate clockwise
 Left | Move Left

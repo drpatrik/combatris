@@ -65,7 +65,7 @@ std::tuple<int, int, ComboType, int> Scoring::Calculate(const Event& event) {
       } else if (event.lines_cleared() > 0) {
         b2b_counter_ = 0;
         if (combo_counter_ > 1) {
-          lines_to_send += kLinesToSendForCombo.at(combo_counter_);
+          lines_to_send += kLinesToSendForCombo.at(combo_counter_ - 1);
           combo_score = (combo_counter_ - 1) * ((combo_counter_ < 3) ? 50 : 100);
           combo_type = ComboType::Combo;
         }

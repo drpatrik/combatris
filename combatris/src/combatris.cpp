@@ -131,7 +131,7 @@ class Combatris {
     } else if (event.key.keysym.scancode == SDL_SCANCODE_P) {
       current_control = Tetrion::Controls::Pause;
     } else if (event.key.keysym.scancode == SDL_SCANCODE_F1) {
-      current_control = Tetrion::Controls::ToggleGameMode;
+      current_control = Tetrion::Controls::ToggleCampaign;
     }
 
     return current_control;
@@ -242,8 +242,8 @@ class Combatris {
           case Tetrion::Controls::Pause:
             tetrion_->Pause();
             break;
-          case Tetrion::Controls::ToggleGameMode:
-            tetrion_->ToggleGameMode();
+          case Tetrion::Controls::ToggleCampaign:
+            tetrion_->ToggleCampaign();
             break;
           default:
             break;

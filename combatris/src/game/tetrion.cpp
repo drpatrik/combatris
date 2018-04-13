@@ -42,7 +42,7 @@ bool IsAnimationActive(std::deque<std::shared_ptr<Animation>>& animations) {
 } // namespace
 
 Tetrion::Tetrion() : events_() {
-  window_ = SDL_CreateWindow(kWindowTitleMarathon, SDL_WINDOWPOS_UNDEFINED,
+  window_ = SDL_CreateWindow(kWindowTitleSinglePlayer, SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED, kWidth, kHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
   if (nullptr == window_) {
     std::cout << "Failed to create window : " << SDL_GetError() << std::endl;
@@ -167,7 +167,7 @@ void Tetrion::EventHandler(Events& events) {
       tetromino_generator_->Reset();
       unpause_pressed_ = game_paused_ = false;
       std::for_each(panes_.begin(), panes_.end(), [](const auto& r) { r->Reset(); });
-      if (GameMode::Marathon == game_mode_) {
+      if (Campaign::SinglePlayer == campaign_) {
         AddAnimation<CountDownAnimation>(renderer_, assets_, kSinglePlayerCountDown, Event::Type::NextTetromino);
       } else {
         multi_player_->NewGame();
@@ -188,7 +188,7 @@ void Tetrion::EventHandler(Events& events) {
       multi_player_->StartGame();
       break;
     case Event::Type::BattleSendLines:
-      if (GameMode::Marathon == game_mode_) {
+      if (Campaign::SinglePlayer == campaign_) {
         break;
       }
       AddAnimation<MessageAnimation>(renderer_, assets_, "Sent " + std::to_string(event.lines_) + " lines", 100.0);

@@ -11,9 +11,9 @@
 
 class Tetrion final {
  public:
-  const char* kWindowTitleMarathon = "COMBATRIS - Marathon";
+  const char* kWindowTitleSinglePlayer = "COMBATRIS - Single Player";
   const char* kWindowTitleBattle = "COMBATRIS - Battle";
-  enum class GameMode { Marathon, Battle };
+  enum class Campaign { SinglePlayer, Battle };
   enum class Controls {
     None,
     RotateClockwise,
@@ -25,7 +25,7 @@ class Tetrion final {
     Hold,
     Pause,
     Start,
-    ToggleGameMode
+    ToggleCampaign
   };
 
   Tetrion();
@@ -39,7 +39,7 @@ class Tetrion final {
   void NewGame() { events_.Push(Event::Type::NewGame); }
 
   void Pause() {
-    if (game_mode_ == GameMode::Battle || !tetromino_in_play_) {
+    if (campaign_ == Campaign::Battle || !tetromino_in_play_) {
       return;
     }
     if (!game_paused_) {
@@ -51,18 +51,18 @@ class Tetrion final {
     }
   }
 
-  void ToggleGameMode() {
+  void ToggleCampaign() {
     if (tetromino_in_play_) {
       return;
     }
-    if (GameMode::Marathon == game_mode_) {
+    if (Campaign::SinglePlayer == campaign_) {
       multi_player_->Enable();
-      game_mode_ = GameMode::Battle;
+      campaign_ = Campaign::Battle;
       SDL_SetWindowTitle(window_, kWindowTitleBattle);
     } else {
       multi_player_->Disable();
-      game_mode_ = GameMode::Marathon;
-      SDL_SetWindowTitle(window_, kWindowTitleMarathon);
+      campaign_ = Campaign::SinglePlayer;
+      SDL_SetWindowTitle(window_, kWindowTitleSinglePlayer);
     }
   }
 
@@ -112,6 +112,6 @@ class Tetrion final {
   Events events_;
   bool game_paused_ = false;
   bool unpause_pressed_ = false;
-  GameMode game_mode_ = GameMode::Marathon;
+  Campaign campaign_ = Campaign::SinglePlayer;
   std::deque<std::shared_ptr<Animation>> animations_;
 };
