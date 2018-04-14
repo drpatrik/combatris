@@ -5,9 +5,9 @@
 
 namespace {
 
-const int kWaitTime = 100;
+const int kWaitTime = 250;
 const int kTimeOut = 5000;
-const int64_t kConnectionCheckAliveInterval = 500;
+const int64_t kConnectionCheckAliveInterval = 2500;
 
 } // namespace
 

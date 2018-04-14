@@ -80,6 +80,9 @@ bool MultiPlayer::GotJoin(const std::string& name)  {
 }
 
 void MultiPlayer::GotLeave(const std::string& name) {
+  if (players_.count(name) == 0) {
+    return;
+  }
   auto it = std::find_if(score_board_.begin(), score_board_.end(), [&name](const auto& e) { return name == e->name(); });
 
   score_board_.erase(it);
@@ -87,6 +90,9 @@ void MultiPlayer::GotLeave(const std::string& name) {
 }
 
 void MultiPlayer::GotNewGame(const std::string& name) {
+  if (players_.count(name) == 0) {
+    return;
+  }
   auto& player = players_.at(name);
 
   if (name == our_host_name()) {
@@ -101,6 +107,9 @@ void MultiPlayer::GotNewGame(const std::string& name) {
 void MultiPlayer::GotStartGame() { events_.Push(Event::Type::NextTetromino); }
 
 void MultiPlayer::GotUpdate(const std::string& name, int lines, int lines_sent, int score, int level, GameState state) {
+  if (players_.count(name) == 0) {
+    return;
+  }
   auto& player = players_.at(name);
 
   if (name == our_host_name()) {
