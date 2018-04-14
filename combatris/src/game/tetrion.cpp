@@ -1,4 +1,5 @@
 #include "game/tetrion.h"
+#include "network/udp_client_server.h"
 
 #include <iostream>
 
@@ -103,7 +104,8 @@ void Tetrion::ToggleCampaign() {
   if (Campaign::SinglePlayer == campaign_) {
     multi_player_->Enable();
     campaign_ = Campaign::Battle;
-    SDL_SetWindowTitle(window_, kWindowTitleBattle);
+    auto title = std::string(kWindowTitleBattle) + " (" + network::GetHostName() + " )";
+    SDL_SetWindowTitle(window_, title.c_str());
   } else {
     multi_player_->Disable();
     campaign_ = Campaign::SinglePlayer;
