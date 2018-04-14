@@ -90,7 +90,7 @@ class Combatris {
     joystick_index_ = index;
     joystick_name_ = SDL_JoystickName(joystick_);
 
-    if (kJoystickMappings.count(joystick_name_) == 0) {
+    if (kTranslateJoystickName.count(joystick_name_) == 0) {
       std::cout << "Non supported joystick found: " <<  joystick_name_ << " it will be DISABLED" << std::endl;
       DetachJoystick(joystick_index_);
     } else {
