@@ -18,9 +18,9 @@ class ListenerInterface {
 
   virtual void GotStartGame() = 0;
 
-  virtual void GotUpdate(const std::string& name, size_t lines, size_t score, size_t level, GameState state) = 0;
+  virtual void GotUpdate(const std::string& name, int lines, int lines_sent, int score, int level, GameState state) = 0;
 
-  virtual void GotLines(const std::string& name, size_t lines) = 0;
+  virtual void GotLines(const std::string& name, int lines) = 0;
 };
 
 class MultiPlayerController {
@@ -37,11 +37,11 @@ class MultiPlayerController {
 
   void StartGame();
 
-  void SendUpdate(size_t garbage);
+  void SendUpdate(int lines);
 
   void SendUpdate(GameState state);
 
-  void SendUpdate(size_t lines, size_t score, size_t level);
+  void SendUpdate(int lines, int lines_sent_, int score, int level);
 
   void Dispatch();
 

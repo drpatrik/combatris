@@ -51,9 +51,9 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
 
   virtual void GotStartGame() override;
 
-  virtual void GotUpdate(const std::string& name, size_t lines, size_t score, size_t level, network::GameState state) override;
+  virtual void GotUpdate(const std::string& name, int lines, int lines_sent, int score, int level, network::GameState state) override;
 
-  virtual void GotLines(const std::string& name, size_t lines) override;
+  virtual void GotLines(const std::string& name, int lines) override;
 
  private:
   struct GameStatisticsAccumlator {
@@ -62,6 +62,14 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
         return;
       }
       lines_ += lines;
+      is_dirty_ = true;
+    }
+
+    void AddLinesSent(int lines) {
+      if (lines == 0) {
+        return;
+      }
+      lines_sent_ += lines;
       is_dirty_ = true;
     }
 
@@ -78,17 +86,19 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
       is_dirty_ = true;
     }
 
-    int lines_ = 0;
-    int score_ = 0;
-    int level_ = 0;
-    bool is_dirty_ = false;
-
     void Reset() {
       lines_ = 0;
+      lines_sent_ = 0;
       score_ = 0;
       level_ = 0;
       is_dirty_ = false;
     }
+
+    int lines_ = 0;
+    int lines_sent_;
+    int score_ = 0;
+    int level_ = 0;
+    bool is_dirty_ = false;
   };
 
   Events& events_;

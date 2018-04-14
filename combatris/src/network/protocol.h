@@ -134,23 +134,26 @@ class PackageHeader final {
 
 class Payload final {
  public:
-  Payload() : lines_(0), score_(0), level_(0), extra_lines_(0), state_(GameState::Idle) {}
+  Payload() : lines_(0), lines_sent_(0), score_(0), level_(0), lines_got_(0), state_(GameState::Idle) {}
 
-  Payload(uint16_t lines, uint32_t score, uint8_t level, uint8_t extra_lines, GameState state) {
+  Payload(uint16_t lines, uint16_t lines_sent, uint32_t score, uint8_t level, uint8_t lines_got, GameState state) {
     lines_ = htons(lines);
+    lines_sent_ = htons(lines_sent);
     score_ = htonl(score);
     level_ = level;
-    extra_lines_ = extra_lines;
+    lines_got_ = lines_got;
     state_ = state;
   }
 
-  uint16_t lines() const { return htons(lines_); }
+  uint16_t lines() const { return ntohs(lines_); }
 
-  uint32_t score() const { return htonl(score_); }
+  uint16_t lines_sent() const { return ntohs(lines_sent_); }
+
+  uint32_t score() const { return ntohl(score_); }
 
   uint8_t level() const { return level_; }
 
-  uint8_t extra_lines() const { return extra_lines_; }
+  uint8_t lines_got() const { return lines_got_; }
 
   GameState state() const { return state_; }
 
@@ -158,9 +161,10 @@ class Payload final {
 
  private:
   uint16_t lines_;
+  uint16_t lines_sent_;
   uint32_t score_;
   uint8_t level_;
-  uint8_t extra_lines_;
+  uint8_t lines_got_;
   GameState state_;
 };
 

@@ -11,8 +11,6 @@
 
 class Tetrion final {
  public:
-  const char* kWindowTitleSinglePlayer = "COMBATRIS - Single Player";
-  const char* kWindowTitleBattle = "COMBATRIS - Battle";
   enum class Campaign { SinglePlayer, Battle };
   enum class Controls {
     None,
@@ -51,20 +49,7 @@ class Tetrion final {
     }
   }
 
-  void ToggleCampaign() {
-    if (tetromino_in_play_) {
-      return;
-    }
-    if (Campaign::SinglePlayer == campaign_) {
-      multi_player_->Enable();
-      campaign_ = Campaign::Battle;
-      SDL_SetWindowTitle(window_, kWindowTitleBattle);
-    } else {
-      multi_player_->Disable();
-      campaign_ = Campaign::SinglePlayer;
-      SDL_SetWindowTitle(window_, kWindowTitleSinglePlayer);
-    }
-  }
+  void ToggleCampaign();
 
   void ResetCountDown();
 

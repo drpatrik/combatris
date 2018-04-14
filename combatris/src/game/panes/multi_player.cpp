@@ -4,7 +4,7 @@ using namespace network;
 
 namespace {
 
-const size_t kMaxPlayers = 9;
+const int kMaxPlayers = 9;
 const double kUpdateInterval = 0.3;
 const int kSpaceBetweenBoxes = 11;
 
@@ -29,6 +29,7 @@ void MultiPlayer::Update(const Event& event) {
       accumulator_.SetLevel(event.current_level_);
       break;
     case Event::Type::BattleSendLines:
+      accumulator_.AddLinesSent(event.lines_);
       multiplayer_controller_->SendUpdate(event.lines_);
       break;
     case Event::Type::GameOver:
@@ -40,8 +41,8 @@ void MultiPlayer::Update(const Event& event) {
 }
 
 void MultiPlayer::Render(double delta_time) {
-  if (multiplayer_controller_) {
-    multiplayer_controller_->Dispatch();
+  if (!multiplayer_controller_) {
+    return;
   }
   Pane::SetDrawColor(renderer_, Color::Black);
   Pane::FillRect(renderer_, kX, kY, kMultiPlayerPaneWidth, kMultiPlayerPaneHeight);
@@ -56,17 +57,18 @@ void MultiPlayer::Render(double delta_time) {
   if (ticks_ >= kUpdateInterval) {
     ticks_ = 0.0;
     if (accumulator_.is_dirty_) {
-      multiplayer_controller_->SendUpdate(accumulator_.lines_, accumulator_.score_, accumulator_.level_);
+      multiplayer_controller_->SendUpdate(accumulator_.lines_, accumulator_.lines_sent_, accumulator_.score_, accumulator_.level_);
       accumulator_.is_dirty_  = false;
     }
   }
+  multiplayer_controller_->Dispatch();
 }
 
 // ListenerInterface
 
 bool MultiPlayer::GotJoin(const std::string& name)  {
   if (score_board_.size() >= kMaxPlayers) {
-    std::cout << "Combatris only support - " << kMaxPlayers << " players." << std::endl;
+    std::cout << "Combatris support - " << kMaxPlayers << " players." << std::endl;
     return false;
   }
   if (name != our_host_name()) {
@@ -98,18 +100,18 @@ void MultiPlayer::GotNewGame(const std::string& name) {
 
 void MultiPlayer::GotStartGame() { events_.Push(Event::Type::NextTetromino); }
 
-void MultiPlayer::GotUpdate(const std::string& name, size_t lines, size_t score, size_t level, GameState state) {
+void MultiPlayer::GotUpdate(const std::string& name, int lines, int lines_sent, int score, int level, GameState state) {
   auto& player = players_.at(name);
 
   if (name == our_host_name()) {
     game_state_ = (GameState::None == state) ? game_state_ : state;
   }
-  if (player->Update(lines, score, level, state)) {
+  if (player->Update(lines, lines_sent, score, level, state)) {
     std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) { return a->score() > b->score(); });
   }
 }
 
-void MultiPlayer::GotLines(const std::string& name, size_t lines) {
+void MultiPlayer::GotLines(const std::string& name, int lines) {
   if (name == our_host_name()) {
     return;
   }

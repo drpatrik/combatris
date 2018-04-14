@@ -8,8 +8,8 @@
 namespace {
 
 // DAS settings
-int64_t kAutoRepeatInitialDelay = 150; // milliseconds
-int64_t kAutoRepeatSubsequentDelay = 85; // milliseconds
+int64_t kAutoRepeatInitialDelay = 120; // milliseconds
+int64_t kAutoRepeatSubsequentDelay = 80; // milliseconds
 
 constexpr int HatValueToButtonValue(Uint8 value) { return (0xFF << 8) | value; }
 
@@ -153,8 +153,7 @@ class Combatris {
     }
     previous_control = control;
     func = [this, control]() { tetrion_->GameControl(control); };
-    func();
-    time_since_last_auto_repeat = time_in_ms();
+    time_since_last_auto_repeat = 0;
   }
 
   void Play() {
@@ -252,13 +251,13 @@ class Combatris {
           function_to_repeat = nullptr;
           previous_control = Tetrion::Controls::None;
         }
-      }
-      if (button_pressed && (time_in_ms() - time_since_last_auto_repeat) >= auto_repeat_threshold) {
-        if (function_to_repeat) {
-          function_to_repeat();
+        if (button_pressed && (time_in_ms() - time_since_last_auto_repeat) >= auto_repeat_threshold) {
+          if (function_to_repeat) {
+            function_to_repeat();
+          }
+          auto_repeat_threshold = kAutoRepeatSubsequentDelay;
+          time_since_last_auto_repeat = time_in_ms();
         }
-        auto_repeat_threshold = kAutoRepeatSubsequentDelay;
-        time_since_last_auto_repeat = time_in_ms();
       }
       tetrion_->Update(delta_timer.GetDelta());
     }

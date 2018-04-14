@@ -35,7 +35,7 @@ MultiPlayerController::MultiPlayerController(ListenerInterface* listener_if) : l
 MultiPlayerController::~MultiPlayerController() {
   Leave();
   do {
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
   } while (send_queue_->size() > 0);
   Cancel();
   Cleanup();
@@ -61,24 +61,24 @@ void MultiPlayerController::StartGame() {
   send_queue_->Push(CreatePackage(Request::StartGame, GameState::Playing));
 }
 
-void MultiPlayerController::SendUpdate(size_t lines) {
+void MultiPlayerController::SendUpdate(int lines) {
   auto package = CreatePackage(Request::ProgressUpdate);
 
-  package.payload_ = Payload(0, 0, 0, lines, GameState::None);
+  package.payload_ = Payload(0, 0, 0, 0, lines, GameState::None);
   send_queue_->Push(package);
 }
 
 void MultiPlayerController::SendUpdate(GameState state) {
   auto package = CreatePackage(Request::ProgressUpdate);
 
-  package.payload_ = Payload(0, 0, 0, 0, state);
+  package.payload_ = Payload(0, 0, 0, 0, 0, state);
   send_queue_->Push(package);
 }
 
-void MultiPlayerController::SendUpdate(size_t lines, size_t score, size_t level) {
+void MultiPlayerController::SendUpdate(int lines, int lines_sent, int score, int level) {
   auto package = CreatePackage(Request::ProgressUpdate);
 
-  package.payload_ = Payload(lines, score, level, 0, GameState::None);
+  package.payload_ = Payload(lines, lines_sent, score, level, 0, GameState::None);
   send_queue_->Push(package);
 }
 
@@ -92,7 +92,7 @@ void MultiPlayerController::Dispatch() {
     switch (package.header_.request()) {
       case Request::Join:
         if (listener_if_->GotJoin(host_name)) {
-          listener_if_->GotUpdate(host_name, 0, 0, 0, package.payload_.state());
+          listener_if_->GotUpdate(host_name, 0, 0, 0, 0, package.payload_.state());
         }
         break;
       case Request::Leave:
@@ -100,19 +100,19 @@ void MultiPlayerController::Dispatch() {
         break;
       case Request::NewGame:
         listener_if_->GotNewGame(host_name);
-        listener_if_->GotUpdate(host_name, 0, 0, 0, package.payload_.state());
+        listener_if_->GotUpdate(host_name, 0, 0, 0, 0, package.payload_.state());
         break;
       case Request::StartGame:
         if (host_name == our_hostname_) {
           listener_if_->GotStartGame();
         }
-        listener_if_->GotUpdate(host_name, 0, 0, 0, package.payload_.state());
+        listener_if_->GotUpdate(host_name, 0, 0, 0, 0, package.payload_.state());
         break;
       case ProgressUpdate:
-        listener_if_->GotUpdate(host_name, package.payload_.lines(), package.payload_.score(),
+        listener_if_->GotUpdate(host_name, package.payload_.lines(), package.payload_.lines_sent(), package.payload_.score(),
                           package.payload_.level(), package.payload_.state());
-        if (package.payload_.extra_lines() != 0) {
-          listener_if_->GotLines(host_name, package.payload_.extra_lines());
+        if (package.payload_.lines_got() > 0) {
+          listener_if_->GotLines(host_name, package.payload_.lines_got());
         }
         break;
       default:

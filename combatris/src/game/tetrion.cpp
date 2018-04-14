@@ -6,10 +6,23 @@ namespace {
 
 const int kSinglePlayerCountDown = 3;
 const int kMultiPlayerCountDown = 9;
+const char* kWindowTitleSinglePlayer = "COMBATRIS - Single Player";
+const SDL_Rect kSinglePlayerRC =  { 0, 0, kWidth, kHeight };
+const char* kWindowTitleBattle = "COMBATRIS - Battle";
+const SDL_Rect kBattleRC =  { 0, 0, kWidth + kMultiPlayerWidthAddOn, kHeight };
 
-void RenderWindowBackground(SDL_Renderer* renderer) {
-  SDL_Rect rc { 0, 0, kWidth, kHeight };
+void SetupCampaignWindow(SDL_Window* window, SDL_Renderer* renderer, Tetrion::Campaign campaign) {
+  const auto& rc = (campaign == Tetrion::Campaign::SinglePlayer) ? kSinglePlayerRC : kBattleRC;
 
+  SDL_SetWindowSize(window, rc.w, rc.h);
+  SDL_RenderSetLogicalSize(renderer, rc.w, rc.h);
+}
+
+inline const SDL_Rect& GetWindowRc(Tetrion::Campaign campaign) {
+  return (Tetrion::Campaign::SinglePlayer == campaign) ? kSinglePlayerRC : kBattleRC;
+}
+
+void RenderWindowBackground(SDL_Renderer* renderer, const SDL_Rect& rc) {
   SDL_SetRenderDrawColor(renderer, 1, 40, 135, 255);
   SDL_RenderFillRect(renderer, &rc);
 }
@@ -53,9 +66,8 @@ Tetrion::Tetrion() : events_() {
     std::cout << "Failed to create renderer : " << SDL_GetError() << std::endl;
     exit(-1);
   }
+  SetupCampaignWindow(window_, renderer_, campaign_);
   SDL_RaiseWindow(window_);
-  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
-  SDL_RenderSetLogicalSize(renderer_, kWidth, kHeight);
   assets_ = std::make_shared<Assets>(renderer_);
   matrix_ = std::make_shared<Matrix>(renderer_, assets_->GetTetrominos());
   AddPane(matrix_.get());
@@ -82,6 +94,22 @@ Tetrion::Tetrion() : events_() {
 Tetrion::~Tetrion() noexcept {
   SDL_DestroyRenderer(renderer_);
   SDL_DestroyWindow(window_);
+}
+
+void Tetrion::ToggleCampaign() {
+  if (tetromino_in_play_) {
+    return;
+  }
+  if (Campaign::SinglePlayer == campaign_) {
+    multi_player_->Enable();
+    campaign_ = Campaign::Battle;
+    SDL_SetWindowTitle(window_, kWindowTitleBattle);
+  } else {
+    multi_player_->Disable();
+    campaign_ = Campaign::SinglePlayer;
+    SDL_SetWindowTitle(window_, kWindowTitleSinglePlayer);
+  }
+  SetupCampaignWindow(window_, renderer_, campaign_);
 }
 
 void Tetrion::GameControl(Controls control_pressed) {
@@ -215,7 +243,7 @@ void Tetrion::EventHandler(Events& events) {
 void Tetrion::Render(double delta_time) {
   SDL_RenderClear(renderer_);
 
-  RenderWindowBackground(renderer_);
+  RenderWindowBackground(renderer_, GetWindowRc(campaign_));
 
   std::for_each(panes_.begin(), panes_.end(), [delta_time](const auto& pane) { pane->Render(delta_time); });
 

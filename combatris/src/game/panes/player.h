@@ -3,6 +3,8 @@
 #include "game/panes/pane.h"
 #include "network/multiplayer_controller.h"
 
+#include <functional>
+
 namespace {
 
 const int kX = kMatrixEndX + kMinoWidth + (kSpace * 4) + TextPane::kBoxWidth;
@@ -14,8 +16,9 @@ const int kBoxHeight = 68;
 
 class Player final {
  public:
-  enum TextureID { Name, State, ScoreCaption, Score, LevelCaption, Level, LinesCaption, Lines };
+  enum TextureID { Name, State, ScoreCaption, Score, LevelCaption, Level, LinesCaption, Lines, LinesSentCaption, LinesSent};
   using Ptr = std::shared_ptr<Player>;
+  using GameState = network::GameState;
 
   Player(SDL_Renderer* renderer, const std::string name, const std::shared_ptr<Assets>& assets,
          network::GameState state = network::GameState::None)
@@ -25,7 +28,7 @@ class Player final {
 
   Player(const Player&) = delete;
 
-  bool Update(int lines, int score, int level, network::GameState state);
+  bool Update(int lines, int lines_sent_, int score, int level, GameState state);
 
   void Reset(bool force_reset = false);
 
@@ -55,12 +58,15 @@ class Player final {
     SDL_Rect rc_;
   };
 
+  int Update(Player::TextureID id, int new_value, int old_value, std::function<std::string(int)> to_string);
+
   SDL_Renderer* renderer_;
   std::string name_;
   const std::shared_ptr<Assets>& assets_;
   int lines_ = 0;
+  int lines_sent_ = 0;
   int score_ = 0;
   int level_ = 0;
-  network::GameState state_ = network::GameState::None;
+  GameState state_ = GameState::None;
   std::unordered_map<TextureID, std::shared_ptr<Texture>> textures_;
 };
