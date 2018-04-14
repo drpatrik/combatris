@@ -5,11 +5,10 @@
 #include <iomanip>
 
 namespace {
+std::mt19937 kGenerator{ std::random_device{}() };
+std::uniform_int_distribution<size_t> kDistribution(0, kVisibleCols - 1);
 
-std::mt19937 kGenerator { std::random_device{}() };
-std::uniform_int_distribution<> GetRandomNumber(0, kVisibleCols - 1);
-
-const int kEmptyID =  static_cast<int>(Tetromino::Type::Empty);
+const int kEmptyID = static_cast<int>(Tetromino::Type::Empty);
 const int kBorderID = static_cast<int>(Tetromino::Type::Border);
 const int kSolidID = static_cast<int>(Tetromino::Type::Solid);
 const int kGhostAddOn = kBorderID + 1;
@@ -117,8 +116,8 @@ int MoveLinesUp(int lines, Matrix::Type& matrix) {
 
 void InsertSolidLines(int lines, Matrix::Type& matrix) {
   for (int l = lines - 1; l >= 0; --l) {
-    matrix[kVisibleRowEnd - l - 1] = kSolidRow;
-    matrix[kVisibleRowEnd - l - 1].at(kVisibleRowStart + GetRandomNumber(kGenerator)) = kEmptyID;
+    matrix.at(kVisibleRowEnd - l - 1) = kSolidRow;
+    matrix.at(kVisibleRowEnd - l - 1).at(kVisibleRowStart + kDistribution(kGenerator)) = kEmptyID;
   }
 }
 

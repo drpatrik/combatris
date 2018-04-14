@@ -64,7 +64,7 @@ void MultiPlayerController::StartGame() {
 void MultiPlayerController::SendUpdate(int lines) {
   auto package = CreatePackage(Request::ProgressUpdate);
 
-  package.payload_ = Payload(0, 0, 0, 0, lines, GameState::None);
+  package.payload_ = Payload(0, 0, 0, 0, static_cast<uint8_t>(lines), GameState::None);
   send_queue_->Push(package);
 }
 
@@ -78,7 +78,7 @@ void MultiPlayerController::SendUpdate(GameState state) {
 void MultiPlayerController::SendUpdate(int lines, int lines_sent, int score, int level) {
   auto package = CreatePackage(Request::ProgressUpdate);
 
-  package.payload_ = Payload(lines, lines_sent, score, level, 0, GameState::None);
+  package.payload_ = Payload(static_cast<uint16_t>(lines), static_cast<uint16_t>(lines_sent), score, static_cast<uint8_t>(level), 0, GameState::None);
   send_queue_->Push(package);
 }
 

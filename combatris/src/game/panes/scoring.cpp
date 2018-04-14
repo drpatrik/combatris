@@ -35,10 +35,10 @@ void Scoring::UpdateEvents(int score, ComboType combo_type, int lines_to_send, c
   events_.Push(Event::Type::CalculatedScore, event.pos_, score);
   events_.Push(Event::Type::Moves, event.lines_cleared_, event.tspin_type_, combo_type, counter);
   if (lines_to_send > 0) {
-    Event event(Event::Type::BattleSendLines);
+    Event e(Event::Type::BattleSendLines);
 
-    event.lines_ = lines_to_send;
-    events_.Push(event);
+    e.lines_ = lines_to_send;
+    events_.Push(e);
   }
 }
 
