@@ -1,6 +1,7 @@
 # Combatris - A Tetris clone
 
 ![screenshots](screenshots/combatris-demo-1.gif)
+![screenshots](screenshots/combatris-demo-2.png)
 
 A modern C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only),
 OSX 10.12/10.13, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
@@ -62,8 +63,9 @@ Platform | PC / OSX / (Linux)
 - [ ] Change font to https://www.dafont.com/obelixpro.font
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
-- [ ] Better Keyboard handling
+- [ ] Better Joystick / Keyboard handling
 - [ ] Auto discovery of broadcast address (e.g. 192.168.1.255)
+- [ ] Make the network protocol more robust by using Ack/Nack
 
 **Keyboard Commands**
 
@@ -114,6 +116,9 @@ A | Hard Drop
 The default port is 11000 and default broadcast IP are 192.168.1.255
 Use the environment variables COMBATRIS_BROADCAST_PORT and COMBATRIS_BROADCAST_IP to
 change the port and broadcast IP accordingly.
+
+The network protocol is UDP based and uses a sliding window for handling lost and out of order
+packages.
 
 ## Build Combatris
 
