@@ -15,7 +15,7 @@ namespace network {
 
 class Listener final {
  public:
-  static const int64_t kTimeOut = 8000;
+  static const int64_t kTimeOut = 5000;
 
   Listener() : cancelled_(false) {
     cancelled_.store(false, std::memory_order_release);
@@ -73,7 +73,7 @@ class Listener final {
 
   void Run();
 
-  int64_t VerifySequenceNumber(Connection& connection_data, const PackageHeader& header);
+  int64_t VerifySequenceNumber(Connection& connection_data, const std::string& name, const PackageHeader& header);
 
   void TerminateTimedOutConnections();
 

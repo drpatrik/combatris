@@ -12,16 +12,16 @@ const int64_t kConnectionCheckAliveInterval = 1000;
 
 namespace network {
 
-int64_t Listener::VerifySequenceNumber(Listener::Connection& connection, const PackageHeader& header) {
+int64_t Listener::VerifySequenceNumber(Listener::Connection& connection, const std::string& name, const PackageHeader& header) {
   const int64_t new_sequence_nr = header.sequence_nr();
   const int64_t old_sequence_nr = connection.sequence_nr_;
   const auto gap = new_sequence_nr - old_sequence_nr;
 
   if (gap < 0 || gap > 1) {
-    std::cout << "gap detected " << old_sequence_nr << " - " << new_sequence_nr << std::endl;
+    std::cout << name << ": gap detected, expected - " << old_sequence_nr + 1 << ", got " << new_sequence_nr << std::endl;
   }
 
-  return (gap < 0 || gap > 1) ? gap : 0;
+  return (gap < 0 || gap > 1) ? gap - 1 : 0;
 }
 
 void Listener::TerminateTimedOutConnections() {
@@ -75,7 +75,7 @@ void Listener::Run() {
     }
     auto& connection = connections_.at(host_name);
 
-    auto index = VerifySequenceNumber(connection, packages.array_[0].header_);
+    auto index = VerifySequenceNumber(connection, host_name, packages.array_[0].header_);
 
     if (index < 0) {
       std::cout << "Old package(s) ignored" << std::endl;
@@ -90,9 +90,6 @@ void Listener::Run() {
     std::vector<Package> package_vector;
 
     for (auto i = index; i >= 0; --i) {
-      if (index > 0) {
-        std::cout << host_name << ", " << index << std::endl;
-      }
       package_vector.push_back(packages.array_[i]);
     }
     for (const auto& package : package_vector) {
