@@ -59,7 +59,7 @@ std::tuple<int, int, ComboType, int> Scoring::Calculate(const Event& event) {
       if (event.lines_cleared() == 4) {
         if (++b2b_counter_ > 1) {
           combo_score = 1200;
-          lines_to_send += 6;
+          lines_to_send += 2;
           combo_type = ComboType::B2BTetris;
         }
       } else if (event.lines_cleared() > 0) {

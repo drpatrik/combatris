@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <thread>
+#include <iostream>
 #include <functional>
 #include <unordered_map>
 
@@ -51,12 +52,25 @@ class Listener final {
   struct Connection {
     Connection(uint32_t sequence_nr) : sequence_nr_(sequence_nr) { timestamp_ = utility::time_in_ms(); }
 
-    void Update(const PackageHeader& header) {
+    void Update(const std::string& name, const PackageHeader& header) {
       sequence_nr_ = header.sequence_nr();
       timestamp_ = utility::time_in_ms();
+      if (is_missing_) {
+        std::cout << name << " is back" << "\n";
+        is_missing_ = false;
+      }
     }
 
-    bool has_timed_out() const { return utility::time_in_ms() - timestamp_ >= kConnectionTimeOut; }
+    bool has_timed_out(const std::string& name) {
+      auto time_since_last_update = utility::time_in_ms() - timestamp_;
+
+      if (time_since_last_update >= kConnectionMissing) {
+        std::cout << name << " is missing, last update " << time_since_last_update << " ms ago\n";
+        is_missing_ = true;
+      }
+
+      return time_since_last_update >= kConnectionTimeOut;
+    }
 
     bool has_joined() const { return has_joined_; }
 
@@ -65,6 +79,7 @@ class Listener final {
     void SetLeft() { has_joined_ = false; }
 
     bool has_joined_ = false;
+    bool is_missing_ = false;
     uint32_t sequence_nr_ = 0;
     int64_t timestamp_;
   };

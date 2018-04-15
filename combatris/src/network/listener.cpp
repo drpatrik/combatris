@@ -1,26 +1,23 @@
 #include "network/listener.h"
 
-#include <iostream>
-#include <functional>
-
 namespace network {
 
-int64_t Listener::VerifySequenceNumber(Listener::Connection& connection, const std::string&/*name*/, const PackageHeader& header) {
+int64_t Listener::VerifySequenceNumber(Listener::Connection& connection, const std::string& name, const PackageHeader& header) {
   const int64_t new_sequence_nr = header.sequence_nr();
   const int64_t old_sequence_nr = connection.sequence_nr_;
   const auto gap = new_sequence_nr - old_sequence_nr;
 
-  /*if (gap < 0 || gap > 1) {
-    std::cout << name << ": gap detected, expected - " << old_sequence_nr + 1 << ", got " << new_sequence_nr << std::endl;
-    }*/
+  if (gap < 0 || gap > 1) {
+    std::cout << name << ": gap detected, expected - " << old_sequence_nr + 1 << ", got " << new_sequence_nr << "\n";
+  }
 
   return (gap < 0 || gap > 1) ? gap - 1 : 0;
 }
 
 void Listener::TerminateTimedOutConnections() {
   for (auto it = connections_.begin(); it != connections_.end();) {
-    if (it->second.has_timed_out()) {
-      std::cout << it->first << " timed out, connection terminated" << std::endl;
+    if (it->second.has_timed_out(it->first)) {
+      std::cout << it->first << " timed out, connection terminated" << "\n";
       queue_->Push(std::make_pair(it->first, CreatePackage(Request::Leave)));
       it = connections_.erase(it);
     } else {
@@ -112,7 +109,7 @@ void Listener::Run() {
         default:
           break;
       }
-      connection.Update(header);
+      connection.Update(host_name, header);
       if (process_request) {
         queue_->Push(std::make_pair(host_name, package));
       }
