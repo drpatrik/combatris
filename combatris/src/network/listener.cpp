@@ -3,15 +3,19 @@
 namespace network {
 
 int64_t Listener::VerifySequenceNumber(Listener::Connection& connection, const std::string& name, const PackageHeader& header) {
-  const int64_t new_sequence_nr = header.sequence_nr();
-  const int64_t old_sequence_nr = connection.sequence_nr_;
-  const auto gap = new_sequence_nr - old_sequence_nr;
+  const int64_t current_sequence_nr = header.sequence_nr();
+  const int64_t prev_sequence_nr = connection.sequence_nr_;
+
+  if (current_sequence_nr == 0 && prev_sequence_nr == 0) {
+    return 0;
+  }
+  const auto gap = current_sequence_nr - prev_sequence_nr;
 
   if (gap < 0 || gap > 1) {
-    std::cout << name << ": gap detected, expected - " << old_sequence_nr + 1 << ", got " << new_sequence_nr << "\n";
+    std::cout << name << ": gap detected, expected - " << prev_sequence_nr + 1 << ", got " << current_sequence_nr << "\n";
   }
 
-  return (gap < 0 || gap > 1) ? gap - 1 : 0;
+  return (gap == 1) ? 0 : gap;
 }
 
 void Listener::TerminateTimedOutConnections() {
@@ -51,24 +55,26 @@ void Listener::Run() {
       continue;
     }
     if (size < static_cast<ssize_t>(sizeof(packages))) {
-      std::cout << "Incomplete package - " << size << std::endl;
+      std::cout << "incomplete package - " << size << std::endl;
       continue;
     }
     if (!packages.header_.VerifyHeader()) {
-      std::cout << "Unknown package ignored" << std::endl;
+      std::cout << "unknown package ignored" << std::endl;
       continue;
     }
+    int start_index = 0;
     const auto& host_name = packages.header_.host_name();
 
     if (connections_.count(host_name) == 0) {
-      connections_.insert(std::make_pair(host_name, Connection(packages.array_[0].header_.sequence_nr())));
+      auto [it, inserted] = connections_.insert(std::make_pair(host_name, Connection(packages)));
+      start_index = it->second.start_index_;
     }
     auto& connection = connections_.at(host_name);
 
-    auto index = VerifySequenceNumber(connection, host_name, packages.array_[0].header_);
+    auto index = (start_index == 0 ) ? VerifySequenceNumber(connection, host_name, packages.array_[0].header_) : start_index;
 
     if (index < 0) {
-      std::cout << "Old package(s) ignored" << std::endl;
+      std::cout << "old package(s) ignored" << std::endl;
       continue;
     }
     if (index > packages.size() || index >= kWindowSize) {
@@ -93,13 +99,13 @@ void Listener::Run() {
       switch (header.request()) {
         case Request::Join:
           process_request = !connection.has_joined();
-          connection.SetJoined();
+          connection.SetHasJoined();
           break;
         case Request::Leave:
           process_request = false;
           if (connection.has_joined()) {
             connections_.erase(host_name);
-            connection.SetLeft();
+            connection.SetHasLeft();
             process_request = true;
           }
           break;

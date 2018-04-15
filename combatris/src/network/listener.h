@@ -50,7 +50,16 @@ class Listener final {
 
  private:
   struct Connection {
-    Connection(uint32_t sequence_nr) : sequence_nr_(sequence_nr) { timestamp_ = utility::time_in_ms(); }
+    Connection(const Packages& packages) {
+      for (int index = 0; index < packages.size(); ++index) {
+        if (packages.array_[index].header_.request() == Request::Join) {
+          start_index_ = index;
+          sequence_nr_ = packages.array_[index].header_.sequence_nr();
+          break;
+        }
+      }
+      timestamp_ = utility::time_in_ms();
+    }
 
     void Update(const std::string& name, const PackageHeader& header) {
       sequence_nr_ = header.sequence_nr();
@@ -74,13 +83,14 @@ class Listener final {
 
     bool has_joined() const { return has_joined_; }
 
-    void SetJoined() { has_joined_ = true; }
+    void SetHasJoined() { has_joined_ = true; }
 
-    void SetLeft() { has_joined_ = false; }
+    void SetHasLeft() { has_joined_ = false; }
 
     bool has_joined_ = false;
     bool is_missing_ = false;
-    uint32_t sequence_nr_ = 0;
+    int start_index_ = 0;
+    uint32_t sequence_nr_;
     int64_t timestamp_;
   };
 

@@ -136,3 +136,26 @@ TEST_CASE("TestTimeout") {
   std::this_thread::sleep_for(std::chrono::milliseconds(kConnectionTimeOut + 2000));
   CheckResponse(listener, client.host_name(), Request::Leave);
 }
+
+TEST_CASE("TestJoinOutOfOrder") {
+  UDPClient client(GetBroadcastIP(), GetPort());
+  Listener listener;
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+  std::deque<Package> sliding_window;
+
+  sliding_window.push_front(PreparePackage(5, Request::Join));
+  sliding_window.push_front(PreparePackage(6, Request::HeartBeat));
+  sliding_window.push_front(PreparePackage(7, Request::HeartBeat));
+  Send(sliding_window, client);
+  CheckResponse(listener, client.host_name(), Request::Join);
+  sliding_window.push_front(PreparePackage(8, Request::Leave));
+  Send(sliding_window, client);
+  CheckResponse(listener, client.host_name(), Request::Leave);
+  sliding_window.clear();
+  sliding_window.push_front(PreparePackage(0, Request::Join));
+  sliding_window.push_front(PreparePackage(1, Request::HeartBeat));
+  Send(sliding_window, client);
+  CheckResponse(listener, client.host_name(), Request::Join);
+}

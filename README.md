@@ -63,9 +63,9 @@ Platform | PC / OSX / (Linux)
 - [ ] Change font to https://www.dafont.com/obelixpro.font
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
-- [ ] Better Joystick / Keyboard handling
 - [ ] Auto discovery of broadcast address (e.g. 192.168.1.255)
-- [ ] Make the network protocol more robust by using Ack/Nack
+- [ ] Make the network protocol more robust (multicast / ack)
+- [ ] Wait for all in State waiting to got to Play before starting the fame
 
 **Keyboard Commands**
 
@@ -204,7 +204,6 @@ Generate Visual Studio project files with CMakeSetup.exe (Choose Visual Studio 1
 
 Some sources has there own license and is not covered by the source codes license.
 
-* All sfx and music are from www.freesound.org
 * Fonts https://www.dafont.com/cabin.font
 * Fonts https://www.dafont.com/obelixpro.font
 * Wall kick tables from https://harddrop.com/wiki/SRS
