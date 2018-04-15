@@ -8,7 +8,7 @@ namespace network {
 
 namespace {
 
-const int kHeartBeatInterval = 500;
+const int kHeartBeatInterval = 2000;
 
 void HeartbeatController(std::atomic<bool>& quit, std::shared_ptr<ThreadSafeQueue<Package>> queue) {
   while (true) {

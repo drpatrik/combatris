@@ -17,7 +17,7 @@ namespace network {
 const int kHostNameMax = 31;
 const uint32_t kID = 0x50415243; // PARC
 const int kMTU = 512;
-const int kWindowSize = 20;
+const int kWindowSize = 10;
 const std::string kEnvServer = "COMBATRIS_BROADCAST_IP";
 const std::string kEnvPort = "COMBATRIS_BROADCAST_PORT";
 

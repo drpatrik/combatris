@@ -5,7 +5,7 @@
 
 namespace {
 
-const int kWaitTime = 550;
+const int kWaitTime = 500;
 const int64_t kConnectionCheckAliveInterval = 1000;
 
 } // namespace
@@ -16,6 +16,10 @@ int64_t Listener::VerifySequenceNumber(Listener::Connection& connection, const P
   const int64_t new_sequence_nr = header.sequence_nr();
   const int64_t old_sequence_nr = connection.sequence_nr_;
   const auto gap = new_sequence_nr - old_sequence_nr;
+
+  if (gap < 0 || gap > 1) {
+    std::cout << "gap detected " << old_sequence_nr << " - " << new_sequence_nr << std::endl;
+  }
 
   return (gap < 0 || gap > 1) ? gap : 0;
 }
@@ -86,6 +90,9 @@ void Listener::Run() {
     std::vector<Package> package_vector;
 
     for (auto i = index; i >= 0; --i) {
+      if (index > 0) {
+        std::cout << host_name << ", " << index << std::endl;
+      }
       package_vector.push_back(packages.array_[i]);
     }
     for (const auto& package : package_vector) {
@@ -116,7 +123,6 @@ void Listener::Run() {
           break;
       }
       connection.Update(header);
-      VerifySequenceNumber(connection, header);
       if (process_request) {
         queue_->Push(std::make_pair(host_name, package));
       }

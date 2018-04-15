@@ -15,7 +15,7 @@ namespace network {
 
 class Listener final {
  public:
-  static const int64_t kTimeOut = 3000;
+  static const int64_t kTimeOut = 8000;
 
   Listener() : cancelled_(false) {
     cancelled_.store(false, std::memory_order_release);
