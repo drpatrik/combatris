@@ -8,8 +8,6 @@ namespace network {
 
 namespace {
 
-const int kHeartBeatInterval = 1000;
-
 void HeartbeatController(std::atomic<bool>& quit, std::shared_ptr<ThreadSafeQueue<Package>> queue) {
   while (true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(kHeartBeatInterval));

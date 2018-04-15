@@ -4,10 +4,10 @@
 #include "utility/threadsafe_queue.h"
 #include "network/protocol.h"
 #include "network/udp_client_server.h"
+#include "network/protocol_timing_settings.h"
 
 #include <memory>
 #include <thread>
-#include <iostream>
 #include <functional>
 #include <unordered_map>
 
@@ -15,8 +15,6 @@ namespace network {
 
 class Listener final {
  public:
-  static const int64_t kTimeOut = 5000;
-
   Listener() : cancelled_(false) {
     cancelled_.store(false, std::memory_order_release);
     queue_ = std::make_unique<ThreadSafeQueue<std::pair<std::string, Package>>>();
@@ -58,7 +56,7 @@ class Listener final {
       timestamp_ = utility::time_in_ms();
     }
 
-    bool has_timed_out() const { return utility::time_in_ms() - timestamp_ >= Listener::kTimeOut; }
+    bool has_timed_out() const { return utility::time_in_ms() - timestamp_ >= kConnectionTimeOut; }
 
     bool has_joined() const { return has_joined_; }
 

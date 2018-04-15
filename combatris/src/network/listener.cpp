@@ -3,23 +3,16 @@
 #include <iostream>
 #include <functional>
 
-namespace {
-
-const int kWaitTime = 500;
-const int64_t kConnectionCheckAliveInterval = 1000;
-
-} // namespace
-
 namespace network {
 
-int64_t Listener::VerifySequenceNumber(Listener::Connection& connection, const std::string& name, const PackageHeader& header) {
+int64_t Listener::VerifySequenceNumber(Listener::Connection& connection, const std::string&/*name*/, const PackageHeader& header) {
   const int64_t new_sequence_nr = header.sequence_nr();
   const int64_t old_sequence_nr = connection.sequence_nr_;
   const auto gap = new_sequence_nr - old_sequence_nr;
 
-  if (gap < 0 || gap > 1) {
+  /*if (gap < 0 || gap > 1) {
     std::cout << name << ": gap detected, expected - " << old_sequence_nr + 1 << ", got " << new_sequence_nr << std::endl;
-  }
+    }*/
 
   return (gap < 0 || gap > 1) ? gap - 1 : 0;
 }
@@ -45,7 +38,7 @@ void Listener::Run() {
     if (cancelled_.load(std::memory_order_acquire)) {
       break;
     }
-    auto size = server.Receive(&packages, sizeof(packages), kWaitTime);
+    auto size = server.Receive(&packages, sizeof(packages), kWaitForIncomingPackages);
 
     if (cancelled_.load(std::memory_order_acquire)) {
       break;
