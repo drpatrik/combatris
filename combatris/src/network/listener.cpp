@@ -67,7 +67,9 @@ void Listener::Run() {
 
     if (connections_.count(host_name) == 0) {
       auto [it, inserted] = connections_.insert(std::make_pair(host_name, Connection(packages)));
-      start_index = it->second.start_index_;
+      if (inserted) {
+        start_index = it->second.start_index_;
+      }
     }
     auto& connection = connections_.at(host_name);
 

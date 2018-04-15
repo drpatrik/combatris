@@ -11,6 +11,11 @@ to your opponents. Using combo’s and special moves you can send even more line
 
 You can also play against your self in the single player campaign.
 
+I have tested the game with four players, three on MacBook Pro and one Raspberry Pi 3 B+ all players where
+running over 2.4 Wi-Fi. The game works well but there can be lag up to one second, since heartbeats are sent
+every second and status updates every 0.5 second (if something has happened). Heartbeats are suppressed
+if other messages has been sent within the heartbeat interval (to keep network congestion down)
+
 Feature | Support
 --- | ------
 Hold Piece | Yes
