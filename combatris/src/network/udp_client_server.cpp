@@ -199,10 +199,15 @@ ssize_t UDPServer::Receive(void* buff, size_t max_size, int max_wait_ms) {
     return SOCKET_ERROR;
   }
   if (ret_val > 0) {
-    return recv(socket_, static_cast<char*>(buff), max_size, 0);
+    auto size = recv(socket_, static_cast<char*>(buff), max_size, 0);
+
+    if (size == SOCKET_ERROR) {
+      std::cout << "UDPServer::Receive error message - " << get_error_string(get_last_error()) << std::endl;
+    }
+
+    return size;
   }
-  errno = EAGAIN;
-  return SOCKET_ERROR;
+  return SOCKET_TIMEOUT;
 }
 
 std::string GetHostName() {

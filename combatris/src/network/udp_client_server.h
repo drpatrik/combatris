@@ -17,6 +17,8 @@ const int SOCKET_ERROR = -1;
 
 namespace network {
 
+const int SOCKET_TIMEOUT = -2;
+
 class UDPClient {
  public:
   UDPClient(const UDPClient&) = delete;

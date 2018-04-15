@@ -133,6 +133,6 @@ TEST_CASE("TestTimeout") {
   sliding_window.push_front(PreparePackage(0, Request::Join));
   Send(sliding_window, client);
   CheckResponse(listener, client.host_name(), Request::Join);
-  std::this_thread::sleep_for(std::chrono::seconds(5));
+  std::this_thread::sleep_for(std::chrono::milliseconds(Listener::kTimeOut + 2000));
   CheckResponse(listener, client.host_name(), Request::Leave);
 }

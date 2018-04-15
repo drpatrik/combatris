@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <thread>
+#include <iostream>
 #include <functional>
 #include <unordered_map>
 
@@ -14,7 +15,9 @@ namespace network {
 
 class Listener final {
  public:
-  explicit Listener() : cancelled_(false) {
+  static const int64_t kTimeOut = 3000;
+
+  Listener() : cancelled_(false) {
     cancelled_.store(false, std::memory_order_release);
     queue_ = std::make_unique<ThreadSafeQueue<std::pair<std::string, Package>>>();
     thread_ = std::make_unique<std::thread>(std::bind(&Listener::Run, this));
@@ -54,6 +57,8 @@ class Listener final {
       sequence_nr_ = header.sequence_nr();
       timestamp_ = utility::time_in_ms();
     }
+
+    bool has_timed_out() const { return utility::time_in_ms() - timestamp_ >= Listener::kTimeOut; }
 
     bool has_joined() const { return has_joined_; }
 

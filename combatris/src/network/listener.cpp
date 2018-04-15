@@ -5,9 +5,8 @@
 
 namespace {
 
-const int kWaitTime = 250;
-const int kTimeOut = 5000;
-const int64_t kConnectionCheckAliveInterval = 2500;
+const int kWaitTime = 550;
+const int64_t kConnectionCheckAliveInterval = 1000;
 
 } // namespace
 
@@ -23,7 +22,7 @@ int64_t Listener::VerifySequenceNumber(Listener::Connection& connection, const P
 
 void Listener::TerminateTimedOutConnections() {
   for (auto it = connections_.begin(); it != connections_.end();) {
-    if (utility::time_in_ms() - it->second.timestamp_ >= kTimeOut) {
+    if (it->second.has_timed_out()) {
       std::cout << it->first << " timed out, connection terminated" << std::endl;
       queue_->Push(std::make_pair(it->first, CreatePackage(Request::Leave)));
       it = connections_.erase(it);
@@ -47,11 +46,14 @@ void Listener::Run() {
     if (cancelled_.load(std::memory_order_acquire)) {
       break;
     }
+    if (size == SOCKET_ERROR) {
+      exit(0);
+    }
     if ((utility::time_in_ms() - last_timeout_check) >= kConnectionCheckAliveInterval) {
       TerminateTimedOutConnections();
       last_timeout_check = utility::time_in_ms();
     }
-    if (size == SOCKET_ERROR) {
+    if (size == SOCKET_TIMEOUT) {
       continue;
     }
     if (size < static_cast<ssize_t>(sizeof(packages))) {
