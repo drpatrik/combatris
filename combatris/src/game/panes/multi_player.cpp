@@ -20,17 +20,20 @@ void MultiPlayer::Update(const Event& event) {
   switch (event.type()) {
     case Event::Type::CalculatedScore:
       accumulator_.AddScore(event.score_);
+      if (event.value_ > 0) {
+        accumulator_.AddLinesSent(event.value_);
+        multiplayer_controller_->SendUpdate(event.value_);
+        events_.Push(Event::Type::BattleSendLines, event.value_);
+      }
       break;
-    case Event::Type::ScoringData:
-      accumulator_.AddScore(event.lines_dropped_);
+    case Event::Type::DropScoreData:
+      accumulator_.AddScore(event.value_);
+      break;
+    case Event::Type::LinesCleared:
       accumulator_.AddLines(event.lines_cleared());
       break;
     case Event::Type::LevelUp:
-      accumulator_.SetLevel(event.current_level_);
-      break;
-    case Event::Type::BattleSendLines:
-      accumulator_.AddLinesSent(event.lines_);
-      multiplayer_controller_->SendUpdate(event.lines_);
+      accumulator_.SetLevel(event.value_);
       break;
     case Event::Type::GameOver:
       multiplayer_controller_->SendUpdate(GameState::GameOver);
@@ -124,8 +127,5 @@ void MultiPlayer::GotLines(const std::string& name, int lines) {
   if (name == our_host_name()) {
     return;
   }
-  auto event = Event(Event::Type::BattleGotLines);
-
-  event.lines_ = lines;
-  events_.Push(event);
+  events_.Push(Event::Type::BattleGotLines, lines);
 }

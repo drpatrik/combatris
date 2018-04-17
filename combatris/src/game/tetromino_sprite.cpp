@@ -91,7 +91,7 @@ void TetrominoSprite::SoftDrop() {
     return;
   }
   if (pos_.row() >= kVisibleRowStart - 1) {
-    events_.Push(Event::Type::ScoringData, 1);
+    events_.Push(Event::Type::DropScoreData, 1);
   }
   level_->Release();
 }
@@ -106,7 +106,7 @@ void TetrominoSprite::HardDrop() {
   level_->Release();
   state_ = State::Commit;
   last_move_ = Tetromino::Move::Down;
-  events_.Push(Event::Type::ScoringData, (kVisibleRows - drop_row) * 2);
+  events_.Push(Event::Type::DropScoreData, (kVisibleRows - drop_row) * 2);
 }
 
 void TetrominoSprite::Left() {
@@ -161,7 +161,7 @@ TetrominoSprite::State TetrominoSprite::Down(double delta_time) {
         if (perfect_clear) {
           events_.Push(Event::Type::PerfectClear);
         }
-        events_.Push(Event::Type::ScoringData, lines_cleared, pos_, tspin_type);
+        events_.Push(Event::Type::ClearedLinesScoreData, lines_cleared, pos_, tspin_type);
         state_ = State::Commited;
       }
       break;

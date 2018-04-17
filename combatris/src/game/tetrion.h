@@ -66,10 +66,10 @@ class Tetrion final {
   void AddPane(Pane* pane) {
     panes_.push_back(pane);
 
-    auto sink = dynamic_cast<EventSink*>(pane);
+    auto sink = dynamic_cast<EventListener*>(pane);
 
     if (nullptr != sink) {
-      event_sinks_.push_back(sink);
+      event_listeners_.push_back(sink);
     }
   }
 
@@ -93,7 +93,7 @@ class Tetrion final {
   std::unique_ptr<Moves> moves_;
   std::unique_ptr<MultiPlayer> multi_player_;
   std::vector<PaneInterface*> panes_;
-  std::vector<EventSink*> event_sinks_;
+  std::vector<EventListener*> event_listeners_;
   Events events_;
   bool game_paused_ = false;
   bool unpause_pressed_ = false;

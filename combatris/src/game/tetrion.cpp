@@ -1,5 +1,4 @@
 #include "game/tetrion.h"
-#include "network/udp_client_server.h"
 
 #include <iostream>
 
@@ -104,7 +103,7 @@ void Tetrion::ToggleCampaign() {
   if (Campaign::SinglePlayer == campaign_) {
     multi_player_->Enable();
     campaign_ = Campaign::Battle;
-    auto title = std::string(kWindowTitleBattle) + " (" + network::GetHostName() + " )";
+    auto title = std::string(kWindowTitleBattle) + " (" + multi_player_->our_host_name() + " )";
     SDL_SetWindowTitle(window_, title.c_str());
   } else {
     multi_player_->Disable();
@@ -154,7 +153,7 @@ void Tetrion::EventHandler(Events& events) {
   }
   auto event = events.Pop();
 
-  std::for_each(event_sinks_.begin(), event_sinks_.end(), [&event](const auto& r) { r->Update(event); });
+  std::for_each(event_listeners_.begin(), event_listeners_.end(), [&event](const auto& r) { r->Update(event); });
 
   switch (event.type()) {
     case Event::Type::Pause:
@@ -218,10 +217,7 @@ void Tetrion::EventHandler(Events& events) {
       multi_player_->StartGame();
       break;
     case Event::Type::BattleSendLines:
-      if (Campaign::SinglePlayer == campaign_) {
-        break;
-      }
-      AddAnimation<MessageAnimation>(renderer_, assets_, "Sent " + std::to_string(event.lines_) + " lines", 100.0);
+      AddAnimation<MessageAnimation>(renderer_, assets_, "Sent " + std::to_string(event.value_) + " lines", 100.0);
       break;
     case Event::Type::BattleResetCountDown:
       RemoveAnimation<CountDownAnimation>(animations_);
@@ -231,7 +227,7 @@ void Tetrion::EventHandler(Events& events) {
       if (!tetromino_in_play_) {
         break;
       }
-      tetromino_in_play_->InsertLines(event.lines_);
+      tetromino_in_play_->InsertLines(event.value_);
       if (tetromino_in_play_->is_game_over()) {
         events.PushFront(Event::Type::GameOver);
         tetromino_in_play_.reset();

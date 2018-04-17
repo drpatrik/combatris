@@ -48,7 +48,7 @@ class ScoreAnimation final : public Animation {
   ScoreAnimation(SDL_Renderer* renderer,  const std::shared_ptr<Assets>& assets,  const Position& pos, int score)
       : Animation(renderer, assets) {
     int width, height;
-    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold30), std::to_string(score), Color::White);
+    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold30), std::to_string(score), Color::Coral);
 
     auto x = col_to_pixel_adjusted(pos.col()) + Center(kMinoWidth * 4, width);
     auto y = row_to_pixel_adjusted(pos.row());

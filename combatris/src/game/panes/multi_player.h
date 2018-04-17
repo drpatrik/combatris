@@ -7,7 +7,7 @@
 #include <vector>
 #include <unordered_map>
 
-class MultiPlayer final : public Pane, public EventSink,  public network::ListenerInterface {
+class MultiPlayer final : public Pane, public EventListener,  public network::ListenerInterface {
  public:
   MultiPlayer(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets);
 
@@ -40,9 +40,9 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
 
   void StartGame() { multiplayer_controller_->StartGame(); }
 
- protected:
-  const std::string our_host_name() const { return multiplayer_controller_->our_host_name(); }
+  const std::string& our_host_name() const { return multiplayer_controller_->our_host_name(); }
 
+ protected:
   virtual bool GotJoin(const std::string& name) override;
 
   virtual void GotLeave(const std::string& name) override;
@@ -58,27 +58,18 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
  private:
   struct GameStatisticsAccumlator {
     void AddLines(int lines) {
-      if (lines == 0) {
-        return;
-      }
       lines_ += lines;
-      is_dirty_ = true;
+      is_dirty_ = (lines > 0);
     }
 
     void AddLinesSent(int lines) {
-      if (lines == 0) {
-        return;
-      }
       lines_sent_ += lines;
-      is_dirty_ = true;
+      is_dirty_ = (lines > 0);
     }
 
     void AddScore(int score) {
-      if (score == 0) {
-        return;
-      }
       score_ += score;
-      is_dirty_ = true;
+      is_dirty_ = (score > 0);
     }
 
     void SetLevel(int level) {

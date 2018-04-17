@@ -23,6 +23,10 @@ SDL_Color GetColor(Color color, uint8_t alpha) {
     return { 160, 0, 240, alpha };
   } else if (color == Color::Gray) {
     return { 102, 102, 102, alpha };
+  } else if (color == Color::Gold) {
+    return { 255, 215, 0, alpha };
+  } else if (color == Color::Coral) {
+    return { 255,127,80, alpha };
   } else {
     return { 255, 255, 255, alpha };
   }

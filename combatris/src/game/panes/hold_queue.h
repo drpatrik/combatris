@@ -3,7 +3,7 @@
 #include "game/panes/pane.h"
 #include "game/tetromino_generator.h"
 
-class HoldQueue final : public TextPane, public EventSink {
+class HoldQueue final : public TextPane, public EventListener {
  public:
    HoldQueue(SDL_Renderer *renderer,
              const std::shared_ptr<TetrominoGenerator> &tetromino_generator,
