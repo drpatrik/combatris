@@ -80,7 +80,6 @@ TEST_CASE("TestLongLongConversion") {
 
   auto v = htonll(value);
 
-  REQUIRE_FALSE(v == value);
   REQUIRE(ntohll(v) == value);
 }
 

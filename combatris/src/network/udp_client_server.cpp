@@ -285,7 +285,7 @@ uint64_t htonll(uint64_t value) {
     uint32_t u = htonl(value >> 32);
     uint32_t l = htonl(value);
 
-    return ((uint64_t(u) << 32) | l);
+    return ((uint64_t(l) << 32) | u);
   }
 }
 
@@ -296,7 +296,7 @@ uint64_t ntohll(uint64_t value) {
     uint32_t u = ntohl(value >> 32);
     uint32_t l = ntohl(value);
 
-    return ((uint64_t(u) << 32) | l);
+    return ((uint64_t(l) << 32) | u);
   }
 }
 
