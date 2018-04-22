@@ -40,4 +40,4 @@ TEST_CASE("DetectPerfectClear") {
   REQUIRE(lines_cleared.size() == 1);
   REQUIRE(TSpinType::None == tspin_type);
   REQUIRE(perfect_clear);
-};
+}

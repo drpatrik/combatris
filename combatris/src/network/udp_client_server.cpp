@@ -9,7 +9,9 @@
 #else
 #include <arpa/inet.h>
 #include <unistd.h>
+#if !defined( __APPLE__)
 #include <endian.h>
+#endif
 #endif
 #include <fcntl.h>
 #include <errno.h>
@@ -274,7 +276,7 @@ void Cleanup() {}
 }  // namespace network
 
 
-#if !defined(_WIN64)
+#if !defined(_WIN64) && !defined( __APPLE__)
 
 uint64_t htonll(uint64_t value) {
   if (__BYTE_ORDER == __BIG_ENDIAN) {

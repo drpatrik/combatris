@@ -12,9 +12,10 @@ using SOCKET = int;
 const int INVALID_SOCKET = -1;
 const int SOCKET_ERROR = -1;
 
+#if !defined( __APPLE__)
 uint64_t htonll(uint64_t value);
-
 uint64_t ntohll(uint64_t value);
+#endif
 
 #endif
 

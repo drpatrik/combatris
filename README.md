@@ -58,6 +58,7 @@ Platform | PC / OSX / (Linux)
 - [X] Pause Screen
 - [X] Splash Screen
 - [X] Battle Mode (P2P based on UDP)
+- [ ] Introduce KO in Battle mode
 - [ ] Introduce Marathon mode
 - [ ] More unit tests
 - [ ] Sound
@@ -86,7 +87,6 @@ Right | Move Right
 Down | Soft Drop
 Space | Hard Drop
 Shift | Hold piece
-Q | Quit
 
 **Joystick Commands (PS3 Controller)**
 
