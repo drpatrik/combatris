@@ -75,6 +75,15 @@ TEST_CASE("ClientServerTest") {
   REQUIRE(result == kHeartBeats + 1);
 }
 
+TEST_CASE("TestLongLongConversion") {
+  const uint64_t value = 0xFEEDFACECAFEBEEF;
+
+  auto v = htonll(value);
+
+  REQUIRE_FALSE(v == value);
+  REQUIRE(ntohll(v) == value);
+}
+
 TEST_CASE("RunServer", "[!hide]") {
   UDPServer server(GetPort());
 

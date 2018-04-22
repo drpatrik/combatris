@@ -30,8 +30,6 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
     players_.clear();
   }
 
-  network::GameState state() const { return game_state_; }
-
   bool CanPressNewGame() const {
     return std::none_of(score_board_.begin(), score_board_.end(), [](const auto& p) { return p->state() == network::GameState::Playing; });
   }
@@ -52,6 +50,8 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
   virtual void GotStartGame() override;
 
   virtual void GotUpdate(const std::string& name, int lines, int lines_sent, int score, int level, network::GameState state) override;
+
+  virtual void GotKnockedOutBy(uint64_t name_hash) override;
 
   virtual void GotLines(const std::string& name, int lines) override;
 

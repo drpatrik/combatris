@@ -15,6 +15,7 @@
 #include <string.h>
 #include <limits.h>
 #include <sys/types.h>
+#include <endian.h>
 
 #include <iostream>
 
@@ -210,6 +211,33 @@ ssize_t UDPServer::Receive(void* buff, size_t max_size, int max_wait_ms) {
   return SOCKET_TIMEOUT;
 }
 
+ssize_t UDPServer::Receive(void* buff, size_t max_size, sockaddr_in& from_addr, int max_wait_ms) {
+  fd_set fds;
+  FD_ZERO(&fds);
+  FD_SET(socket_, &fds);
+
+  timeval timeout{};
+  timeout.tv_sec = max_wait_ms / 1000;
+  timeout.tv_usec = (max_wait_ms % 1000) * 1000;
+  const auto ret_val(select(socket_ + 1, &fds, nullptr, &fds, &timeout));
+
+  if (ret_val == SOCKET_ERROR) {
+    std::cout << "UDPServer::Receive error message - " << get_error_string(get_last_error()) << std::endl;
+    return SOCKET_ERROR;
+  }
+  if (ret_val > 0) {
+    socklen_t out_size = sizeof(from_addr);
+
+    auto size = recvfrom(socket_, static_cast<char*>(buff), max_size, 0, reinterpret_cast<sockaddr*>(&from_addr), &out_size);
+
+    if (size == SOCKET_ERROR) {
+      std::cout << "UDPServer::Receive error message - " << get_error_string(get_last_error()) << std::endl;
+    }
+    return size;
+  }
+  return SOCKET_TIMEOUT;
+}
+
 std::string GetHostName() {
   char host_name[network::kHostNameMax + 1];
 
@@ -244,3 +272,30 @@ void Cleanup() {}
 #endif
 
 }  // namespace network
+
+
+#if !defined(_WIN64)
+
+uint64_t htonll(uint64_t value) {
+  if (__BYTE_ORDER == __BIG_ENDIAN) {
+    return (value);
+  } else {
+    uint32_t u = htonl(value >> 32);
+    uint32_t l = htonl(value);
+
+    return ((uint64_t(u) << 32) | l);
+  }
+}
+
+uint64_t ntohll(uint64_t value) {
+  if (__BYTE_ORDER == __BIG_ENDIAN) {
+    return (value);
+  } else {
+    uint32_t u = ntohl(value >> 32);
+    uint32_t l = ntohl(value);
+
+    return ((uint64_t(u) << 32) | l);
+  }
+}
+
+#endif

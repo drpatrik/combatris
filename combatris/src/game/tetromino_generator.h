@@ -32,6 +32,8 @@ class TetrominoGenerator final {
     GenerateTetrominos();
   }
 
+  void Put(const Tetromino& tetromino) { tetrominos_queue_.push_front(tetromino.type()); }
+
   void RenderFromQueue(size_t n, int x, int y) const { assets_->GetTetromino(tetrominos_queue_.at(n))->RenderTetromino(x, y); }
 
  protected:

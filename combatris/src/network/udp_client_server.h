@@ -11,6 +11,11 @@ using ssize_t = SSIZE_T;
 using SOCKET = int;
 const int INVALID_SOCKET = -1;
 const int SOCKET_ERROR = -1;
+
+uint64_t htonll(uint64_t value);
+
+uint64_t ntohll(uint64_t value);
+
 #endif
 
 #include <string>
@@ -48,6 +53,8 @@ class UDPServer {
   ssize_t Receive(void* buff, size_t max_size) { return recv(socket_, static_cast<char*>(buff), max_size, 0); }
 
   ssize_t Receive(void* buff, size_t max_size, int max_wait_ms);
+
+  ssize_t Receive(void* buff, size_t max_size, sockaddr_in& from_addr, int max_wait_ms);
 
   const std::string& host_name() const { return host_name_; }
 

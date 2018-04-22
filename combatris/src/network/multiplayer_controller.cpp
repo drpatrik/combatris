@@ -66,10 +66,17 @@ void MultiPlayerController::SendUpdate(int lines) {
   send_queue_->Push(package);
 }
 
-void MultiPlayerController::SendUpdate(GameState state) {
-  auto package = CreatePackage(Request::ProgressUpdate);
+void MultiPlayerController::SendUpdate(const std::string& name) {
+  auto package = CreatePackage(Request::ProgressUpdate, GameState::None);
 
-  package.payload_ = Payload(0, 0, 0, 0, 0, state);
+  package.payload_.SetKnockoutBy(name);
+
+  send_queue_->Push(package);
+}
+
+void MultiPlayerController::SendUpdate(GameState state) {
+  auto package = CreatePackage(Request::ProgressUpdate, state);
+
   send_queue_->Push(package);
 }
 
@@ -106,11 +113,14 @@ void MultiPlayerController::Dispatch() {
         }
         listener_if_->GotUpdate(host_name, 0, 0, 0, 0, package.payload_.state());
         break;
-      case ProgressUpdate:
-        listener_if_->GotUpdate(host_name, package.payload_.lines(), package.payload_.lines_sent(), package.payload_.score(),
-                          package.payload_.level(), package.payload_.state());
+      case Request::ProgressUpdate:
         if (package.payload_.lines_got() > 0) {
           listener_if_->GotLines(host_name, package.payload_.lines_got());
+        } else if (package.payload_.knocked_out_by() != 0) {
+          listener_if_->GotKnockedOutBy(package.payload_.knocked_out_by());
+        } else {
+          listener_if_->GotUpdate(host_name, package.payload_.lines(), package.payload_.lines_sent(),
+                                  package.payload_.score(), package.payload_.level(), package.payload_.state());
         }
         break;
       default:

@@ -38,6 +38,9 @@ void MultiPlayer::Update(const Event& event) {
     case Event::Type::GameOver:
       multiplayer_controller_->SendUpdate(GameState::GameOver);
       break;
+    case Event::Type::BattleKnockOut:
+      multiplayer_controller_->SendUpdate("");
+      break;
     default:
       break;
   }
@@ -129,3 +132,5 @@ void MultiPlayer::GotLines(const std::string& name, int lines) {
   }
   events_.Push(Event::Type::BattleGotLines, lines);
 }
+
+void MultiPlayer::GotKnockedOutBy(uint64_t /*name_hash*/) {}

@@ -10,6 +10,7 @@
 #endif
 
 #include <string>
+#include <functional>
 #include <limits.h>
 
 namespace network {
@@ -17,7 +18,7 @@ namespace network {
 const int kHostNameMax = 31;
 const uint32_t kID = 0x50415243; // PARC
 const int kMTU = 512;
-const int kWindowSize = 10;
+const int kWindowSize = 9;
 const std::string kEnvServer = "COMBATRIS_BROADCAST_IP";
 const std::string kEnvPort = "COMBATRIS_BROADCAST_PORT";
 
@@ -40,6 +41,14 @@ inline int GetPort() {
     return kDefaultPort;
   }
   return std::stoi(env);
+}
+
+inline void SetHostName(const std::string& from, char *to) {
+  auto tmp(from);
+
+  tmp.erase(kHostNameMax, std::string::npos);
+  std::copy(std::begin(tmp), std::end(tmp), to);
+  to[tmp.size()] = '\0';
 }
 
 enum Request : uint8_t { Empty, Join, Leave, NewGame, StartGame, ProgressUpdate, HeartBeat };
@@ -90,10 +99,7 @@ class Header final {
 
   std::string host_name() const { return host_name_; }
 
-  void SetHostName(const std::string& name) {
-    std::copy(std::begin(name), std::end(name), host_name_);
-    host_name_[name.size()] = '\0';
-  }
+  void SetHostName(const std::string& name) { network::SetHostName(name, host_name_); }
 
   bool VerifyHeader() const { return htonl(kID) == id_; }
 
@@ -102,8 +108,8 @@ class Header final {
   bool operator==(const std::string& host_name) const { return host_name == host_name_; }
 
  private:
-  uint32_t id_;
   char host_name_[kHostNameMax + 1];
+  uint32_t id_;
 };
 
 class PackageHeader final {
@@ -134,7 +140,8 @@ class PackageHeader final {
 
 class Payload final {
  public:
-  Payload() : lines_(0), lines_sent_(0), score_(0), level_(0), lines_got_(0), state_(GameState::Idle) {}
+  Payload(GameState state = GameState::Idle)
+      : knocked_out_by_(0), score_(0), lines_(0), lines_sent_(0), level_(0), lines_got_(0), state_(state) {}
 
   Payload(uint16_t lines, uint16_t lines_sent, uint32_t score, uint8_t level, uint8_t lines_got, GameState state) {
     lines_ = htons(lines);
@@ -155,14 +162,19 @@ class Payload final {
 
   uint8_t lines_got() const { return lines_got_; }
 
+  uint64_t knocked_out_by() const { return knocked_out_by_; }
+
+  void SetKnockoutBy(const std::string& name) { knocked_out_by_ = std::hash<std::string>{}(name); }
+
   GameState state() const { return state_; }
 
   void SetState(GameState state) { state_ = state; }
 
  private:
+  uint64_t knocked_out_by_;
+  uint32_t score_;
   uint16_t lines_;
   uint16_t lines_sent_;
-  uint32_t score_;
   uint8_t level_;
   uint8_t lines_got_;
   GameState state_;

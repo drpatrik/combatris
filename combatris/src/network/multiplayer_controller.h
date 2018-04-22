@@ -21,6 +21,8 @@ class ListenerInterface {
   virtual void GotUpdate(const std::string& name, int lines, int lines_sent, int score, int level, GameState state) = 0;
 
   virtual void GotLines(const std::string& name, int lines) = 0;
+
+  virtual void GotKnockedOutBy(uint64_t name_hash) = 0;
 };
 
 class MultiPlayerController {
@@ -38,6 +40,8 @@ class MultiPlayerController {
   void StartGame();
 
   void SendUpdate(int lines);
+
+  void SendUpdate(const std::string& knockout_by);
 
   void SendUpdate(GameState state);
 

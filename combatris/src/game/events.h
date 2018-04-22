@@ -40,7 +40,8 @@ struct Event {
     BattleStartGame,
     BattleResetCountDown,
     BattleSendLines,
-    BattleGotLines
+    BattleGotLines,
+    BattleKnockOut,
   };
 
   enum class Value { None, DropScore, LinesSent, GotLines,  LevelUp,  };
