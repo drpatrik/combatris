@@ -1,9 +1,11 @@
 #pragma once
 
 #if defined(_WIN64)
+#define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #pragma warning(disable:4996) // _CRT_SECURE_NO_WARNINGS
 #pragma warning(disable:4267) // conversion from size_t to int
+
 #include <winsock2.h>
 #else
 #include <arpa/inet.h>
@@ -11,11 +13,12 @@
 
 #include <string>
 #include <functional>
+#include <algorithm>
 #include <limits.h>
 
 namespace network {
 
-const int kHostNameMax = 31;
+const size_t kHostNameMax = 31;
 const uint32_t kID = 0x50415243; // PARC
 const int kMTU = 512;
 const int kWindowSize = 9;
@@ -46,7 +49,7 @@ inline int GetPort() {
 inline void SetHostName(const std::string& from, char *to) {
   auto tmp(from);
 
-  tmp.erase(kHostNameMax, std::string::npos);
+  tmp.erase(std::min(kHostNameMax, tmp.size()), std::string::npos);
   std::copy(std::begin(tmp), std::end(tmp), to);
   to[tmp.size()] = '\0';
 }

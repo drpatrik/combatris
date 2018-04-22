@@ -116,7 +116,7 @@ int MoveLinesUp(int lines, Matrix::Type& matrix) {
 }
 
 void InsertSolidLines(int lines, Matrix::Type& matrix) {
-  int n = kDistribution(kGenerator);
+  auto n = kDistribution(kGenerator);
 
   for (int l = lines - 1; l >= 0; --l) {
     matrix.at(kVisibleRowEnd - l - 1) = kSolidRow;

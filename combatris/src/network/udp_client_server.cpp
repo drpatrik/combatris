@@ -9,13 +9,13 @@
 #else
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <endian.h>
 #endif
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
 #include <limits.h>
 #include <sys/types.h>
-#include <endian.h>
 
 #include <iostream>
 
