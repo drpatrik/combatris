@@ -1,14 +1,18 @@
 #pragma once
 
 #if defined(_WIN64)
+
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #pragma warning(disable:4996) // _CRT_SECURE_NO_WARNINGS
 #pragma warning(disable:4267) // conversion from size_t to int
 
 #include <winsock2.h>
+
 #else
+
 #include <arpa/inet.h>
+
 #endif
 
 #include <string>

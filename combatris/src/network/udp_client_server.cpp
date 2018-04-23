@@ -2,17 +2,20 @@
 #include "network/udp_client_server.h"
 
 #if defined(_WIN64)
+
 #pragma warning(disable:4267) // conversion from size_t to int
 #pragma warning(disable:4100) // unreferenced formal parameters
 #pragma warning(disable:4244) // SOCKET to int
+
 #include <ws2tcpip.h>
+
 #else
+
 #include <arpa/inet.h>
 #include <unistd.h>
-#if !defined( __APPLE__)
-#include <endian.h>
+
 #endif
-#endif
+
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
@@ -24,6 +27,7 @@
 namespace {
 
 #if defined(_WIN64)
+
 #pragma comment(lib, "ws2_32.lib")
 
 int get_last_error() { return WSAGetLastError();  }
@@ -45,9 +49,11 @@ std::string get_error_string(int error_code) {
 #define close closesocket
 
 #else
+
 int get_last_error() { return errno; }
 
 std::string get_error_string(int error_code) { return strerror(error_code); }
+
 #endif
 
 const int kPortLowerRange = 1024;
@@ -274,30 +280,3 @@ void Cleanup() {}
 #endif
 
 }  // namespace network
-
-
-#if !defined(_WIN64) && !defined( __APPLE__)
-
-uint64_t htonll(uint64_t value) {
-  if (__BYTE_ORDER == __BIG_ENDIAN) {
-    return (value);
-  } else {
-    uint32_t u = htonl(value >> 32);
-    uint32_t l = htonl(value);
-
-    return ((uint64_t(l) << 32) | u);
-  }
-}
-
-uint64_t ntohll(uint64_t value) {
-  if (__BYTE_ORDER == __BIG_ENDIAN) {
-    return (value);
-  } else {
-    uint32_t u = ntohl(value >> 32);
-    uint32_t l = ntohl(value);
-
-    return ((uint64_t(l) << 32) | u);
-  }
-}
-
-#endif
