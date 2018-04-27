@@ -51,13 +51,9 @@ void MultiPlayerController::Leave()  {
   send_queue_->Push(CreatePackage(Request::Leave, GameState::Idle));
 }
 
-void MultiPlayerController::NewGame() {
-  send_queue_->Push(CreatePackage(Request::NewGame, GameState::Waiting));
-}
+void MultiPlayerController::NewGame() { send_queue_->Push(CreatePackage(Request::NewGame, GameState::Waiting)); }
 
-void MultiPlayerController::StartGame() {
-  send_queue_->Push(CreatePackage(Request::StartGame, GameState::Playing));
-}
+void MultiPlayerController::StartGame() { send_queue_->Push(CreatePackage(Request::StartGame, GameState::Playing)); }
 
 void MultiPlayerController::SendUpdate(int lines) {
   auto package = CreatePackage(Request::ProgressUpdate);
@@ -70,15 +66,10 @@ void MultiPlayerController::SendUpdate(const std::string& name) {
   auto package = CreatePackage(Request::ProgressUpdate, GameState::None);
 
   package.payload_.SetKnockoutBy(name);
-
   send_queue_->Push(package);
 }
 
-void MultiPlayerController::SendUpdate(GameState state) {
-  auto package = CreatePackage(Request::ProgressUpdate, state);
-
-  send_queue_->Push(package);
-}
+void MultiPlayerController::SendUpdate(GameState state) { send_queue_->Push(CreatePackage(Request::ProgressUpdate, state)); }
 
 void MultiPlayerController::SendUpdate(int lines, int lines_sent, int score, int level) {
   auto package = CreatePackage(Request::ProgressUpdate);

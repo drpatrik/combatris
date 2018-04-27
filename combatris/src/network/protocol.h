@@ -11,6 +11,26 @@
 
 #else
 
+#if !defined(__APPLE__)
+
+#include <endian.h>
+
+inline uint64_t htonll(uint64_t value) {
+  if (__BYTE_ORDER == __BIG_ENDIAN) {
+    return value;
+  }
+  return (static_cast<uint64_t>(htonl(value)) << 32) | htonl(value >> 32);
+}
+
+inline uint64_t ntohll(uint64_t value) {
+  if (__BYTE_ORDER == __BIG_ENDIAN) {
+    return value;
+  }
+  return (static_cast<uint64_t>(ntohl(value)) << 32) | ntohl(value >> 32);
+}
+
+#endif // !__APPLE__
+
 #include <arpa/inet.h>
 
 #endif
@@ -147,10 +167,11 @@ class PackageHeader final {
 
 class Payload final {
  public:
-  Payload(GameState state = GameState::Idle)
+  explicit Payload(GameState state = GameState::Idle)
       : knocked_out_by_(0), score_(0), lines_(0), lines_sent_(0), level_(0), lines_got_(0), state_(state) {}
 
-  Payload(uint16_t lines, uint16_t lines_sent, uint32_t score, uint8_t level, uint8_t lines_got, GameState state) {
+  Payload(uint16_t lines, uint16_t lines_sent, uint32_t score, uint8_t level, uint8_t lines_got, GameState state)
+      : knocked_out_by_(0) {
     lines_ = htons(lines);
     lines_sent_ = htons(lines_sent);
     score_ = htonl(score);
@@ -169,9 +190,9 @@ class Payload final {
 
   uint8_t lines_got() const { return lines_got_; }
 
-  uint64_t knocked_out_by() const { return knocked_out_by_; }
+  uint64_t knocked_out_by() const { return ntohll(knocked_out_by_); }
 
-  void SetKnockoutBy(const std::string& name) { knocked_out_by_ = std::hash<std::string>{}(name); }
+  void SetKnockoutBy(const std::string& name) { knocked_out_by_ = htonll(std::hash<std::string>{}(name)); }
 
   GameState state() const { return state_; }
 
