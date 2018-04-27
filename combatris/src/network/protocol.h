@@ -11,6 +11,8 @@
 
 #else
 
+#include <arpa/inet.h>
+
 #if !defined(__APPLE__)
 
 #include <endian.h>
@@ -30,8 +32,6 @@ inline uint64_t ntohll(uint64_t value) {
 }
 
 #endif // !__APPLE__
-
-#include <arpa/inet.h>
 
 #endif
 
