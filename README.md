@@ -128,7 +128,7 @@ packages.
 ## Build Combatris
 
 **Dependencies:**
-* C++17 compliant compiler (e.g. clang 6/7, clang-9.0.0, Visual Studio 2017.3, GCC 7.x.x)
+* C++17 compliant compiler (tested with clang 5/6, clang-9.0.0, Visual Studio 2017.3, GCC 7.x.x)
 * cmake 3.10.0 or later (Windows) or 3.5.0 or later (OSX/Linux)
 * git
 * SDL2 (x64 only)
@@ -168,7 +168,7 @@ make cppcheck
 
 You need to activate the OpenGL driver otherwise the game will be far to slow.
 
-The code builds cleanly and has been tested with GCC 7.3.0, instructions how
+The code builds cleanly and has been tested with GCC 7.3.0 and Clang 6.0.0, instructions how
 to install the compiler can be found here:
 
 https://solarianprogrammer.com/2017/12/08/raspberry-pi-raspbian-install-gcc-compile-cpp-17-programs/
@@ -182,7 +182,7 @@ export CXX=gcc-7.3.0
 
 **Ubuntu**
 
-The code builds cleanly and has been tested with Clang 5.0.0.
+The code builds cleanly and has been tested with Clang 5.0.0 and Clang 6.0.0
 
 **64-bit Windows 10**
 
