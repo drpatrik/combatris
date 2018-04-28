@@ -3,6 +3,8 @@
 #include "game/matrix.h"
 #include "game/panes/level.h"
 
+#include <experimental/optional>
+
 namespace {
 
 const Position kSpawnPosition = Position(0, 5);
@@ -71,7 +73,7 @@ class TetrominoSprite {
  protected:
   void ResetDelayCounter();
 
-  std::tuple<bool, Position, Tetromino::Angle> TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate);
+  std::experimental::optional<std::pair<Position, Tetromino::Angle>> TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate);
 
  private:
   const Tetromino& tetromino_;

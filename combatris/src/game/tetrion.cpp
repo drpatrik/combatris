@@ -149,6 +149,7 @@ void Tetrion::GameControl(Controls control_pressed) {
 
 void Tetrion::EventHandler(Events& events) {
   if (events.IsEmpty()) {
+    multi_player_->DispatchNetworkEvents();
     return;
   }
   auto event = events.Pop();
@@ -171,13 +172,18 @@ void Tetrion::EventHandler(Events& events) {
     case Event::Type::NextTetromino:
       next_queue_->Show();
       tetromino_in_play_ = tetromino_generator_->Get();
-      if (TetrominoSprite::State::Falling != tetromino_in_play_->state()) {
+      if (TetrominoSprite::State::Falling == tetromino_in_play_->state()) {
+        if (Campaign::Battle == campaign_) {
+          events.PushFront(Event::Type::BattleNextTetrominoInPlay);
+        }
+      } else {
         if (TetrominoSprite::State::GameOver == tetromino_in_play_->state()) {
           tetromino_in_play_.reset();
           events.PushFront(Event::Type::GameOver);
         } else {
           tetromino_in_play_->RemoveLines();
-          AddAnimation<MessageAnimation>(renderer_, assets_, "K.O.");
+          AddAnimation<MessageAnimation>(renderer_, assets_, "You got K.O. :-(");
+          events.PushFront(Event::Type::BattleKnockOut);
         }
       }
       break;
@@ -233,6 +239,9 @@ void Tetrion::EventHandler(Events& events) {
       tetromino_generator_->Put(tetromino_in_play_->tetromino());
       tetromino_in_play_.reset();
       events_.PushFront(Event::Type::NextTetromino);
+      break;
+    case Event::Type::BattleYouDidKO:
+      AddAnimation<MessageAnimation>(renderer_, assets_, "*** K.O. ***");
       break;
     default:
       break;

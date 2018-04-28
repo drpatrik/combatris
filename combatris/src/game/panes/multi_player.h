@@ -30,6 +30,13 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
     players_.clear();
   }
 
+  void DispatchNetworkEvents() {
+    if (!multiplayer_controller_) {
+      return;
+    }
+    multiplayer_controller_->Dispatch();
+  }
+
   bool CanPressNewGame() const {
     return std::none_of(score_board_.begin(), score_board_.end(), [](const auto& p) { return p->state() == network::GameState::Playing; });
   }
@@ -41,21 +48,23 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
   const std::string& our_host_name() const { return multiplayer_controller_->our_host_name(); }
 
  protected:
-  virtual bool GotJoin(const std::string& name) override;
+  virtual bool GotJoin(const std::string& name, uint64_t host_id) override;
 
-  virtual void GotLeave(const std::string& name) override;
+  virtual void GotLeave(uint64_t host_id) override;
 
-  virtual void GotNewGame(const std::string& name) override;
+  virtual void GotNewGame(uint64_t host_id) override;
 
   virtual void GotStartGame() override;
 
-  virtual void GotUpdate(const std::string& name, int lines, int lines_sent, int score, int level, network::GameState state) override;
+  virtual void GotUpdate(uint64_t host_id, int lines, int lines_sent, int score, int ko, int level, network::GameState state) override;
 
-  virtual void GotKnockedOutBy(uint64_t name_hash) override;
+  virtual void GotKnockedOutBy(uint64_t host_id) override;
 
-  virtual void GotLines(const std::string& name, int lines) override;
+  virtual void GotLines(uint64_t host_id, int lines) override;
 
  private:
+  bool IsUs(uint64_t host_id) const { return multiplayer_controller_->IsUs(host_id); }
+
   struct GameStatisticsAccumlator {
     void AddLines(int lines) {
       lines_ += lines;
@@ -72,6 +81,11 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
       is_dirty_ = (score > 0);
     }
 
+    void AddKnockOut(int ko) {
+      ko_ += ko;
+      is_dirty_ = (ko > 0);
+    }
+
     void SetLevel(int level) {
       level_ = level;
       is_dirty_ = true;
@@ -81,13 +95,15 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
       lines_ = 0;
       lines_sent_ = 0;
       score_ = 0;
+      ko_ = 0;
       level_ = 0;
       is_dirty_ = false;
     }
 
     int lines_ = 0;
-    int lines_sent_;
+    int lines_sent_ = 0;
     int score_ = 0;
+    int ko_ = 0;
     int level_ = 0;
     bool is_dirty_ = false;
   };
@@ -95,7 +111,8 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
   Events& events_;
   network::GameState game_state_ = network::GameState::None;
   std::vector<Player::Ptr> score_board_;
-  std::unordered_map<std::string, Player::Ptr> players_;
+  std::deque<uint64_t> got_lines_from_;
+  std::unordered_map<uint64_t, Player::Ptr> players_;
   std::unique_ptr<network::MultiPlayerController> multiplayer_controller_;
   GameStatisticsAccumlator accumulator_;
   double ticks_ = 0.0;

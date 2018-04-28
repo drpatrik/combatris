@@ -45,7 +45,7 @@ void TetrominoSprite::ResetDelayCounter() {
   }
 }
 
-std::tuple<bool, Position, Tetromino::Angle> TetrominoSprite::TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate) {
+std::experimental::optional<std::pair<Position, Tetromino::Angle>> TetrominoSprite::TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate) {
   enum { GetX = 0, GetY = 1 };
 
   auto try_angle = GetNextAngle(current_angle, rotate);
@@ -56,18 +56,15 @@ std::tuple<bool, Position, Tetromino::Angle> TetrominoSprite::TryRotation(Tetrom
 
     if (matrix_->IsValid(try_pos, tetromino_.GetRotationData(try_angle))) {
       ResetDelayCounter();
-      return std::make_tuple(true, try_pos, try_angle);
+      return std::experimental::make_optional(std::make_pair(try_pos, try_angle));
     }
   }
-  return std::make_tuple(false, current_pos, current_angle);
+  return {};
 }
 
 void TetrominoSprite::RotateClockwise() {
-  bool success;
-
-  std::tie(success, pos_, angle_) = TryRotation(tetromino_.type(), pos_, angle_, Rotation::Clockwise);
-
-  if (success) {
+  if (auto result = TryRotation(tetromino_.type(), pos_, angle_, Rotation::Clockwise)) {
+    std::tie(pos_, angle_) = *result;
     rotation_data_ = tetromino_.GetRotationData(angle_);
     matrix_->Insert(pos_, rotation_data_);
     last_move_ = Tetromino::Move::Rotation;
@@ -75,11 +72,8 @@ void TetrominoSprite::RotateClockwise() {
 }
 
 void TetrominoSprite::RotateCounterClockwise() {
-  bool success;
-
-  std::tie(success, pos_, angle_) = TryRotation(tetromino_.type(), pos_, angle_, Rotation::CounterClockwise);
-
-  if (success) {
+  if (auto result = TryRotation(tetromino_.type(), pos_, angle_, Rotation::CounterClockwise)) {
+    std::tie(pos_, angle_) = *result;
     rotation_data_ = tetromino_.GetRotationData(angle_);
     matrix_->Insert(pos_, rotation_data_);
     last_move_ = Tetromino::Move::Rotation;

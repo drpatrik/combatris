@@ -38,8 +38,14 @@ void MultiPlayer::Update(const Event& event) {
     case Event::Type::GameOver:
       multiplayer_controller_->SendUpdate(GameState::GameOver);
       break;
+    case Event::Type::BattleNextTetrominoInPlay:
+      if (!got_lines_from_.empty()) {
+        got_lines_from_.pop_front();
+      }
+      break;
     case Event::Type::BattleKnockOut:
-      multiplayer_controller_->SendUpdate("");
+      multiplayer_controller_->SendUpdate(got_lines_from_.front());
+      got_lines_from_.pop_front();
       break;
     default:
       break;
@@ -63,45 +69,47 @@ void MultiPlayer::Render(double delta_time) {
   if (ticks_ >= kUpdateInterval) {
     ticks_ = 0.0;
     if (accumulator_.is_dirty_) {
-      multiplayer_controller_->SendUpdate(accumulator_.lines_, accumulator_.lines_sent_, accumulator_.score_, accumulator_.level_);
+      multiplayer_controller_->SendUpdate(accumulator_.lines_, accumulator_.lines_sent_, accumulator_.score_,
+                                          accumulator_.ko_, accumulator_.level_);
       accumulator_.is_dirty_  = false;
     }
   }
-  multiplayer_controller_->Dispatch();
 }
 
 // ListenerInterface
 
-bool MultiPlayer::GotJoin(const std::string& name)  {
+bool MultiPlayer::GotJoin(const std::string& name, uint64_t host_id)  {
   if (score_board_.size() >= kMaxPlayers) {
     std::cout << "Combatris support - " << kMaxPlayers << " players." << std::endl;
     return false;
   }
-  if (name != our_host_name()) {
+  if (!IsUs(host_id)) {
     multiplayer_controller_->Join(game_state_);
   }
-  score_board_.push_back(players_.insert(std::make_pair(name, std::make_shared<Player>(renderer_, name, assets_))).first->second);
+  score_board_.push_back(
+      players_.insert(std::make_pair(host_id, std::make_shared<Player>(renderer_, name, host_id, assets_)))
+          .first->second);
 
   return true;
 }
 
-void MultiPlayer::GotLeave(const std::string& name) {
-  if (players_.count(name) == 0) {
+void MultiPlayer::GotLeave(uint64_t host_id) {
+  if (players_.count(host_id) == 0) {
     return;
   }
-  auto it = std::find_if(score_board_.begin(), score_board_.end(), [&name](const auto& e) { return name == e->name(); });
+  auto it = std::find_if(score_board_.begin(), score_board_.end(), [host_id](const auto& e) { return host_id == e->host_id(); });
 
   score_board_.erase(it);
-  players_.erase(name);
+  players_.erase(host_id);
 }
 
-void MultiPlayer::GotNewGame(const std::string& name) {
-  if (players_.count(name) == 0) {
+void MultiPlayer::GotNewGame(uint64_t host_id) {
+  if (players_.count(host_id) == 0) {
     return;
   }
-  auto& player = players_.at(name);
+  auto& player = players_.at(host_id);
 
-  if (name == our_host_name()) {
+  if (IsUs(host_id)) {
     accumulator_.Reset();
     events_.Push(Event::Type::BattleResetCountDown);
   } else if (GameState::Waiting == game_state_) {
@@ -112,25 +120,32 @@ void MultiPlayer::GotNewGame(const std::string& name) {
 
 void MultiPlayer::GotStartGame() { events_.Push(Event::Type::NextTetromino); }
 
-void MultiPlayer::GotUpdate(const std::string& name, int lines, int lines_sent, int score, int level, GameState state) {
-  if (players_.count(name) == 0) {
+void MultiPlayer::GotUpdate(uint64_t host_id, int lines, int lines_sent, int score, int ko, int level, GameState state) {
+  if (players_.count(host_id) == 0) {
     return;
   }
-  auto& player = players_.at(name);
+  auto& player = players_.at(host_id);
 
-  if (name == our_host_name()) {
+  if (IsUs(host_id)) {
     game_state_ = (GameState::None == state) ? game_state_ : state;
   }
-  if (player->Update(lines, lines_sent, score, level, state)) {
+  if (player->Update(lines, lines_sent, score, ko, level, state)) {
     std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) { return a->score() > b->score(); });
   }
 }
 
-void MultiPlayer::GotLines(const std::string& name, int lines) {
-  if (name == our_host_name()) {
+void MultiPlayer::GotLines(uint64_t host_id, int lines) {
+  if (IsUs(host_id)) {
     return;
   }
+  got_lines_from_.push_back(host_id);
   events_.Push(Event::Type::BattleGotLines, lines);
 }
 
-void MultiPlayer::GotKnockedOutBy(uint64_t /*name_hash*/) {}
+void MultiPlayer::GotKnockedOutBy(uint64_t host_id) {
+  if (players_.count(host_id) == 0 || !IsUs(host_id)) {
+    return;
+  }
+  accumulator_.AddKnockOut(1);
+  events_.Push(Event::Type::BattleYouDidKO);
+}

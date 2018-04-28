@@ -36,10 +36,10 @@ bool WaitForPackage(Listener& listener) {
 
 void CheckResponse(Listener& listener, const std::string& expected_host_name, Request expected_request) {
   REQUIRE(WaitForPackage(listener));
-  auto [host_name, package] = listener.NextPackage();
+  auto rsp = listener.NextPackage();
 
-  REQUIRE(host_name == expected_host_name);
-  REQUIRE(expected_request == package.header_.request());
+  REQUIRE(rsp.host_name_ == expected_host_name);
+  REQUIRE(expected_request == rsp.request_);
 }
 
 TEST_CASE("TestDuplicatePackageDetection") {

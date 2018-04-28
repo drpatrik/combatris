@@ -37,11 +37,13 @@ struct Event {
     GameOver,
     GameStatistics,
     PerfectClear,
+    BattleNextTetrominoInPlay,
     BattleStartGame,
     BattleResetCountDown,
     BattleSendLines,
     BattleGotLines,
     BattleKnockOut,
+    BattleYouDidKO,
   };
 
   enum class Value { None, DropScore, LinesSent, GotLines,  LevelUp,  };

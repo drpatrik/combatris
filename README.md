@@ -29,7 +29,7 @@ Levels | 15
 Level advancement | 10 lines
 T-Spin recognition | 3-corner with kicks
 Back-to-back Recognition | Tetris / T-spin
-Platform | PC / OSX / (Linux)
+Platform | PC / OSX / Linux / Raspian
 
 **Status**
 - [x] Rotate left / right
@@ -128,7 +128,7 @@ packages.
 ## Build Combatris
 
 **Dependencies:**
-* C++17 compliant compiler (e.g. clang 4/5, clang-9.0.0, Visual Studio 2017.3, GCC 7.x.x)
+* C++17 compliant compiler (e.g. clang 5/6/7, clang-9.0.0, Visual Studio 2017.3, GCC 7.x.x)
 * cmake 3.10.0 or later (Windows) or 3.5.0 or later (OSX/Linux)
 * git
 * SDL2 (x64 only)

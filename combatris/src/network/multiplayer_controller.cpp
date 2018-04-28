@@ -23,7 +23,8 @@ void HeartbeatController(std::atomic<bool>& quit, std::shared_ptr<ThreadSafeQueu
 
 MultiPlayerController::MultiPlayerController(ListenerInterface* listener_if) : listener_if_(listener_if) {
   Startup();
-  our_hostname_ = GetHostName();
+  our_host_name_ = GetHostName();
+  our_host_id_ = std::hash<std::string>{}(our_host_name_);
   cancelled_.store(false, std::memory_order_release);
   send_queue_ = std::make_shared<ThreadSafeQueue<Package>>();
   listener_ = std::make_unique<Listener>();
@@ -58,23 +59,24 @@ void MultiPlayerController::StartGame() { send_queue_->Push(CreatePackage(Reques
 void MultiPlayerController::SendUpdate(int lines) {
   auto package = CreatePackage(Request::ProgressUpdate);
 
-  package.payload_ = Payload(0, 0, 0, 0, static_cast<uint8_t>(lines), GameState::None);
+  package.payload_ = Payload(0, 0, 0, 0, 0, static_cast<uint8_t>(lines), GameState::None);
   send_queue_->Push(package);
 }
 
-void MultiPlayerController::SendUpdate(const std::string& name) {
+void MultiPlayerController::SendUpdate(uint64_t host_id) {
   auto package = CreatePackage(Request::ProgressUpdate, GameState::None);
 
-  package.payload_.SetKnockoutBy(name);
+  package.payload_.SetKnockoutBy(host_id);
   send_queue_->Push(package);
 }
 
 void MultiPlayerController::SendUpdate(GameState state) { send_queue_->Push(CreatePackage(Request::ProgressUpdate, state)); }
 
-void MultiPlayerController::SendUpdate(int lines, int lines_sent, int score, int level) {
+void MultiPlayerController::SendUpdate(int lines, int lines_sent, int score, int ko, int level) {
   auto package = CreatePackage(Request::ProgressUpdate);
 
-  package.payload_ = Payload(static_cast<uint16_t>(lines), static_cast<uint16_t>(lines_sent), score, static_cast<uint8_t>(level), 0, GameState::None);
+  package.payload_ = Payload(static_cast<uint16_t>(lines), static_cast<uint16_t>(lines_sent), score, static_cast<uint8_t>(ko),
+                             static_cast<uint8_t>(level), 0, GameState::None);
   send_queue_->Push(package);
 }
 
@@ -83,35 +85,38 @@ void MultiPlayerController::Dispatch() {
     return;
   }
   while (listener_->packages_available()) {
-    auto [host_name, package] = listener_->NextPackage();
+    auto response = listener_->NextPackage();
+    const auto& host_name = response.host_name_;
+    const auto host_id = response.host_id_;
+    const auto& payload = response.payload_;
 
-    switch (package.header_.request()) {
+    switch (response.request_) {
       case Request::Join:
-        if (listener_if_->GotJoin(host_name)) {
-          listener_if_->GotUpdate(host_name, 0, 0, 0, 0, package.payload_.state());
+        if (listener_if_->GotJoin(host_name, host_id)) {
+          listener_if_->GotUpdate(host_id, 0, 0, 0, 0, 0, payload.state());
         }
         break;
       case Request::Leave:
-        listener_if_->GotLeave(host_name);
+        listener_if_->GotLeave(host_id);
         break;
       case Request::NewGame:
-        listener_if_->GotNewGame(host_name);
-        listener_if_->GotUpdate(host_name, 0, 0, 0, 0, package.payload_.state());
+        listener_if_->GotNewGame(host_id);
+        listener_if_->GotUpdate(host_id, 0, 0, 0, 0, 0, payload.state());
         break;
       case Request::StartGame:
-        if (host_name == our_hostname_) {
+        if (host_id == our_host_id_) {
           listener_if_->GotStartGame();
         }
-        listener_if_->GotUpdate(host_name, 0, 0, 0, 0, package.payload_.state());
+        listener_if_->GotUpdate(host_id, 0, 0, 0, 0, 0, payload.state());
         break;
       case Request::ProgressUpdate:
-        if (package.payload_.lines_got() > 0) {
-          listener_if_->GotLines(host_name, package.payload_.lines_got());
-        } else if (package.payload_.knocked_out_by() != 0) {
-          listener_if_->GotKnockedOutBy(package.payload_.knocked_out_by());
+        if (payload.lines_got() > 0) {
+          listener_if_->GotLines(host_id, payload.lines_got());
+        } else if (payload.knocked_out_by() != 0) {
+          listener_if_->GotKnockedOutBy(payload.knocked_out_by());
         } else {
-          listener_if_->GotUpdate(host_name, package.payload_.lines(), package.payload_.lines_sent(),
-                                  package.payload_.score(), package.payload_.level(), package.payload_.state());
+          listener_if_->GotUpdate(host_id, payload.lines(), payload.lines_sent(),
+                                  payload.score(), payload.ko(), payload.level(), payload.state());
         }
         break;
       default:

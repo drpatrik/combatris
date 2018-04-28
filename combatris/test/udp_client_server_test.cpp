@@ -19,12 +19,16 @@ class Initialize {
 
 struct TestPackage {
   TestPackage() {}
+
   TestPackage(const std::string& host_name, network::Request request) {
-    header_.SetHostName(host_name);
-    package_header_ = network::PackageHeader(request);
+    header_ = network::Header(request);
+    packages_header_.SetHostName(host_name);
   }
+
+  std::string host_name() const { return packages_header_.host_name(); }
+
   network::Header header_;
-  network::PackageHeader package_header_;
+  network::PackagesHeader packages_header_;
 };
 
 Initialize initialize;
@@ -46,7 +50,7 @@ void server(std::promise<bool> started, std::promise<int> recieved_broadcasts) {
     package = {};
     auto size = server.Receive(&package, sizeof(package), kWaitTime);
     n +=  (size > 0);
-  } while (!(package.package_header_ == Request::Leave));
+  } while (!(package.header_ == Request::Leave));
   recieved_broadcasts.set_value(n);
 }
 
@@ -91,7 +95,7 @@ TEST_CASE("RunServer", "[!hide]") {
     auto size = server.Receive(&package, sizeof(package), kWaitTime);
 
     if (size > 0) {
-      std::cout << package.header_.host_name() << "," << ToString(package.package_header_.request()) << std::endl;
+      std::cout << package.host_name() << "," << ToString(package.header_.request()) << std::endl;
     }
   }
 }
@@ -102,7 +106,7 @@ TEST_CASE("RunClient", "[!hide]") {
   for (int n = 0; n < kHeartBeats; n++) {
     TestPackage package(client.host_name(), Request::HeartBeat);
     client.Send(&package, sizeof(package));
-    std::cout << package.header_.host_name() << "," << ToString(package.package_header_.request()) << std::endl;
+    std::cout << package.host_name() << "," << ToString(package.header_.request()) << std::endl;
 
     std::this_thread::sleep_for(std::chrono::milliseconds(kWaitTime));
   }
