@@ -8,6 +8,7 @@
 #pragma warning(disable:4267) // conversion from size_t to int
 
 #include <winsock2.h>
+#include <iterator>
 
 #else
 
@@ -74,7 +75,12 @@ inline uint64_t SetHostName(const std::string& from, char *to) {
   auto tmp(from);
 
   tmp.erase(std::min(kHostNameMax, tmp.size()), std::string::npos);
+#if defined(_WIN64)
+  std::copy(std::begin(tmp), std::end(tmp), stdext::checked_array_iterator<char*>(to, kHostNameMax));
+#else
   std::copy(std::begin(tmp), std::end(tmp), to);
+#endif
+
   to[tmp.size()] = '\0';
 
   return std::hash<std::string>{}(from);

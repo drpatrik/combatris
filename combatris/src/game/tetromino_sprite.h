@@ -3,8 +3,13 @@
 #include "game/matrix.h"
 #include "game/panes/level.h"
 
+#if defined(_WIN64)
+namespace stdopt = std;
+#include <optional>
+#else
+namespace stdopt = std::experimental;
 #include <experimental/optional>
-
+#endif
 namespace {
 
 const Position kSpawnPosition = Position(0, 5);
@@ -73,7 +78,7 @@ class TetrominoSprite {
  protected:
   void ResetDelayCounter();
 
-  std::experimental::optional<std::pair<Position, Tetromino::Angle>> TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate);
+  stdopt::optional<std::pair<Position, Tetromino::Angle>> TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate);
 
  private:
   const Tetromino& tetromino_;
