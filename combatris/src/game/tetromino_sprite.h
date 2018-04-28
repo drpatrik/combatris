@@ -3,7 +3,7 @@
 #include "game/matrix.h"
 #include "game/panes/level.h"
 
-#if defined(__cpp_lib_optional)
+#if __has_include(<optional>)
 #include <optional>
 namespace opt = std;
 #else
