@@ -45,7 +45,7 @@ void TetrominoSprite::ResetDelayCounter() {
   }
 }
 
-std::optional<std::pair<Position, Tetromino::Angle>> TetrominoSprite::TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate) {
+opt::optional<std::pair<Position, Tetromino::Angle>> TetrominoSprite::TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate) {
   enum { GetX = 0, GetY = 1 };
 
   auto try_angle = GetNextAngle(current_angle, rotate);
@@ -56,7 +56,7 @@ std::optional<std::pair<Position, Tetromino::Angle>> TetrominoSprite::TryRotatio
 
     if (matrix_->IsValid(try_pos, tetromino_.GetRotationData(try_angle))) {
       ResetDelayCounter();
-      return std::make_optional(std::make_pair(try_pos, try_angle));
+      return opt::make_optional(std::make_pair(try_pos, try_angle));
     }
   }
   return {};
