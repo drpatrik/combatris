@@ -74,6 +74,7 @@ void MultiPlayer::Render(double delta_time) {
       accumulator_.is_dirty_  = false;
     }
   }
+  multiplayer_controller_->Dispatch();
 }
 
 // ListenerInterface
@@ -107,10 +108,8 @@ void MultiPlayer::GotNewGame(uint64_t host_id) {
   if (IsUs(host_id)) {
     accumulator_.Reset();
     events_.Push(Event::Type::BattleResetCountDown);
-    std::cout << "New Game 1" << std::endl;
   } else if (GameState::Waiting == game_state_) {
     events_.Push(Event::Type::BattleResetCountDown);
-    std::cout << "New Game 2" << std::endl;
   }
   auto& player = players_.at(host_id);
 
@@ -126,18 +125,21 @@ void MultiPlayer::GotUpdate(uint64_t host_id, int lines, int lines_sent, int sco
   auto& player = players_.at(host_id);
 
   if (player->Update(lines, lines_sent, score, ko, level, state)) {
-    std::sort(score_board_.begin(), score_board_.end(),
-              [](const auto& a, const auto& b) { return a->score() > b->score(); });
+    std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) {
+      if (a->ko() != b->ko()) {
+        return a->ko() > b->ko();
+      }
+      return a->lines_sent() > b->lines_sent();
+    });
   }
 }
 
 void MultiPlayer::GotLines(uint64_t host_id, int lines) {
-  std::cout << "got: " << lines << std::endl;
   got_lines_from_.push_back(host_id);
   events_.Push(Event::Type::BattleGotLines, lines);
 }
 
-void MultiPlayer::GotKnockedOutBy(uint64_t /*host_id*/) {
+void MultiPlayer::GotPlayerKnockedOut() {
   accumulator_.AddKnockOut(1);
   events_.Push(Event::Type::BattleYouDidKO);
 }

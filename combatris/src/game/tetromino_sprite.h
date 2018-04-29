@@ -29,9 +29,6 @@ class TetrominoSprite {
     pos_ = kSpawnPosition;
     rotation_data_ = tetromino_.GetRotationData(kSpawnAngle);
     if (!matrix_->IsValid(pos_, rotation_data_)) {
-      if (got_lines) {
-        std::cout << "KO" << std::endl;
-      }
       state_ = (got_lines) ? State::KO : State::GameOver;
       return;
     }

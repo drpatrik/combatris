@@ -77,21 +77,21 @@ void Listener::Run() {
       const auto& header = package.header_;
 
       if (!header.Verify()) {
-        std::cout << "Unknown package ignored" << std::endl;
+        std::cout << "Unknown package signature - package ignored" << std::endl;
         continue;
       }
       switch (header.request()) {
         case Request::Join:
-          process_request = !connection.has_joined();
+          if (connection.has_joined()) {
+            std::cout << "Error: already joined" << std::endl;
+          }
           connection.SetHasJoined();
           break;
         case Request::Leave:
-          process_request = false;
-          if (connection.has_joined()) {
-            connections_.erase(host_id);
-            connection.SetHasLeft();
-            process_request = true;
+          if (!connection.has_joined()) {
+            std::cout << "Error: not joined" << std::endl;
           }
+          connections_.erase(host_id);
           break;
         case Request::HeartBeat:
           process_request = false;

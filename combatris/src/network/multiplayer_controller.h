@@ -22,7 +22,7 @@ class ListenerInterface {
 
   virtual void GotLines(uint64_t host_id, int lines) = 0;
 
-  virtual void GotKnockedOutBy(uint64_t host_id) = 0;
+  virtual void GotPlayerKnockedOut() = 0;
 };
 
 class MultiPlayerController {

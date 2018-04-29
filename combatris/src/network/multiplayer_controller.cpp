@@ -115,7 +115,7 @@ void MultiPlayerController::Dispatch() {
           break;
         } else if (payload.knocked_out_by() != 0) {
           if (IsUs(payload.knocked_out_by())) {
-            listener_if_->GotKnockedOutBy(payload.knocked_out_by());
+            listener_if_->GotPlayerKnockedOut();
           }
           break;
         }

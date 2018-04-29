@@ -38,7 +38,9 @@ class Player final {
 
   uint64_t host_id() const { return host_id_; }
 
-  int score() const { return score_; }
+  int lines_sent() const { return lines_sent_; }
+
+  int ko() const { return ko_; }
 
   network::GameState state() const { return state_; }
 

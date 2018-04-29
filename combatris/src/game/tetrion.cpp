@@ -150,7 +150,6 @@ void Tetrion::GameControl(Controls control_pressed) {
 
 void Tetrion::EventHandler(Events& events) {
   if (events.IsEmpty()) {
-    multi_player_->DispatchNetworkEvents();
     return;
   }
   auto event = events.Pop();
@@ -185,14 +184,14 @@ void Tetrion::EventHandler(Events& events) {
         } else {
           matrix_->RemoveLines();
           tetromino_generator_->Put(tetromino_in_play_->tetromino());
-          AddAnimation<MessageAnimation>(renderer_, assets_, "You got K.O. :-(");
+          AddAnimation<MessageAnimation>(renderer_, assets_, "Got K.O. :-(", Color::Red, 100.0);
           events.Push(Event::Type::BattleKnockOut);
           events_.Push(Event::Type::NextTetromino);
         }
       }
       break;
     case Event::Type::LevelUp:
-      AddAnimation<MessageAnimation>(renderer_, assets_, "LEVEL UP");
+      AddAnimation<MessageAnimation>(renderer_, assets_, "LEVEL UP", Color::SteelGray);
       break;
     case Event::Type::LinesCleared:
       RemoveAnimation<LinesClearedAnimation>(animations_);
@@ -232,7 +231,7 @@ void Tetrion::EventHandler(Events& events) {
       multi_player_->StartGame();
       break;
     case Event::Type::BattleSendLines:
-      AddAnimation<MessageAnimation>(renderer_, assets_, "Sent " + std::to_string(event.value_) + " lines", 100.0);
+      AddAnimation<MessageAnimation>(renderer_, assets_, "Sent " + std::to_string(event.value_) + " lines", Color::SteelGray, 100.0);
       break;
     case Event::Type::BattleResetCountDown:
       RemoveAnimation<CountDownAnimation>(animations_);
@@ -242,14 +241,13 @@ void Tetrion::EventHandler(Events& events) {
       if (!tetromino_in_play_) {
         break;
       }
-      std::cout << "battle got lines: " << event.value_ << std::endl;
       tetromino_generator_->Put(tetromino_in_play_->tetromino());
       tetromino_in_play_.reset();
       matrix_->InsertLines(event.value_);
       events_.Push(Event::Type::BattleNextTetromino);
       break;
     case Event::Type::BattleYouDidKO:
-      AddAnimation<MessageAnimation>(renderer_, assets_, "*** K.O. ***");
+      AddAnimation<MessageAnimation>(renderer_, assets_, "*** K.O. ***", Color::Gold, 100.0);
       break;
     default:
       break;
