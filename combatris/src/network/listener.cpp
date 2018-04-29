@@ -82,9 +82,7 @@ void Listener::Run() {
       }
       switch (header.request()) {
         case Request::Join:
-          if (connection.has_joined()) {
-            std::cout << "Error: already joined" << std::endl;
-          }
+          process_request = !connection.has_joined();
           connection.SetHasJoined();
           break;
         case Request::Leave:
