@@ -107,8 +107,10 @@ void MultiPlayer::GotNewGame(uint64_t host_id) {
   if (IsUs(host_id)) {
     accumulator_.Reset();
     events_.Push(Event::Type::BattleResetCountDown);
+    std::cout << "New Game 1" << std::endl;
   } else if (GameState::Waiting == game_state_) {
     events_.Push(Event::Type::BattleResetCountDown);
+    std::cout << "New Game 2" << std::endl;
   }
   auto& player = players_.at(host_id);
 

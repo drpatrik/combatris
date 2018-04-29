@@ -44,6 +44,7 @@ struct Event {
     BattleGotLines,
     BattleKnockOut,
     BattleYouDidKO,
+    BattleNextTetromino
   };
 
   enum class Value { None, DropScore, LinesSent, GotLines,  LevelUp,  };

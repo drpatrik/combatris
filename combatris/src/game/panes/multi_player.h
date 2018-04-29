@@ -45,6 +45,8 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
 
   void StartGame() { multiplayer_controller_->StartGame(); }
 
+  void DebugSend(int lines) { multiplayer_controller_->SendUpdate(lines); }
+
   const std::string& our_host_name() const { return multiplayer_controller_->our_host_name(); }
 
  protected:

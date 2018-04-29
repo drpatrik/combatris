@@ -23,20 +23,21 @@ class TetrominoSprite {
   enum class State { Falling, OnFloor, Commit, Commited, GameOver, KO };
   enum class Rotation { Clockwise, CounterClockwise };
 
-  TetrominoSprite(const Tetromino& tetromino, const std::shared_ptr<Level>& level, Events& events, const std::shared_ptr<Matrix>& matrix)
-      : tetromino_(tetromino), level_(level), events_(events), matrix_(matrix) { MoveToStartPosition(); }
-
-  void MoveToStartPosition() {
+  TetrominoSprite(const Tetromino& tetromino, const std::shared_ptr<Level>& level, Events& events,
+                  const std::shared_ptr<Matrix>& matrix, bool got_lines = false)
+      : tetromino_(tetromino), level_(level), events_(events), matrix_(matrix) {
     pos_ = kSpawnPosition;
     rotation_data_ = tetromino_.GetRotationData(kSpawnAngle);
     if (!matrix_->IsValid(pos_, rotation_data_)) {
-      state_ = (got_lines_) ? State::KO : State::GameOver;
+      if (got_lines) {
+        std::cout << "KO" << std::endl;
+      }
+      state_ = (got_lines) ? State::KO : State::GameOver;
       return;
     }
     matrix_->Insert(pos_, rotation_data_);
     level_->ResetTime();
     state_ = State::Falling;
-    got_lines_ = false;
   }
 
   void Render(const std::shared_ptr<SDL_Texture>& texture) const {
@@ -50,17 +51,6 @@ class TetrominoSprite {
   inline State state() const { return state_; }
 
   inline bool WaitForLockDelay() { return level_->WaitForLockDelay(); }
-
-  void InsertLines(int lines) {
-    got_lines_ = true;
-    matrix_->InsertLines(lines);
-    MoveToStartPosition();
-  }
-
-  void RemoveLines() {
-    state_ = State::Falling;
-    matrix_->RemoveLines();
-  }
 
   void RotateClockwise();
 
@@ -92,5 +82,4 @@ class TetrominoSprite {
   Tetromino::Move last_move_ = Tetromino::Move::None;
   int reset_delay_counter_ = 0;
   State state_ = State::GameOver;
-  bool got_lines_ = false;
 };

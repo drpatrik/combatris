@@ -56,7 +56,7 @@ void MultiPlayerController::StartGame() { send_queue_->Push(CreatePackage(Reques
 
 void MultiPlayerController::SendUpdate(int lines) {
   auto package = CreatePackage(Request::ProgressUpdate);
-  std::cout << lines << std::endl;
+  std::cout << "Send: " << lines << std::endl;
   package.payload_ = Payload(0, 0, 0, 0, 0, static_cast<uint8_t>(lines), GameState::None);
   send_queue_->Push(package);
 }
@@ -114,7 +114,7 @@ void MultiPlayerController::Dispatch() {
           }
           break;
         } else if (payload.knocked_out_by() != 0) {
-          if (IsUs(host_id)) {
+          if (IsUs(payload.knocked_out_by())) {
             listener_if_->GotKnockedOutBy(payload.knocked_out_by());
           }
           break;

@@ -23,6 +23,9 @@ class Connection final {
   }
 
   void Update(const Header& header) {
+    if (sequence_nr_ + 1 != header.sequence_nr()) {
+      std::cout << "Current sqn: " << sequence_nr_ << ", new sqn: " << header.sequence_nr() << "\n";
+    }
     sequence_nr_ = header.sequence_nr();
     timestamp_ = utility::time_in_ms();
     if (is_missing_) {

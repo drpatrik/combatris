@@ -137,10 +137,11 @@ void Tetrion::GameControl(Controls control_pressed) {
       tetromino_in_play_->Right();
       break;
     case Controls::Hold:
-      if (hold_queue_->CanHold()) {
+      multi_player_->DebugSend(4);
+      /*if (hold_queue_->CanHold()) {
         RemoveAnimation<OnFloorAnimation>(animations_);
         tetromino_in_play_ = hold_queue_->Hold(tetromino_in_play_);
-      }
+        }*/
       break;
     default:
       break;
@@ -169,21 +170,24 @@ void Tetrion::EventHandler(Events& events) {
       level_->ResetTime();
       unpause_pressed_ = game_paused_ = false;
       break;
+    case Event::Type::BattleNextTetromino:
     case Event::Type::NextTetromino:
       next_queue_->Show();
-      tetromino_in_play_ = tetromino_generator_->Get();
+      tetromino_in_play_ = tetromino_generator_->Get(event.Is(Event::Type::BattleNextTetromino));
       if (TetrominoSprite::State::Falling == tetromino_in_play_->state()) {
         if (Campaign::Battle == campaign_) {
-          events.PushFront(Event::Type::BattleNextTetrominoInPlay);
+          events.Push(Event::Type::BattleNextTetrominoInPlay);
         }
       } else {
         if (TetrominoSprite::State::GameOver == tetromino_in_play_->state()) {
           tetromino_in_play_.reset();
           events.PushFront(Event::Type::GameOver);
         } else {
-          tetromino_in_play_->RemoveLines();
+          matrix_->RemoveLines();
+          tetromino_generator_->Put(tetromino_in_play_->tetromino());
           AddAnimation<MessageAnimation>(renderer_, assets_, "You got K.O. :-(");
-          events.PushFront(Event::Type::BattleKnockOut);
+          events.Push(Event::Type::BattleKnockOut);
+          events_.Push(Event::Type::NextTetromino);
         }
       }
       break;
@@ -238,11 +242,11 @@ void Tetrion::EventHandler(Events& events) {
       if (!tetromino_in_play_) {
         break;
       }
-      std::cout << "battle got lines: " << std::endl;
-      tetromino_in_play_->InsertLines(event.value_);
+      std::cout << "battle got lines: " << event.value_ << std::endl;
       tetromino_generator_->Put(tetromino_in_play_->tetromino());
       tetromino_in_play_.reset();
-      events_.PushFront(Event::Type::NextTetromino);
+      matrix_->InsertLines(event.value_);
+      events_.Push(Event::Type::BattleNextTetromino);
       break;
     case Event::Type::BattleYouDidKO:
       AddAnimation<MessageAnimation>(renderer_, assets_, "*** K.O. ***");
