@@ -193,8 +193,8 @@ void Tetrion::EventHandler(Events& events) {
           matrix_->RemoveLines();
           tetromino_generator_->Put(tetromino_in_play_->tetromino());
           AddAnimation<MessageAnimation>(renderer_, assets_, "Got K.O. :-(", Color::Red, 100.0);
-          events.Push(Event::Type::BattleKnockOut);
           events_.Push(Event::Type::NextTetromino);
+          events.Push(Event::Type::BattleKnockOut);
         }
       }
       break;
@@ -206,7 +206,9 @@ void Tetrion::EventHandler(Events& events) {
       AddAnimation<LinesClearedAnimation>(renderer_, assets_, event.lines_cleared_);
       break;
     case Event::Type::CalculatedScore:
-      AddAnimation<ScoreAnimation>(renderer_, assets_, event.pos_, event.score_);
+      if (Campaign::SinglePlayer == campaign_) {
+        AddAnimation<ScoreAnimation>(renderer_, assets_, event.pos_, event.score_);
+      }
       break;
     case Event::Type::NewGame:
       if (!multi_player_->CanPressNewGame()) {
@@ -239,7 +241,7 @@ void Tetrion::EventHandler(Events& events) {
       multi_player_->StartGame();
       break;
     case Event::Type::BattleSendLines:
-      AddAnimation<MessageAnimation>(renderer_, assets_, "Sent " + std::to_string(event.value_) + " lines", Color::SteelGray, 100.0);
+      AddAnimation<MessageAnimation>(renderer_, assets_, "Sent " + std::to_string(event.value_) + " lines", Color::SteelGray, 200.0);
       break;
     case Event::Type::BattleResetCountDown:
       RemoveAnimation<CountDownAnimation>(animations_);

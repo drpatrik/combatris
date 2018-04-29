@@ -9,11 +9,13 @@ OSX 10.12/10.13, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
 Combatris allows up to 9 players to play against each other. Any line clear over 1 will send lines over
 to your opponents. Using combo’s and special moves you can send even more lines and secure the victory.
 
+In battle score does not matter, number of knock-outs and line sents are what matters.
+
 You can also play against your self in the single player campaign.
 
 I have tested the game with four players, three on MacBook Pro and one Raspberry Pi 3 B+ all players where
-running over 2.4 Wi-Fi. The game works well but there can be lag up to one second, since heartbeats are sent
-every second and status updates every 0.5 second (if something has happened). Heartbeats are suppressed
+running over 2.4 Wi-Fi. The game works well but there can be lag up to 0.5 seconds, since heartbeats are sent
+every 0.5 second and status updates every 250 milliseconds (if something has happened). Heartbeats are suppressed
 if other messages has been sent within the heartbeat interval (to keep network congestion down)
 
 Feature | Support
@@ -58,7 +60,7 @@ Platform | PC / OSX / Linux / Raspian
 - [X] Pause Screen
 - [X] Splash Screen
 - [X] Battle Mode (P2P based on UDP)
-- [ ] Introduce KO in Battle mode
+- [X] Introduce KO in Battle mode
 - [ ] Introduce Marathon mode
 - [ ] More unit tests
 - [ ] Sound
@@ -87,6 +89,7 @@ Right | Move Right
 Down | Soft Drop
 Space | Hard Drop
 Shift | Hold piece
+Q | Quit
 
 **Joystick Commands (PS3 Controller)**
 
