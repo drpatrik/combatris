@@ -28,7 +28,7 @@ class Player final {
 
   Player(const Player&) = delete;
 
-  bool Update(int lines, int lines_sent_, int score, int ko, int level, GameState state);
+  bool Update(int lines, int lines_sent, int score, int ko, int level, GameState state);
 
   void Reset(bool force_reset = false);
 
