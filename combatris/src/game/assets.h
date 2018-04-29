@@ -5,8 +5,6 @@
 #include "utility/function_caller.h"
 #include "game/tetromino.h"
 
-#include <memory>
-
 class Assets final {
  public:
   enum class Type { Checkmark };

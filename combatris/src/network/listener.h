@@ -6,7 +6,6 @@
 
 #include <memory>
 #include <thread>
-#include <functional>
 #include <unordered_map>
 
 namespace network {

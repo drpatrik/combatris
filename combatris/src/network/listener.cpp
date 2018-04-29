@@ -4,9 +4,11 @@ namespace network {
 
 void Listener::TerminateTimedOutConnections() {
   for (auto it = connections_.begin(); it != connections_.end();) {
-    if (it->second.has_timed_out()) {
-      std::cout << it->second.name() << " timed out, connection terminated" << "\n";
-      queue_->Push(Response(Request::Leave, it->second.name()));
+    const auto& connection = it->second;
+
+    if (connection.has_timed_out()) {
+      std::cout << connection.name() << " timed out, connection terminated" << "\n";
+      queue_->Push(Response(Request::Leave, connection.name()));
       it = connections_.erase(it);
     } else {
       ++it;

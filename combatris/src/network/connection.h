@@ -50,7 +50,7 @@ int64_t VerifySequenceNumber(const Header& header) {
   return (gap == 1) ? 0 : gap;
 }
 
-  bool has_timed_out() {
+  bool has_timed_out() const {
     auto time_since_last_update = utility::time_in_ms() - timestamp_;
 
     if (time_since_last_update >= kConnectionMissing) {
@@ -71,7 +71,7 @@ int64_t VerifySequenceNumber(const Header& header) {
 
  private:
   bool has_joined_ = false;
-  bool is_missing_ = false;
+  mutable bool is_missing_ = false;
   int start_with_package_ = 0;
   std::string name_;
   uint32_t sequence_nr_;

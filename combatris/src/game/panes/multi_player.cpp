@@ -104,33 +104,28 @@ void MultiPlayer::GotLeave(uint64_t host_id) {
 }
 
 void MultiPlayer::GotNewGame(uint64_t host_id) {
-  if (players_.count(host_id) == 0) {
-    return;
-  }
-  auto& player = players_.at(host_id);
-
   if (IsUs(host_id)) {
     accumulator_.Reset();
     events_.Push(Event::Type::BattleResetCountDown);
   } else if (GameState::Waiting == game_state_) {
     events_.Push(Event::Type::BattleResetCountDown);
   }
+  auto& player = players_.at(host_id);
+
   player->Reset();
 }
 
 void MultiPlayer::GotStartGame() { events_.Push(Event::Type::NextTetromino); }
 
 void MultiPlayer::GotUpdate(uint64_t host_id, int lines, int lines_sent, int score, int ko, int level, GameState state) {
-  if (players_.count(host_id) == 0) {
-    return;
-  }
-  auto& player = players_.at(host_id);
-
   if (IsUs(host_id)) {
     game_state_ = (GameState::None == state) ? game_state_ : state;
   }
+  auto& player = players_.at(host_id);
+
   if (player->Update(lines, lines_sent, score, ko, level, state)) {
-    std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) { return a->score() > b->score(); });
+    std::sort(score_board_.begin(), score_board_.end(),
+              [](const auto& a, const auto& b) { return a->score() > b->score(); });
   }
 }
 
@@ -142,10 +137,7 @@ void MultiPlayer::GotLines(uint64_t host_id, int lines) {
   events_.Push(Event::Type::BattleGotLines, lines);
 }
 
-void MultiPlayer::GotKnockedOutBy(uint64_t host_id) {
-  if (players_.count(host_id) == 0 || !IsUs(host_id)) {
-    return;
-  }
+void MultiPlayer::GotKnockedOutBy(uint64_t /*host_id*/) {
   accumulator_.AddKnockOut(1);
   events_.Push(Event::Type::BattleYouDidKO);
 }

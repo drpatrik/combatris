@@ -1,7 +1,5 @@
 #include "network/multiplayer_controller.h"
 
-#include <chrono>
-#include <vector>
 #include <iostream>
 
 namespace network {
@@ -104,20 +102,25 @@ void MultiPlayerController::Dispatch() {
         listener_if_->GotUpdate(host_id, 0, 0, 0, 0, 0, payload.state());
         break;
       case Request::StartGame:
-        if (host_id == our_host_id_) {
+        if (IsUs(host_id)) {
           listener_if_->GotStartGame();
         }
         listener_if_->GotUpdate(host_id, 0, 0, 0, 0, 0, payload.state());
         break;
       case Request::ProgressUpdate:
         if (payload.lines_got() > 0) {
-          listener_if_->GotLines(host_id, payload.lines_got());
+          if (!IsUs(host_id)) {
+            listener_if_->GotLines(host_id, payload.lines_got());
+          }
+          break;
         } else if (payload.knocked_out_by() != 0) {
-          listener_if_->GotKnockedOutBy(payload.knocked_out_by());
-        } else {
-          listener_if_->GotUpdate(host_id, payload.lines(), payload.lines_sent(),
-                                  payload.score(), payload.ko(), payload.level(), payload.state());
+          if (IsUs(host_id)) {
+            listener_if_->GotKnockedOutBy(payload.knocked_out_by());
+          }
+          break;
         }
+        listener_if_->GotUpdate(host_id, payload.lines(), payload.lines_sent(), payload.score(), payload.ko(),
+                                payload.level(), payload.state());
         break;
       default:
         break;
