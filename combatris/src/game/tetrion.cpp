@@ -235,6 +235,10 @@ void Tetrion::EventHandler(Events& events) {
       AddAnimation<CountDownAnimation>(renderer_, assets_, kMultiPlayerCountDown, Event::Type::BattleStartGame);
       break;
     case Event::Type::BattleGotLines:
+      if (!tetromino_in_play_) {
+        break;
+      }
+      std::cout << "battle got lines: " << std::endl;
       tetromino_in_play_->InsertLines(event.value_);
       tetromino_generator_->Put(tetromino_in_play_->tetromino());
       tetromino_in_play_.reset();

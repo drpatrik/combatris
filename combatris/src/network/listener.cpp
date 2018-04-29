@@ -8,7 +8,7 @@ void Listener::TerminateTimedOutConnections() {
 
     if (connection.has_timed_out()) {
       std::cout << connection.name() << " timed out, connection terminated" << "\n";
-      queue_->Push(Response(Request::Leave, connection.name()));
+      queue_->Push(Response(Request::Leave, it->first));
       it = connections_.erase(it);
     } else {
       ++it;
@@ -64,7 +64,7 @@ void Listener::Run() {
     if (package_index > packages.size() || package_index >= kWindowSize) {
       std::cout << host_name << " has lost too many packages, connection will be terminated" << std::endl;
       connections_.erase(host_id);
-      queue_->Push(Response(Request::Leave, host_name));
+      queue_->Push(Response(Request::Leave, host_id));
       continue;
     }
     std::vector<Package> package_vector;

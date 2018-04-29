@@ -15,7 +15,7 @@ class Listener final {
   struct Response {
     Response() = default;
 
-    Response(Request request, const std::string& name) : request_(request), host_name_(name) {}
+    Response(Request request, uint64_t host_id) : request_(request), host_id_(host_id) {}
 
     Response(const PackagesHeader& packages_header, const Package& package) {
       request_ = package.header_.request();

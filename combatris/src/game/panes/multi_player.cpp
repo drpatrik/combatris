@@ -130,9 +130,7 @@ void MultiPlayer::GotUpdate(uint64_t host_id, int lines, int lines_sent, int sco
 }
 
 void MultiPlayer::GotLines(uint64_t host_id, int lines) {
-  if (IsUs(host_id)) {
-    return;
-  }
+  std::cout << "got: " << lines << std::endl;
   got_lines_from_.push_back(host_id);
   events_.Push(Event::Type::BattleGotLines, lines);
 }

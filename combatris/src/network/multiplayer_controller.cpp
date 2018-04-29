@@ -56,7 +56,7 @@ void MultiPlayerController::StartGame() { send_queue_->Push(CreatePackage(Reques
 
 void MultiPlayerController::SendUpdate(int lines) {
   auto package = CreatePackage(Request::ProgressUpdate);
-
+  std::cout << lines << std::endl;
   package.payload_ = Payload(0, 0, 0, 0, 0, static_cast<uint8_t>(lines), GameState::None);
   send_queue_->Push(package);
 }
