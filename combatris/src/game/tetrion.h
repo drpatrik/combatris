@@ -23,7 +23,11 @@ class Tetrion final {
     Hold,
     Pause,
     Start,
-    ToggleCampaign
+    ToggleCampaign,
+    Quit,
+    Send1Line,
+    Send5Lines,
+    Send8Lines
   };
 
   Tetrion();

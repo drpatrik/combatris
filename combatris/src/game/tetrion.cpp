@@ -136,12 +136,20 @@ void Tetrion::GameControl(Controls control_pressed) {
     case Controls::Right:
       tetromino_in_play_->Right();
       break;
+    case Controls::Send1Line:
+      multi_player_->DebugSend(1);
+      break;
+    case Controls::Send5Lines:
+      multi_player_->DebugSend(5);
+      break;
+    case Controls::Send8Lines:
+      multi_player_->DebugSend(8);
+      break;
     case Controls::Hold:
-      multi_player_->DebugSend(4);
-      /*if (hold_queue_->CanHold()) {
+      if (hold_queue_->CanHold()) {
         RemoveAnimation<OnFloorAnimation>(animations_);
         tetromino_in_play_ = hold_queue_->Hold(tetromino_in_play_);
-        }*/
+      }
       break;
     default:
       break;

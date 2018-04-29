@@ -41,9 +41,9 @@ class Connection final {
     }
     const auto gap = static_cast<int64_t>(header.sequence_nr()) - sequence_nr_;
 
-    if (gap != 0) {
+    /*if (gap != 0) {
       std::cout << name_ << ": gap detected, expected - " << sequence_nr_ << ", got " << header.sequence_nr() << "\n";
-    }
+      }*/
     return gap;
   }
 

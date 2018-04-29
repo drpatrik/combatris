@@ -82,9 +82,10 @@ bool Player::Update(int lines, int lines_sent, int score, int ko, int level, Gam
   auto resort_score_board = false;
 
   lines_ = Update(ID::Lines, lines, lines_, to_string);
+  resort_score_board = (lines_sent != 0) && (lines_sent != lines_sent_);
   lines_sent_ = Update(ID::LinesSent, lines_sent, lines_sent_, to_string);
-  resort_score_board = (score != 0) && (score != score_);
   score_ = Update(ID::Score, score, score_, to_string);
+  resort_score_board = resort_score_board || ((ko != 0) && (ko != ko_));
   ko_ = Update(ID::KO, ko, ko_, to_string);
   level_ = Update(ID::Level, level, level_, to_string);
   state_ = static_cast<GameState>(Update(ID::State, static_cast<int>(state), static_cast<int>(state_),
