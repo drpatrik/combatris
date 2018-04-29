@@ -157,7 +157,7 @@ class Header final {
 class Payload final {
  public:
   explicit Payload(GameState state = GameState::Idle)
-      : knocked_out_by_(0), score_(0), lines_(0), lines_sent_(0), level_(0), lines_got_(0), state_(state) {}
+      : knocked_out_by_(0), score_(0), lines_(0), lines_sent_(0), level_(0), lines_got_(0), ko_(0), state_(state) {}
 
   Payload(uint16_t lines, uint16_t lines_sent, uint32_t score, uint8_t ko, uint8_t level, uint8_t lines_got, GameState state)
       : knocked_out_by_(0) {
