@@ -67,13 +67,13 @@ Platform | PC / OSX / Linux / Raspian
 
 **Improvements**
 - [ ] Remove the pane for showing combo/latest move and display combo / last move direct on the frame
-- [ ] Add animation for combo/last clearing move (expanding text)
+- [ ] Add new animation for combo/last clearing move (expanding text)
 - [ ] Change font to https://www.dafont.com/obelixpro.font
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
 - [ ] Auto discovery of broadcast address (e.g. 192.168.1.255)
 - [ ] Make the network protocol more robust (multicast / ack)
-- [ ] Wait for all in State waiting to got to Play before starting the fame
+- [ ] Wait for all in State waiting to get to Play before starting the game
 
 **Keyboard Commands**
 
