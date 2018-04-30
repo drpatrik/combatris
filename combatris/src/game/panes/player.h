@@ -16,27 +16,28 @@ const int kBoxHeight = 68;
 
 class Player final {
  public:
-  enum TextureID { Name, State, ScoreCaption, Score, LevelCaption, Level, LinesCaption, Lines, LinesSentCaption, LinesSent};
+  enum TextureID { Name, State, ScoreCaption, Score, KOCaption, KO, LevelCaption, Level, LinesCaption, Lines, LinesSentCaption, LinesSent};
   using Ptr = std::shared_ptr<Player>;
   using GameState = network::GameState;
 
-  Player(SDL_Renderer* renderer, const std::string name, const std::shared_ptr<Assets>& assets,
-         network::GameState state = network::GameState::None)
-      : renderer_(renderer), name_(name), assets_(assets), state_(state) {
-    Reset(true);
-  }
+  Player(SDL_Renderer* renderer, const std::string& name, uint64_t host_id, const std::shared_ptr<Assets>& assets,
+         network::GameState state = network::GameState::None);
 
   Player(const Player&) = delete;
 
-  bool Update(int lines, int lines_sent_, int score, int level, GameState state);
+  bool Update(int lines, int lines_sent, int score, int ko, int level, GameState state, bool set_to_zero = false);
 
-  void Reset(bool force_reset = false);
+  void Reset();
 
   void Render(int y_offset, bool is_my_status) const;
 
   const std::string& name() const { return name_; }
 
-  int score() const { return score_; }
+  uint64_t host_id() const { return host_id_; }
+
+  int lines_sent() const { return lines_sent_; }
+
+  int ko() const { return ko_; }
 
   network::GameState state() const { return state_; }
 
@@ -58,15 +59,17 @@ class Player final {
     SDL_Rect rc_;
   };
 
-  int Update(Player::TextureID id, int new_value, int old_value, std::function<std::string(int)> to_string);
+  int Update(Player::TextureID id, int new_value, int old_value, std::function<std::string(int)> to_string, bool set_to_zero = false);
 
   SDL_Renderer* renderer_;
   std::string name_;
+  uint64_t host_id_;
   const std::shared_ptr<Assets>& assets_;
   int lines_ = 0;
   int lines_sent_ = 0;
   int score_ = 0;
   int level_ = 0;
+  int ko_ = 0;
   GameState state_ = GameState::None;
   std::unordered_map<TextureID, std::shared_ptr<Texture>> textures_;
 };

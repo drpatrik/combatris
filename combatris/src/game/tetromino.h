@@ -19,7 +19,9 @@ class Tetromino final {
 
   Tetromino(const Tetromino&) = delete;
 
-  Type type() const { return type_; }
+  inline Type type() const { return type_; }
+
+  inline SDL_Texture* texture() const { return texture_.get(); }
 
   inline void Render(int x, int y) const { RenderMino(renderer_, x, y, texture_.get()); }
 

@@ -3,6 +3,14 @@
 #include "game/matrix.h"
 #include "game/panes/level.h"
 
+#if __has_include(<optional>)
+#include <optional>
+namespace opt = std;
+#else
+#include <experimental/optional>
+namespace opt = std::experimental;
+#endif
+
 namespace {
 
 const Position kSpawnPosition = Position(0, 5);
@@ -12,17 +20,16 @@ const Tetromino::Angle kSpawnAngle = Tetromino::Angle::A0;
 
 class TetrominoSprite {
  public:
-  enum class State { Falling, OnFloor, Commit, Commited, GameOver };
+  enum class State { Falling, OnFloor, Commit, Commited, GameOver, KO };
   enum class Rotation { Clockwise, CounterClockwise };
 
-  TetrominoSprite(const Tetromino& tetromino, const std::shared_ptr<Level>& level, Events& events, const std::shared_ptr<Matrix>& matrix)
-      : tetromino_(tetromino), level_(level), events_(events), matrix_(matrix) { MoveToStartPosition(); }
-
-  void MoveToStartPosition() {
+  TetrominoSprite(const Tetromino& tetromino, const std::shared_ptr<Level>& level, Events& events,
+                  const std::shared_ptr<Matrix>& matrix, bool got_lines = false)
+      : tetromino_(tetromino), level_(level), events_(events), matrix_(matrix) {
     pos_ = kSpawnPosition;
     rotation_data_ = tetromino_.GetRotationData(kSpawnAngle);
     if (!matrix_->IsValid(pos_, rotation_data_)) {
-      state_ = State::GameOver;
+      state_ = (got_lines) ? State::KO : State::GameOver;
       return;
     }
     matrix_->Insert(pos_, rotation_data_);
@@ -38,16 +45,9 @@ class TetrominoSprite {
 
   inline const Tetromino& tetromino() const { return tetromino_; }
 
-  inline bool is_game_over() const { return (State::GameOver == state_); }
+  inline State state() const { return state_; }
 
   inline bool WaitForLockDelay() { return level_->WaitForLockDelay(); }
-
-  void InsertLines(int lines) {
-    if (!matrix_->InsertLines(lines)) {
-      state_ = State::GameOver;
-    }
-    MoveToStartPosition();
-  }
 
   void RotateClockwise();
 
@@ -66,7 +66,7 @@ class TetrominoSprite {
  protected:
   void ResetDelayCounter();
 
-  std::tuple<bool, Position, Tetromino::Angle> TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate);
+  opt::optional<std::pair<Position, Tetromino::Angle>> TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate);
 
  private:
   const Tetromino& tetromino_;

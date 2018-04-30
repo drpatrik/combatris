@@ -9,11 +9,13 @@ OSX 10.12/10.13, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
 Combatris allows up to 9 players to play against each other. Any line clear over 1 will send lines over
 to your opponents. Using combo’s and special moves you can send even more lines and secure the victory.
 
+In battle score does not matter, number of knock-outs and line sents are what matters.
+
 You can also play against your self in the single player campaign.
 
 I have tested the game with four players, three on MacBook Pro and one Raspberry Pi 3 B+ all players where
-running over 2.4 Wi-Fi. The game works well but there can be lag up to one second, since heartbeats are sent
-every second and status updates every 0.5 second (if something has happened). Heartbeats are suppressed
+running over 2.4 Wi-Fi. The game works well but there can be lag up to 0.5 seconds, since heartbeats are sent
+every 0.5 second and status updates every 250 milliseconds (if something has happened). Heartbeats are suppressed
 if other messages has been sent within the heartbeat interval (to keep network congestion down)
 
 Feature | Support
@@ -29,7 +31,7 @@ Levels | 15
 Level advancement | 10 lines
 T-Spin recognition | 3-corner with kicks
 Back-to-back Recognition | Tetris / T-spin
-Platform | PC / OSX / (Linux)
+Platform | PC / OSX / Linux / Raspian
 
 **Status**
 - [x] Rotate left / right
@@ -58,19 +60,20 @@ Platform | PC / OSX / (Linux)
 - [X] Pause Screen
 - [X] Splash Screen
 - [X] Battle Mode (P2P based on UDP)
-- [ ] Introduce Marathon mode
-- [ ] More unit tests
+- [X] Introduce KO in Battle mode
+- [ ] Make Battle Mode timer based
+- [ ] Wait for all in State waiting to get to Play before starting the game
+- [ ] Introduce Marathon mode for single player campaign.
+- [ ] Unit tests for score
 - [ ] Sound
 
 **Improvements**
 - [ ] Remove the pane for showing combo/latest move and display combo / last move direct on the frame
-- [ ] Add animation for combo/last clearing move (expanding text)
+- [ ] Add new animation for combo/last clearing move (expanding text)
 - [ ] Change font to https://www.dafont.com/obelixpro.font
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
 - [ ] Auto discovery of broadcast address (e.g. 192.168.1.255)
-- [ ] Make the network protocol more robust (multicast / ack)
-- [ ] Wait for all in State waiting to got to Play before starting the fame
 
 **Keyboard Commands**
 
@@ -128,7 +131,7 @@ packages.
 ## Build Combatris
 
 **Dependencies:**
-* C++17 compliant compiler (e.g. clang 4/5, clang-9.0.0, Visual Studio 2017.3, GCC 7.x.x)
+* C++17 compliant compiler (tested with clang 5/6, clang-9.0.0, Visual Studio 2017.3, GCC 7.x.x)
 * cmake 3.10.0 or later (Windows) or 3.5.0 or later (OSX/Linux)
 * git
 * SDL2 (x64 only)
@@ -168,7 +171,7 @@ make cppcheck
 
 You need to activate the OpenGL driver otherwise the game will be far to slow.
 
-The code builds cleanly and has been tested with GCC 7.3.0, instructions how
+The code builds cleanly and has been tested with GCC 7.3.0 and Clang 6.0.0, instructions how
 to install the compiler can be found here:
 
 https://solarianprogrammer.com/2017/12/08/raspberry-pi-raspbian-install-gcc-compile-cpp-17-programs/
@@ -182,7 +185,7 @@ export CXX=gcc-7.3.0
 
 **Ubuntu**
 
-The code builds cleanly and has been tested with Clang 5.0.0.
+The code builds cleanly and has been tested with Clang 5.0.0 and Clang 6.0.0
 
 **64-bit Windows 10**
 

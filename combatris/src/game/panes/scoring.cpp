@@ -32,14 +32,8 @@ void Scoring::UpdateEvents(int score, ComboType combo_type, int lines_to_send, c
   if (event.lines_cleared() > 0) {
     events_.Push(Event::Type::LinesCleared, event.lines_cleared_);
   }
-  events_.Push(Event::Type::CalculatedScore, event.pos_, score);
+  events_.Push(Event::Type::CalculatedScore, event.pos_, score, lines_to_send);
   events_.Push(Event::Type::Moves, event.lines_cleared_, event.tspin_type_, combo_type, counter);
-  if (lines_to_send > 0) {
-    Event e(Event::Type::BattleSendLines);
-
-    e.lines_ = lines_to_send;
-    events_.Push(e);
-  }
 }
 
 std::tuple<int, int, ComboType, int> Scoring::Calculate(const Event& event) {
@@ -48,9 +42,6 @@ std::tuple<int, int, ComboType, int> Scoring::Calculate(const Event& event) {
   auto combo_score = 0;
   auto combo_type = ComboType::None;
 
-  if (event.IsDrop()) {
-    return std::make_tuple(base_score, combo_score, combo_type, lines_to_send);
-  }
   ++combo_counter_;
   switch (event.tspin_type_) {
     case TSpinType::None:
@@ -98,21 +89,21 @@ std::tuple<int, int, ComboType, int> Scoring::Calculate(const Event& event) {
 }
 
 void Scoring::Update(const Event& event) {
-  if (!event.Is(Event::Type::ScoringData) && !event.Is(Event::Type::PerfectClear)) {
+  if (!IsIn(event, { Event::Type::ClearedLinesScoreData, Event::Type::DropScoreData, Event::Type::PerfectClear })) {
     return;
   }
-  if (event.Is(Event::Type::PerfectClear)) {
-    events_.Push(Event::Type::BattleSendLines, 10);
-    return;
+  if (event.Is(Event::Type::ClearedLinesScoreData)) {
+    auto [base_score, combo_score, combo_type, lines_to_send] = Calculate(event);
+
+    auto score = (base_score * level_->level()) + (combo_score * level_->level());
+
+    if (event.Is(Event::Type::PerfectClear)) {
+      lines_to_send += 10;
+    }
+    UpdateEvents(score, combo_type, lines_to_send, event);
+    score_ += score;
   }
-  auto [base_score, combo_score, combo_type, lines_to_send] = Calculate(event);
-
-  auto score = (base_score * level_->level()) + (combo_score * level_->level());
-
-  UpdateEvents(score, combo_type, lines_to_send, event);
-
-  score_ += event.lines_dropped_;
-  score_ += score;
+  score_ += event.value_;
 
   TextPane::SetCenteredText(score_, Color::SteelGray, Normal35);
 }

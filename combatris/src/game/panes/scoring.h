@@ -2,7 +2,7 @@
 
 #include "game/panes/level.h"
 
-class Scoring final : public TextPane, public EventSink {
+class Scoring final : public TextPane, public EventListener {
  public:
   Scoring(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Level>& level) :
       TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace), (kMatrixStartY - kMinoHeight) + 150, "SCORE", assets),

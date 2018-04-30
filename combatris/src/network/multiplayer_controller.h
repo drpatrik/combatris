@@ -10,17 +10,19 @@ class ListenerInterface {
  public:
   virtual ~ListenerInterface() {}
 
-  virtual bool GotJoin(const std::string& name) = 0;
+  virtual bool GotJoin(const std::string& display_name, uint64_t host_id) = 0;
 
-  virtual void GotLeave(const std::string& name) = 0;
+  virtual void GotLeave(uint64_t host_id) = 0;
 
-  virtual void GotNewGame(const std::string& name) = 0;
+  virtual void GotNewGame(uint64_t host_id) = 0;
 
   virtual void GotStartGame() = 0;
 
-  virtual void GotUpdate(const std::string& name, int lines, int lines_sent, int score, int level, GameState state) = 0;
+  virtual void GotUpdate(uint64_t host_id, int lines, int lines_sent, int score, int ko, int level, GameState state) = 0;
 
-  virtual void GotLines(const std::string& name, int lines) = 0;
+  virtual void GotLines(uint64_t host_id, int lines) = 0;
+
+  virtual void GotPlayerKnockedOut() = 0;
 };
 
 class MultiPlayerController {
@@ -39,13 +41,17 @@ class MultiPlayerController {
 
   void SendUpdate(int lines);
 
+  void SendUpdate(uint64_t knockout_by);
+
   void SendUpdate(GameState state);
 
-  void SendUpdate(int lines, int lines_sent_, int score, int level);
+  void SendUpdate(int lines, int lines_sent_, int score, int ko, int level);
 
   void Dispatch();
 
-  const std::string& our_host_name() const { return our_hostname_; }
+  inline bool IsUs(uint64_t host_id) const { return host_id == our_host_id_; }
+
+  inline const std::string& our_host_name() const { return our_host_name_; }
 
  protected:
   void Run();
@@ -75,7 +81,8 @@ class MultiPlayerController {
   }
 
  private:
-  std::string our_hostname_;
+  uint64_t our_host_id_;
+  std::string our_host_name_;
   std::atomic<bool> cancelled_;
   ListenerInterface* listener_if_;
   std::unique_ptr<Listener> listener_;

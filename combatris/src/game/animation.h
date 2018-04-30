@@ -48,7 +48,7 @@ class ScoreAnimation final : public Animation {
   ScoreAnimation(SDL_Renderer* renderer,  const std::shared_ptr<Assets>& assets,  const Position& pos, int score)
       : Animation(renderer, assets) {
     int width, height;
-    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold30), std::to_string(score), Color::White);
+    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold30), std::to_string(score), Color::Coral);
 
     auto x = col_to_pixel_adjusted(pos.col()) + Center(kMinoWidth * 4, width);
     auto y = row_to_pixel_adjusted(pos.row());
@@ -155,11 +155,11 @@ class CountDownAnimation final : public Animation {
 
 class MessageAnimation final : public Animation {
  public:
-  MessageAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets>& assets, const std::string& msg, double display_speed = 45.0)
+  MessageAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets>& assets, const std::string& msg, Color color, double display_speed = 45.0)
       : Animation(renderer, assets), display_speed_(display_speed) {
     int width, height;
 
-    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold55), msg, Color::SteelGray);
+    std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold55), msg, color);
 
     rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + Center(kMatrixHeight, height), width, height };
     y_ = rc_.y;

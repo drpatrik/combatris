@@ -1,5 +1,4 @@
 #include "game/tetrion.h"
-#include "network/udp_client_server.h"
 
 #include <iostream>
 
@@ -104,7 +103,7 @@ void Tetrion::ToggleCampaign() {
   if (Campaign::SinglePlayer == campaign_) {
     multi_player_->Enable();
     campaign_ = Campaign::Battle;
-    auto title = std::string(kWindowTitleBattle) + " (" + network::GetHostName() + " )";
+    auto title = std::string(kWindowTitleBattle) + " (" + multi_player_->our_host_name() + " )";
     SDL_SetWindowTitle(window_, title.c_str());
   } else {
     multi_player_->Disable();
@@ -143,6 +142,42 @@ void Tetrion::GameControl(Controls control_pressed) {
         tetromino_in_play_ = hold_queue_->Hold(tetromino_in_play_);
       }
       break;
+#if !defined(NDEBUG)
+    case Controls::Send1Line:
+      multi_player_->DebugSend(1);
+      break;
+    case Controls::Send5Lines:
+      multi_player_->DebugSend(5);
+      break;
+    case Controls::Send8Lines:
+      multi_player_->DebugSend(8);
+      break;
+#endif
+    default:
+      break;
+  }
+}
+
+void Tetrion::HandleNextTetromino(TetrominoSprite::State state, Events& events) {
+  switch (state) {
+    case TetrominoSprite::State::Falling:
+      if (Campaign::SinglePlayer == campaign_) {
+        break;
+      }
+      events.Push(Event::Type::BattleNextTetrominoSuccessful);
+      break;
+    case TetrominoSprite::State::GameOver:
+      tetromino_in_play_.reset();
+      events.PushFront(Event::Type::GameOver);
+      break;
+    case TetrominoSprite::State::KO:
+      matrix_->RemoveLines();
+      tetromino_generator_->Put(tetromino_in_play_->tetromino());
+      tetromino_in_play_.reset();
+      AddAnimation<MessageAnimation>(renderer_, assets_, "Got K.O. :-(", Color::Red, 100.0);
+      events.Push(Event::Type::NextTetromino);
+      events.Push(Event::Type::BattleKnockedOut);
+      break;
     default:
       break;
   }
@@ -154,7 +189,7 @@ void Tetrion::EventHandler(Events& events) {
   }
   auto event = events.Pop();
 
-  std::for_each(event_sinks_.begin(), event_sinks_.end(), [&event](const auto& r) { r->Update(event); });
+  std::for_each(event_listeners_.begin(), event_listeners_.end(), [&event](const auto& r) { r->Update(event); });
 
   switch (event.type()) {
     case Event::Type::Pause:
@@ -170,22 +205,22 @@ void Tetrion::EventHandler(Events& events) {
       unpause_pressed_ = game_paused_ = false;
       break;
     case Event::Type::NextTetromino:
+    case Event::Type::BattleNextTetrominoGotLines:
       next_queue_->Show();
-      tetromino_in_play_ = tetromino_generator_->Get();
-      if (tetromino_in_play_->is_game_over()) {
-        tetromino_in_play_.reset();
-        events.PushFront(Event::Type::GameOver);
-      }
+      tetromino_in_play_ = tetromino_generator_->Get(event.Is(Event::Type::BattleNextTetrominoGotLines));
+      HandleNextTetromino(tetromino_in_play_->state(), events);
       break;
     case Event::Type::LevelUp:
-      AddAnimation<MessageAnimation>(renderer_, assets_, "LEVEL UP");
+      AddAnimation<MessageAnimation>(renderer_, assets_, "LEVEL UP", Color::SteelGray, 100);
       break;
     case Event::Type::LinesCleared:
       RemoveAnimation<LinesClearedAnimation>(animations_);
       AddAnimation<LinesClearedAnimation>(renderer_, assets_, event.lines_cleared_);
       break;
     case Event::Type::CalculatedScore:
-      AddAnimation<ScoreAnimation>(renderer_, assets_, event.pos_, event.score_);
+      if (Campaign::SinglePlayer == campaign_) {
+        AddAnimation<ScoreAnimation>(renderer_, assets_, event.pos_, event.score_);
+      }
       break;
     case Event::Type::NewGame:
       if (!multi_player_->CanPressNewGame()) {
@@ -218,10 +253,7 @@ void Tetrion::EventHandler(Events& events) {
       multi_player_->StartGame();
       break;
     case Event::Type::BattleSendLines:
-      if (Campaign::SinglePlayer == campaign_) {
-        break;
-      }
-      AddAnimation<MessageAnimation>(renderer_, assets_, "Sent " + std::to_string(event.lines_) + " lines", 100.0);
+      AddAnimation<MessageAnimation>(renderer_, assets_, "Sent " + std::to_string(event.value_) + " lines", Color::SteelGray, 200.0);
       break;
     case Event::Type::BattleResetCountDown:
       RemoveAnimation<CountDownAnimation>(animations_);
@@ -231,11 +263,13 @@ void Tetrion::EventHandler(Events& events) {
       if (!tetromino_in_play_) {
         break;
       }
-      tetromino_in_play_->InsertLines(event.lines_);
-      if (tetromino_in_play_->is_game_over()) {
-        events.PushFront(Event::Type::GameOver);
-        tetromino_in_play_.reset();
-      }
+      tetromino_generator_->Put(tetromino_in_play_->tetromino());
+      tetromino_in_play_.reset();
+      matrix_->InsertLines(event.value_);
+      events_.Push(Event::Type::BattleNextTetrominoGotLines);
+      break;
+    case Event::Type::BattleYouDidKO:
+      AddAnimation<MessageAnimation>(renderer_, assets_, "*** K.O. ***", Color::Gold, 100.0);
       break;
     default:
       break;

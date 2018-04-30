@@ -132,6 +132,14 @@ class Combatris {
       current_control = Tetrion::Controls::Pause;
     } else if (event.key.keysym.scancode == SDL_SCANCODE_F1) {
       current_control = Tetrion::Controls::ToggleCampaign;
+    } else if (event.key.keysym.scancode == SDL_SCANCODE_Q) {
+      current_control = Tetrion::Controls::Quit;
+    } else if (event.key.keysym.scancode == SDL_SCANCODE_1) {
+      current_control = Tetrion::Controls::Send1Line;
+    } else if (event.key.keysym.scancode == SDL_SCANCODE_5) {
+      current_control = Tetrion::Controls::Send5Lines;
+    } else if (event.key.keysym.scancode == SDL_SCANCODE_8) {
+      current_control = Tetrion::Controls::Send8Lines;
     }
 
     return current_control;
@@ -246,6 +254,18 @@ class Combatris {
             break;
           case Tetrion::Controls::ToggleCampaign:
             tetrion_->ToggleCampaign();
+            break;
+          case Tetrion::Controls::Quit:
+            quit = true;
+            break;
+          case Tetrion::Controls::Send1Line:
+            tetrion_->GameControl(Tetrion::Controls::Send1Line);
+            break;
+          case Tetrion::Controls::Send5Lines:
+            tetrion_->GameControl(Tetrion::Controls::Send5Lines);
+            break;
+          case Tetrion::Controls::Send8Lines:
+            tetrion_->GameControl(Tetrion::Controls::Send8Lines);
             break;
           default:
             break;

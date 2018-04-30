@@ -1,13 +1,13 @@
 #pragma once
 
 #include "game/events.h"
+#include "game/panes/accumlator.h"
 #include "game/panes/player.h"
 #include "game/panes/pane.h"
 
-#include <vector>
 #include <unordered_map>
 
-class MultiPlayer final : public Pane, public EventSink,  public network::ListenerInterface {
+class MultiPlayer final : public Pane, public EventListener,  public network::ListenerInterface {
  public:
   MultiPlayer(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets);
 
@@ -30,8 +30,6 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
     players_.clear();
   }
 
-  network::GameState state() const { return game_state_; }
-
   bool CanPressNewGame() const {
     return std::none_of(score_board_.begin(), score_board_.end(), [](const auto& p) { return p->state() == network::GameState::Playing; });
   }
@@ -40,72 +38,54 @@ class MultiPlayer final : public Pane, public EventSink,  public network::Listen
 
   void StartGame() { multiplayer_controller_->StartGame(); }
 
+  void DebugSend(int lines) {
+    if (!multiplayer_controller_) {
+      return;
+    }
+    accumulator_.AddLinesSent(lines);
+    multiplayer_controller_->SendUpdate(lines);
+  }
+
+  const std::string& our_host_name() const { return multiplayer_controller_->our_host_name(); }
+
  protected:
-  const std::string our_host_name() const { return multiplayer_controller_->our_host_name(); }
+  virtual bool GotJoin(const std::string& name, uint64_t host_id) override;
 
-  virtual bool GotJoin(const std::string& name) override;
+  virtual void GotLeave(uint64_t host_id) override;
 
-  virtual void GotLeave(const std::string& name) override;
-
-  virtual void GotNewGame(const std::string& name) override;
+  virtual void GotNewGame(uint64_t host_id) override;
 
   virtual void GotStartGame() override;
 
-  virtual void GotUpdate(const std::string& name, int lines, int lines_sent, int score, int level, network::GameState state) override;
+  virtual void GotUpdate(uint64_t host_id, int lines, int lines_sent, int score, int ko, int level, network::GameState state) override;
 
-  virtual void GotLines(const std::string& name, int lines) override;
+  virtual void GotPlayerKnockedOut() override;
 
- private:
-  struct GameStatisticsAccumlator {
-    void AddLines(int lines) {
-      if (lines == 0) {
-        return;
+  virtual void GotLines(uint64_t host_id, int lines) override;
+
+private:
+  void Sort() {
+    std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) {
+      if (a->ko() != b->ko()) {
+        return a->ko() > b->ko();
       }
-      lines_ += lines;
-      is_dirty_ = true;
+      return a->lines_sent() > b->lines_sent();
+    });
+#if !defined(NDEBUG)
+    std::cout << "-----\n";
+    for (const auto& p : score_board_) {
+      std::cout << p->name() << " Ko: " << p->ko() << ", LS: " << p->lines_sent() << "\n";
     }
-
-    void AddLinesSent(int lines) {
-      if (lines == 0) {
-        return;
-      }
-      lines_sent_ += lines;
-      is_dirty_ = true;
-    }
-
-    void AddScore(int score) {
-      if (score == 0) {
-        return;
-      }
-      score_ += score;
-      is_dirty_ = true;
-    }
-
-    void SetLevel(int level) {
-      level_ = level;
-      is_dirty_ = true;
-    }
-
-    void Reset() {
-      lines_ = 0;
-      lines_sent_ = 0;
-      score_ = 0;
-      level_ = 0;
-      is_dirty_ = false;
-    }
-
-    int lines_ = 0;
-    int lines_sent_;
-    int score_ = 0;
-    int level_ = 0;
-    bool is_dirty_ = false;
-  };
+#endif
+  }
+  bool IsUs(uint64_t host_id) const { return multiplayer_controller_->IsUs(host_id); }
 
   Events& events_;
   network::GameState game_state_ = network::GameState::None;
   std::vector<Player::Ptr> score_board_;
-  std::unordered_map<std::string, Player::Ptr> players_;
+  std::deque<uint64_t> got_lines_from_;
+  std::unordered_map<uint64_t, Player::Ptr> players_;
   std::unique_ptr<network::MultiPlayerController> multiplayer_controller_;
-  GameStatisticsAccumlator accumulator_;
+  Accumlator accumulator_;
   double ticks_ = 0.0;
 };

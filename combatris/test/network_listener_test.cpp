@@ -36,10 +36,10 @@ bool WaitForPackage(Listener& listener) {
 
 void CheckResponse(Listener& listener, const std::string& expected_host_name, Request expected_request) {
   REQUIRE(WaitForPackage(listener));
-  auto [host_name, package] = listener.NextPackage();
+  auto rsp = listener.NextPackage();
 
-  REQUIRE(host_name == expected_host_name);
-  REQUIRE(expected_request == package.header_.request());
+  REQUIRE(std::hash<std::string>{}(expected_host_name) == rsp.host_id_);
+  REQUIRE(expected_request == rsp.request_);
 }
 
 TEST_CASE("TestDuplicatePackageDetection") {
@@ -71,35 +71,38 @@ TEST_CASE("TestGapDetection") {
   sliding_window.push_front(PreparePackage(0, Request::Join));
   Send(sliding_window, client);
   CheckResponse(listener, client.host_name(), Request::Join);
-
-  sliding_window.push_front(PreparePackage(1, Request::ProgressUpdate));
-  sliding_window.push_front(PreparePackage(2, Request::ProgressUpdate));
-  sliding_window.push_front(PreparePackage(3, Request::HeartBeat));
-  Send(sliding_window, client);
-  CheckResponse(listener, client.host_name(), Request::ProgressUpdate);
-  CheckResponse(listener, client.host_name(), Request::ProgressUpdate);
-
-  sliding_window.clear();
-  sliding_window.push_front(PreparePackage(0, Request::Join));
-  sliding_window.push_front(PreparePackage(1, Request::ProgressUpdate));
-  Send(sliding_window, client);
-  REQUIRE_FALSE(WaitForPackage(listener));
-
-  sliding_window.clear();
-  sliding_window.push_front(PreparePackage(0, Request::Join));
-  sliding_window.push_front(PreparePackage(1, Request::ProgressUpdate));
-  sliding_window.push_front(PreparePackage(2, Request::ProgressUpdate));
-  Send(sliding_window, client);
-  REQUIRE_FALSE(WaitForPackage(listener));
-
-  sliding_window.clear();
-  sliding_window.push_front(PreparePackage(0, Request::Join));
-  sliding_window.push_front(PreparePackage(1, Request::ProgressUpdate));
-  sliding_window.push_front(PreparePackage(2, Request::ProgressUpdate));
-  sliding_window.push_front(PreparePackage(3, Request::HeartBeat));
-  sliding_window.push_front(PreparePackage(4, Request::StartGame));
+  sliding_window.push_front(PreparePackage(1, Request::StartGame));
   Send(sliding_window, client);
   CheckResponse(listener, client.host_name(), Request::StartGame);
+  sliding_window.push_front(PreparePackage(2, Request::ProgressUpdate));
+  sliding_window.push_front(PreparePackage(3, Request::ProgressUpdate));
+  sliding_window.push_front(PreparePackage(4, Request::HeartBeat));
+  Send(sliding_window, client);
+  CheckResponse(listener, client.host_name(), Request::ProgressUpdate);
+  CheckResponse(listener, client.host_name(), Request::ProgressUpdate);
+
+  sliding_window.clear();
+  sliding_window.push_front(PreparePackage(0, Request::Join));
+  sliding_window.push_front(PreparePackage(1, Request::StartGame));
+  Send(sliding_window, client);
+  REQUIRE_FALSE(WaitForPackage(listener));
+
+  sliding_window.clear();
+  sliding_window.push_front(PreparePackage(0, Request::Join));
+  sliding_window.push_front(PreparePackage(1, Request::StartGame));
+  sliding_window.push_front(PreparePackage(2, Request::ProgressUpdate));
+  Send(sliding_window, client);
+  REQUIRE_FALSE(WaitForPackage(listener));
+
+  sliding_window.clear();
+  sliding_window.push_front(PreparePackage(0, Request::Join));
+  sliding_window.push_front(PreparePackage(1, Request::StartGame));
+  sliding_window.push_front(PreparePackage(2, Request::ProgressUpdate));
+  sliding_window.push_front(PreparePackage(3, Request::ProgressUpdate));
+  sliding_window.push_front(PreparePackage(4, Request::HeartBeat));
+  sliding_window.push_front(PreparePackage(5, Request::NewGame));
+  Send(sliding_window, client);
+  CheckResponse(listener, client.host_name(), Request::NewGame);
 }
 
 TEST_CASE("LostTooManyPackagesDetection") {

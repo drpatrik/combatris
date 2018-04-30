@@ -1,23 +1,52 @@
 #pragma once
 
 #if defined(_WIN64)
+
+#define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #pragma warning(disable:4996) // _CRT_SECURE_NO_WARNINGS
 #pragma warning(disable:4267) // conversion from size_t to int
+
 #include <winsock2.h>
+#include <iterator>
+
 #else
+
 #include <arpa/inet.h>
+
+#if !defined(__APPLE__)
+
+#include <endian.h>
+
+inline uint64_t htonll(uint64_t value) {
+  if (__BYTE_ORDER == __BIG_ENDIAN) {
+    return value;
+  }
+  return (static_cast<uint64_t>(htonl(value)) << 32) | htonl(value >> 32);
+}
+
+inline uint64_t ntohll(uint64_t value) {
+  if (__BYTE_ORDER == __BIG_ENDIAN) {
+    return value;
+  }
+  return (static_cast<uint64_t>(ntohl(value)) << 32) | ntohl(value >> 32);
+}
+
+#endif // !__APPLE__
+
 #endif
 
 #include <string>
+#include <functional>
+#include <algorithm>
 #include <limits.h>
 
 namespace network {
 
-const int kHostNameMax = 31;
-const uint32_t kID = 0x50415243; // PARC
+const size_t kHostNameMax = 31;
+const uint32_t kSignature = 0x50415243; // PARC
 const int kMTU = 512;
-const int kWindowSize = 10;
+const int kWindowSize = 14;
 const std::string kEnvServer = "COMBATRIS_BROADCAST_IP";
 const std::string kEnvPort = "COMBATRIS_BROADCAST_PORT";
 
@@ -40,6 +69,21 @@ inline int GetPort() {
     return kDefaultPort;
   }
   return std::stoi(env);
+}
+
+inline uint64_t SetHostName(const std::string& from, char *to) {
+  auto tmp(from);
+
+  tmp.erase(std::min(kHostNameMax, tmp.size()), std::string::npos);
+#if defined(_WIN64)
+  std::copy(std::begin(tmp), std::end(tmp), stdext::checked_array_iterator<char*>(to, kHostNameMax));
+#else
+  std::copy(std::begin(tmp), std::end(tmp), to);
+#endif
+
+  to[tmp.size()] = '\0';
+
+  return std::hash<std::string>{}(from);
 }
 
 enum Request : uint8_t { Empty, Join, Leave, NewGame, StartGame, ProgressUpdate, HeartBeat };
@@ -86,35 +130,13 @@ inline std::string ToString(GameState state) {
 
 class Header final {
  public:
-  Header() : id_(htonl(kID)) { host_name_[0] = '\0'; }
+  Header() : signature_(htonl(kSignature)), sequence_nr_(htonl(0)), request_(static_cast<Request>(htons(Request::Empty))) {}
 
-  std::string host_name() const { return host_name_; }
+  Header(Request request) : signature_(htonl(kSignature)), sequence_nr_(htonl(0)), request_(request) {}
 
-  void SetHostName(const std::string& name) {
-    std::copy(std::begin(name), std::end(name), host_name_);
-    host_name_[name.size()] = '\0';
-  }
+  Header(Request request, uint32_t sequence_nr) : signature_(htonl(kSignature)), sequence_nr_(htonl(sequence_nr)), request_(request) {}
 
-  bool VerifyHeader() const { return htonl(kID) == id_; }
-
-  bool operator==(const Header& header) const { return header.host_name_ == host_name_; }
-
-  bool operator==(const std::string& host_name) const { return host_name == host_name_; }
-
- private:
-  uint32_t id_;
-  char host_name_[kHostNameMax + 1];
-};
-
-class PackageHeader final {
- public:
-  PackageHeader() : id_(htonl(kID)), sequence_nr_(htonl(0)), request_(static_cast<Request>(htons(Request::Empty))) {}
-
-  PackageHeader(Request request) : id_(htonl(kID)), sequence_nr_(htonl(0)), request_(request) {}
-
-  PackageHeader(Request request, uint32_t sequence_nr) : id_(htonl(kID)), sequence_nr_(htonl(sequence_nr)), request_(request) {}
-
-  bool VerifyHeader() const { return htonl(kID) == id_; }
+  bool Verify() const { return htonl(kSignature) == signature_; }
 
   uint32_t sequence_nr() const { return ntohl(sequence_nr_); }
 
@@ -127,50 +149,79 @@ class PackageHeader final {
   bool operator==(Request r) const { return r == request(); }
 
  private:
-  uint32_t id_;
+  uint32_t signature_;
   uint32_t sequence_nr_;
   Request request_;
 };
 
 class Payload final {
  public:
-  Payload() : lines_(0), lines_sent_(0), score_(0), level_(0), lines_got_(0), state_(GameState::Idle) {}
+  explicit Payload(GameState state = GameState::Idle)
+      : knocked_out_by_(0), score_(0), lines_(0), lines_sent_(0), level_(0), lines_got_(0), ko_(0), state_(state) {}
 
-  Payload(uint16_t lines, uint16_t lines_sent, uint32_t score, uint8_t level, uint8_t lines_got, GameState state) {
+  Payload(uint16_t lines, uint16_t lines_sent, uint32_t score, uint8_t ko, uint8_t level, uint8_t lines_got, GameState state)
+      : knocked_out_by_(0) {
     lines_ = htons(lines);
     lines_sent_ = htons(lines_sent);
     score_ = htonl(score);
     level_ = level;
     lines_got_ = lines_got;
+    ko_ = ko;
     state_ = state;
   }
 
-  uint16_t lines() const { return ntohs(lines_); }
+  inline uint16_t lines() const { return ntohs(lines_); }
 
-  uint16_t lines_sent() const { return ntohs(lines_sent_); }
+  inline uint16_t lines_sent() const { return ntohs(lines_sent_); }
 
-  uint32_t score() const { return ntohl(score_); }
+  inline uint32_t score() const { return ntohl(score_); }
 
-  uint8_t level() const { return level_; }
+  inline uint8_t level() const { return level_; }
 
-  uint8_t lines_got() const { return lines_got_; }
+  inline uint8_t lines_got() const { return lines_got_; }
 
-  GameState state() const { return state_; }
+  inline uint8_t ko() const { return ko_; }
 
-  void SetState(GameState state) { state_ = state; }
+  inline uint64_t knocked_out_by() const { return ntohll(knocked_out_by_); }
+
+  inline void SetKnockoutBy(uint64_t host_id) { knocked_out_by_ = htonll(host_id); }
+
+  inline GameState state() const { return state_; }
+
+  inline void SetState(GameState state) { state_ = state; }
 
  private:
+  uint64_t knocked_out_by_;
+  uint32_t score_;
   uint16_t lines_;
   uint16_t lines_sent_;
-  uint32_t score_;
   uint8_t level_;
   uint8_t lines_got_;
+  uint8_t ko_;
   GameState state_;
 };
 
 struct Package {
-  PackageHeader header_;
+  Header header_;
   Payload payload_;
+};
+
+class PackagesHeader final {
+ public:
+  PackagesHeader() : signature_(htonl(kSignature)), host_id_(0) { host_name_[0] = '\0'; }
+
+  inline std::string host_name() const { return host_name_; }
+
+  inline int64_t host_id() const  { return host_id_; }
+
+  inline void SetHostName(const std::string& name) { host_id_ = network::SetHostName(name, host_name_); }
+
+  inline bool Verify() const { return htonl(kSignature) == signature_; }
+
+ private:
+  uint32_t signature_;
+  uint64_t host_id_;
+  char host_name_[kHostNameMax + 1];
 };
 
 struct Packages {
@@ -181,9 +232,11 @@ struct Packages {
     header_.SetHostName(host_name);
   }
 
-  int64_t size() const { return size_; }
+  inline bool Verify() const { return header_.Verify(); }
 
-  Header header_;
+  inline int64_t size() const { return size_; }
+
+  PackagesHeader header_;
   Package array_[kWindowSize];
   uint8_t size_;
 };
@@ -191,7 +244,7 @@ struct Packages {
 inline Package CreatePackage(Request request, GameState state = GameState::None) {
   Package package;
 
-  package.header_ = PackageHeader(request);
+  package.header_ = Header(request);
   package.payload_.SetState(state);
 
   return package;
@@ -199,4 +252,4 @@ inline Package CreatePackage(Request request, GameState state = GameState::None)
 
 #pragma pack(pop)
 
-} // namespace network
+ } // namespace network

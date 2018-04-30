@@ -3,7 +3,7 @@
 #include "game/events.h"
 #include "game/panes/pane.h"
 
-class Moves final : public TextPane, public EventSink {
+class Moves final : public TextPane, public EventListener {
  public:
   Moves(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets) :
       TextPane(renderer,  kMatrixEndX + kMinoWidth + kSpace, (kMatrixStartY - kMinoHeight) + 578 + 32, assets) {

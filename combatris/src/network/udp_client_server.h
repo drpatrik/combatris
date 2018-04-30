@@ -1,16 +1,22 @@
 #pragma once
 
 #if defined(_WIN64)
+#define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <BaseTsd.h>
+
 using ssize_t = SSIZE_T;
+
 #else
+
 #include <sys/socket.h>
 #include <netdb.h>
+
 using SOCKET = int;
 const int INVALID_SOCKET = -1;
 const int SOCKET_ERROR = -1;
+
 #endif
 
 #include <string>
@@ -21,9 +27,9 @@ const int SOCKET_TIMEOUT = -2;
 
 class UDPClient {
  public:
-  UDPClient(const UDPClient&) = delete;
-
   UDPClient(const std::string& broadcast_address, int port);
+
+  UDPClient(const UDPClient&) = delete;
 
   ~UDPClient() noexcept;
 
@@ -39,15 +45,17 @@ class UDPClient {
 
 class UDPServer {
  public:
-  UDPServer(const UDPServer&) = delete;
+  explicit UDPServer(int port);
 
-  UDPServer(int port);
+  UDPServer(const UDPServer&) = delete;
 
   ~UDPServer() noexcept;
 
-  ssize_t Receive(void* buff, size_t max_size) { return recv(socket_, static_cast<char*>(buff), max_size, 0); }
+  ssize_t Receive(void* buff, size_t max_size) { return recv(socket_, static_cast<char*>(buff), static_cast<int>(max_size), 0); }
 
   ssize_t Receive(void* buff, size_t max_size, int max_wait_ms);
+
+  ssize_t Receive(void* buff, size_t max_size, sockaddr_in& from_addr, int max_wait_ms);
 
   const std::string& host_name() const { return host_name_; }
 

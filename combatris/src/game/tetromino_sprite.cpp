@@ -45,7 +45,7 @@ void TetrominoSprite::ResetDelayCounter() {
   }
 }
 
-std::tuple<bool, Position, Tetromino::Angle> TetrominoSprite::TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate) {
+opt::optional<std::pair<Position, Tetromino::Angle>> TetrominoSprite::TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate) {
   enum { GetX = 0, GetY = 1 };
 
   auto try_angle = GetNextAngle(current_angle, rotate);
@@ -56,18 +56,15 @@ std::tuple<bool, Position, Tetromino::Angle> TetrominoSprite::TryRotation(Tetrom
 
     if (matrix_->IsValid(try_pos, tetromino_.GetRotationData(try_angle))) {
       ResetDelayCounter();
-      return std::make_tuple(true, try_pos, try_angle);
+      return opt::make_optional(std::make_pair(try_pos, try_angle));
     }
   }
-  return std::make_tuple(false, current_pos, current_angle);
+  return {};
 }
 
 void TetrominoSprite::RotateClockwise() {
-  bool success;
-
-  std::tie(success, pos_, angle_) = TryRotation(tetromino_.type(), pos_, angle_, Rotation::Clockwise);
-
-  if (success) {
+  if (auto result = TryRotation(tetromino_.type(), pos_, angle_, Rotation::Clockwise)) {
+    std::tie(pos_, angle_) = *result;
     rotation_data_ = tetromino_.GetRotationData(angle_);
     matrix_->Insert(pos_, rotation_data_);
     last_move_ = Tetromino::Move::Rotation;
@@ -75,11 +72,8 @@ void TetrominoSprite::RotateClockwise() {
 }
 
 void TetrominoSprite::RotateCounterClockwise() {
-  bool success;
-
-  std::tie(success, pos_, angle_) = TryRotation(tetromino_.type(), pos_, angle_, Rotation::CounterClockwise);
-
-  if (success) {
+  if (auto result = TryRotation(tetromino_.type(), pos_, angle_, Rotation::CounterClockwise)) {
+    std::tie(pos_, angle_) = *result;
     rotation_data_ = tetromino_.GetRotationData(angle_);
     matrix_->Insert(pos_, rotation_data_);
     last_move_ = Tetromino::Move::Rotation;
@@ -91,7 +85,7 @@ void TetrominoSprite::SoftDrop() {
     return;
   }
   if (pos_.row() >= kVisibleRowStart - 1) {
-    events_.Push(Event::Type::ScoringData, 1);
+    events_.Push(Event::Type::DropScoreData, 1);
   }
   level_->Release();
 }
@@ -106,7 +100,7 @@ void TetrominoSprite::HardDrop() {
   level_->Release();
   state_ = State::Commit;
   last_move_ = Tetromino::Move::Down;
-  events_.Push(Event::Type::ScoringData, (kVisibleRows - drop_row) * 2);
+  events_.Push(Event::Type::DropScoreData, (kVisibleRows - drop_row) * 2);
 }
 
 void TetrominoSprite::Left() {
@@ -161,7 +155,7 @@ TetrominoSprite::State TetrominoSprite::Down(double delta_time) {
         if (perfect_clear) {
           events_.Push(Event::Type::PerfectClear);
         }
-        events_.Push(Event::Type::ScoringData, lines_cleared, pos_, tspin_type);
+        events_.Push(Event::Type::ClearedLinesScoreData, lines_cleared, pos_, tspin_type);
         state_ = State::Commited;
       }
       break;

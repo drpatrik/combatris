@@ -13,24 +13,26 @@ class TetrominoGenerator final {
     GenerateTetrominos();
   }
 
-  std::shared_ptr<TetrominoSprite> Get() {
+  std::shared_ptr<TetrominoSprite> Get(bool got_lines = false) {
     auto tetromino = tetrominos_queue_.front();
 
     tetrominos_queue_.pop_front();
     if (tetrominos_queue_.size() == kTetrominos.size()) {
       GenerateTetrominos();
     }
-    return Get(tetromino);
+    return Get(tetromino, got_lines);
   }
 
-  std::shared_ptr<TetrominoSprite> Get(Tetromino::Type type) {
-    return std::make_shared<TetrominoSprite>(*assets_->GetTetromino(type), level_,  events_, matrix_);
+  std::shared_ptr<TetrominoSprite> Get(Tetromino::Type type, bool got_lines = false) {
+    return std::make_shared<TetrominoSprite>(*assets_->GetTetromino(type), level_,  events_, matrix_, got_lines);
   }
 
   void Reset() {
     tetrominos_queue_.clear();
     GenerateTetrominos();
   }
+
+  void Put(const Tetromino& tetromino) { tetrominos_queue_.push_front(tetromino.type()); }
 
   void RenderFromQueue(size_t n, int x, int y) const { assets_->GetTetromino(tetrominos_queue_.at(n))->RenderTetromino(x, y); }
 

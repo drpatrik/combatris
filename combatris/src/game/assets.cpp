@@ -18,7 +18,7 @@ void DeleteTexture(SDL_Texture* texture) {
   }
 }
 
-SDL_Texture* LoadTexture(SDL_Renderer *renderer, const std::string& name) {
+SDL_Texture* LoadTexture(SDL_Renderer *renderer, const std::string& name, Color transparent_color = Color::None) {
   if (SDL_WasInit(SDL_INIT_EVERYTHING) == 0 || nullptr == renderer) {
     return nullptr;
   }
@@ -28,6 +28,11 @@ SDL_Texture* LoadTexture(SDL_Renderer *renderer, const std::string& name) {
   if (nullptr == surface) {
     std::cout << "Failed to load surface " << full_path << " error : " << SDL_GetError() << std::endl;
     exit(-1);
+  }
+  if (Color::Transparent == transparent_color) {
+    const auto c = GetColor(transparent_color);
+
+    SDL_SetColorKey(surface, 1, SDL_MapRGB(surface->format, c.r, c.g, c.b));
   }
   auto texture = SDL_CreateTextureFromSurface(renderer, surface);
 
@@ -59,14 +64,36 @@ std::vector<TetrominoAssetData> kTetrominoAssetData {
   TetrominoAssetData(Tetromino::Type::Border, Color::Black, kTetromino_No_Rotations, "Border.bmp")
 };
 
+struct TextureAssetData {
+  TextureAssetData(const std::string& name, Color transparent_color)
+      : name_(name), transparent_color_(transparent_color) {}
+
+  std::string name_;
+  Color transparent_color_;
+};
+
+std::vector<TextureAssetData> kTextures { { "Checkmark.bmp", Color::Transparent }};
+
 } // namespace
 
 Assets::Assets(SDL_Renderer *renderer) {
-  for (const auto &data : kTetrominoAssetData) {
+  for (const auto& data : kTetrominoAssetData) {
     tetrominos_.push_back(std::make_shared<Tetromino>(
         renderer, data.type_, data.color_, data.rotations_,
         std::shared_ptr<SDL_Texture>(LoadTexture(renderer, data.image_name_), DeleteTexture)));
     alpha_textures_.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, data.image_name_), DeleteTexture));
   }
+  for (const auto& data : kTextures) {
+    textures_.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, data.name_, data.transparent_color_), DeleteTexture));
+  }
   std::for_each(kAllFonts.begin(), kAllFonts.end(), [this](const auto& f) { fonts_.Get(f); });
+}
+
+std::tuple<std::shared_ptr<SDL_Texture>, int, int> Assets::GetTexture(Type type) const {
+  auto texture = textures_.at(static_cast<int>(type));
+  int w, h;
+
+  SDL_QueryTexture(texture.get(), nullptr, nullptr, &w, &h);
+
+  return std::make_tuple(texture, w, h);
 }

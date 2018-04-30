@@ -9,6 +9,7 @@ std::mt19937 kGenerator{ std::random_device{}() };
 std::uniform_int_distribution<size_t> kDistribution(0, kVisibleCols - 1);
 
 const int kEmptyID = static_cast<int>(Tetromino::Type::Empty);
+const int kBombID = static_cast<int>(Tetromino::Type::Bomb);
 const int kBorderID = static_cast<int>(Tetromino::Type::Border);
 const int kSolidID = static_cast<int>(Tetromino::Type::Solid);
 const int kGhostAddOn = kBorderID + 1;
@@ -64,7 +65,7 @@ Lines RemoveLinesCleared(Matrix::Type& matrix) {
     if (line[kVisibleColStart] == kEmptyID) {
       continue;
     }
-    if (std::find(line.begin(), line.end(), kEmptyID) == line.end()) {
+    if (std::find_if(line.begin(), line.end(), [](auto elem) { return elem == kEmptyID || elem == kBombID; }) == line.end()) {
       lines.push_back(Line(row, line));
       matrix[row] = kEmptyRow;
     }
@@ -75,9 +76,9 @@ Lines RemoveLinesCleared(Matrix::Type& matrix) {
 void MoveLineDown(int end_row, Matrix::Type& matrix) {
   Matrix::Type tmp;
 
-  std::copy(matrix.begin() + kVisibleRowStart, matrix.begin() + end_row, std::back_inserter(tmp));
-  std::copy(tmp.begin(), tmp.end(), matrix.begin() + kVisibleRowStart + 1);
-  matrix[kVisibleRowStart] = kEmptyRow;
+  std::copy(matrix.begin(), matrix.begin() + end_row, std::back_inserter(tmp));
+  std::copy(tmp.begin(), tmp.end(), matrix.begin() + 1);
+  matrix[0] = kEmptyRow;
 }
 
 void CollapseMatrix(const Lines& lines_cleared, Matrix::Type& matrix) {
@@ -99,14 +100,14 @@ int MoveLinesUp(int lines, Matrix::Type& matrix) {
       break;
     }
   }
-  if (first_non_empty_row == 0) {
+  if (first_non_empty_row <= 0) {
     return 0;
   }
   Matrix::Type tmp;
 
   std::copy(matrix.begin() + first_non_empty_row, matrix.end() - 2, std::back_inserter(tmp));
 
-  lines = std::min(lines, first_non_empty_row - 1);
+  lines = std::min(lines, first_non_empty_row);
 
   if (lines > 0) {
     std::copy(tmp.begin(), tmp.end(), matrix.end() - 2 - lines - tmp.size());
@@ -115,9 +116,14 @@ int MoveLinesUp(int lines, Matrix::Type& matrix) {
 }
 
 void InsertSolidLines(int lines, Matrix::Type& matrix) {
+  auto n = kDistribution(kGenerator);
+
   for (int l = lines - 1; l >= 0; --l) {
     matrix.at(kVisibleRowEnd - l - 1) = kSolidRow;
-    matrix.at(kVisibleRowEnd - l - 1).at(kVisibleRowStart + kDistribution(kGenerator)) = kEmptyID;
+    if (l % 2 == 0) {
+      n = kDistribution(kGenerator);
+    }
+    matrix.at(kVisibleRowEnd - l - 1).at(kVisibleRowStart + n) = kBombID;
   }
 }
 
@@ -169,6 +175,20 @@ bool Matrix::InsertLines(int lines) {
   return true;
 }
 
+void Matrix::RemoveLines() {
+  Lines lines;
+
+  for (int row = 0; row < kVisibleRowEnd; ++row) {
+    auto& line = master_matrix_[row];
+
+    if (std::count(line.begin() + 2, line.end() - 2, kSolidID) >= kVisibleCols - 1) {
+      lines.push_back(Line(row, line));
+    }
+  }
+  CollapseMatrix(lines, master_matrix_);
+  matrix_ = master_matrix_;
+}
+
 bool Matrix::IsValid(const Position& pos, const TetrominoRotationData& rotation_data) const {
   if (pos.col() < 0 || pos.row() < 0) {
     return false;
@@ -177,10 +197,9 @@ bool Matrix::IsValid(const Position& pos, const TetrominoRotationData& rotation_
 
   for (size_t row = 0; row < shape.size(); ++row) {
     for (size_t col  = 0; col < shape[row].size(); ++col) {
-      auto try_row = pos.row() + row;
-      auto try_col = pos.col() + col;
+      const auto elem = master_matrix_[pos.row() + row][pos.col() + col];
 
-      if (master_matrix_[try_row][try_col] != kEmptyID && shape[row][col] != kEmptyID) {
+      if (elem != kEmptyID && elem != kBombID && shape[row][col] != kEmptyID) {
         return false;
       }
     }

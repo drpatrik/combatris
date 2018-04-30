@@ -2,14 +2,20 @@
 #include "network/udp_client_server.h"
 
 #if defined(_WIN64)
+
 #pragma warning(disable:4267) // conversion from size_t to int
 #pragma warning(disable:4100) // unreferenced formal parameters
 #pragma warning(disable:4244) // SOCKET to int
+
 #include <ws2tcpip.h>
+
 #else
+
 #include <arpa/inet.h>
 #include <unistd.h>
+
 #endif
+
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
@@ -21,6 +27,7 @@
 namespace {
 
 #if defined(_WIN64)
+
 #pragma comment(lib, "ws2_32.lib")
 
 int get_last_error() { return WSAGetLastError();  }
@@ -42,9 +49,11 @@ std::string get_error_string(int error_code) {
 #define close closesocket
 
 #else
+
 int get_last_error() { return errno; }
 
 std::string get_error_string(int error_code) { return strerror(error_code); }
+
 #endif
 
 const int kPortLowerRange = 1024;
@@ -205,6 +214,33 @@ ssize_t UDPServer::Receive(void* buff, size_t max_size, int max_wait_ms) {
       std::cout << "UDPServer::Receive error message - " << get_error_string(get_last_error()) << std::endl;
     }
 
+    return size;
+  }
+  return SOCKET_TIMEOUT;
+}
+
+ssize_t UDPServer::Receive(void* buff, size_t max_size, sockaddr_in& from_addr, int max_wait_ms) {
+  fd_set fds;
+  FD_ZERO(&fds);
+  FD_SET(socket_, &fds);
+
+  timeval timeout{};
+  timeout.tv_sec = max_wait_ms / 1000;
+  timeout.tv_usec = (max_wait_ms % 1000) * 1000;
+  const auto ret_val(select(socket_ + 1, &fds, nullptr, &fds, &timeout));
+
+  if (ret_val == SOCKET_ERROR) {
+    std::cout << "UDPServer::Receive error message - " << get_error_string(get_last_error()) << std::endl;
+    return SOCKET_ERROR;
+  }
+  if (ret_val > 0) {
+    socklen_t out_size = sizeof(from_addr);
+
+    auto size = recvfrom(socket_, static_cast<char*>(buff), max_size, 0, reinterpret_cast<sockaddr*>(&from_addr), &out_size);
+
+    if (size == SOCKET_ERROR) {
+      std::cout << "UDPServer::Receive error message - " << get_error_string(get_last_error()) << std::endl;
+    }
     return size;
   }
   return SOCKET_TIMEOUT;

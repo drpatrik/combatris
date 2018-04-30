@@ -18,6 +18,8 @@ inline int col_to_visible(int col) { return col - kVisibleColStart; }
 
 class Position final {
  public:
+  Position() = default;
+
   inline Position(int row, int col) : row_(row), col_(col) {}
 
   inline int row() const { return row_; }
