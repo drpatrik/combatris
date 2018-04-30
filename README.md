@@ -61,8 +61,10 @@ Platform | PC / OSX / Linux / Raspian
 - [X] Splash Screen
 - [X] Battle Mode (P2P based on UDP)
 - [X] Introduce KO in Battle mode
-- [ ] Introduce Marathon mode
-- [ ] More unit tests
+- [ ] Make Battle Mode timer based
+- [ ] Wait for all in State waiting to get to Play before starting the game
+- [ ] Introduce Marathon mode for single player campaign.
+- [ ] Unit tests for score
 - [ ] Sound
 
 **Improvements**
@@ -72,8 +74,6 @@ Platform | PC / OSX / Linux / Raspian
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
 - [ ] Auto discovery of broadcast address (e.g. 192.168.1.255)
-- [ ] Make the network protocol more robust (multicast / ack)
-- [ ] Wait for all in State waiting to get to Play before starting the game
 
 **Keyboard Commands**
 

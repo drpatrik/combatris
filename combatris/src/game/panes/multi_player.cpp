@@ -106,11 +106,11 @@ void MultiPlayer::GotLeave(uint64_t host_id) {
 
 void MultiPlayer::GotNewGame(uint64_t host_id) {
   if (IsUs(host_id)) {
+    accumulator_.Reset();
     for (auto& player : score_board_) {
       player->Reset();
     }
     Sort();
-    accumulator_.Reset();
     events_.Push(Event::Type::BattleResetCountDown);
   } else if (GameState::Waiting == game_state_) {
     events_.Push(Event::Type::BattleResetCountDown);

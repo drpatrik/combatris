@@ -71,10 +71,12 @@ private:
       }
       return a->lines_sent() > b->lines_sent();
     });
+#if !defined(NDEBUG)
     std::cout << "-----\n";
     for (const auto& p : score_board_) {
       std::cout << p->name() << " Ko: " << p->ko() << ", LS: " << p->lines_sent() << "\n";
     }
+#endif
   }
   bool IsUs(uint64_t host_id) const { return multiplayer_controller_->IsUs(host_id); }
 
