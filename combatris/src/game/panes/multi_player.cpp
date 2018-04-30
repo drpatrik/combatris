@@ -38,12 +38,12 @@ void MultiPlayer::Update(const Event& event) {
     case Event::Type::GameOver:
       multiplayer_controller_->SendUpdate(GameState::GameOver);
       break;
-    case Event::Type::BattleNextTetrominoInPlay:
+    case Event::Type::BattleNextTetrominoSuccessful:
       if (!got_lines_from_.empty()) {
         got_lines_from_.pop_front();
       }
       break;
-    case Event::Type::BattleKnockOut:
+    case Event::Type::BattleKnockedOut:
       multiplayer_controller_->SendUpdate(got_lines_from_.front());
       got_lines_from_.pop_front();
       break;

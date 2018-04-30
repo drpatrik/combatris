@@ -156,6 +156,31 @@ void Tetrion::GameControl(Controls control_pressed) {
   }
 }
 
+void Tetrion::HandleNextTetromino(TetrominoSprite::State state, Events& events) {
+  switch (state) {
+    case TetrominoSprite::State::Falling:
+      if (Campaign::SinglePlayer == campaign_) {
+        break;
+      }
+      events.Push(Event::Type::BattleNextTetrominoSuccessful);
+      break;
+    case TetrominoSprite::State::GameOver:
+      tetromino_in_play_.reset();
+      events.PushFront(Event::Type::GameOver);
+      break;
+    case TetrominoSprite::State::KO:
+      matrix_->RemoveLines();
+      tetromino_generator_->Put(tetromino_in_play_->tetromino());
+      tetromino_in_play_.reset();
+      AddAnimation<MessageAnimation>(renderer_, assets_, "Got K.O. :-(", Color::Red, 100.0);
+      events.Push(Event::Type::NextTetromino);
+      events.Push(Event::Type::BattleKnockedOut);
+      break;
+    default:
+      break;
+  }
+}
+
 void Tetrion::EventHandler(Events& events) {
   if (events.IsEmpty()) {
     return;
@@ -177,29 +202,14 @@ void Tetrion::EventHandler(Events& events) {
       level_->ResetTime();
       unpause_pressed_ = game_paused_ = false;
       break;
-    case Event::Type::BattleNextTetromino:
     case Event::Type::NextTetromino:
+    case Event::Type::BattleNextTetrominoGotLines:
       next_queue_->Show();
-      tetromino_in_play_ = tetromino_generator_->Get(event.Is(Event::Type::BattleNextTetromino));
-      if (TetrominoSprite::State::Falling == tetromino_in_play_->state()) {
-        if (Campaign::Battle == campaign_) {
-          events.Push(Event::Type::BattleNextTetrominoInPlay);
-        }
-      } else {
-        if (TetrominoSprite::State::GameOver == tetromino_in_play_->state()) {
-          tetromino_in_play_.reset();
-          events.PushFront(Event::Type::GameOver);
-        } else {
-          matrix_->RemoveLines();
-          tetromino_generator_->Put(tetromino_in_play_->tetromino());
-          AddAnimation<MessageAnimation>(renderer_, assets_, "Got K.O. :-(", Color::Red, 100.0);
-          events_.Push(Event::Type::NextTetromino);
-          events.Push(Event::Type::BattleKnockOut);
-        }
-      }
+      tetromino_in_play_ = tetromino_generator_->Get(event.Is(Event::Type::BattleNextTetrominoGotLines));
+      HandleNextTetromino(tetromino_in_play_->state(), events);
       break;
     case Event::Type::LevelUp:
-      AddAnimation<MessageAnimation>(renderer_, assets_, "LEVEL UP", Color::SteelGray);
+      AddAnimation<MessageAnimation>(renderer_, assets_, "LEVEL UP", Color::SteelGray, 100);
       break;
     case Event::Type::LinesCleared:
       RemoveAnimation<LinesClearedAnimation>(animations_);
@@ -254,7 +264,7 @@ void Tetrion::EventHandler(Events& events) {
       tetromino_generator_->Put(tetromino_in_play_->tetromino());
       tetromino_in_play_.reset();
       matrix_->InsertLines(event.value_);
-      events_.Push(Event::Type::BattleNextTetromino);
+      events_.Push(Event::Type::BattleNextTetrominoGotLines);
       break;
     case Event::Type::BattleYouDidKO:
       AddAnimation<MessageAnimation>(renderer_, assets_, "*** K.O. ***", Color::Gold, 100.0);

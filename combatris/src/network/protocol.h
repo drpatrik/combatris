@@ -46,7 +46,7 @@ namespace network {
 const size_t kHostNameMax = 31;
 const uint32_t kSignature = 0x50415243; // PARC
 const int kMTU = 512;
-const int kWindowSize = 9;
+const int kWindowSize = 14;
 const std::string kEnvServer = "COMBATRIS_BROADCAST_IP";
 const std::string kEnvPort = "COMBATRIS_BROADCAST_PORT";
 
@@ -170,25 +170,25 @@ class Payload final {
     state_ = state;
   }
 
-  uint16_t lines() const { return ntohs(lines_); }
+  inline uint16_t lines() const { return ntohs(lines_); }
 
-  uint16_t lines_sent() const { return ntohs(lines_sent_); }
+  inline uint16_t lines_sent() const { return ntohs(lines_sent_); }
 
-  uint32_t score() const { return ntohl(score_); }
+  inline uint32_t score() const { return ntohl(score_); }
 
-  uint8_t level() const { return level_; }
+  inline uint8_t level() const { return level_; }
 
-  uint8_t lines_got() const { return lines_got_; }
+  inline uint8_t lines_got() const { return lines_got_; }
 
-  uint8_t ko() const { return ko_; }
+  inline uint8_t ko() const { return ko_; }
 
-  uint64_t knocked_out_by() const { return ntohll(knocked_out_by_); }
+  inline uint64_t knocked_out_by() const { return ntohll(knocked_out_by_); }
 
-  void SetKnockoutBy(uint64_t host_id) { knocked_out_by_ = htonll(host_id); }
+  inline void SetKnockoutBy(uint64_t host_id) { knocked_out_by_ = htonll(host_id); }
 
-  GameState state() const { return state_; }
+  inline GameState state() const { return state_; }
 
-  void SetState(GameState state) { state_ = state; }
+  inline void SetState(GameState state) { state_ = state; }
 
  private:
   uint64_t knocked_out_by_;
@@ -208,15 +208,15 @@ struct Package {
 
 class PackagesHeader final {
  public:
-  PackagesHeader() : signature_(htonl(kSignature)) { host_name_[0] = '\0'; }
+  PackagesHeader() : signature_(htonl(kSignature)), host_id_(0) { host_name_[0] = '\0'; }
 
-  std::string host_name() const { return host_name_; }
+  inline std::string host_name() const { return host_name_; }
 
-  uint64_t host_id() const  { return host_id_; }
+  inline int64_t host_id() const  { return host_id_; }
 
-  void SetHostName(const std::string& name) { host_id_ = network::SetHostName(name, host_name_); }
+  inline void SetHostName(const std::string& name) { host_id_ = network::SetHostName(name, host_name_); }
 
-  bool Verify() const { return htonl(kSignature) == signature_; }
+  inline bool Verify() const { return htonl(kSignature) == signature_; }
 
  private:
   uint32_t signature_;
@@ -232,9 +232,9 @@ struct Packages {
     header_.SetHostName(host_name);
   }
 
-  bool Verify() const { return header_.Verify(); }
+  inline bool Verify() const { return header_.Verify(); }
 
-  int64_t size() const { return size_; }
+  inline int64_t size() const { return size_; }
 
   PackagesHeader header_;
   Package array_[kWindowSize];
@@ -252,4 +252,4 @@ inline Package CreatePackage(Request request, GameState state = GameState::None)
 
 #pragma pack(pop)
 
-} // namespace network
+ } // namespace network

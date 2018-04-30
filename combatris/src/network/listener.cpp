@@ -58,7 +58,7 @@ void Listener::Run() {
     auto package_index = connection.VerifySequenceNumber(packages.array_[0].header_);
 
     if (package_index < 0) {
-      std::cout << "old package(s) ignored" << std::endl;
+      // std::cout << "old package(s) ignored" << std::endl;
       continue;
     }
     if (package_index > packages.size() || package_index >= kWindowSize) {

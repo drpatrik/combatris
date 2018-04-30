@@ -77,6 +77,8 @@ class Tetrion final {
     }
   }
 
+  void HandleNextTetromino(TetrominoSprite::State state, Events& events);
+
   void EventHandler(Events& events);
 
   void Render(double delta_timer);
