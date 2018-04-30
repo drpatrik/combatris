@@ -64,8 +64,21 @@ inline const SDL_Rect& AddYOffset(SDL_Rect& tmp, int offset, const SDL_Rect& rc)
 
 } // namespace
 
-int Player::Update(Player::TextureID id, int new_value, int old_value, std::function<std::string(int)> to_string) {
-  if (new_value == 0 || new_value == old_value) {
+Player::Player(SDL_Renderer* renderer, const std::string& name, uint64_t host_id, const std::shared_ptr<Assets>& assets,
+               network::GameState state)
+    : renderer_(renderer), name_(name), host_id_(host_id), assets_(assets), state_(state) {
+  for (const auto& field : kFields) {
+    auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), field.name_, field.color_);
+
+    textures_.insert(std::make_pair(field.id_, std::make_shared<Texture>(std::move(texture), w, h, field.rc_)));
+  }
+  auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), name_, Color::Yellow);
+
+  textures_.insert(std::make_pair(ID::Name, std::make_shared<Texture>(std::move(texture), w, h, kNameFieldRc)));
+}
+
+int Player::Update(Player::TextureID id, int new_value, int old_value, std::function<std::string(int)> to_string, bool set_to_zero) {
+  if (!set_to_zero && (new_value == 0 || new_value == old_value)) {
     return old_value;
   }
   auto& stat = textures_.at(id);
@@ -77,36 +90,30 @@ int Player::Update(Player::TextureID id, int new_value, int old_value, std::func
   return new_value;
 }
 
-bool Player::Update(int lines, int lines_sent, int score, int ko, int level, GameState state) {
+bool Player::Update(int lines, int lines_sent, int score, int ko, int level, GameState state, bool set_to_zero) {
   const auto to_string = [](int v) { return std::to_string(v); };
   auto resort_score_board = false;
 
-  lines_ = Update(ID::Lines, lines, lines_, to_string);
+  lines_ = Update(ID::Lines, lines, lines_, to_string, set_to_zero);
   resort_score_board = (lines_sent != 0) && (lines_sent != lines_sent_);
-  lines_sent_ = Update(ID::LinesSent, lines_sent, lines_sent_, to_string);
-  score_ = Update(ID::Score, score, score_, to_string);
+  lines_sent_ = Update(ID::LinesSent, lines_sent, lines_sent_, to_string, set_to_zero);
+  score_ = Update(ID::Score, score, score_, to_string, set_to_zero);
   resort_score_board = resort_score_board || ((ko != 0) && (ko != ko_));
   ko_ = Update(ID::KO, ko, ko_, to_string);
-  level_ = Update(ID::Level, level, level_, to_string);
+  level_ = Update(ID::Level, level, level_, to_string, set_to_zero);
   state_ = static_cast<GameState>(Update(ID::State, static_cast<int>(state), static_cast<int>(state_),
-                                         [](int v) { return ToString(static_cast<GameState>(v)); }));
+                                         [](int v) { return ToString(static_cast<GameState>(v)); }), set_to_zero);
 
   return resort_score_board;
 }
 
-void Player::Reset(bool force_reset) {
-  if (!force_reset && network::GameState::None == state_) {
-    return;
-  }
-  textures_.clear();
-  for (const auto& field : kFields) {
-    auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), field.name_, field.color_);
-
-    textures_.insert(std::make_pair(field.id_, std::make_shared<Texture>(std::move(texture), w, h, field.rc_)));
-  }
-  auto[texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), name_, Color::Yellow);
-
-  textures_.insert(std::make_pair(ID::Name, std::make_shared<Texture>(std::move(texture), w, h, kNameFieldRc)));
+void Player::Reset() {
+  lines_ = 0;
+  lines_sent_ = 0;
+  score_ = 0;
+  level_ = 0;
+  ko_ = 0;
+  Update(lines_, lines_sent_, score_, level_, ko_, state_, true);
 }
 
 void Player::Render(int offset,  bool is_my_status) const {

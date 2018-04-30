@@ -63,7 +63,19 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
 
   virtual void GotLines(uint64_t host_id, int lines) override;
 
- private:
+private:
+  void Sort() {
+    std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) {
+      if (a->ko() != b->ko()) {
+        return a->ko() > b->ko();
+      }
+      return a->lines_sent() > b->lines_sent();
+    });
+    std::cout << "-----\n";
+    for (const auto& p : score_board_) {
+      std::cout << p->name() << " Ko: " << p->ko() << ", LS: " << p->lines_sent() << "\n";
+    }
+  }
   bool IsUs(uint64_t host_id) const { return multiplayer_controller_->IsUs(host_id); }
 
   Events& events_;

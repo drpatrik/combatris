@@ -21,16 +21,13 @@ class Player final {
   using GameState = network::GameState;
 
   Player(SDL_Renderer* renderer, const std::string& name, uint64_t host_id, const std::shared_ptr<Assets>& assets,
-         network::GameState state = network::GameState::None)
-      : renderer_(renderer), name_(name), host_id_(host_id), assets_(assets), state_(state) {
-    Reset(true);
-  }
+         network::GameState state = network::GameState::None);
 
   Player(const Player&) = delete;
 
-  bool Update(int lines, int lines_sent, int score, int ko, int level, GameState state);
+  bool Update(int lines, int lines_sent, int score, int ko, int level, GameState state, bool set_to_zero = false);
 
-  void Reset(bool force_reset = false);
+  void Reset();
 
   void Render(int y_offset, bool is_my_status) const;
 
@@ -62,7 +59,7 @@ class Player final {
     SDL_Rect rc_;
   };
 
-  int Update(Player::TextureID id, int new_value, int old_value, std::function<std::string(int)> to_string);
+  int Update(Player::TextureID id, int new_value, int old_value, std::function<std::string(int)> to_string, bool set_to_zero = false);
 
   SDL_Renderer* renderer_;
   std::string name_;
