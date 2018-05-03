@@ -52,9 +52,13 @@ class Matrix final : public PaneInterface {
     Insert(matrix_, pos, rotation_data);
   }
 
-  CommitReturnType Commit(Tetromino::Type type, Tetromino::Move latest_move, const Position& pos, const TetrominoRotationData& rotation_data);
-
   Position GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const;
+
+  CommitReturnType Commit(Tetromino::Type type, Tetromino::Angle angle, Tetromino::Move latest_move, const Position& current_pos) {
+    return Commit(type, latest_move, current_pos, tetrominos_.at(static_cast<int>(type) - 1)->GetRotationData(angle));
+  }
+
+  CommitReturnType Commit(Tetromino::Type type, Tetromino::Move latest_move, const Position& pos, const TetrominoRotationData& rotation_data);
 
   void Print(bool master = true) const;
 

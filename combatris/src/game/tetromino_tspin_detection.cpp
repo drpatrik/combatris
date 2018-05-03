@@ -3,6 +3,7 @@
 namespace {
 
 const int kEmptyID =  static_cast<int>(Tetromino::Type::Empty);
+const int kBombID = static_cast<int>(Tetromino::Type::Bomb);
 const int kTSpinCorner = 1;
 const int kTSpinMiniCorner = 2;
 
@@ -46,13 +47,12 @@ TSpinType DetectTSpin(const Matrix::Type& matrix, const Position& pos, int angle
 
   for (size_t row = 0; row < shape.size(); ++row) {
     for (size_t col  = 0; col < shape.at(row).size(); ++col) {
-      auto try_row = pos.row() + row;
-      auto try_col = pos.col() + col;
+      const auto elem = matrix.at(pos.row() + row).at(pos.col() + col);
 
-      if (shape.at(row).at(col) == kTSpinCorner && matrix.at(try_row).at(try_col) != kEmptyID) {
+      if (shape.at(row).at(col) == kTSpinCorner && elem != kEmptyID && elem != kBombID) {
         tspin_corners++;
       }
-      if (shape.at(row).at(col) == kTSpinMiniCorner && matrix.at(try_row).at(try_col) != kEmptyID) {
+      if (shape.at(row).at(col) == kTSpinMiniCorner && elem != kEmptyID && elem != kBombID) {
         tspin_minicorners++;
       }
     }

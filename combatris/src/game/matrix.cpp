@@ -224,12 +224,22 @@ void Matrix::Insert(Type& matrix, const Position& pos, const TetrominoRotationDa
   }
 }
 
-Matrix::CommitReturnType Matrix::Commit(Tetromino::Type type, Tetromino::Move latest_move, const Position& current_pos, const TetrominoRotationData& rotation_data) {
-  TSpinType tspin_type = TSpinType::None;
+Position Matrix::GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const {
+  Position pos(current_pos);
 
+  while (IsValid(Position(pos.row() + 1, pos.col()), rotation_data)) {
+    pos.inc_row();
+  }
+
+  return pos;
+}
+
+Matrix::CommitReturnType Matrix::Commit(Tetromino::Type type, Tetromino::Move latest_move, const Position& current_pos, const TetrominoRotationData& rotation_data) {
   auto pos = GetDropPosition(current_pos, rotation_data);
 
   Insert(master_matrix_, pos, rotation_data);
+
+  auto tspin_type = TSpinType::None;
 
   if (Tetromino::Type::T == type && latest_move == Tetromino::Move::Rotation) {
     tspin_type = DetectTSpin(master_matrix_, pos, rotation_data.angle_index_);
@@ -242,14 +252,4 @@ Matrix::CommitReturnType Matrix::Commit(Tetromino::Type type, Tetromino::Move la
   auto perfect_clear = (lines_cleared.size() > 0 && DetectPerfectClear(master_matrix_));
 
   return std::make_tuple(lines_cleared, tspin_type, perfect_clear);
-}
-
-Position Matrix::GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const {
-  Position pos(current_pos);
-
-  while (IsValid(Position(pos.row() + 1, pos.col()), rotation_data)) {
-    pos.inc_row();
-  }
-
-  return pos;
 }
