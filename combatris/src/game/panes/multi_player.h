@@ -5,8 +5,6 @@
 #include "game/panes/player.h"
 #include "game/panes/pane.h"
 
-#include <unordered_map>
-
 class MultiPlayer final : public Pane, public EventListener,  public network::ListenerInterface {
  public:
   MultiPlayer(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets);
@@ -32,6 +30,10 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
 
   bool CanPressNewGame() const {
     return std::none_of(score_board_.begin(), score_board_.end(), [](const auto& p) { return p->state() == network::GameState::Playing; });
+  }
+
+  bool CanStartGame() const {
+    return std::none_of(score_board_.begin(), score_board_.end(), [](const auto& p) { return p->state() == network::GameState::Waiting; });
   }
 
   void NewGame() { multiplayer_controller_->NewGame(); }

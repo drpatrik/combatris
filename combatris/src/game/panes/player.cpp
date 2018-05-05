@@ -102,7 +102,7 @@ bool Player::Update(int lines, int lines_sent, int score, int ko, int level, Gam
   ko_ = Update(ID::KO, ko, ko_, to_string);
   level_ = Update(ID::Level, level, level_, to_string, set_to_zero);
   state_ = static_cast<GameState>(Update(ID::State, static_cast<int>(state), static_cast<int>(state_),
-                                         [](int v) { return ToString(static_cast<GameState>(v)); }), set_to_zero);
+                                         [](int v) { return ToString(static_cast<GameState>(v)); }, set_to_zero));
 
   return resort_score_board;
 }

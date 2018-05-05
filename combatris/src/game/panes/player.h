@@ -41,8 +41,6 @@ class Player final {
 
   network::GameState state() const { return state_; }
 
-  void SetState(network::GameState state) { state_ = state; }
-
  private:
   struct Texture {
     Texture(UniqueTexturePtr&& texture, int w, int h, SDL_Rect rc)

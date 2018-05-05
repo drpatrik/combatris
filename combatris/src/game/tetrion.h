@@ -97,7 +97,7 @@ class Tetrion final {
   std::unique_ptr<HoldQueue> hold_queue_;
   std::unique_ptr<TotalLines> total_lines_;
   std::unique_ptr<Moves> moves_;
-  std::unique_ptr<MultiPlayer> multi_player_;
+  std::shared_ptr<MultiPlayer> multi_player_;
   std::vector<PaneInterface*> panes_;
   std::vector<EventListener*> event_listeners_;
   Events events_;

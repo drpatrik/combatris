@@ -2,8 +2,6 @@
 
 #include "network/listener.h"
 
-#include <deque>
-
 namespace network {
 
 class ListenerInterface {
@@ -89,7 +87,6 @@ class MultiPlayerController {
   std::shared_ptr<ThreadSafeQueue<Package>> send_queue_;
   std::unique_ptr<std::thread> send_thread_;
   std::unique_ptr<std::thread> heartbeat_thread_;
-  std::deque<Package> sliding_window_;
 };
 
 } // namespace network

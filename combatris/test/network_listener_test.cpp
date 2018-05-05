@@ -162,3 +162,38 @@ TEST_CASE("TestJoinOutOfOrder") {
   Send(sliding_window, client);
   CheckResponse(listener, client.host_name(), Request::Join);
 }
+
+void SendPackage(UDPClient& client, std::deque<Package>& sliding_window, const Package& package) {
+  sliding_window.push_front(package);
+
+  Packages packages("TestClient", sliding_window.size());
+
+  std::copy(std::begin(sliding_window), std::end(sliding_window), packages.array_);
+
+  client.Send(&packages, sizeof(packages));
+}
+
+
+TEST_CASE("FakeClient", "[!hide]") {
+  int dummy;
+  UDPClient client(GetBroadcastIP(), GetPort());
+
+  std::deque<Package> sliding_window;
+
+  SendPackage(client, sliding_window, PreparePackage(0, Request::Join, GameState::Idle));
+
+  std::cout << "Press Return\n";
+  std::cin >> dummy;
+
+  SendPackage(client, sliding_window, PreparePackage(1, Request::NewGame, GameState::Waiting));
+
+  std::cout << "Press Return\n";
+  std::cin >> dummy;
+
+  SendPackage(client, sliding_window, PreparePackage(2, Request::StartGame, GameState::Playing));
+
+  std::cout << "Press Return\n";
+  std::cin >> dummy;
+
+  SendPackage(client, sliding_window, PreparePackage(3, Request::Leave, GameState::Waiting));
+}

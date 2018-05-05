@@ -117,7 +117,7 @@ void MultiPlayer::GotNewGame(uint64_t host_id) {
   }
 }
 
-void MultiPlayer::GotStartGame() { events_.Push(Event::Type::NextTetromino); }
+void MultiPlayer::GotStartGame() { events_.Push(Event::Type::BattleWaitForPlayers); }
 
 void MultiPlayer::GotUpdate(uint64_t host_id, int lines, int lines_sent, int score, int ko, int level, GameState state) {
   if (IsUs(host_id)) {

@@ -1,6 +1,7 @@
 #include "network/multiplayer_controller.h"
 
 #include <iostream>
+#include <deque>
 
 namespace network {
 
@@ -129,6 +130,7 @@ void MultiPlayerController::Dispatch() {
 
 void MultiPlayerController::Run() {
   uint32_t sequence_nr = 0;
+  std::deque<Package> sliding_window;
   UDPClient client(GetBroadcastIP(), GetPort());
   auto time_since_last_package = utility::time_in_ms();
 
@@ -153,14 +155,14 @@ void MultiPlayerController::Run() {
 
     package.header_.SetSeqenceNr(sequence_nr);
     sequence_nr++;
-    if (sliding_window_.size() == kWindowSize) {
-      sliding_window_.pop_back();
+    if (sliding_window.size() == kWindowSize) {
+      sliding_window.pop_back();
     }
-    sliding_window_.push_front(package);
+    sliding_window.push_front(package);
 
-    Packages packages(client.host_name(), sliding_window_.size());
+    Packages packages(client.host_name(), sliding_window.size());
 
-    std::copy(std::begin(sliding_window_), std::end(sliding_window_), packages.array_);
+    std::copy(std::begin(sliding_window), std::end(sliding_window), packages.array_);
     client.Send(&packages, sizeof(packages));
   }
 }

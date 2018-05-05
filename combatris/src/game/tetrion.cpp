@@ -87,7 +87,7 @@ Tetrion::Tetrion() : events_() {
   moves_ = std::make_unique<Moves>(renderer_, assets_);
   AddPane(moves_.get());
   AddAnimation<SplashScreenAnimation>(renderer_, assets_);
-  multi_player_ = std::make_unique<MultiPlayer>(renderer_, events_, assets_);
+  multi_player_ = std::make_shared<MultiPlayer>(renderer_, events_, assets_);
   AddPane(multi_player_.get());
 }
 
@@ -251,6 +251,13 @@ void Tetrion::EventHandler(Events& events) {
       break;
     case Event::Type::BattleStartGame:
       multi_player_->StartGame();
+      break;
+    case Event::Type::BattleWaitForPlayers:
+      if (multi_player_->CanStartGame()) {
+        events_.Push(Event::Type::NextTetromino);
+      } else {
+        AddAnimation<HourglassAnimation>(renderer_, assets_, multi_player_);
+      }
       break;
     case Event::Type::BattleSendLines:
       AddAnimation<MessageAnimation>(renderer_, assets_, "Sent " + std::to_string(event.value_) + " lines", Color::SteelGray, 200.0);

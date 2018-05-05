@@ -6,7 +6,7 @@
 class HighScore final : public TextPane, public EventListener {
  public:
   HighScore(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets) :
-      TextPane(renderer,  kMatrixEndX + kMinoWidth + kSpace, (kMatrixStartY - kMinoHeight) + 428, "HIGH", assets) {
+      TextPane(renderer,  kMatrixEndX + kMinoWidth + kSpace, (kMatrixStartY - kMinoHeight) + 428, "HIGH SCORE", assets) {
     SetCaptionOrientation(TextPane::Orientation::Left);
     Read();
     SetCenteredText(highscore_, Color::SteelGray, Normal35);

@@ -1,7 +1,7 @@
 #pragma once
 
+#include "game/panes/multi_player.h"
 #include "game/tetromino_sprite.h"
-#include "game/assets.h"
 
 namespace {
 
@@ -304,4 +304,44 @@ private:
   SDL_Rect rc_2_;
   SDL_Rect rc_3_;
   SDL_Rect blackbox_rc_;
+};
+
+// We make this class generic when we have more gifs
+class HourglassAnimation final : public Animation {
+ public:
+  HourglassAnimation(SDL_Renderer* renderer, std::shared_ptr<Assets>& assets, std::shared_ptr<MultiPlayer> multi_player)
+      : Animation(renderer, assets), multi_player_(multi_player), textures_(GetAsset().GetHourGlassTextures()) {
+    int width, height;
+
+    std::tie(text_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal25), "Waiting for all players", Color::White);
+    rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100 , width, height };
+  }
+
+  virtual void Render(double delta) override {
+    const SDL_Rect kHourglassRc { kMatrixStartX + Center(kMatrixWidth, 128), kMatrixStartY + 150, 128, 128 };
+
+    SetBlackBackground(*this);
+    RenderCopy(textures_.at(frame_).get(), kHourglassRc);
+    RenderCopy(text_.get(), rc_);
+    ticks_ += delta;
+    if (ticks_ >= 0.07) {
+      frame_++;
+      if (frame_ == textures_.size()) {
+        frame_ = 0;
+      }
+      ticks_ = 0.0;
+    }
+  }
+
+  virtual std::pair<bool, Event::Type> IsReady() const override {
+    return std::make_pair(multi_player_->CanStartGame(), Event::Type::NextTetromino);
+  }
+
+ private:
+  size_t frame_ = 0;
+  double ticks_ = 0.0;
+  UniqueTexturePtr text_;
+  SDL_Rect rc_;
+  std::shared_ptr<MultiPlayer> multi_player_;
+  std::vector<std::shared_ptr<SDL_Texture>> textures_;
 };

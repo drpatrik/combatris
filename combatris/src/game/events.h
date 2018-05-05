@@ -43,6 +43,7 @@ struct Event {
     BattleGotLines,
     BattleKnockedOut,
     BattleYouDidKO,
+    BattleWaitForPlayers,
     BattleNextTetrominoGotLines,
     BattleNextTetrominoSuccessful
   };
