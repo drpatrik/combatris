@@ -90,8 +90,6 @@ Assets::Assets(SDL_Renderer *renderer) {
     const std::string name = "Hourglass_" + std::to_string(i) + ".bmp";
     hourglass_textures_.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, name), DeleteTexture));
   }
-
-
   std::for_each(kAllFonts.begin(), kAllFonts.end(), [this](const auto& f) { fonts_.Get(f); });
 }
 
