@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <chrono>
 #include <algorithm>
 
@@ -26,6 +27,10 @@ class Timer final {
     }
     return count_down_;
   }
+
+  std::string FormatTime(size_t seconds) const;
+
+  std::string FormatTime() { return FormatTime(GetTimeInSeconds()); }
 
   void Reset() { count_down_ = initial_value_; start_ = SystemClock::now(); }
 
