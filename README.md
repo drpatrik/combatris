@@ -9,12 +9,12 @@ OSX 10.12/10.13, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
 Combatris allows up to 9 players to play against each other. Any line clear over 1 will send lines over
 to your opponents. Using combo’s and special moves you can send even more lines and secure the victory.
 
-In the battle campaign score does not matter, number of knock-outs and line sents are what matters.
+In the battle campaign score does not matter, number of knock-outs and lines sent are what matters.
 
 You can also play against your self in the single player campaign.
 
-I have tested the game with up to five players running on a heterogenous set of computers using both wireless
-and ethernet based connections. The game works well but there can be a lag up to 0.5 seconds, since heartbeats
+I have tested the game with up to five players running on a heterogeneous set of computers using both wireless
+and Ethernet based connections. The game works well but there can be a lag up to 0.5 seconds, since heartbeats
 are sent every 0.5 second and status updates every 250 milliseconds (if something has happened). Heartbeats are
 suppressed if other messages have been sent within the heartbeat interval (to keep network congestion down).
 
@@ -77,8 +77,8 @@ Platform | PC / OSX / Linux / Raspian
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
 - [ ] Auto discovery of broadcast address (e.g. 192.168.1.255)
-- [ ] Write a TCP/IP based gateway server for Internet based support
-- [ ] Do a prober implementation of the sliding window protocol
+- [ ] Write a TCP/IP gateway server for Internet based support
+- [ ] Do a proper implementation of the sliding window protocol
 
 **Keyboard Commands**
 
