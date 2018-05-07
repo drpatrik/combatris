@@ -37,6 +37,7 @@ Back-to-back Recognition | Tetris / T-spin
 Platform | PC / OSX / Linux / Raspian
 
 **Lines Sent - Battle Campaign**
+
 Move | Lines Sent (Lines per combo step)
 ---- | ---------------------------------
 Single | 0
