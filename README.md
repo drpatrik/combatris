@@ -36,6 +36,53 @@ T-Spin recognition | 3-corner with kicks
 Back-to-back Recognition | Tetris / T-spin
 Platform | PC / OSX / Linux / Raspian
 
+**Lines Sent - Battle Campaign**
+Move | Lines Sent (Lines per combo step)
+---- | ---------------------------------
+Single | 0
+Double | 1
+Triple | 2
+Tetris | 4
+B2B Tetris | 6
+Perfect Clear | 10
+T-Spin | 0
+T-Spin Mini Single | 1
+T-Spin Single | 2
+T-Spin Double | 4
+T-Spin Triple | 6
+B2B T-Spin Mini Single | 2
+B2B T-Spin Single | 3
+B2B T-Spin Double | 6
+B2B T-Spin Triple | 9
+0 Combo | 0 (0)
+1 Combo | 1 (1)
+2 Combo | 2 (1)
+3 Combo | 4 (2)
+4 Combo | 6 (2)
+5 Combo | 9 (3)
+6 Combo | 12 (3)
+7 Combo | 16 (4)
+... Combo | ... (4)
+
+**Scoring - Single Campaign**
+
+Action | Points
+------ | ------
+Single/T-Spin Mini | 100×level
+T-Spin Mini Single | 200×level
+Double | 300×level
+T-Spin | 400×level
+Triple | 500×level
+Tetris/T-Spin Single | 800×level
+B2B T-Spin Single/B2B Tetris | 1,200×level
+T-Spin Double | 1,200×level
+T-Spin Triple | 1,600×level
+B2B T-Spin Double | 1,800×level
+B2B T-Spin Triple | 2,700×level
+Combo | 50×combo count×level (singles only for 20)
+Soft drop | 1 point per cell (Max of 20)
+Hard drop | 2 points per cell (Max of 40)
+
 **Status**
 - [x] Rotate left / right
 - [x] Soft / Hard drop
