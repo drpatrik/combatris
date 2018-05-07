@@ -116,13 +116,15 @@ int MoveLinesUp(int lines, Matrix::Type& matrix) {
 }
 
 void InsertSolidLines(int lines, Matrix::Type& matrix) {
-  auto n = kDistribution(kGenerator);
+  int i = 0;
+  int n = 0;
 
   for (int l = lines - 1; l >= 0; --l) {
     matrix.at(kVisibleRowEnd - l - 1) = kSolidRow;
-    if (l % 2 == 0) {
+    if (i % 2 == 0) {
       n = kDistribution(kGenerator);
     }
+    i++;
     matrix.at(kVisibleRowEnd - l - 1).at(kVisibleRowStart + n) = kBombID;
   }
 }
