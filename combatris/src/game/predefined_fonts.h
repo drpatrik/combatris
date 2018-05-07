@@ -17,8 +17,9 @@ const Font Bold30 = Font(Font::Typeface::Cabin, Font::Emphasis::Normal, 30);
 const Font Normal25 = Font(Font::Typeface::Cabin, Font::Emphasis::Normal, 25);
 const Font Bold25 = Font(Font::Typeface::Cabin, Font::Emphasis::Bold, 25);
 const Font Normal15 = Font(Font::Typeface::Cabin, Font::Emphasis::Normal, 15);
+const Font TimerFont = Font(Font::Typeface::ObelixPro, Font::Emphasis::Normal, 40);
 
-const std::vector<Font> kAllFonts = {
+const std::vector<Font> kFontsToPreload = {
   Normal200,
   Normal55,
   Bold55,
@@ -30,4 +31,5 @@ const std::vector<Font> kAllFonts = {
   Normal25,
   Bold25,
   Normal15,
+  TimerFont
 };

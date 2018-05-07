@@ -64,10 +64,9 @@ Platform | PC / OSX / Linux / Raspian
 - [X] Splash Screen
 - [X] Battle Mode (P2P based on UDP)
 - [X] Introduce KO in Battle mode
-- [ ] Make Battle Mode timer based
+- [X] Make Battle Mode timer based
 - [X] Wait for all in State waiting to get to Play before starting the game
 - [ ] Introduce Marathon mode for single player campaign.
-- [ ] Unit tests for score
 - [ ] Sound
 
 **Improvements**
@@ -79,6 +78,7 @@ Platform | PC / OSX / Linux / Raspian
 - [ ] Auto discovery of broadcast address (e.g. 192.168.1.255)
 - [ ] Write a TCP/IP gateway server for Internet based support
 - [ ] Do a proper implementation of the sliding window protocol
+- [ ] Unit tests for score
 
 **Keyboard Commands**
 

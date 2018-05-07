@@ -66,28 +66,19 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
   virtual void GotLines(uint64_t host_id, int lines) override;
 
 private:
-  void Sort() {
-    std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) {
-      if (a->ko() != b->ko()) {
-        return a->ko() > b->ko();
-      }
-      return a->lines_sent() > b->lines_sent();
-    });
-#if !defined(NDEBUG)
-    std::cout << "-----\n";
-    for (const auto& p : score_board_) {
-      std::cout << p->name() << " Ko: " << p->ko() << ", LS: " << p->lines_sent() << "\n";
-    }
-#endif
-  }
   bool IsUs(uint64_t host_id) const { return multiplayer_controller_->IsUs(host_id); }
 
+  void SortScoreBoard();
+
   Events& events_;
+  utility::Timer timer_;
   network::GameState game_state_ = network::GameState::None;
   std::vector<Player::Ptr> score_board_;
   std::deque<uint64_t> got_lines_from_;
   std::unordered_map<uint64_t, Player::Ptr> players_;
   std::unique_ptr<network::MultiPlayerController> multiplayer_controller_;
   Accumlator accumulator_;
-  double ticks_ = 0.0;
+  double ticks_progess_update_ = 0.0;
+  UniqueTexturePtr timer_texture_;
+  SDL_Rect timer_texture_rc_;
 };

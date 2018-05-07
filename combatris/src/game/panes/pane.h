@@ -27,7 +27,7 @@ class Pane : public PaneInterface {
     SDL_RenderCopy(renderer, texture, nullptr, &rc);
   }
 
-  static void RenderCopy(SDL_Renderer* renderer, SDL_Texture *texture, SDL_Rect& rc) { SDL_RenderCopy(renderer, texture, nullptr, &rc); }
+  static void RenderCopy(SDL_Renderer* renderer, SDL_Texture *texture, const SDL_Rect& rc) { SDL_RenderCopy(renderer, texture, nullptr, &rc); }
 
  protected:
   void RenderText(int x, int y, const Font& font, const std::string& text, Color text_color) const {

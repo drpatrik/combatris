@@ -14,7 +14,7 @@ const std::string kAssetFolder = "../../assets/";
 
 const std::unordered_map<Font::Typeface, const std::unordered_map<Font::Emphasis, std::string>> kFonts = {
   { Font::Typeface::Cabin, { { Font::Emphasis::Normal, "Cabin-Regular.ttf" }, { Font::Emphasis::Bold, "Cabin-Bold.ttf" } } },
-  { Font::Typeface::ObelixPro, { { Font::Emphasis::Normal, "Cabin-Regular.ttf" } } }
+  { Font::Typeface::ObelixPro, { { Font::Emphasis::Normal, "ObelixPro-cyr.ttf" } } }
 };
 
 TTF_Font *LoadFont(const std::string& name, int size) {

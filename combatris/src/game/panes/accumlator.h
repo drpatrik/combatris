@@ -38,10 +38,20 @@ struct Accumlator final {
     is_dirty_ = false;
   }
 
+  bool IsDirty() {
+    if (is_dirty_) {
+      is_dirty_ = false;
+      return true;
+    }
+    return false;
+  }
+
   int lines_;
   int lines_sent_;
   int score_;
   int ko_;
   int level_;
+
+ private:
   bool is_dirty_;
 };

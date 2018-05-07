@@ -248,7 +248,7 @@ class SplashScreenAnimation final : public Animation {
     rc_1_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100, width, height };
     std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal25), "Press 'N' or Start to play", Color::White);
     rc_2_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_1_.y + rc_1_.h + 10 , width, height };
-    std::tie(texture_3_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal15), "F1 toggle Single player and Battle campaign", Color::White);
+    std::tie(texture_3_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal15), "'F1' toggle Single player and Battle campaign", Color::White);
     rc_3_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_2_.y + rc_2_.h + 10 , width, height };
   }
 
@@ -280,7 +280,7 @@ class GameOverAnimation final : public Animation {
     rc_1_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100 , width, height };
     std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal25), "Press 'N' or Start to play", Color::White);
     rc_2_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_1_.y + rc_1_.h + 10 , width, height };
-    std::tie(texture_3_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal15), "F1 toggle Single player and Battle campaign", Color::White);
+    std::tie(texture_3_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal15), "'F1' toggle Single player and Battle campaign", Color::White);
     rc_3_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_2_.y + rc_2_.h + 10 , width, height };
 
     blackbox_rc_ = { rc_1_.x - 20, rc_1_.y - 20, rc_1_.w + 40, rc_1_.h + rc_2_.h + rc_3_.h + 50 };

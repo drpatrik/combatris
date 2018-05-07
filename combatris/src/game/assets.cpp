@@ -41,6 +41,10 @@ SDL_Texture* LoadTexture(SDL_Renderer *renderer, const std::string& name, Color 
   return texture;
 }
 
+SDL_Texture* LoadTexture(SDL_Renderer *renderer, const std::string& name, int i, Color transparent_color = Color::None) {
+  return LoadTexture(renderer, name + "_" + std::to_string(i) + ".bmp", transparent_color);
+}
+
 struct TetrominoAssetData {
   TetrominoAssetData(Tetromino::Type type, Color color, const std::vector<TetrominoRotationData>& rotations, const std::string& image_name) :
       type_(type), color_(GetColor(color)), rotations_(rotations), image_name_(image_name) {}
@@ -87,10 +91,9 @@ Assets::Assets(SDL_Renderer *renderer) {
     textures_.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, data.name_, data.transparent_color_), DeleteTexture));
   }
   for (int i = 1; i <=24; ++i) {
-    const std::string name = "Hourglass_" + std::to_string(i) + ".bmp";
-    hourglass_textures_.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, name), DeleteTexture));
+    hourglass_textures_.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, "Hourglass", i), DeleteTexture));
   }
-  std::for_each(kAllFonts.begin(), kAllFonts.end(), [this](const auto& f) { fonts_.Get(f); });
+  std::for_each(kFontsToPreload.begin(), kFontsToPreload.end(), [this](const auto& f) { fonts_.Get(f); });
 }
 
 std::tuple<std::shared_ptr<SDL_Texture>, int, int> Assets::GetTexture(Type type) const {

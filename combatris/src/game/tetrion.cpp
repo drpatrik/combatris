@@ -241,6 +241,7 @@ void Tetrion::EventHandler(Events& events) {
     case Event::Type::GameOver:
       events.Clear();
       animations_.clear();
+      tetromino_in_play_.reset();
       AddAnimation<GameOverAnimation>(renderer_, assets_);
       break;
     case Event::Type::OnFloor:
