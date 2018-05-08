@@ -45,7 +45,8 @@ namespace network {
 
 const size_t kHostNameMax = 31;
 const uint32_t kSignature = 0x50415243; // PARC
-const int kMTU = 512;
+// UDP Maximum Transmision Unit 1500 bytes - 20 byte (IPv4 header) - 8 byte UDP-header
+const int kMTU = 1472;
 const int kWindowSize = 14;
 const std::string kEnvServer = "COMBATRIS_BROADCAST_IP";
 const std::string kEnvPort = "COMBATRIS_BROADCAST_PORT";
