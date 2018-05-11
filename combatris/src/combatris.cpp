@@ -1,7 +1,3 @@
-#if defined(NDEBUG)
-#define main SDL_main
-#endif
-
 #include "utility/timer.h"
 #include "game/tetrion.h"
 
@@ -291,10 +287,6 @@ class Combatris {
   std::shared_ptr<Tetrion> tetrion_ = nullptr;
 };
 
-#if defined(NDEBUG)
-extern C_LINKAGE {
-#endif
-
 int main(int, char *[]) {
   Combatris combatris;
 
@@ -302,7 +294,3 @@ int main(int, char *[]) {
 
   return 0;
 }
-
-#if defined(NDEBUG)
-}
-#endif
