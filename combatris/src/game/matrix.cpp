@@ -122,7 +122,7 @@ void InsertSolidLines(int lines, Matrix::Type& matrix) {
   for (int l = lines - 1; l >= 0; --l) {
     matrix.at(kVisibleRowEnd - l - 1) = kSolidRow;
     if (i % 2 == 0) {
-      n = kDistribution(kGenerator);
+      n = static_cast<int>(kDistribution(kGenerator));
     }
     i++;
     matrix.at(kVisibleRowEnd - l - 1).at(kVisibleRowStart + n) = kBombID;
