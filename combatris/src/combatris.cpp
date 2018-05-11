@@ -1,3 +1,7 @@
+#if defined(NDEBUG)
+#define main SDL_main
+#endif
+
 #include "utility/timer.h"
 #include "game/tetrion.h"
 
@@ -134,12 +138,8 @@ class Combatris {
       current_control = Tetrion::Controls::ToggleCampaign;
     } else if (event.key.keysym.scancode == SDL_SCANCODE_Q) {
       current_control = Tetrion::Controls::Quit;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_1) {
-      current_control = Tetrion::Controls::Send1Line;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_5) {
-      current_control = Tetrion::Controls::Send5Lines;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_8) {
-      current_control = Tetrion::Controls::Send8Lines;
+    } else if (event.key.keysym.scancode >=  SDL_SCANCODE_1 && event.key.keysym.scancode <=  SDL_SCANCODE_9) {
+      current_control = Tetrion::Controls::DebugSendLine;
     }
 
     return current_control;
@@ -258,14 +258,10 @@ class Combatris {
           case Tetrion::Controls::Quit:
             quit = true;
             break;
-          case Tetrion::Controls::Send1Line:
-            tetrion_->GameControl(Tetrion::Controls::Send1Line);
-            break;
-          case Tetrion::Controls::Send5Lines:
-            tetrion_->GameControl(Tetrion::Controls::Send5Lines);
-            break;
-          case Tetrion::Controls::Send8Lines:
-            tetrion_->GameControl(Tetrion::Controls::Send8Lines);
+          case Tetrion::Controls::DebugSendLine:
+#if !defined(NDEBUG)
+            tetrion_->GameControl(Tetrion::Controls::DebugSendLine, 9 - (SDL_SCANCODE_9 - event.key.keysym.scancode));
+#endif
             break;
           default:
             break;
@@ -295,10 +291,18 @@ class Combatris {
   std::shared_ptr<Tetrion> tetrion_ = nullptr;
 };
 
-int main(int, char*[]) {
+#if defined(NDEBUG)
+extern C_LINKAGE {
+#endif
+
+int main(int, char *[]) {
   Combatris combatris;
 
   combatris.Play();
 
   return 0;
 }
+
+#if defined(NDEBUG)
+}
+#endif

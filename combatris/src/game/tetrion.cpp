@@ -46,12 +46,6 @@ void RemoveAnimation(std::deque<std::shared_ptr<Animation>>& animations) {
     [](const auto &a) { return a->name() == typeid(T).name(); }), animations.end());
 }
 
-template <class T>
-bool IsAnimationActive(std::deque<std::shared_ptr<Animation>>& animations) {
-  return std::find_if(animations.begin(), animations.end(),
-                      [](const auto& a) { return a->name() == typeid(T).name(); }) != animations.end();
-}
-
 } // namespace
 
 Tetrion::Tetrion() : events_() {
@@ -113,7 +107,7 @@ void Tetrion::ToggleCampaign() {
   SetupCampaignWindow(window_, renderer_, campaign_);
 }
 
-void Tetrion::GameControl(Controls control_pressed) {
+void Tetrion::GameControl(Controls control_pressed, int lines) {
   if (!tetromino_in_play_ || game_paused_) {
     return;
   }
@@ -142,17 +136,9 @@ void Tetrion::GameControl(Controls control_pressed) {
         tetromino_in_play_ = hold_queue_->Hold(tetromino_in_play_);
       }
       break;
-#if !defined(NDEBUG)
-    case Controls::Send1Line:
-      multi_player_->DebugSend(1);
+    case Controls::DebugSendLine:
+      multi_player_->DebugSend(lines);
       break;
-    case Controls::Send5Lines:
-      multi_player_->DebugSend(5);
-      break;
-    case Controls::Send8Lines:
-      multi_player_->DebugSend(8);
-      break;
-#endif
     default:
       break;
   }
@@ -250,15 +236,8 @@ void Tetrion::EventHandler(Events& events) {
     case Event::Type::Falling:
       RemoveAnimation<OnFloorAnimation>(animations_);
       break;
-    case Event::Type::BattleStartGame:
-      multi_player_->StartGame();
-      break;
     case Event::Type::BattleWaitForPlayers:
-      if (multi_player_->CanStartGame()) {
-        events_.Push(Event::Type::NextTetromino);
-      } else {
-        AddAnimation<HourglassAnimation>(renderer_, assets_, multi_player_);
-      }
+      AddAnimation<HourglassAnimation>(renderer_, assets_, multi_player_);
       break;
     case Event::Type::BattleSendLines:
       AddAnimation<MessageAnimation>(renderer_, assets_, "Sent " + std::to_string(event.value_) + " lines", Color::SteelGray, 200.0);

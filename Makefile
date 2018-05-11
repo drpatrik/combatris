@@ -1,5 +1,5 @@
 # Set default values for missing environment
-BUILD_TYPE ?= Release
+BUILD_TYPE ?= Debug
 
 BUILD_DIR ?= build
 

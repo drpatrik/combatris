@@ -118,15 +118,16 @@ Hard drop | 2 points per cell (Max of 40)
 - [ ] Sound
 
 **Improvements**
+- [ ] In Battle mode show interactive game board for all players instead of current status
 - [ ] Remove the pane for showing combo/latest move and display combo / last move direct on the frame
 - [ ] Add new animation for combo/last clearing move (expanding text)
-- [ ] Change font to https://www.dafont.com/obelixpro.font
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
+- [ ] Allow user to change  game settings (level, etc) in a config-file or UI
 - [ ] Auto discovery of broadcast address (e.g. 192.168.1.255)
 - [ ] Write a TCP/IP gateway server for Internet based support
 - [ ] Do a proper implementation of the sliding window protocol
-- [ ] Unit tests for score
+- [ ] Unit tests for all score combinations
 
 **Keyboard Commands**
 

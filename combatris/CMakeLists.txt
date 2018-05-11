@@ -11,8 +11,14 @@ add_executable(combatris ${SourceFiles})
 target_link_libraries(combatris ${SDL2_LIBRARY})
 target_link_libraries(combatris ${SDL2_TTF_LIBRARIES})
 
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+message("Release build")
+target_link_libraries(combatris -lSDLmain)
+endif()
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   target_link_libraries(combatris -lc++)
+
   if (UNIX)
     target_link_libraries(combatris -lm)
   endif()

@@ -25,9 +25,7 @@ class Tetrion final {
     Start,
     ToggleCampaign,
     Quit,
-    Send1Line,
-    Send5Lines,
-    Send8Lines
+    DebugSendLine
   };
 
   Tetrion();
@@ -57,7 +55,7 @@ class Tetrion final {
 
   void ResetCountDown();
 
-  void GameControl(Controls control_pressed);
+  void GameControl(Controls control_pressed, int lines = 0);
 
   void Update(double delta_timer);
 

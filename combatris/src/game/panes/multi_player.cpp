@@ -54,6 +54,9 @@ void MultiPlayer::Update(const Event& event) {
         timer_.Start();
       }
       break;
+    case Event::Type::BattleStartGame:
+      multiplayer_controller_->StartGame();
+      break;
     case Event::Type::BattleNextTetrominoSuccessful:
       if (!got_lines_from_.empty()) {
         got_lines_from_.pop_front();
@@ -126,7 +129,7 @@ void MultiPlayer::SortScoreBoard() {
 
 bool MultiPlayer::GotJoin(const std::string& name, uint64_t host_id)  {
   if (score_board_.size() >= kMaxPlayers) {
-    std::cout << "Combatris support - " << kMaxPlayers << " players." << std::endl;
+    std::cout << "Combatris support - " << kMaxPlayers << " players.\n";
     return false;
   }
   if (!IsUs(host_id)) {
@@ -163,7 +166,13 @@ void MultiPlayer::GotNewGame(uint64_t host_id) {
   }
 }
 
-void MultiPlayer::GotStartGame() { events_.Push(Event::Type::BattleWaitForPlayers); }
+void MultiPlayer::GotStartGame() {
+  if (CanStartGame()) {
+    events_.Push(Event::Type::NextTetromino);
+  } else {
+    events_.Push(Event::Type::BattleWaitForPlayers);
+  }
+}
 
 void MultiPlayer::GotUpdate(uint64_t host_id, int lines, int lines_sent, int score, int ko, int level, GameState state) {
   if (IsUs(host_id)) {

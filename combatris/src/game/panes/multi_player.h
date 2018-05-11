@@ -38,8 +38,6 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
 
   void NewGame() { multiplayer_controller_->NewGame(); }
 
-  void StartGame() { multiplayer_controller_->StartGame(); }
-
   void DebugSend(int lines) {
     if (!multiplayer_controller_) {
       return;
