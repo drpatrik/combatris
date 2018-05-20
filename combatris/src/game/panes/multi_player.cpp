@@ -31,7 +31,6 @@ void MultiPlayer::Update(const Event& event) {
     case Event::Type::CalculatedScore:
       accumulator_.AddScore(event.score_);
       if (event.value_ > 0) {
-        accumulator_.AddLinesSent(event.value_);
         multiplayer_controller_->SendUpdate(event.value_);
         events_.Push(Event::Type::BattleSendLines, event.value_);
       }
@@ -103,8 +102,7 @@ void MultiPlayer::Render(double delta_time) {
   if (ticks_progess_update_ >= kUpdateInterval) {
     ticks_progess_update_ = 0.0;
     if (accumulator_.IsDirty()) {
-      multiplayer_controller_->SendUpdate(accumulator_.lines_, accumulator_.lines_sent_, accumulator_.score_,
-                                          accumulator_.ko_, accumulator_.level_);
+      multiplayer_controller_->SendUpdate(accumulator_.lines_, accumulator_.score_, accumulator_.level_);
     }
   }
   multiplayer_controller_->Dispatch();
@@ -174,23 +172,38 @@ void MultiPlayer::GotStartGame() {
   }
 }
 
-void MultiPlayer::GotUpdate(uint64_t host_id, int lines, int lines_sent, int score, int ko, int level, GameState state) {
+void MultiPlayer::GotNewState(uint64_t host_id, network::GameState state) {
   if (IsUs(host_id)) {
     game_state_ = (GameState::None == state) ? game_state_ : state;
   }
   auto& player = players_.at(host_id);
 
-  if (player->Update(lines, lines_sent, score, ko, level, state)) {
-    SortScoreBoard();
-  }
+  player->SetState(state);
+}
+
+void MultiPlayer::GotProgressUpdate(uint64_t host_id, int lines, int score, int level) {
+  auto& player = players_.at(host_id);
+
+  player->ProgressUpdate(lines, score, level);
 }
 
 void MultiPlayer::GotLines(uint64_t host_id, int lines) {
-  got_lines_from_.push_back(host_id);
-  events_.Push(Event::Type::BattleGotLines, lines);
+  if (!IsUs(host_id)) {
+    got_lines_from_.push_back(host_id);
+    events_.Push(Event::Type::BattleGotLines, lines);
+  }
+  auto& player = players_.at(host_id);
+
+  player->SetLinesSent(lines);
+  SortScoreBoard();
 }
 
-void MultiPlayer::GotPlayerKnockedOut() {
-  accumulator_.AddKnockOut(1);
-  events_.Push(Event::Type::BattleYouDidKO);
+void MultiPlayer::GotPlayerKnockedOut(uint64_t host_id) {
+  if (IsUs(host_id)) {
+    events_.Push(Event::Type::BattleYouDidKO);
+  }
+  auto& player = players_.at(host_id);
+
+  player->SetKO(1);
+  SortScoreBoard();
 }

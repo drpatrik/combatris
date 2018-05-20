@@ -25,7 +25,13 @@ class Player final {
 
   Player(const Player&) = delete;
 
-  bool Update(int lines, int lines_sent, int score, int ko, int level, GameState state, bool set_to_zero = false);
+  void ProgressUpdate(int lines, int score, int level, bool set_to_zero = false);
+
+  void SetState(GameState state, bool set_to_zero = false);
+
+  void SetLinesSent(int lines, bool set_to_zero = false);
+
+  void SetKO(int ko, bool set_to_zero = false);
 
   void Reset();
 

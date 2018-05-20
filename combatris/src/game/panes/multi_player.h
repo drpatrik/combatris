@@ -42,7 +42,6 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
     if (!multiplayer_controller_) {
       return;
     }
-    accumulator_.AddLinesSent(lines);
     multiplayer_controller_->SendUpdate(lines);
   }
 
@@ -57,11 +56,13 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
 
   virtual void GotStartGame() override;
 
-  virtual void GotUpdate(uint64_t host_id, int lines, int lines_sent, int score, int ko, int level, network::GameState state) override;
+  virtual void GotNewState(uint64_t host_id, network::GameState state) override;
 
-  virtual void GotPlayerKnockedOut() override;
+  virtual void GotProgressUpdate(uint64_t host_id, int lines, int score, int level) override;
 
   virtual void GotLines(uint64_t host_id, int lines) override;
+
+  virtual void GotPlayerKnockedOut(uint64_t host_id) override;
 
 private:
   bool IsUs(uint64_t host_id) const { return multiplayer_controller_->IsUs(host_id); }

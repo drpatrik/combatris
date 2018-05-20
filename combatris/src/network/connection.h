@@ -10,30 +10,37 @@ namespace network {
 
 class Connection final {
  public:
-  Connection(const Packages& packages) {
-    for (int index = 0; index < packages.size(); ++index) {
-      if (packages.array_[index].header_.request() == Request::Join) {
+  Connection(const std::string host_name, const PackageArray& package_array) {
+    for (int index = 0; index < package_array.size(); ++index) {
+      if (package_array.packages_[index].header_.request() == Request::Join) {
         start_with_package_ = index;
         break;
       }
     }
-    name_ = packages.header_.host_name();
+    name_ = host_name;
     timestamp_ = utility::time_in_ms();
   }
 
-  void Update(const Header& header) {
-    if (sequence_nr_ != -1 && sequence_nr_ != header.sequence_nr()) {
+  void Update(Channel channel, const Header& header) {
+    if (Channel::Reliable == channel) {
+      if (sequence_nr_ != -1 && sequence_nr_ != header.sequence_nr()) {
         std::cout << "Error: Current: " << sequence_nr_ << " new: " << header.sequence_nr() << std::endl;
-    }
-    if (is_missing_) {
-      std::cout << name_ << " is back" << "\n";
-      is_missing_ = false;
+      }
+      if (is_missing_) {
+        std::cout << name_ << " is back" << "\n";
+        is_missing_ = false;
+      }
     }
     sequence_nr_ = header.sequence_nr() + 1;
-    timestamp_ = utility::time_in_ms();
+    IsAlive();
   }
 
-  int64_t VerifySequenceNumber(const Header& header) {
+  void IsAlive() { timestamp_ = utility::time_in_ms(); }
+
+  int64_t VerifySequenceNumber(Channel channel, const Header& header) {
+    if (Channel::Unreliable == channel) {
+      return (header.sequence_nr() < sequence_nr_) ? -1 : 0;
+    }
     if (sequence_nr_ == -1) {
       auto index = 0;
       std::swap(index, start_with_package_);

@@ -22,13 +22,13 @@ struct TestPackage {
 
   TestPackage(const std::string& host_name, network::Request request) {
     header_ = network::Header(request);
-    packages_header_.SetHostName(host_name);
+    package_header_.SetHostName(host_name);
   }
 
-  std::string host_name() const { return packages_header_.host_name(); }
+  std::string host_name() const { return package_header_.host_name(); }
 
   network::Header header_;
-  network::PackagesHeader packages_header_;
+  network::PackageHeader package_header_;
 };
 
 Initialize initialize;

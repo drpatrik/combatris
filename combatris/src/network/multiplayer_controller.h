@@ -16,15 +16,31 @@ class ListenerInterface {
 
   virtual void GotStartGame() = 0;
 
-  virtual void GotUpdate(uint64_t host_id, int lines, int lines_sent, int score, int ko, int level, GameState state) = 0;
+  virtual void GotNewState(uint64_t host_id, GameState state) = 0;
+
+  virtual void GotProgressUpdate(uint64_t host_id, int lines, int score, int level) = 0;
 
   virtual void GotLines(uint64_t host_id, int lines) = 0;
 
-  virtual void GotPlayerKnockedOut() = 0;
+  virtual void GotPlayerKnockedOut(uint64_t host_id) = 0;
 };
 
 class MultiPlayerController {
  public:
+  struct OutgoingPackage {
+    OutgoingPackage() : channel_(Channel::None) {}
+
+    OutgoingPackage(const Package& package) : package_(package), channel_(Channel::Reliable) {}
+
+    OutgoingPackage(const ProgressPackage& package) : progress_package_(package), channel_(Channel::Unreliable ) {}
+
+    inline Channel channel() const { return channel_; }
+
+    Package package_;
+    ProgressPackage progress_package_;
+    Channel channel_;
+  };
+
   MultiPlayerController(ListenerInterface* listener);
 
   ~MultiPlayerController();
@@ -43,7 +59,7 @@ class MultiPlayerController {
 
   void SendUpdate(GameState state);
 
-  void SendUpdate(int lines, int lines_sent_, int score, int ko, int level);
+  void SendUpdate(int lines, int score, int level);
 
   void Dispatch();
 
@@ -84,7 +100,7 @@ class MultiPlayerController {
   std::atomic<bool> cancelled_;
   ListenerInterface* listener_if_;
   std::unique_ptr<Listener> listener_;
-  std::shared_ptr<ThreadSafeQueue<Package>> send_queue_;
+  std::shared_ptr<ThreadSafeQueue<OutgoingPackage>> send_queue_;
   std::unique_ptr<std::thread> send_thread_;
   std::unique_ptr<std::thread> heartbeat_thread_;
 };

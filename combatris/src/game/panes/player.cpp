@@ -62,6 +62,8 @@ inline const SDL_Rect& AddYOffset(SDL_Rect& tmp, int offset, const SDL_Rect& rc)
   return tmp;
 }
 
+const auto to_string = [](int v) { return std::to_string(v); };
+
 } // namespace
 
 Player::Player(SDL_Renderer* renderer, const std::string& name, uint64_t host_id, const std::shared_ptr<Assets>& assets,
@@ -90,30 +92,32 @@ int Player::Update(Player::TextureID id, int new_value, int old_value, std::func
   return new_value;
 }
 
-bool Player::Update(int lines, int lines_sent, int score, int ko, int level, GameState state, bool set_to_zero) {
-  const auto to_string = [](int v) { return std::to_string(v); };
-  auto resort_score_board = false;
-
+void Player::ProgressUpdate(int lines, int score, int level, bool set_to_zero) {
   lines_ = Update(ID::Lines, lines, lines_, to_string, set_to_zero);
-  resort_score_board = (lines_sent != 0) && (lines_sent != lines_sent_);
-  lines_sent_ = Update(ID::LinesSent, lines_sent, lines_sent_, to_string, set_to_zero);
   score_ = Update(ID::Score, score, score_, to_string, set_to_zero);
-  resort_score_board = resort_score_board || ((ko != 0) && (ko != ko_));
-  ko_ = Update(ID::KO, ko, ko_, to_string);
   level_ = Update(ID::Level, level, level_, to_string, set_to_zero);
-  state_ = static_cast<GameState>(Update(ID::State, static_cast<int>(state), static_cast<int>(state_),
-                                         [](int v) { return ToString(static_cast<GameState>(v)); }, set_to_zero));
-
-  return resort_score_board;
 }
+
+void Player::SetState(GameState state, bool set_to_zero) {
+  state_ = static_cast<GameState>(Update(ID::State, static_cast<int>(state), static_cast<int>(state_),
+                                         [](int v) { return ToString(static_cast<GameState>(v)); }), set_to_zero);
+}
+
+void Player::SetLinesSent(int lines, bool set_to_zero) {
+  lines_sent_ = Update(ID::LinesSent, lines + lines_, lines_sent_, to_string, set_to_zero);
+}
+
+void Player::SetKO(int ko, bool set_to_zero) { ko_ = Update(ID::KO, ko + ko_, ko_, to_string, set_to_zero); }
 
 void Player::Reset() {
   lines_ = 0;
-  lines_sent_ = 0;
   score_ = 0;
   level_ = 0;
+  ProgressUpdate(lines_, score_, level_, true);
+  lines_sent_ = 0;
+  SetLinesSent(lines_sent_, true);
   ko_ = 0;
-  Update(lines_, lines_sent_, score_, level_, ko_, state_, true);
+  SetKO(ko_, true);
 }
 
 void Player::Render(int offset,  bool is_my_status) const {

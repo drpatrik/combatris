@@ -87,45 +87,53 @@ inline uint64_t SetHostName(const std::string& from, char *to) {
   return std::hash<std::string>{}(from);
 }
 
-enum Request : uint8_t { Empty, Join, Leave, NewGame, StartGame, ProgressUpdate, HeartBeat };
+enum Request : uint8_t { Empty, Join, Leave, NewGame, StartGame, NewState, SendLines, KnockedOutBy, ProgressUpdate, HeartBeat };
 
 inline std::string ToString(Request request) {
   switch (request) {
-    case Empty:
+    case Request::Empty:
       return "Request::Empty";
-    case Join:
+    case Request::Join:
       return "Request::Join";
-    case Leave:
+    case Request::Leave:
       return "Request::Leave";
-    case NewGame:
+    case Request::NewGame:
       return "Request::NewGame";
-    case StartGame:
+    case Request::StartGame:
       return "Request::StartGame";
-    case ProgressUpdate:
+    case Request::NewState:
+      return "Request::NewState";
+    case Request::SendLines:
+      return "Request::SendLines";
+    case Request::KnockedOutBy:
+      return "Request::KnockedOutBy";
+    case Request::ProgressUpdate:
       return "Request::ProgressUpdate";
-    case HeartBeat:
+    case Request::HeartBeat:
       return "Request::Heartbeat";
   }
-  return "";
+  return "Unknown";
 }
 
-enum GameState : uint8_t { None, Idle, Waiting, Playing, GameOver };
+enum class GameState : uint8_t { None, Idle, Waiting, Playing, GameOver };
 
 inline std::string ToString(GameState state) {
   switch (state) {
-    case None:
+    case GameState::None:
       return "None";
-    case Idle:
+    case GameState::Idle:
       return "Idle";
-    case Waiting:
+    case GameState::Waiting:
       return "Waiting";
-    case Playing:
+    case GameState::Playing:
       return "Playing";
-    case GameOver:
+    case GameState::GameOver:
       return "Game Over";
   }
-  return "";
+  return "Unknown";
 }
+
+enum class Channel : uint8_t { None, Unreliable, Reliable };
 
 #pragma pack(push, 1)
 
@@ -155,51 +163,86 @@ class Header final {
   Request request_;
 };
 
-class Payload final {
+class ProgressPayload final {
  public:
-  explicit Payload(GameState state = GameState::Idle)
-      : knocked_out_by_(0), score_(0), lines_(0), lines_sent_(0), level_(0), lines_got_(0), ko_(0), state_(state) {}
+  ProgressPayload() : score_(0), lines_(0), level_(0) {}
 
-  Payload(uint16_t lines, uint16_t lines_sent, uint32_t score, uint8_t ko, uint8_t level, uint8_t lines_got, GameState state)
-      : knocked_out_by_(0) {
+  ProgressPayload(uint16_t lines, uint32_t score, uint8_t level) {
     lines_ = htons(lines);
-    lines_sent_ = htons(lines_sent);
     score_ = htonl(score);
     level_ = level;
-    lines_got_ = lines_got;
-    ko_ = ko;
-    state_ = state;
   }
 
   inline uint16_t lines() const { return ntohs(lines_); }
-
-  inline uint16_t lines_sent() const { return ntohs(lines_sent_); }
 
   inline uint32_t score() const { return ntohl(score_); }
 
   inline uint8_t level() const { return level_; }
 
-  inline uint8_t lines_got() const { return lines_got_; }
+ private:
+  uint32_t score_;
+  uint16_t lines_;
+  uint8_t level_;
+};
 
-  inline uint8_t ko() const { return ko_; }
+class Payload final {
+ public:
+  Payload() : value_(0), state_(GameState::None) {}
 
-  inline uint64_t knocked_out_by() const { return ntohll(knocked_out_by_); }
+  explicit Payload(GameState state) : state_(state) {}
 
-  inline void SetKnockoutBy(uint64_t host_id) { knocked_out_by_ = htonll(host_id); }
+  explicit Payload(uint64_t value) { SetValue(value); }
+
+  inline uint64_t value() const { return ntohll(value_); }
+
+  inline void SetValue(uint64_t value) { value_ = htonll(value); }
 
   inline GameState state() const { return state_; }
 
   inline void SetState(GameState state) { state_ = state; }
 
  private:
-  uint64_t knocked_out_by_;
-  uint32_t score_;
-  uint16_t lines_;
-  uint16_t lines_sent_;
-  uint8_t level_;
-  uint8_t lines_got_;
-  uint8_t ko_;
-  GameState state_;
+  uint64_t value_ = 0;
+  GameState state_ = GameState::None;
+};
+
+class PackageHeader final {
+ public:
+  PackageHeader() : signature_(htonl(kSignature)), host_id_(0), channel_(Channel::None) {
+    host_name_[0] = '\0';
+  }
+
+  explicit PackageHeader(Channel channel) : signature_(htonl(kSignature)), host_id_(0), channel_(channel) {
+    host_name_[0] = '\0';
+  }
+
+  inline std::string host_name() const { return host_name_; }
+
+  inline void SetHostName(const std::string& name) { host_id_ = network::SetHostName(name, host_name_); }
+
+  inline int64_t host_id() const  { return host_id_; }
+
+  inline bool Verify() const { return htonl(kSignature) == signature_; }
+
+  inline Channel channel() const { return channel_; }
+
+ private:
+  uint32_t signature_;
+  char host_name_[kHostNameMax + 1];
+  uint64_t host_id_;
+  Channel channel_;
+};
+
+struct ProgressPackage {
+  Header header_;
+  ProgressPayload payload_;
+};
+
+struct UnreliablePackage {
+  UnreliablePackage(const ProgressPackage& package) : package_(package) {}
+
+  PackageHeader header_ = PackageHeader(Channel::Unreliable);
+  ProgressPackage package_;
 };
 
 struct Package {
@@ -207,46 +250,64 @@ struct Package {
   Payload payload_;
 };
 
-class PackagesHeader final {
- public:
-  PackagesHeader() : signature_(htonl(kSignature)), host_id_(0) { host_name_[0] = '\0'; }
+struct PackageArray {
+  PackageArray() : size_(0) {}
 
-  inline std::string host_name() const { return host_name_; }
+  PackageArray(uint8_t size) : size_(size) {}
 
-  inline int64_t host_id() const  { return host_id_; }
+  int size() const { return size_; }
 
-  inline void SetHostName(const std::string& name) { host_id_ = network::SetHostName(name, host_name_); }
-
-  inline bool Verify() const { return htonl(kSignature) == signature_; }
-
- private:
-  uint32_t signature_;
-  uint64_t host_id_;
-  char host_name_[kHostNameMax + 1];
-};
-
-struct Packages {
-  Packages() : size_(0) {}
-
-  Packages(const std::string& host_name, uint8_t size) : size_(size) {
-    static_assert(sizeof(Packages) <= kMTU);
-    header_.SetHostName(host_name);
-  }
-
-  inline bool Verify() const { return header_.Verify(); }
-
-  inline int64_t size() const { return size_; }
-
-  PackagesHeader header_;
-  Package array_[kWindowSize];
+  Package packages_[kWindowSize];
   uint8_t size_;
 };
 
-inline Package CreatePackage(Request request, GameState state = GameState::None) {
+struct ReliablePackage {
+  ReliablePackage() : package_(0) {}
+
+  ReliablePackage(const std::string& host_name, uint8_t size) : package_(size) {
+    static_assert(sizeof(ReliablePackage) <= kMTU);
+    header_.SetHostName(host_name);
+  }
+
+  inline int size() const { return package_.size_; }
+
+  inline bool Verify() const { return header_.Verify(); }
+
+  PackageHeader header_ = PackageHeader(Channel::Reliable);
+  PackageArray package_;
+};
+
+inline auto CreatePackage(Request request) {
+  Package package;
+
+  package.header_ = Header(request);
+
+  return package;
+}
+
+inline auto CreatePackage(Request request, GameState state) {
   Package package;
 
   package.header_ = Header(request);
   package.payload_.SetState(state);
+
+  return package;
+}
+
+inline auto CreatePackage(Request request, uint64_t value) {
+  Package package;
+
+  package.header_ = Header(request);
+  package.payload_.SetValue(value);
+
+  return package;
+}
+
+inline auto CreatePackage(uint16_t lines, uint32_t score, uint8_t level) {
+  ProgressPackage package;
+
+  package.header_ = Header(Request::ProgressUpdate);
+  package.payload_ = ProgressPayload(lines, score, level);
 
   return package;
 }

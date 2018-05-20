@@ -7,7 +7,7 @@ namespace network {
 
 namespace {
 
-void HeartbeatController(std::atomic<bool>& quit, std::shared_ptr<ThreadSafeQueue<Package>> queue) {
+void HeartbeatController(std::atomic<bool>& quit, std::shared_ptr<ThreadSafeQueue<MultiPlayerController::OutgoingPackage>> queue) {
   while (true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(kHeartBeatInterval));
 
@@ -25,7 +25,7 @@ MultiPlayerController::MultiPlayerController(ListenerInterface* listener_if) : l
   our_host_name_ = GetHostName();
   our_host_id_ = std::hash<std::string>{}(our_host_name_);
   cancelled_.store(false, std::memory_order_release);
-  send_queue_ = std::make_shared<ThreadSafeQueue<Package>>();
+  send_queue_ = std::make_shared<ThreadSafeQueue<OutgoingPackage>>();
   listener_ = std::make_unique<Listener>();
   send_thread_ = std::make_unique<std::thread>(std::bind(&MultiPlayerController::Run, this));
 }
@@ -55,28 +55,13 @@ void MultiPlayerController::NewGame() { send_queue_->Push(CreatePackage(Request:
 
 void MultiPlayerController::StartGame() { send_queue_->Push(CreatePackage(Request::StartGame, GameState::Playing)); }
 
-void MultiPlayerController::SendUpdate(int lines) {
-  auto package = CreatePackage(Request::ProgressUpdate);
-  package.payload_ = Payload(0, 0, 0, 0, 0, static_cast<uint8_t>(lines), GameState::None);
-  send_queue_->Push(package);
-}
+void MultiPlayerController::SendUpdate(int lines) { send_queue_->Push(CreatePackage(Request::SendLines, lines)); }
 
-void MultiPlayerController::SendUpdate(uint64_t host_id) {
-  auto package = CreatePackage(Request::ProgressUpdate, GameState::None);
+void MultiPlayerController::SendUpdate(uint64_t host_id) { send_queue_->Push(CreatePackage(Request::KnockedOutBy, host_id)); }
 
-  package.payload_.SetKnockoutBy(host_id);
-  send_queue_->Push(package);
-}
+void MultiPlayerController::SendUpdate(GameState state) { send_queue_->Push(CreatePackage(Request::NewState, state)); }
 
-void MultiPlayerController::SendUpdate(GameState state) { send_queue_->Push(CreatePackage(Request::ProgressUpdate, state)); }
-
-void MultiPlayerController::SendUpdate(int lines, int lines_sent, int score, int ko, int level) {
-  auto package = CreatePackage(Request::ProgressUpdate);
-
-  package.payload_ = Payload(static_cast<uint16_t>(lines), static_cast<uint16_t>(lines_sent), score, static_cast<uint8_t>(ko),
-                             static_cast<uint8_t>(level), 0, GameState::None);
-  send_queue_->Push(package);
-}
+void MultiPlayerController::SendUpdate(int lines, int score, int level) { send_queue_->Push(CreatePackage(lines, score, level)); }
 
 void MultiPlayerController::Dispatch() {
   if (nullptr == listener_if_) {
@@ -91,7 +76,7 @@ void MultiPlayerController::Dispatch() {
     switch (response.request_) {
       case Request::Join:
         if (listener_if_->GotJoin(host_name, host_id)) {
-          listener_if_->GotUpdate(host_id, 0, 0, 0, 0, 0, payload.state());
+          listener_if_->GotNewState(host_id, payload.state());
         }
         break;
       case Request::Leave:
@@ -99,28 +84,26 @@ void MultiPlayerController::Dispatch() {
         break;
       case Request::NewGame:
         listener_if_->GotNewGame(host_id);
-        listener_if_->GotUpdate(host_id, 0, 0, 0, 0, 0, payload.state());
+        listener_if_->GotNewState(host_id, payload.state());
         break;
       case Request::StartGame:
         if (IsUs(host_id)) {
           listener_if_->GotStartGame();
         }
-        listener_if_->GotUpdate(host_id, 0, 0, 0, 0, 0, payload.state());
+        listener_if_->GotNewState(host_id, payload.state());
+        break;
+      case Request::NewState:
+        listener_if_->GotNewState(host_id, payload.state());
+        break;
+      case Request::SendLines:
+        listener_if_->GotLines(host_id, payload.value());
+        break;
+      case Request::KnockedOutBy:
+        listener_if_->GotPlayerKnockedOut(payload.value());
         break;
       case Request::ProgressUpdate:
-        if (payload.lines_got() > 0) {
-          if (!IsUs(host_id)) {
-            listener_if_->GotLines(host_id, payload.lines_got());
-          }
-          break;
-        } else if (payload.knocked_out_by() != 0) {
-          if (IsUs(payload.knocked_out_by())) {
-            listener_if_->GotPlayerKnockedOut();
-          }
-          break;
-        }
-        listener_if_->GotUpdate(host_id, payload.lines(), payload.lines_sent(), payload.score(), payload.ko(),
-                                payload.level(), payload.state());
+        listener_if_->GotProgressUpdate(host_id, response.progress_payload_.lines(), response.progress_payload_.score(),
+                                        response.progress_payload_.level());
         break;
       default:
         break;
@@ -129,7 +112,8 @@ void MultiPlayerController::Dispatch() {
 }
 
 void MultiPlayerController::Run() {
-  uint32_t sequence_nr = 0;
+  uint32_t sequence_nr_reliable = 0;
+  uint32_t sequence_nr_unreliable = 0;
   std::deque<Package> sliding_window;
   UDPClient client(GetBroadcastIP(), GetPort());
   auto time_since_last_package = utility::time_in_ms();
@@ -140,30 +124,43 @@ void MultiPlayerController::Run() {
     if (cancelled_.load(std::memory_order_acquire)) {
       break;
     }
-    Package package;
+    OutgoingPackage outgoing_package;
 
-    if (!send_queue_->Pop(package)) {
+    if (!send_queue_->Pop(outgoing_package)) {
       break;
     }
     if (cancelled_.load(std::memory_order_acquire)) {
       break;
     }
-    if (package.header_.request() == Request::HeartBeat && (utility::time_in_ms() - time_since_last_package) < kHeartBeatInterval) {
-      continue;
+    if (Channel::Reliable == outgoing_package.channel()) {
+      auto& package = outgoing_package.package_;
+
+      if (package.header_.request() == Request::HeartBeat && (utility::time_in_ms() - time_since_last_package) < kHeartBeatInterval) {
+        continue;
+      }
+      time_since_last_package = utility::time_in_ms();
+
+      package.header_.SetSeqenceNr(sequence_nr_reliable);
+      sequence_nr_reliable++;
+      if (sliding_window.size() == kWindowSize) {
+        sliding_window.pop_back();
+      }
+      sliding_window.push_front(package);
+
+      ReliablePackage reliable_package(client.host_name(), sliding_window.size());
+
+      std::copy(std::begin(sliding_window), std::end(sliding_window), reliable_package.package_.packages_);
+      client.Send(&reliable_package, sizeof(reliable_package));
+      return;
     }
-    time_since_last_package = utility::time_in_ms();
+    auto& package = outgoing_package.progress_package_;
 
-    package.header_.SetSeqenceNr(sequence_nr);
-    sequence_nr++;
-    if (sliding_window.size() == kWindowSize) {
-      sliding_window.pop_back();
-    }
-    sliding_window.push_front(package);
+    package.header_.SetSeqenceNr(sequence_nr_unreliable);
+    sequence_nr_unreliable++;
 
-    Packages packages(client.host_name(), sliding_window.size());
+    UnreliablePackage unreliable_package(package);
 
-    std::copy(std::begin(sliding_window), std::end(sliding_window), packages.array_);
-    client.Send(&packages, sizeof(packages));
+    client.Send(&unreliable_package, sizeof(unreliable_package));
   }
 }
 

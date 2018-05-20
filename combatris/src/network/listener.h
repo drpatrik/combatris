@@ -17,17 +17,25 @@ class Listener final {
 
     Response(Request request, uint64_t host_id) : request_(request), host_id_(host_id) {}
 
-    Response(const PackagesHeader& packages_header, const Package& package) {
+    Response(const PackageHeader& package_header, const Package& package) {
       request_ = package.header_.request();
-      host_name_ = packages_header.host_name();
-      host_id_ = packages_header.host_id();
+      host_name_ = package_header.host_name();
+      host_id_ = package_header.host_id();
       payload_ = package.payload_;
+    }
+
+    Response(const PackageHeader& package_header, const ProgressPackage& package) {
+      request_ = Request::ProgressUpdate;
+      host_name_ = package_header.host_name();
+      host_id_ = package_header.host_id();
+      progress_payload_ = package.payload_;
     }
 
     Request request_;
     std::string host_name_;
     uint64_t host_id_;
     Payload payload_;
+    ProgressPayload progress_payload_;
   };
 
   Listener() : cancelled_(false) {
@@ -66,6 +74,10 @@ class Listener final {
   void Run();
 
   void TerminateTimedOutConnections();
+
+  void HandleReliableChannel(ssize_t size, char* buffer);
+
+  void HandleUnreliableChannel(ssize_t size, char* buffer);
 
   std::atomic<bool> cancelled_;
   std::unordered_map<uint64_t, Connection> connections_;

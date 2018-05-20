@@ -24,7 +24,7 @@ public:
 
   virtual void Render(double) = 0;
 
-  virtual std::pair<bool, Event::Type> IsReady() const  = 0;
+  virtual std::pair<bool, Event::Type> IsReady() const = 0;
 
   operator SDL_Renderer *() const { return renderer_; }
 

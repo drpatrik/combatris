@@ -5,15 +5,14 @@
 #include "game/panes/pane_interface.h"
 
 #include <tuple>
+
 class Matrix final : public PaneInterface {
  public:
   using Type = std::vector<std::vector<int>>;
   using CommitReturnType = std::tuple<Lines, TSpinType, bool>;
 
   Matrix(SDL_Renderer* renderer, const std::vector<std::shared_ptr<const Tetromino>>& tetrominos)
-      : renderer_(renderer), tetrominos_(tetrominos) {
-    Initialize();
-  }
+      : renderer_(renderer), tetrominos_(tetrominos) { Initialize(); }
 
   // Used by test suit
   Matrix(const std::vector<std::vector<int>> &matrix,
@@ -54,7 +53,7 @@ class Matrix final : public PaneInterface {
 
   Position GetDropPosition(const Position& current_pos, const TetrominoRotationData& rotation_data) const;
 
-  CommitReturnType Commit(Tetromino::Type type, Tetromino::Angle angle, Tetromino::Move latest_move, const Position& current_pos) {
+  auto Commit(Tetromino::Type type, Tetromino::Angle angle, Tetromino::Move latest_move, const Position& current_pos) {
     return Commit(type, latest_move, current_pos, tetrominos_.at(static_cast<int>(type) - 1)->GetRotationData(angle));
   }
 
