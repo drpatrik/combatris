@@ -104,7 +104,7 @@ void Player::SetState(GameState state, bool set_to_zero) {
 }
 
 void Player::SetLinesSent(int lines, bool set_to_zero) {
-  lines_sent_ = Update(ID::LinesSent, lines + lines_, lines_sent_, to_string, set_to_zero);
+  lines_sent_ = Update(ID::LinesSent, lines + lines_sent_, lines_sent_, to_string, set_to_zero);
 }
 
 void Player::SetKO(int ko, bool set_to_zero) { ko_ = Update(ID::KO, ko + ko_, ko_, to_string, set_to_zero); }
