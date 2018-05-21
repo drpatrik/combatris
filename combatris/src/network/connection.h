@@ -23,15 +23,17 @@ class Connection final {
 
   void Update(Channel channel, const Header& header) {
     if (Channel::Reliable == channel) {
-      if (sequence_nr_ != -1 && sequence_nr_ != header.sequence_nr()) {
-        std::cout << "Error: Current: " << sequence_nr_ << " new: " << header.sequence_nr() << std::endl;
+      if (sequence_nr_reliable_ != -1 && sequence_nr_reliable_ != header.sequence_nr()) {
+        std::cout << "Error: Current: " << sequence_nr_reliable_ << " new: " << header.sequence_nr() << std::endl;
       }
       if (is_missing_) {
         std::cout << name_ << " is back" << "\n";
         is_missing_ = false;
       }
+      sequence_nr_reliable_ = header.sequence_nr() + 1;
+    } else {
+      sequence_nr_unreliable_ = header.sequence_nr() + 1;
     }
-    sequence_nr_ = header.sequence_nr() + 1;
     IsAlive();
   }
 
@@ -39,17 +41,20 @@ class Connection final {
 
   int64_t VerifySequenceNumber(Channel channel, const Header& header) {
     if (Channel::Unreliable == channel) {
-      return (header.sequence_nr() < sequence_nr_) ? -1 : 0;
+      if (sequence_nr_unreliable_ == -1) {
+        return 0;
+      }
+      return (header.sequence_nr() < sequence_nr_unreliable_) ? -1 : 0;
     }
-    if (sequence_nr_ == -1) {
+    if (sequence_nr_reliable_ == -1) {
       auto index = 0;
       std::swap(index, start_with_package_);
       return index;
     }
-    const auto gap = static_cast<int64_t>(header.sequence_nr()) - sequence_nr_;
+    const auto gap = static_cast<int64_t>(header.sequence_nr()) - sequence_nr_reliable_;
 #if !defined(NDEBUG)
     if (gap != 0) {
-      std::cout << name_ << ": gap detected, expected - " << sequence_nr_ << ", got " << header.sequence_nr() << "\n";
+      std::cout << name_ << ": gap detected, expected - " << sequence_nr_reliable_ << ", got " << header.sequence_nr() << "\n";
     }
 #endif
     return gap;
@@ -78,7 +83,8 @@ class Connection final {
   bool has_joined_ = false;
   mutable bool is_missing_ = false;
   int64_t timestamp_;
-  int64_t sequence_nr_ = -1;
+  int64_t sequence_nr_reliable_ = -1;
+  int64_t sequence_nr_unreliable_= -1;
 };
 
 } // namespace Connection

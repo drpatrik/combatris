@@ -151,16 +151,16 @@ void MultiPlayerController::Run() {
 
       std::copy(std::begin(sliding_window), std::end(sliding_window), reliable_package.package_.packages_);
       client.Send(&reliable_package, sizeof(reliable_package));
-      return;
+    } else {
+      auto& package = outgoing_package.progress_package_;
+
+      package.header_.SetSeqenceNr(sequence_nr_unreliable);
+      sequence_nr_unreliable++;
+
+      UnreliablePackage unreliable_package(client.host_name(), package);
+
+      client.Send(&unreliable_package, sizeof(unreliable_package));
     }
-    auto& package = outgoing_package.progress_package_;
-
-    package.header_.SetSeqenceNr(sequence_nr_unreliable);
-    sequence_nr_unreliable++;
-
-    UnreliablePackage unreliable_package(package);
-
-    client.Send(&unreliable_package, sizeof(unreliable_package));
   }
 }
 

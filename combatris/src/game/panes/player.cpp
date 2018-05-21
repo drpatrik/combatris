@@ -112,7 +112,7 @@ void Player::SetKO(int ko, bool set_to_zero) { ko_ = Update(ID::KO, ko + ko_, ko
 void Player::Reset() {
   lines_ = 0;
   score_ = 0;
-  level_ = 0;
+  level_ = 1;
   ProgressUpdate(lines_, score_, level_, true);
   lines_sent_ = 0;
   SetLinesSent(lines_sent_, true);

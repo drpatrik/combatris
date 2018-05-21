@@ -239,7 +239,10 @@ struct ProgressPackage {
 };
 
 struct UnreliablePackage {
-  UnreliablePackage(const ProgressPackage& package) : package_(package) {}
+  UnreliablePackage(const std::string& host_name, const ProgressPackage& package) : package_(package) {
+    static_assert(sizeof(UnreliablePackage) <= kMTU);
+    header_.SetHostName(host_name);
+  }
 
   PackageHeader header_ = PackageHeader(Channel::Unreliable);
   ProgressPackage package_;

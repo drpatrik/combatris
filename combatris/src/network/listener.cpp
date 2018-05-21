@@ -24,8 +24,8 @@ std::pair<A, B> CastBuffer(char* buffer) {
 }
 
 void Listener::HandleReliableChannel(ssize_t size, char* buffer) {
-  if (size < static_cast<ssize_t>(sizeof(ReliablePackage))) {
-    std::cout << "incomplete reliable package - " << size << std::endl;
+  if (size != static_cast<ssize_t>(sizeof(ReliablePackage))) {
+    std::cout << "incomplete package - " << size << std::endl;
     return;
   }
   auto [package_header, package_array] = CastBuffer<ReliablePackage, PackageHeader, PackageArray>(buffer);
@@ -41,7 +41,7 @@ void Listener::HandleReliableChannel(ssize_t size, char* buffer) {
 
   if (package_index < 0) {
 #if !defined(NDEBUG)
-    std::cout << "old package(s) ignored" << std::endl;
+    std::cout << "old package(s) ignored\n";
 #endif
     connection.IsAlive();
     return;
@@ -90,11 +90,16 @@ void Listener::HandleReliableChannel(ssize_t size, char* buffer) {
 }
 
 void Listener::HandleUnreliableChannel(ssize_t size, char* buffer) {
-  if (size < static_cast<ssize_t>(sizeof(UnreliablePackage))) {
-    std::cout << "incomplete unreliable package - " << size << std::endl;
+  if (size != static_cast<ssize_t>(sizeof(UnreliablePackage))) {
+    std::cout << "UnreliableChannel - package - " << size << std::endl;
     return;
   }
   auto [package_header, progress_package] = CastBuffer<UnreliablePackage, PackageHeader, ProgressPackage>(buffer);
+
+  if (!package_header.Verify()) {
+    std::cout << "UnreliableChannel - Unknown package signature - package ignored" << std::endl;
+    return;
+  }
 
   const uint64_t host_id = package_header.host_id();
 
@@ -104,11 +109,13 @@ void Listener::HandleUnreliableChannel(ssize_t size, char* buffer) {
   auto& connection = connections_.at(host_id);
 
   if (connection.VerifySequenceNumber(Channel::Unreliable, progress_package.header_ ) < 0) {
+#if !defined(NDEBUG)
+    std::cout << "UnreliableChannel - old package(s) ignored\n";
+#endif
     connection.IsAlive();
     return;
   }
   connection.Update(Channel::Unreliable, progress_package.header_);
-
   queue_->Push(Response(package_header, progress_package));
 }
 
