@@ -62,7 +62,7 @@ void MultiPlayerController::SendUpdate(uint64_t host_id) { send_queue_->Push(Cre
 void MultiPlayerController::SendUpdate(GameState state) { send_queue_->Push(CreatePackage(Request::NewState, state)); }
 
 void MultiPlayerController::SendUpdate(int lines, int score, int level, const MatrixState& state) {
-  send_queue_->Push(CreatePackage(lines, score, level, state));
+  send_queue_->Push(CreatePackage(static_cast<uint16_t>(lines), score, static_cast<uint8_t>(level), state));
 }
 
 void MultiPlayerController::Dispatch() {
@@ -98,7 +98,7 @@ void MultiPlayerController::Dispatch() {
         listener_if_->GotNewState(host_id, payload.state());
         break;
       case Request::SendLines:
-        listener_if_->GotLines(host_id, payload.value());
+        listener_if_->GotLines(host_id, static_cast<int>(payload.value()));
         break;
       case Request::KnockedOutBy:
         listener_if_->GotPlayerKnockedOut(payload.value());

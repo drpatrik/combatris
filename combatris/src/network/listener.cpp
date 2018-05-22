@@ -20,7 +20,7 @@ template<typename From, typename A, typename B>
 std::pair<A, B> CastBuffer(char* buffer) {
   From* package = reinterpret_cast<From *>(buffer);
 
-  return std::pair(std::move(package->header_), std::move(package->package_));
+  return std::make_pair(std::move(package->header_), std::move(package->package_));
 }
 
 void Listener::HandleReliableChannel(ssize_t size, char* buffer) {

@@ -62,7 +62,7 @@ inline const SDL_Rect& AddYOffset(SDL_Rect& tmp, int offset, const SDL_Rect& rc)
   return tmp;
 }
 
-const auto to_string = [](int v) { return std::to_string(v); };
+const auto int_to_string = [](int v) { return std::to_string(v); };
 
 } // namespace
 
@@ -93,9 +93,9 @@ int Player::Update(Player::TextureID id, int new_value, int old_value, std::func
 }
 
 void Player::ProgressUpdate(int lines, int score, int level, bool set_to_zero) {
-  lines_ = Update(ID::Lines, lines, lines_, to_string, set_to_zero);
-  score_ = Update(ID::Score, score, score_, to_string, set_to_zero);
-  level_ = Update(ID::Level, level, level_, to_string, set_to_zero);
+  lines_ = Update(ID::Lines, lines, lines_, int_to_string, set_to_zero);
+  score_ = Update(ID::Score, score, score_, int_to_string, set_to_zero);
+  level_ = Update(ID::Level, level, level_, int_to_string, set_to_zero);
 }
 
 void Player::SetState(GameState state, bool set_to_zero) {
@@ -104,10 +104,10 @@ void Player::SetState(GameState state, bool set_to_zero) {
 }
 
 void Player::SetLinesSent(int lines_sent, bool set_to_zero) {
-  lines_sent_ = Update(ID::LinesSent, lines_sent, lines_sent_, to_string, set_to_zero);
+  lines_sent_ = Update(ID::LinesSent, lines_sent, lines_sent_, int_to_string, set_to_zero);
 }
 
-void Player::SetKO(int ko, bool set_to_zero) { ko_ = Update(ID::KO, ko, ko_, to_string, set_to_zero); }
+void Player::SetKO(int ko, bool set_to_zero) { ko_ = Update(ID::KO, ko, ko_, int_to_string, set_to_zero); }
 
 void Player::SetMatrixState(const network::MatrixState& state) {
   int i = 0;
