@@ -81,7 +81,7 @@ Tetrion::Tetrion() : events_() {
   moves_ = std::make_unique<Moves>(renderer_, assets_);
   AddPane(moves_.get());
   AddAnimation<SplashScreenAnimation>(renderer_, assets_);
-  multi_player_ = std::make_shared<MultiPlayer>(renderer_, events_, assets_);
+  multi_player_ = std::make_shared<MultiPlayer>(renderer_, matrix_, events_, assets_);
   AddPane(multi_player_.get());
 }
 

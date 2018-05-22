@@ -37,6 +37,8 @@ inline uint64_t ntohll(uint64_t value) {
 #endif
 
 #include <string>
+#include <array>
+#include <iostream>
 #include <functional>
 #include <algorithm>
 #include <limits.h>
@@ -48,11 +50,15 @@ const uint32_t kSignature = 0x50415243; // PARC
 // UDP Maximum Transmision Unit 1500 bytes - 20 byte (IPv4 header) - 8 byte UDP-header
 const int kMTU = 1472;
 const int kWindowSize = 14;
+
 const std::string kEnvServer = "COMBATRIS_BROADCAST_IP";
 const std::string kEnvPort = "COMBATRIS_BROADCAST_PORT";
 
 const std::string kDefaultBroadcastIP = "192.168.1.255";
 const int kDefaultPort = 11000;
+
+const int kMatrixStateSize = 20 * 5;
+using MatrixState = std::array<uint8_t, kMatrixStateSize>;
 
 inline std::string GetBroadcastIP() {
   auto env = getenv(kEnvServer.c_str());
@@ -173,16 +179,33 @@ class ProgressPayload final {
     level_ = level;
   }
 
+  ProgressPayload(uint16_t lines, uint32_t score, uint8_t level, const MatrixState& matrix_state) {
+    lines_ = htons(lines);
+    score_ = htonl(score);
+    level_ = level;
+    std::copy(matrix_state.begin(), matrix_state.end(), matrix_state_);
+  }
+
   inline uint16_t lines() const { return ntohs(lines_); }
 
   inline uint32_t score() const { return ntohl(score_); }
 
   inline uint8_t level() const { return level_; }
 
+  MatrixState matrix_state() const {
+    MatrixState matrix_state;
+
+    static_assert(sizeof(MatrixState::value_type) == 1);
+    std::copy(matrix_state_, matrix_state_ + kMatrixStateSize, matrix_state.begin());
+
+    return matrix_state;
+  }
+
  private:
   uint32_t score_;
   uint16_t lines_;
   uint8_t level_;
+  MatrixState::value_type matrix_state_[kMatrixStateSize];
 };
 
 class Payload final {
@@ -311,6 +334,15 @@ inline auto CreatePackage(uint16_t lines, uint32_t score, uint8_t level) {
 
   package.header_ = Header(Request::ProgressUpdate);
   package.payload_ = ProgressPayload(lines, score, level);
+
+  return package;
+}
+
+inline auto CreatePackage(uint16_t lines, uint32_t score, uint8_t level, const MatrixState& state) {
+  ProgressPackage package;
+
+  package.header_ = Header(Request::ProgressUpdate);
+  package.payload_ = ProgressPayload(lines, score, level, state);
 
   return package;
 }

@@ -61,7 +61,9 @@ void MultiPlayerController::SendUpdate(uint64_t host_id) { send_queue_->Push(Cre
 
 void MultiPlayerController::SendUpdate(GameState state) { send_queue_->Push(CreatePackage(Request::NewState, state)); }
 
-void MultiPlayerController::SendUpdate(int lines, int score, int level) { send_queue_->Push(CreatePackage(lines, score, level)); }
+void MultiPlayerController::SendUpdate(int lines, int score, int level, const MatrixState& state) {
+  send_queue_->Push(CreatePackage(lines, score, level, state));
+}
 
 void MultiPlayerController::Dispatch() {
   if (nullptr == listener_if_) {
@@ -103,7 +105,7 @@ void MultiPlayerController::Dispatch() {
         break;
       case Request::ProgressUpdate:
         listener_if_->GotProgressUpdate(host_id, response.progress_payload_.lines(), response.progress_payload_.score(),
-                                        response.progress_payload_.level());
+                                        response.progress_payload_.level(), response.progress_payload_.matrix_state());
         break;
       default:
         break;

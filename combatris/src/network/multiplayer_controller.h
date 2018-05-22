@@ -18,7 +18,7 @@ class ListenerInterface {
 
   virtual void GotNewState(uint64_t host_id, GameState state) = 0;
 
-  virtual void GotProgressUpdate(uint64_t host_id, int lines, int score, int level) = 0;
+  virtual void GotProgressUpdate(uint64_t host_id, int lines, int score, int level, const MatrixState&) = 0;
 
   virtual void GotLines(uint64_t host_id, int lines) = 0;
 
@@ -59,7 +59,7 @@ class MultiPlayerController {
 
   void SendUpdate(GameState state);
 
-  void SendUpdate(int lines, int score, int level);
+  void SendUpdate(int lines, int score, int level, const MatrixState& state);
 
   void Dispatch();
 

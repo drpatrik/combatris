@@ -19,6 +19,7 @@ class Player final {
   enum TextureID { Name, State, ScoreCaption, Score, KOCaption, KO, LevelCaption, Level, LinesCaption, Lines, LinesSentCaption, LinesSent};
   using Ptr = std::shared_ptr<Player>;
   using GameState = network::GameState;
+  using Type = std::array<std::array<uint8_t, kVisibleCols>, kVisibleRows>;
 
   Player(SDL_Renderer* renderer, const std::string& name, uint64_t host_id, const std::shared_ptr<Assets>& assets,
          network::GameState state = network::GameState::None);
@@ -29,9 +30,11 @@ class Player final {
 
   void SetState(GameState state, bool set_to_zero = false);
 
-  void SetLinesSent(int lines, bool set_to_zero = false);
+  void SetLinesSent(int lines_sent, bool set_to_zero = false);
 
   void SetKO(int ko, bool set_to_zero = false);
+
+  void SetMatrixState(const network::MatrixState& state);
 
   void Reset();
 
@@ -47,7 +50,6 @@ class Player final {
 
   network::GameState state() const { return state_; }
 
- private:
   struct Texture {
     Texture(UniqueTexturePtr&& texture, int w, int h, SDL_Rect rc)
         : texture_(std::move(texture)), w_(w), h_(h), rc_(rc) {}
@@ -75,5 +77,6 @@ class Player final {
   int level_ = 0;
   int ko_ = 0;
   GameState state_ = GameState::None;
+  Type matrix_;
   std::unordered_map<TextureID, std::shared_ptr<Texture>> textures_;
 };

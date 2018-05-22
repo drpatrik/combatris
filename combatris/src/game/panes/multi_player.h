@@ -1,13 +1,13 @@
 #pragma once
 
-#include "game/events.h"
+#include "game/matrix.h"
 #include "game/panes/accumlator.h"
 #include "game/panes/player.h"
 #include "game/panes/pane.h"
 
 class MultiPlayer final : public Pane, public EventListener,  public network::ListenerInterface {
  public:
-  MultiPlayer(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets);
+  MultiPlayer(SDL_Renderer* renderer, const std::shared_ptr<Matrix>& matrix, Events& events, const std::shared_ptr<Assets>& assets);
 
   virtual ~MultiPlayer() noexcept {}
 
@@ -58,7 +58,7 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
 
   virtual void GotNewState(uint64_t host_id, network::GameState state) override;
 
-  virtual void GotProgressUpdate(uint64_t host_id, int lines, int score, int level) override;
+  virtual void GotProgressUpdate(uint64_t host_id, int lines, int score, int level, const network::MatrixState&) override;
 
   virtual void GotLines(uint64_t host_id, int lines) override;
 
@@ -69,6 +69,7 @@ private:
 
   void SortScoreBoard();
 
+  std::shared_ptr<Matrix> matrix_;
   Events& events_;
   utility::Timer timer_;
   network::GameState game_state_ = network::GameState::None;

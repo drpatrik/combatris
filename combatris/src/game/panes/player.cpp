@@ -103,11 +103,25 @@ void Player::SetState(GameState state, bool set_to_zero) {
                                          [](int v) { return ToString(static_cast<GameState>(v)); }), set_to_zero);
 }
 
-void Player::SetLinesSent(int lines, bool set_to_zero) {
-  lines_sent_ = Update(ID::LinesSent, lines + lines_sent_, lines_sent_, to_string, set_to_zero);
+void Player::SetLinesSent(int lines_sent, bool set_to_zero) {
+  lines_sent_ = Update(ID::LinesSent, lines_sent, lines_sent_, to_string, set_to_zero);
 }
 
-void Player::SetKO(int ko, bool set_to_zero) { ko_ = Update(ID::KO, ko + ko_, ko_, to_string, set_to_zero); }
+void Player::SetKO(int ko, bool set_to_zero) { ko_ = Update(ID::KO, ko, ko_, to_string, set_to_zero); }
+
+void Player::SetMatrixState(const network::MatrixState& state) {
+  int i = 0;
+
+  for (int row = 0; row < kVisibleRows; ++row) {
+    auto& col_vec = matrix_[row];
+
+    for (int col = 0; col < kVisibleCols; col +=2) {
+      col_vec[col] = state[i] >> 4;
+      col_vec[col + 1] = state[i] & 0x0F;
+      i++;
+    }
+  }
+}
 
 void Player::Reset() {
   lines_ = 0;

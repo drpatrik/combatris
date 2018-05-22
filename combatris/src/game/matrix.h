@@ -35,6 +35,18 @@ class Matrix final : public PaneInterface {
     matrix_  = master_matrix_;
   }
 
+  const Type& data() const { return matrix_; }
+
+  Type& data() { return matrix_; }
+
+  bool IsDirty() {
+    bool ret_value = false;
+
+    std::swap(ret_value, is_dirty_);
+
+    return ret_value;
+  }
+
   virtual void Render(double) override;
 
   virtual void Reset() override { Initialize(); }
@@ -46,6 +58,7 @@ class Matrix final : public PaneInterface {
   bool IsValid(const Position& pos, const TetrominoRotationData& rotation_data) const;
 
   void Insert(const Position& pos, const TetrominoRotationData& rotation_data) {
+    is_dirty_ = true;
     matrix_ = master_matrix_;
     Insert(matrix_, GetDropPosition(pos, rotation_data), rotation_data, true);
     Insert(matrix_, pos, rotation_data);
@@ -73,6 +86,7 @@ class Matrix final : public PaneInterface {
   std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
   Type matrix_;
   Type master_matrix_;
+  bool is_dirty_ = false;
 };
 
 inline bool operator==(const Matrix& rhs, const Matrix::Type& lhs) {

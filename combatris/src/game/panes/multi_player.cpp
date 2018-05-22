@@ -6,7 +6,7 @@ namespace {
 
 const int kMaxPlayers = 9;
 const int kGameTime = 120;
-const double kUpdateInterval = 0.250;
+const double kUpdateInterval = 0.333;
 const int kSpaceBetweenBoxes = 11;
 
 std::pair<UniqueTexturePtr, SDL_Rect> CreateTimerTexture(SDL_Renderer* renderer, const Assets& assets,
@@ -16,10 +16,29 @@ std::pair<UniqueTexturePtr, SDL_Rect> CreateTimerTexture(SDL_Renderer* renderer,
   return std::make_pair(std::move(texture), SDL_Rect{ kMatrixStartX, 5, width, height });
 }
 
+MatrixState GetMatrixState(const std::shared_ptr<Matrix>& m) {
+  MatrixState matrix_state;
+
+  int i = 0;
+  const auto& matrix = m->data();
+
+  for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
+    const auto& col_vec = matrix[row];
+
+    for (int col = kVisibleColStart; col < kVisibleColEnd; col +=2) {
+      matrix_state[i] = static_cast<uint8_t>((col_vec[col] << 4) | col_vec[col + 1]);
+      i++;
+    }
+  }
+
+  return matrix_state;
+}
+
 } // namespace
 
-MultiPlayer::MultiPlayer(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets)
-    : Pane(renderer, kX, kY, assets), events_(events), timer_(kGameTime) {
+MultiPlayer::MultiPlayer(SDL_Renderer* renderer, const std::shared_ptr<Matrix>& matrix, Events& events,
+                         const std::shared_ptr<Assets>& assets)
+    : Pane(renderer, kX, kY, assets), matrix_(matrix), events_(events), timer_(kGameTime) {
   std::tie(timer_texture_, timer_texture_rc_) = CreateTimerTexture(renderer, *assets, timer_.FormatTime(kGameTime));
 }
 
@@ -101,8 +120,8 @@ void MultiPlayer::Render(double delta_time) {
   ticks_progess_update_ += delta_time;
   if (ticks_progess_update_ >= kUpdateInterval) {
     ticks_progess_update_ = 0.0;
-    if (accumulator_.IsDirty()) {
-      multiplayer_controller_->SendUpdate(accumulator_.lines_, accumulator_.score_, accumulator_.level_);
+    if (matrix_->IsDirty()) {
+      multiplayer_controller_->SendUpdate(accumulator_.lines_, accumulator_.score_, accumulator_.level_, GetMatrixState(matrix_));
     }
   }
   multiplayer_controller_->Dispatch();
@@ -181,10 +200,11 @@ void MultiPlayer::GotNewState(uint64_t host_id, network::GameState state) {
   player->SetState(state);
 }
 
-void MultiPlayer::GotProgressUpdate(uint64_t host_id, int lines, int score, int level) {
+void MultiPlayer::GotProgressUpdate(uint64_t host_id, int lines, int score, int level, const MatrixState& state) {
   auto& player = players_.at(host_id);
 
   player->ProgressUpdate(lines, score, level);
+  player->SetMatrixState(state);
 }
 
 void MultiPlayer::GotLines(uint64_t host_id, int lines) {
@@ -194,7 +214,8 @@ void MultiPlayer::GotLines(uint64_t host_id, int lines) {
   }
   auto& player = players_.at(host_id);
 
-  player->SetLinesSent(lines);
+  accumulator_.AddLinesSent(lines);
+  player->SetLinesSent(accumulator_.lines_sent_);
   SortScoreBoard();
 }
 
@@ -204,6 +225,8 @@ void MultiPlayer::GotPlayerKnockedOut(uint64_t host_id) {
   }
   auto& player = players_.at(host_id);
 
-  player->SetKO(1);
+  accumulator_.AddKnockedOut(1);
+
+  player->SetKO(accumulator_.ko_);
   SortScoreBoard();
 }
