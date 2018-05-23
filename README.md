@@ -118,7 +118,7 @@ Hard drop | 2 points per cell (Max of 40)
 - [ ] Sound
 
 **Improvements**
-- [ ] In Battle mode show interactive game board for all players instead of current status
+- [X] In Battle mode show interactive game board for all players instead of current status
 - [ ] Remove the pane for showing combo/latest move and display combo / last move direct on the frame
 - [ ] Add new animation for combo/last clearing move (expanding text)
 - [ ] Configure which joystick to use (if many available)

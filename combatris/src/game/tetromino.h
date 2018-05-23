@@ -78,3 +78,9 @@ class Tetromino final {
   std::vector<TetrominoRotationData> rotations_;
   std::shared_ptr<SDL_Texture> texture_;
 };
+
+const int kEmptyID = static_cast<int>(Tetromino::Type::Empty);
+const int kBombID = static_cast<int>(Tetromino::Type::Bomb);
+const int kBorderID = static_cast<int>(Tetromino::Type::Border);
+const int kSolidID = static_cast<int>(Tetromino::Type::Solid);
+const int kGhostAddOn = kBorderID + 1;

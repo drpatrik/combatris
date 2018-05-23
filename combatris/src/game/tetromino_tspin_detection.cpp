@@ -2,8 +2,6 @@
 
 namespace {
 
-const int kEmptyID =  static_cast<int>(Tetromino::Type::Empty);
-const int kBombID = static_cast<int>(Tetromino::Type::Bomb);
 const int kTSpinCorner = 1;
 const int kTSpinMiniCorner = 2;
 

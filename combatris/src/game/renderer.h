@@ -10,6 +10,12 @@ inline void RenderMino(SDL_Renderer* renderer, int x, int y, SDL_Texture* textur
   SDL_RenderCopy(renderer, texture, nullptr, &dest_rc);
 }
 
+inline void RenderMino(SDL_Renderer* renderer, int x, int y, int w, int h, SDL_Texture* texture) {
+  SDL_Rect dest_rc { x, y, w, h };
+
+  SDL_RenderCopy(renderer, texture, nullptr, &dest_rc);
+}
+
 inline void RenderGhost(SDL_Renderer* renderer, int x, int y, const SDL_Color& color) {
   SDL_Rect rc { x, y, kMinoWidth, kMinoHeight };
 

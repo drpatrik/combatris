@@ -4,21 +4,23 @@ using namespace network;
 
 namespace {
 
+const int kPlayerMinoWidth = 10;
+const int kPlayerMinoHeight = 10;
 const int kLineThinkness = 2;
 
 const SDL_Rect kNameFieldRc = { kX, kY, 140, 24 };
 const SDL_Rect kStateFieldRc = { kX + 138, kY, 82, 24 };
-
 const SDL_Rect kScoreCaptionFieldRc = { kX, kY + 22, 140, 24 };
 const SDL_Rect kScoreFieldRc = { kX + 50, kY + 22, 140, 24 };
-const SDL_Rect kKOCaptionFieldRc = { kX + 138, kY + 22, 80, 24 };
-const SDL_Rect kKOFieldRc = { kX + 165, kY + 22, 80, 24 };
-const SDL_Rect kLinesCaptionFieldRc = { kX, kY + 44, 72, 24 };
-const SDL_Rect kLinesFieldRc = { kX + 15, kY + 44, 72, 24 };
-const SDL_Rect kLinesSentCaptionFieldRc = { kX + 70, kY + 44, 70, 24 };
-const SDL_Rect kLinesSentFieldRc = { kX + 91, kY + 44, 70, 24 };
-const SDL_Rect kLevelCaptionFieldRc = { kX + 138, kY + 44, 80, 24 };
-const SDL_Rect kLevelFieldRc = { kX + 165, kY + 44, 80, 24 };
+const SDL_Rect kLevelCaptionFieldRc = { kX + 138, kY + 22, 82, 24 };
+const SDL_Rect kLevelFieldRc = { kX + 165, kY + 22, 82, 24 };
+const SDL_Rect kMatrixFieldRc = { kX, kY + 44, 104, 206 };
+const SDL_Rect kKOCaptionFieldRc = { kX + 102, kY + 44, 118, 24 };
+const SDL_Rect kKOFieldRc = { kX + 102, kY + 66, 118, 24 };
+const SDL_Rect kLinesSentCaptionFieldRc = { kX + 102, kY + 90, 118, 24 };
+const SDL_Rect kLinesSentFieldRc = { kX + 102, kY + 112, 118, 24 };
+const SDL_Rect kLinesCaptionFieldRc = { kX + 102, kY + 136, 118, 24 };
+const SDL_Rect kLinesFieldRc = { kX + 102, kY + 158, 118, 24 };
 
 const Font kTextFont(Font::Typeface::Cabin, Font::Emphasis::Bold, 15);
 
@@ -37,14 +39,14 @@ const std::vector<Field> kFields = {
   Field(ID::State, ToString(GameState::Idle), kStateFieldRc, Color::Yellow),
   Field(ID::ScoreCaption, "Score", kScoreCaptionFieldRc),
   Field(ID::Score, "0", kScoreFieldRc, Color::Yellow),
-  Field(ID::KOCaption, "KO", kKOCaptionFieldRc),
-  Field(ID::KO, "0", kKOFieldRc, Color::Yellow),
-  Field(ID::LinesCaption, "L", kLinesCaptionFieldRc),
-  Field(ID::Lines, "0", kLinesFieldRc, Color::Yellow),
-  Field(ID::LinesSentCaption, "LS", kLinesSentCaptionFieldRc),
-  Field(ID::LinesSent, "0", kLinesSentFieldRc, Color::Yellow),
   Field(ID::LevelCaption, "Lvl", kLevelCaptionFieldRc),
-  Field(ID::Level, "1", kLevelFieldRc, Color::Yellow)
+  Field(ID::Level, "1", kLevelFieldRc, Color::Yellow),
+  Field(ID::KO, "0", kKOFieldRc, Color::Yellow),
+  Field(ID::KOCaption, "KO's", kKOCaptionFieldRc),
+  Field(ID::LinesSentCaption, "Lines Sent", kLinesSentCaptionFieldRc),
+  Field(ID::LinesSent, "0", kLinesSentFieldRc, Color::Yellow),
+  Field(ID::LinesCaption, "Lines Cleared", kLinesCaptionFieldRc),
+  Field(ID::Lines, "0", kLinesFieldRc, Color::Yellow)
 };
 
 inline SDL_Rect* AddBorder(SDL_Rect& tmp, const SDL_Rect& rc) {
@@ -57,8 +59,8 @@ inline SDL_Rect* InsideBox(SDL_Rect& tmp, const SDL_Rect& rc, int w, int h) {
   return &tmp;
 }
 
-inline const SDL_Rect& AddYOffset(SDL_Rect& tmp, int offset, const SDL_Rect& rc) {
-  tmp = { rc.x, rc.y + offset, rc.w, rc.h };
+inline const SDL_Rect& AddOffset(SDL_Rect& tmp, int x_offset, int y_offset, const SDL_Rect& rc) {
+  tmp = { rc.x + x_offset, rc.y + y_offset, rc.w, rc.h };
   return tmp;
 }
 
@@ -68,7 +70,7 @@ const auto int_to_string = [](int v) { return std::to_string(v); };
 
 Player::Player(SDL_Renderer* renderer, const std::string& name, uint64_t host_id, const std::shared_ptr<Assets>& assets,
                network::GameState state)
-    : renderer_(renderer), name_(name), host_id_(host_id), assets_(assets), state_(state) {
+    : renderer_(renderer), name_(name), host_id_(host_id), assets_(assets), state_(state), tetrominos_(assets_->GetTetrominos()) {
   for (const auto& field : kFields) {
     auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), field.name_, field.color_);
 
@@ -77,6 +79,7 @@ Player::Player(SDL_Renderer* renderer, const std::string& name, uint64_t host_id
   auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), name_, Color::Yellow);
 
   textures_.insert(std::make_pair(ID::Name, std::make_shared<Texture>(std::move(texture), w, h, kNameFieldRc)));
+  matrix_ = {};
 }
 
 int Player::Update(Player::TextureID id, int new_value, int old_value, std::function<std::string(int)> to_string, bool set_to_zero) {
@@ -134,22 +137,48 @@ void Player::Reset() {
   SetKO(ko_, true);
 }
 
-void Player::Render(int offset,  bool is_my_status) const {
+void Player::Render(int x_offset, int y_offset, GameState state, bool is_my_status) const {
   Pane::SetDrawColor(renderer_, (is_my_status) ? Color::Green : Color::White);
-  Pane::FillRect(renderer_, kX, kY + offset, kBoxWidth, kBoxHeight);
+  Pane::FillRect(renderer_, kX + x_offset, kY + y_offset, kBoxWidth, kBoxHeight);
   Pane::SetDrawColor(renderer_, Color::Black);
   SDL_Rect tmp;
 
-  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddYOffset(tmp, offset, kNameFieldRc)));
-  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddYOffset(tmp, offset, kStateFieldRc)));
-  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddYOffset(tmp, offset, kScoreCaptionFieldRc)));
-  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddYOffset(tmp, offset, kKOCaptionFieldRc)));
-  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddYOffset(tmp, offset, kLinesCaptionFieldRc)));
-  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddYOffset(tmp, offset, kLinesSentCaptionFieldRc)));
-  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddYOffset(tmp, offset, kLevelCaptionFieldRc)));
+  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kNameFieldRc)));
+  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kStateFieldRc)));
+  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kScoreCaptionFieldRc)));
+  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kLevelCaptionFieldRc)));
+  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kMatrixFieldRc)));
+  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kKOCaptionFieldRc)));
+  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kKOFieldRc)));
+  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kLinesSentCaptionFieldRc)));
+  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kLinesSentFieldRc)));
+  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kLinesCaptionFieldRc)));
+  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kLinesFieldRc)));
+
   for (const auto& it : textures_) {
     const auto& t = it.second;
 
-    SDL_RenderCopy(renderer_, t->texture_.get(), nullptr, &AddYOffset(tmp, offset, *InsideBox(tmp, t->rc_, t->w_, t->h_)));
+    SDL_RenderCopy(renderer_, t->texture_.get(), nullptr, &AddOffset(tmp, x_offset, y_offset, *InsideBox(tmp, t->rc_, t->w_, t->h_)));
+  }
+  if (GameState::Waiting == state || GameState::Idle == state) {
+    return;
+  }
+  int x = 0;
+  int y = 0;
+
+  for (int row = 0; row < kVisibleRows; ++row) {
+    x = 0;
+    for (int col = 0; col < kVisibleCols; ++col) {
+      const auto id = matrix_[row][col];
+
+      if (kEmptyID == id) {
+        x += kPlayerMinoWidth;
+        continue;
+      }
+      RenderMino(renderer_, kX + 2 + x + x_offset, kY + 48 + y + y_offset, kPlayerMinoWidth, kPlayerMinoHeight,
+                 tetrominos_[id - 1]->texture());
+      x += kPlayerMinoWidth;
+    }
+    y += kPlayerMinoHeight;
   }
 }

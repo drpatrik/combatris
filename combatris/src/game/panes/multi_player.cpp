@@ -4,10 +4,9 @@ using namespace network;
 
 namespace {
 
-const int kMaxPlayers = 9;
+const int kMaxPlayers = 6;
 const int kGameTime = 120;
-const double kUpdateInterval = 0.333;
-const int kSpaceBetweenBoxes = 11;
+const double kUpdateInterval = 0.250;
 
 std::pair<UniqueTexturePtr, SDL_Rect> CreateTimerTexture(SDL_Renderer* renderer, const Assets& assets,
                                                          const std::string& text, Color color = Color::White) {
@@ -26,7 +25,10 @@ MatrixState GetMatrixState(const std::shared_ptr<Matrix>& m) {
     const auto& col_vec = matrix[row];
 
     for (int col = kVisibleColStart; col < kVisibleColEnd; col +=2) {
-      matrix_state[i] = static_cast<uint8_t>((col_vec[col] << 4) | col_vec[col + 1]);
+      auto e1 = (col_vec[col] >= kGhostAddOn) ? 0 : col_vec[col];
+      auto e2 = (col_vec[col + 1] >= kGhostAddOn) ? 0 : col_vec[col + 1];
+
+      matrix_state[i] = static_cast<uint8_t>((e1 << 4) | e2);
       i++;
     }
   }
@@ -109,11 +111,17 @@ void MultiPlayer::Render(double delta_time) {
   Pane::SetDrawColor(renderer_, Color::Black);
   Pane::FillRect(renderer_, kX, kY, kMultiPlayerPaneWidth, kMultiPlayerPaneHeight);
 
-  int offset = 0;
+  int x_offset = 0;
+  int y_offset = 0;
 
   for (const auto& player : score_board_) {
-    player->Render((kBoxHeight + kSpaceBetweenBoxes) * offset, IsUs(player->host_id()));
-    offset++;
+    player->Render((kBoxWidth + kSpaceBetweenBoxes) * x_offset, (kBoxHeight + kSpaceBetweenBoxes) * y_offset, game_state_,
+                   IsUs(player->host_id()));
+    x_offset++;
+    if (x_offset > 2) {
+      y_offset++;
+      x_offset = 0;
+    }
   }
   Pane::RenderCopy(timer_texture_.get(), timer_texture_rc_);
 

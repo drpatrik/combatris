@@ -9,8 +9,6 @@ namespace {
 
 const int kX = kMatrixEndX + kMinoWidth + (kSpace * 4) + TextPane::kBoxWidth;
 const int kY = kMatrixStartY - kMinoHeight;
-const int kBoxWidth = kMultiPlayerPaneWidth;
-const int kBoxHeight = 68;
 
 } // namesapce
 
@@ -38,7 +36,7 @@ class Player final {
 
   void Reset();
 
-  void Render(int y_offset, bool is_my_status) const;
+  void Render(int x_offset, int y_offset, GameState state, bool is_my_status) const;
 
   const std::string& name() const { return name_; }
 
@@ -78,5 +76,6 @@ class Player final {
   int ko_ = 0;
   GameState state_ = GameState::None;
   Type matrix_;
+  std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
   std::unordered_map<TextureID, std::shared_ptr<Texture>> textures_;
 };

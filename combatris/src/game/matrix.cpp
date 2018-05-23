@@ -8,11 +8,6 @@ namespace {
 std::mt19937 kGenerator{ std::random_device{}() };
 std::uniform_int_distribution<size_t> kDistribution(0, kVisibleCols - 1);
 
-const int kEmptyID = static_cast<int>(Tetromino::Type::Empty);
-const int kBombID = static_cast<int>(Tetromino::Type::Bomb);
-const int kBorderID = static_cast<int>(Tetromino::Type::Border);
-const int kSolidID = static_cast<int>(Tetromino::Type::Solid);
-const int kGhostAddOn = kBorderID + 1;
 const std::vector<int> kEmptyRow = { kBorderID, kBorderID, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, kBorderID, kBorderID };
 const std::vector<int> kSolidRow = { kBorderID, kBorderID, kSolidID, kSolidID, kSolidID, kSolidID,  kSolidID,
                                     kSolidID,  kSolidID,  kSolidID, kSolidID, kSolidID, kBorderID, kBorderID };
