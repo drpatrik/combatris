@@ -6,7 +6,7 @@
 A modern C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only),
 OSX 10.12/10.13, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
 
-Combatris allows up to 9 players to play against each other. Any line clear over 1 will send lines over
+Combatris allows up to 6 players to play against each other. Any line clear over 1 will send lines over
 to your opponents. Using combo’s and special moves you can send even more lines and secure the victory.
 
 In the battle campaign score does not matter, number of knock-outs and lines sent are what matters.
