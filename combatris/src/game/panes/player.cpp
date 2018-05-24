@@ -4,9 +4,11 @@ using namespace network;
 
 namespace {
 
-const int kPlayerMinoWidth = 10;
-const int kPlayerMinoHeight = 10;
+const int kPlayerMinoWidth = 8;
+const int kPlayerMinoHeight = 8;
 const int kLineThinkness = 2;
+const int kMatrixStartPosX = 12;
+const int kMatrixStartPosY = 48;
 
 const SDL_Rect kNameFieldRc = { kX, kY, 140, 24 };
 const SDL_Rect kStateFieldRc = { kX + 138, kY, 82, 24 };
@@ -14,13 +16,13 @@ const SDL_Rect kScoreCaptionFieldRc = { kX, kY + 22, 140, 24 };
 const SDL_Rect kScoreFieldRc = { kX + 50, kY + 22, 140, 24 };
 const SDL_Rect kLevelCaptionFieldRc = { kX + 138, kY + 22, 82, 24 };
 const SDL_Rect kLevelFieldRc = { kX + 165, kY + 22, 82, 24 };
-const SDL_Rect kMatrixFieldRc = { kX, kY + 44, 104, 206 };
 const SDL_Rect kKOCaptionFieldRc = { kX + 102, kY + 44, 118, 24 };
 const SDL_Rect kKOFieldRc = { kX + 102, kY + 66, 118, 24 };
 const SDL_Rect kLinesSentCaptionFieldRc = { kX + 102, kY + 90, 118, 24 };
 const SDL_Rect kLinesSentFieldRc = { kX + 102, kY + 112, 118, 24 };
 const SDL_Rect kLinesCaptionFieldRc = { kX + 102, kY + 136, 118, 24 };
 const SDL_Rect kLinesFieldRc = { kX + 102, kY + 158, 118, 24 };
+const SDL_Rect kMatrixFieldRc = { kX + 10, kY + 44, 84, 166 };
 
 const Font kTextFont(Font::Typeface::Cabin, Font::Emphasis::Bold, 15);
 
@@ -163,22 +165,24 @@ void Player::Render(int x_offset, int y_offset, GameState state, bool is_my_stat
   if (GameState::Waiting == state || GameState::Idle == state) {
     return;
   }
-  int x = 0;
-  int y = 0;
+  int x_pos = 0;
+  int y_pos = 0;
 
   for (int row = 0; row < kVisibleRows; ++row) {
-    x = 0;
+    x_pos = 0;
     for (int col = 0; col < kVisibleCols; ++col) {
       const auto id = matrix_[row][col];
 
       if (kEmptyID == id) {
-        x += kPlayerMinoWidth;
+        x_pos += kPlayerMinoWidth;
         continue;
       }
-      RenderMino(renderer_, kX + 2 + x + x_offset, kY + 48 + y + y_offset, kPlayerMinoWidth, kPlayerMinoHeight,
-                 tetrominos_[id - 1]->texture());
-      x += kPlayerMinoWidth;
+      const int x = kX + kMatrixStartPosX + x_pos + x_offset;
+      const int y = kY + kMatrixStartPosY + y_pos + y_offset;
+
+      RenderMino(renderer_, x, y, kPlayerMinoWidth, kPlayerMinoHeight, tetrominos_[id - 1]->texture());
+      x_pos += kPlayerMinoWidth;
     }
-    y += kPlayerMinoHeight;
+    y_pos += kPlayerMinoHeight;
   }
 }

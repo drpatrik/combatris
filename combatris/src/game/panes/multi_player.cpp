@@ -118,7 +118,7 @@ void MultiPlayer::Render(double delta_time) {
     player->Render((kBoxWidth + kSpaceBetweenBoxes) * x_offset, (kBoxHeight + kSpaceBetweenBoxes) * y_offset, game_state_,
                    IsUs(player->host_id()));
     x_offset++;
-    if (x_offset > 2) {
+    if (x_offset > 1) {
       y_offset++;
       x_offset = 0;
     }
@@ -234,7 +234,6 @@ void MultiPlayer::GotPlayerKnockedOut(uint64_t host_id) {
   auto& player = players_.at(host_id);
 
   accumulator_.AddKnockedOut(1);
-
   player->SetKO(accumulator_.ko_);
   SortScoreBoard();
 }
