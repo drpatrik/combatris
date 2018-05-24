@@ -137,6 +137,7 @@ void Player::Reset() {
   SetLinesSent(lines_sent_, true);
   ko_ = 0;
   SetKO(ko_, true);
+  matrix_ = {};
 }
 
 void Player::Render(int x_offset, int y_offset, GameState state, bool is_my_status) const {
