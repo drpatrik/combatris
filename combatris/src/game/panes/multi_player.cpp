@@ -115,8 +115,7 @@ void MultiPlayer::Render(double delta_time) {
   int y_offset = 0;
 
   for (const auto& player : score_board_) {
-    player->Render((kBoxWidth + kSpaceBetweenBoxes) * x_offset, (kBoxHeight + kSpaceBetweenBoxes) * y_offset, game_state_,
-                   IsUs(player->host_id()));
+    player->Render((kBoxWidth + kSpaceBetweenBoxes) * x_offset, (kBoxHeight + kSpaceBetweenBoxes) * y_offset, IsUs(player->host_id()));
     x_offset++;
     if (x_offset > 1) {
       y_offset++;
