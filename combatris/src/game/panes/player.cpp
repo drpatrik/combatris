@@ -145,8 +145,7 @@ void Player::SetMatrixState(const network::MatrixState& state) {
 
 void Player::SetState(GameState state, bool set_to_zero) {
   state_ = static_cast<GameState>(Update(ID::State, static_cast<int>(state), static_cast<int>(state_),
-                                         [](int v) { return ToString(static_cast<GameState>(v)); }),
-                                  set_to_zero);
+                                         [](int v) { return ToString(static_cast<GameState>(v)); }, set_to_zero));
 }
 
 void Player::SetLinesSent(int lines_sent, bool set_to_zero) {
