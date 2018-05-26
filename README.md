@@ -28,7 +28,7 @@ Next Pieces shown | 3
 Lock Delay with cancel | Yes
 Wall kicks | SRS
 Infinity limit | 15
-Bag randomiser | 7-bag
+Bag randomizer | 7-bag
 Top out | Line at 22
 Levels | 15
 Level advancement | 10 lines
@@ -102,10 +102,10 @@ Hard drop | 2 points per cell (Max of 40)
 - [X] Joystick support (PS3 joystick and Logitech F310 tested)
 - [X] Joystick Mapping to enable support for different brands
 - [X] Hot add / remove joystick device
-- [X] Tetromino Locked animations
+- [X] Tetromino locked animations
 - [X] Level up animations
 - [X] Score animation
-- [X] Lines Cleared Animation
+- [X] Lines cleared animation
 - [X] Count down before game start animations
 - [X] Game Over Screen
 - [X] Pause Screen
@@ -114,13 +114,13 @@ Hard drop | 2 points per cell (Max of 40)
 - [X] Introduce KO in Battle mode
 - [X] Make Battle Mode timer based
 - [X] Wait for all in State waiting to get to Play before starting the game
-- [X] In Battle mode show interactive game board for all players instead of current status
+- [X] In Battle mode show interactive matrix for all players instead of current status
 - [ ] Introduce Marathon mode for single player campaign
 - [ ] Introduce VS mode for battle campaign
 - [ ] Sound
 - [ ] Remove the pane for showing combo/latest move and display combo/last move direct on the frame
 - [ ] Add KO box and Last lines box in battle
-- [ ] Add possiability to have different UI components based on campaign
+- [ ] Add possibility to have different UI components based on campaign
 - [ ] Add new animation for combo/last clearing move (expanding text)
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
@@ -227,7 +227,7 @@ make cppcheck
 You need to activate the OpenGL driver otherwise the game will be far to slow.
 
 The code builds cleanly and has been tested with GCC 7.3.0 and Clang 6.0.0, instructions how
-to install the compiler can be found here:
+to install the GCC compiler can be found here:
 
 https://solarianprogrammer.com/2017/12/08/raspberry-pi-raspbian-install-gcc-compile-cpp-17-programs/
 
@@ -256,7 +256,7 @@ SDL2TTFDIR
 *Example:*
 SDL2DIR C:\SDL2-2.0.5
 
-The PATH environmen variable should include both libraries lib\x64 directories
+The PATH environment variable should include both libraries lib\x64 directories
 
 *Example:*
 PATH C:\SDL2-2.0.5\lib\x64;C:\SDL2_ttf-2.0.14\lib\x64
