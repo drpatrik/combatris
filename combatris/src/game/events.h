@@ -57,7 +57,7 @@ struct Event {
 
   Event(Type type, const Lines& lines_cleared) : type_(type), lines_cleared_(lines_cleared) {}
 
-  Event(Type type, const Position& pos, int score, int lines_sent) : type_(type), pos_(pos), score_(score), value_(lines_sent) {}
+  Event(Type type, const Position& pos, int score, int lines_sent, int lines_cleared) : type_(type), pos_(pos), score_(score), value_(lines_sent), value2_(lines_cleared) {}
 
   Event(Type type, int value) : type_(type), value_(value) {}
 
@@ -83,6 +83,7 @@ struct Event {
   ComboType combo_type_ = ComboType::None;
   int score_ = 0;
   int value_ = 0;
+  int value2_ = 0;
   int combo_counter_ = 0;
 };
 

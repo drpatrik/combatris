@@ -32,7 +32,7 @@ class Tetrion final {
   void NewGame() { events_.Push(Event::Type::NewGame); }
 
   void Pause() {
-    if (campaign_->IsType(Campaign::Type::Battle) || !tetromino_in_play_) {
+    if (campaign_->IsBattle() || !tetromino_in_play_) {
       return;
     }
     if (!game_paused_) {

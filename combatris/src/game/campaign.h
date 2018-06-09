@@ -10,7 +10,7 @@
 
 class Campaign {
  public:
-  enum class Type { SinglePlayer, Battle }; //Tetris, Tournament, VS, Battle };
+  enum class Type { SinglePlayer, Battle }; //Tetris, Marathon, VS, Battle };
 
   Campaign(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Matrix>& matrix);
 
