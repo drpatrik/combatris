@@ -1,0 +1,78 @@
+#pragma once
+
+#include "game/panes/multi_player.h"
+#include "game/panes/total_lines.h"
+#include "game/panes/scoring.h"
+#include "game/panes/high_score.h"
+#include "game/panes/next_queue.h"
+#include "game/panes/hold_queue.h"
+#include "game/panes/moves.h"
+
+class Campaign {
+ public:
+  enum class Type { SinglePlayer, Battle }; //Tetris, Tournament, VS, Battle };
+
+  Campaign(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Matrix>& matrix);
+
+  void Set(SDL_Window* window);
+
+  void Render(double delta_time);
+
+  Event PreprocessEvent(const Event& event);
+
+  void Reset() {
+    std::for_each(panes_.begin(), panes_.end(), [](const auto& r) { r->Reset(); });
+    tetromino_generator_->Reset();
+    next_queue_->Hide();
+  }
+
+  inline void ShowNextQueue() { next_queue_->Show(); }
+
+  inline void Pause() { next_queue_->Hide(); }
+
+  void Unpause() {
+    next_queue_->Show();
+    level_->ResetTime();
+  }
+
+  inline bool IsSinglePlayer() const { return type_ == Type::SinglePlayer; }
+
+  inline bool IsBattle() const { return type_ == Type::Battle; }
+
+  inline std::shared_ptr<MultiPlayer> GetMultiPlayerPane() { return multi_player_; }
+
+  inline std::shared_ptr<HoldQueue> GetHoldQueuePane() { return hold_queue_; }
+
+  inline std::shared_ptr<TetrominoGenerator> GetTetrominoGenerator() { return tetromino_generator_; }
+
+ protected:
+  void AddPane(PaneInterface* pane) { panes_.push_back(pane); }
+
+  void AddPane(Pane* pane) {
+    panes_.push_back(pane);
+
+    auto sink = dynamic_cast<EventListener*>(pane);
+
+    if (nullptr != sink) {
+      event_listeners_.push_back(sink);
+    }
+  }
+
+ private:
+  SDL_Renderer* renderer_;
+  Events& events_;
+  std::shared_ptr<Assets> assets_;
+  std::shared_ptr<TetrominoGenerator> tetromino_generator_;
+  std::shared_ptr<Matrix> matrix_;
+  std::shared_ptr<Level> level_;
+  std::unique_ptr<Scoring> scoring_;
+  std::unique_ptr<HighScore> high_score_;
+  std::unique_ptr<NextQueue> next_queue_;
+  std::shared_ptr<HoldQueue> hold_queue_;
+  std::unique_ptr<TotalLines> total_lines_;
+  std::unique_ptr<Moves> moves_;
+  std::shared_ptr<MultiPlayer> multi_player_;
+  std::vector<PaneInterface*> panes_;
+  std::vector<EventListener*> event_listeners_;
+  Type type_ = Type::Battle;
+};

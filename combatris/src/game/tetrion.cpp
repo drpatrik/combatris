@@ -6,26 +6,6 @@ namespace {
 
 const int kSinglePlayerCountDown = 3;
 const int kMultiPlayerCountDown = 9;
-const char* kWindowTitleSinglePlayer = "COMBATRIS - Single Player";
-const SDL_Rect kSinglePlayerRC =  { 0, 0, kWidth, kHeight };
-const char* kWindowTitleBattle = "COMBATRIS - Battle";
-const SDL_Rect kBattleRC =  { 0, 0, kWidth + kMultiPlayerWidthAddOn, kHeight };
-
-void SetupCampaignWindow(SDL_Window* window, SDL_Renderer* renderer, Tetrion::Campaign campaign) {
-  const auto& rc = (campaign == Tetrion::Campaign::SinglePlayer) ? kSinglePlayerRC : kBattleRC;
-
-  SDL_SetWindowSize(window, rc.w, rc.h);
-  SDL_RenderSetLogicalSize(renderer, rc.w, rc.h);
-}
-
-inline const SDL_Rect& GetWindowRc(Tetrion::Campaign campaign) {
-  return (Tetrion::Campaign::SinglePlayer == campaign) ? kSinglePlayerRC : kBattleRC;
-}
-
-void RenderWindowBackground(SDL_Renderer* renderer, const SDL_Rect& rc) {
-  SDL_SetRenderDrawColor(renderer, 1, 40, 135, 255);
-  SDL_RenderFillRect(renderer, &rc);
-}
 
 bool RenderAnimations(std::deque<std::shared_ptr<Animation>>& animations, double delta_time, Events& events) {
   for (auto it = animations.begin(); it != animations.end();) {
@@ -49,7 +29,7 @@ void RemoveAnimation(std::deque<std::shared_ptr<Animation>>& animations) {
 } // namespace
 
 Tetrion::Tetrion() : events_() {
-  window_ = SDL_CreateWindow(kWindowTitleSinglePlayer, SDL_WINDOWPOS_UNDEFINED,
+  window_ = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED, kWidth, kHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
   if (nullptr == window_) {
     std::cout << "Failed to create window : " << SDL_GetError() << std::endl;
@@ -60,29 +40,15 @@ Tetrion::Tetrion() : events_() {
     std::cout << "Failed to create renderer : " << SDL_GetError() << std::endl;
     exit(-1);
   }
-  SetupCampaignWindow(window_, renderer_, campaign_);
-  SDL_RaiseWindow(window_);
   assets_ = std::make_shared<Assets>(renderer_);
   matrix_ = std::make_shared<Matrix>(renderer_, assets_->GetTetrominos());
-  AddPane(matrix_.get());
-  level_ = std::make_shared<Level>(renderer_, events_, assets_);
-  AddPane(level_.get());
-  tetromino_generator_ = std::make_shared<TetrominoGenerator>(matrix_, level_, events_, assets_);
-  scoring_ = std::make_unique<Scoring>(renderer_, assets_, level_);
-  AddPane(scoring_.get());
-  high_score_ = std::make_unique<HighScore>(renderer_, assets_);
-  AddPane(high_score_.get());
-  next_queue_ = std::make_unique<NextQueue>(renderer_, tetromino_generator_, assets_);
-  AddPane(next_queue_.get());
-  hold_queue_ = std::make_unique<HoldQueue>(renderer_, tetromino_generator_, assets_);
-  AddPane(hold_queue_.get());
-  total_lines_ = std::make_unique<TotalLines>(renderer_, assets_);
-  AddPane(total_lines_.get());
-  moves_ = std::make_unique<Moves>(renderer_, assets_);
-  AddPane(moves_.get());
+  campaign_ = std::make_shared<Campaign>(renderer_, events_, assets_, matrix_);
+  hold_queue_ = campaign_->GetHoldQueuePane();
+  multi_player_ = campaign_->GetMultiPlayerPane();
+  tetromino_generator_ = campaign_->GetTetrominoGenerator();
   AddAnimation<SplashScreenAnimation>(renderer_, assets_);
-  multi_player_ = std::make_shared<MultiPlayer>(renderer_, matrix_, events_, assets_);
-  AddPane(multi_player_.get());
+  campaign_->Set(window_);
+  SDL_RaiseWindow(window_);
 }
 
 Tetrion::~Tetrion() noexcept {
@@ -94,17 +60,7 @@ void Tetrion::ToggleCampaign() {
   if (tetromino_in_play_) {
     return;
   }
-  if (Campaign::SinglePlayer == campaign_) {
-    multi_player_->Enable();
-    campaign_ = Campaign::Battle;
-    auto title = std::string(kWindowTitleBattle) + " (" + multi_player_->our_host_name() + " )";
-    SDL_SetWindowTitle(window_, title.c_str());
-  } else {
-    multi_player_->Disable();
-    campaign_ = Campaign::SinglePlayer;
-    SDL_SetWindowTitle(window_, kWindowTitleSinglePlayer);
-  }
-  SetupCampaignWindow(window_, renderer_, campaign_);
+  campaign_->Set(window_);
 }
 
 void Tetrion::GameControl(Controls control_pressed, int lines) {
@@ -147,7 +103,7 @@ void Tetrion::GameControl(Controls control_pressed, int lines) {
 void Tetrion::HandleNextTetromino(TetrominoSprite::State state, Events& events) {
   switch (state) {
     case TetrominoSprite::State::Falling:
-      if (Campaign::SinglePlayer == campaign_) {
+      if (!campaign_->IsBattle()) {
         break;
       }
       events.Push(Event::Type::BattleNextTetrominoSuccessful);
@@ -173,26 +129,23 @@ void Tetrion::EventHandler(Events& events) {
   if (events.IsEmpty()) {
     return;
   }
-  auto event = events.Pop();
-
-  std::for_each(event_listeners_.begin(), event_listeners_.end(), [&event](const auto& r) { r->Update(event); });
+  auto event = campaign_->PreprocessEvent(events.Pop());
 
   switch (event.type()) {
     case Event::Type::Pause:
-      next_queue_->Hide();
+      campaign_->Pause();
       AddAnimation<PauseAnimation>(renderer_, assets_, unpause_pressed_);
       break;
     case Event::Type::UnPause:
       AddAnimation<CountDownAnimation>(renderer_, assets_, kSinglePlayerCountDown, Event::Type::CountdownAfterUnPauseDone);
       break;
     case Event::Type::CountdownAfterUnPauseDone:
-      next_queue_->Show();
-      level_->ResetTime();
+      campaign_->Unpause();
       unpause_pressed_ = game_paused_ = false;
       break;
     case Event::Type::NextTetromino:
     case Event::Type::BattleNextTetrominoGotLines:
-      next_queue_->Show();
+      campaign_->ShowNextQueue();
       tetromino_in_play_ = tetromino_generator_->Get(event.Is(Event::Type::BattleNextTetrominoGotLines));
       HandleNextTetromino(tetromino_in_play_->state(), events);
       break;
@@ -204,7 +157,7 @@ void Tetrion::EventHandler(Events& events) {
       AddAnimation<LinesClearedAnimation>(renderer_, assets_, event.lines_cleared_);
       break;
     case Event::Type::CalculatedScore:
-      if (Campaign::SinglePlayer == campaign_) {
+      if (!campaign_->IsBattle()) {
         AddAnimation<ScoreAnimation>(renderer_, assets_, event.pos_, event.score_);
       }
       break;
@@ -214,11 +167,9 @@ void Tetrion::EventHandler(Events& events) {
       }
       animations_.clear();
       events.Clear();
-      next_queue_->Hide();
-      tetromino_generator_->Reset();
       unpause_pressed_ = game_paused_ = false;
-      std::for_each(panes_.begin(), panes_.end(), [](const auto& r) { r->Reset(); });
-      if (Campaign::SinglePlayer == campaign_) {
+      campaign_->Reset();
+      if (campaign_->IsSinglePlayer()) {
         AddAnimation<CountDownAnimation>(renderer_, assets_, kSinglePlayerCountDown, Event::Type::NextTetromino);
       } else {
         multi_player_->NewGame();
@@ -265,11 +216,7 @@ void Tetrion::EventHandler(Events& events) {
 
 void Tetrion::Render(double delta_time) {
   SDL_RenderClear(renderer_);
-
-  RenderWindowBackground(renderer_, GetWindowRc(campaign_));
-
-  std::for_each(panes_.begin(), panes_.end(), [delta_time](const auto& pane) { pane->Render(delta_time); });
-
+  campaign_->Render(delta_time);
   RenderAnimations(animations_, delta_time, events_);
 
   SDL_RenderPresent(renderer_);
