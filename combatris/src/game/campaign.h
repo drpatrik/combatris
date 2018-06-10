@@ -12,8 +12,6 @@
 #include "game/panes/moves.h"
 #include "game/campaign_types.h"
 
-#include <unordered_set>
-
 class Campaign {
  public:
   Campaign(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Matrix>& matrix);
@@ -73,6 +71,5 @@ class Campaign {
   std::shared_ptr<MultiPlayer> multi_player_;
   std::vector<PaneInterface*> panes_;
   std::vector<EventListener*> event_listeners_;
-  std::unordered_set<Event::Type> events_to_ignore_;
   CampaignType type_ = CampaignType::None;
 };

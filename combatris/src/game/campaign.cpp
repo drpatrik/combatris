@@ -121,25 +121,14 @@ void Campaign::SetupCampaign(CampaignType type) {
   panes_.push_back(moves_.get());
   panes_.push_back(multi_player_.get());
 
-  events_to_ignore_.emplace(Event::Type::BattleSendLines);
-  events_to_ignore_.emplace(Event::Type::BattleGotLines);
-
   switch (type) {
     case CampaignType::Tetris:
-      panes_.push_back(scoring_.get());
-      panes_.push_back(total_lines_.get());
-      panes_.push_back(high_score_.get());
-      break;
-    case CampaignType::Marathon:
-      panes_.push_back(scoring_.get());
-      panes_.push_back(high_score_.get());
-      panes_.push_back(goal_.get());
-      break;
     case CampaignType::MultiPlayerVS:
       panes_.push_back(scoring_.get());
       panes_.push_back(high_score_.get());
       panes_.push_back(total_lines_.get());
       break;
+    case CampaignType::Marathon:
     case CampaignType::MultiPlayerMarathon:
       panes_.push_back(scoring_.get());
       panes_.push_back(high_score_.get());
