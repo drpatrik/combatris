@@ -13,16 +13,22 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
 
   virtual void Update(const Event& event) override;
 
-  virtual void Reset() override {};
+  virtual void Reset() override { got_lines_from_.clear(); }
 
   virtual void Render(double) override;
 
   void Enable() {
+    if (multiplayer_controller_ != nullptr) {
+      return;
+    }
     multiplayer_controller_ = std::make_unique<network::MultiPlayerController>(this);
     multiplayer_controller_->Join();
   }
 
   void Disable() {
+    if (!multiplayer_controller_) {
+      return;
+    }
     multiplayer_controller_.reset();
     score_board_.clear();
     players_.clear();
@@ -65,7 +71,9 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
   virtual void GotPlayerKnockedOut(uint64_t host_id) override;
 
 private:
-  bool IsUs(uint64_t host_id) const { return multiplayer_controller_->IsUs(host_id); }
+  inline bool IsUs(uint64_t host_id) const { return multiplayer_controller_->IsUs(host_id); }
+
+  inline bool IsBattle() const { return campaign_type_ == CampaignType::MultiPlayerBattle; }
 
   void SortScoreBoard();
 
@@ -81,4 +89,5 @@ private:
   double ticks_progess_update_ = 0.0;
   UniqueTexturePtr timer_texture_;
   SDL_Rect timer_texture_rc_;
+  CampaignType campaign_type_ = CampaignType::None;
 };

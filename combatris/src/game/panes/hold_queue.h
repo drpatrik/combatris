@@ -8,14 +8,14 @@ class HoldQueue final : public TextPane, public EventListener {
   static const int kX = kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace);
   static const int kY = kMatrixStartY - kMinoHeight;
 
-   HoldQueue(SDL_Renderer *renderer,
-             const std::shared_ptr<TetrominoGenerator> &tetromino_generator,
-             const std::shared_ptr<Assets> &assets)
-       : TextPane(renderer, kX, kY, "HOLD", assets), tetromino_generator_(tetromino_generator) {
-     rc_.x = kX + 90;
-     rc_.y = kY - 10;
-     std::tie(checkmark_texture_, rc_.w, rc_.h) = assets_->GetTexture(Assets::Type::Checkmark);
-   }
+  HoldQueue(SDL_Renderer *renderer,
+            const std::shared_ptr<TetrominoGenerator> &tetromino_generator,
+            const std::shared_ptr<Assets> &assets)
+      : TextPane(renderer, kX, kY, "HOLD", assets), tetromino_generator_(tetromino_generator) {
+    rc_.x = kX + 90;
+    rc_.y = kY - 10;
+    std::tie(checkmark_texture_, rc_.w, rc_.h) = assets_->GetTexture(Assets::Type::Checkmark);
+  }
 
   std::shared_ptr<TetrominoSprite> Hold(const std::shared_ptr<TetrominoSprite>& old_tetromino_sprite) {
     if (!CanHold()) {

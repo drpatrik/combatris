@@ -40,6 +40,8 @@ class Player final {
 
   int ko() const { return ko_; }
 
+  int score() const { return score_; }
+
   void Reset();
 
   void Render(int x_offset, int y_offset, bool is_my_status) const;

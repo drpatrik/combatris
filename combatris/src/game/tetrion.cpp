@@ -47,7 +47,7 @@ Tetrion::Tetrion() : events_() {
   multi_player_ = campaign_->GetMultiPlayerPane();
   tetromino_generator_ = campaign_->GetTetrominoGenerator();
   AddAnimation<SplashScreenAnimation>(renderer_, assets_);
-  campaign_->Set(window_);
+  campaign_->Set(window_, CampaignType::Tetris);
   SDL_RaiseWindow(window_);
 }
 
@@ -56,11 +56,29 @@ Tetrion::~Tetrion() noexcept {
   SDL_DestroyWindow(window_);
 }
 
-void Tetrion::ToggleCampaign() {
+void Tetrion::SetCampaign(Controls control_pressed) {
   if (tetromino_in_play_) {
     return;
   }
-  campaign_->Set(window_);
+  switch (control_pressed) {
+    case Controls::F1:
+      campaign_->Set(window_, CampaignType::Tetris);
+      break;
+    case Controls::F2:
+      campaign_->Set(window_, CampaignType::Marathon);
+      break;
+    case Controls::F3:
+      campaign_->Set(window_, CampaignType::MultiPlayerVS);
+      break;
+    case Controls::F4:
+      campaign_->Set(window_, CampaignType::MultiPlayerMarathon);
+      break;
+    case Controls::F5:
+      campaign_->Set(window_, CampaignType::MultiPlayerBattle);
+      break;
+    default:
+      break;
+  }
 }
 
 void Tetrion::GameControl(Controls control_pressed, int lines) {
@@ -154,7 +172,7 @@ void Tetrion::EventHandler(Events& events) {
       break;
     case Event::Type::LinesCleared:
       RemoveAnimation<LinesClearedAnimation>(animations_);
-      AddAnimation<LinesClearedAnimation>(renderer_, assets_, event.lines_cleared_);
+      AddAnimation<LinesClearedAnimation>(renderer_, assets_, event.lines_);
       break;
     case Event::Type::CalculatedScore:
       if (!campaign_->IsBattle()) {
@@ -187,15 +205,15 @@ void Tetrion::EventHandler(Events& events) {
     case Event::Type::Falling:
       RemoveAnimation<OnFloorAnimation>(animations_);
       break;
-    case Event::Type::BattleWaitForPlayers:
+    case Event::Type::MultiplayerWaitForPlayers:
       AddAnimation<HourglassAnimation>(renderer_, assets_, multi_player_);
       break;
     case Event::Type::BattleSendLines:
       AddAnimation<MessageAnimation>(renderer_, assets_, "Sent " + std::to_string(event.value_) + " lines", Color::SteelGray, 200.0);
       break;
-    case Event::Type::BattleResetCountDown:
+    case Event::Type::MultiplayerResetCountDown:
       RemoveAnimation<CountDownAnimation>(animations_);
-      AddAnimation<CountDownAnimation>(renderer_, assets_, kMultiPlayerCountDown, Event::Type::BattleStartGame);
+      AddAnimation<CountDownAnimation>(renderer_, assets_, kMultiPlayerCountDown, Event::Type::MultiplayerStartGame);
       break;
     case Event::Type::BattleGotLines:
       if (!tetromino_in_play_) {

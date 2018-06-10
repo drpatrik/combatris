@@ -76,7 +76,10 @@ struct TextureAssetData {
   Color transparent_color_;
 };
 
-std::vector<TextureAssetData> kTextures { { "Checkmark.bmp", Color::Transparent }};
+std::vector<TextureAssetData> kTextures {
+  { "Checkmark.bmp", Color::Transparent },
+  { "Circle.bmp", Color::Transparent }
+};
 
 } // namespace
 

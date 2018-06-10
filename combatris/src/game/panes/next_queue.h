@@ -1,7 +1,6 @@
 #pragma once
 
 #include "game/tetromino_generator.h"
-#include "game/panes/pane.h"
 
 class NextQueue final : public TextPane {
  public:

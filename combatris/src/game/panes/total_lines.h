@@ -1,12 +1,14 @@
 #pragma once
 
-#include "game/tetromino_generator.h"
+#include "game/events.h"
+#include "game/panes/pane.h"
 
 class TotalLines final : public TextPane, public EventListener {
  public:
-  TotalLines(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets)
+  // 578
+  TotalLines(SDL_Renderer* renderer, int offset, const std::shared_ptr<Assets>& assets)
        : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace),
-                  (kMatrixStartY - kMinoHeight) + 578, "LINES", assets) { Reset(); }
+                  (kMatrixStartY - kMinoHeight) + offset, "LINES", assets) { Reset(); }
 
   virtual void Reset() override { total_lines_ = 0;  SetCenteredText(std::to_string(0)); }
 
@@ -14,7 +16,7 @@ class TotalLines final : public TextPane, public EventListener {
     if (!event.Is(Event::Type::LinesCleared)) {
       return;
     }
-    total_lines_ += event.lines_cleared();
+    total_lines_ += event.value_;
     SetCenteredText(total_lines_);
   }
 

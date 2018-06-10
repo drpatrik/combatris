@@ -49,9 +49,12 @@ void MultiPlayer::Update(const Event& event) {
     return;
   }
   switch (event.type()) {
+    case Event::Type::SetCampaign:
+      campaign_type_ = ToCampaignType(event.value_);
+      break;
     case Event::Type::CalculatedScore:
       accumulator_.AddScore(event.score_);
-      if (event.value_ > 0) {
+      if (IsBattle() && event.value_ > 0) {
         multiplayer_controller_->SendUpdate(event.value_);
         events_.Push(Event::Type::BattleSendLines, event.value_);
       }
@@ -60,7 +63,7 @@ void MultiPlayer::Update(const Event& event) {
       accumulator_.AddScore(event.value_);
       break;
     case Event::Type::LinesCleared:
-      accumulator_.AddLines(event.lines_cleared());
+      accumulator_.AddLines(event.value_);
       break;
     case Event::Type::LevelUp:
       accumulator_.SetLevel(event.value_);
@@ -70,19 +73,25 @@ void MultiPlayer::Update(const Event& event) {
       multiplayer_controller_->SendUpdate(GameState::GameOver);
       break;
     case Event::Type::NextTetromino:
-      if (!timer_.IsStarted()) {
+      if (IsBattle() && !timer_.IsStarted()) {
         timer_.Start();
       }
       break;
-    case Event::Type::BattleStartGame:
+    case Event::Type::MultiplayerStartGame:
       multiplayer_controller_->StartGame();
       break;
     case Event::Type::BattleNextTetrominoSuccessful:
+      if (!IsBattle()) {
+        break;
+      }
       if (!got_lines_from_.empty()) {
         got_lines_from_.pop_front();
       }
       break;
     case Event::Type::BattleKnockedOut:
+      if (!IsBattle()) {
+        break;
+      }
       multiplayer_controller_->SendUpdate(got_lines_from_.front());
       got_lines_from_.pop_front();
       break;
@@ -122,8 +131,9 @@ void MultiPlayer::Render(double delta_time) {
       x_offset = 0;
     }
   }
-  Pane::RenderCopy(timer_texture_.get(), timer_texture_rc_);
-
+  if (IsBattle()) {
+    Pane::RenderCopy(timer_texture_.get(), timer_texture_rc_);
+  }
   ticks_progess_update_ += delta_time;
   if (ticks_progess_update_ >= kUpdateInterval) {
     ticks_progess_update_ = 0.0;
@@ -135,18 +145,22 @@ void MultiPlayer::Render(double delta_time) {
 }
 
 void MultiPlayer::SortScoreBoard() {
-  std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) {
-    if (a->ko() != b->ko()) {
-      return a->ko() > b->ko();
-    }
-    return a->lines_sent() > b->lines_sent();
-  });
+  if (IsBattle()) {
+    std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) {
+      if (a->ko() != b->ko()) {
+        return a->ko() > b->ko();
+      }
+      return a->lines_sent() > b->lines_sent();
+    });
 #if !defined(NDEBUG)
-  std::cout << "-----\n";
-  for (const auto& p : score_board_) {
-    std::cout << p->name() << " Ko: " << p->ko() << ", LS: " << p->lines_sent() << "\n";
-  }
+    std::cout << "-----\n";
+    for (const auto& p : score_board_) {
+      std::cout << p->name() << " Ko: " << p->ko() << ", LS: " << p->lines_sent() << "\n";
+    }
 #endif
+  } else {
+    std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) { return a->score() > b->score(); });
+  }
 }
 
 // ListenerInterface
@@ -184,9 +198,9 @@ void MultiPlayer::GotNewGame(uint64_t host_id) {
       player->Reset();
     }
     SortScoreBoard();
-    events_.Push(Event::Type::BattleResetCountDown);
+    events_.Push(Event::Type::MultiplayerResetCountDown);
   } else if (GameState::Waiting == game_state_) {
-    events_.Push(Event::Type::BattleResetCountDown);
+    events_.Push(Event::Type::MultiplayerResetCountDown);
   }
 }
 
@@ -194,7 +208,7 @@ void MultiPlayer::GotStartGame() {
   if (CanStartGame()) {
     events_.Push(Event::Type::NextTetromino);
   } else {
-    events_.Push(Event::Type::BattleWaitForPlayers);
+    events_.Push(Event::Type::MultiplayerWaitForPlayers);
   }
 }
 
@@ -215,6 +229,9 @@ void MultiPlayer::GotProgressUpdate(uint64_t host_id, int lines, int score, int 
 }
 
 void MultiPlayer::GotLines(uint64_t host_id, int lines) {
+  if (!IsBattle()) {
+    return;
+  }
   if (!IsUs(host_id)) {
     got_lines_from_.push_back(host_id);
     events_.Push(Event::Type::BattleGotLines, lines);

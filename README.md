@@ -115,12 +115,12 @@ Hard drop | 2 points per cell (Max of 40)
 - [X] Make Battle Mode timer based
 - [X] Wait for all in State waiting to get to Play before starting the game
 - [X] In Battle mode show interactive matrix for all players instead of current status
-- [ ] Introduce Marathon mode for single player campaigns
-- [ ] Introduce VS mode for multiplayer campaigns
+- [ ] Introduce Marathon mode for single and multiplayer campaigns
+- [ ] Introduce VS mode for multiplayer campaign
+- [ ] Add KO box and sent lines box in battle
+- [ ] Add possibility to have different UI components based on campaign
 - [ ] Sound
 - [ ] Remove the pane for showing combo/latest move and display combo/last move direct on the frame
-- [ ] Add KO box and Last lines box in battle
-- [ ] Add possibility to have different UI components based on campaign
 - [ ] Add new animation for combo/last clearing move (expanding text)
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file

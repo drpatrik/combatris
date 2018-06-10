@@ -28,15 +28,17 @@ const std::vector<LevelData> kLevelData = {
   LevelData(2.36, 0.5)
 };
 
-const int kLevelUp = 10;
-
 } // namespace
 
 void Level::SetThresholds() {
-  auto index = level_ < static_cast<int>(kLevelData.size()) ? level_ :  kLevelData.size() - 1;
+  if (level_ + 1 > static_cast<int>(kLevelData.size())) {
+    events_.Push(Event::Type::LastLevelCompleted);
+  }
+  auto index = std::min(level_ + 1, static_cast<int>(kLevelData.size()));
 
   wait_time_ = (1.0 / kLevelData.at(index).gravity_) / 60.0;
   lock_delay_ = kLevelData.at(index).lock_delay_;
+  std::cout << "Current level index " << index << std::endl;
 }
 
 bool Level::WaitForMoveDown(double time_delta) {
@@ -57,16 +59,17 @@ bool Level::WaitForLockDelay(double time_delta) {
 }
 
 void Level::Update(const Event& event) {
-  if (!event.Is(Event::Type::ClearedLinesScoreData)) {
+  if (!event.Is(Event::Type::LinesCleared)) {
     return;
   }
-  lines_this_level_ += event.lines_cleared();
+  lines_this_level_ += event.value_;
 
-  if (lines_this_level_ >= kLevelUp) {
+  if (lines_this_level_ >= lines_for_next_level_) {
     lines_this_level_ = 0;
     level_++;
     SetThresholds();
     SetCenteredText(level());
     events_.Push(Event::Type::LevelUp, level_ + 1);
+    std::cout << "lines for next level " << lines_for_next_level_ << std::endl;
   }
 }

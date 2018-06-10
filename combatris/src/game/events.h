@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/coordinates.h"
+#include "game/campaign_types.h"
 
 #include <deque>
 #include <vector>
@@ -37,32 +38,34 @@ struct Event {
     GameOver,
     GameStatistics,
     PerfectClear,
-    BattleStartGame,
-    BattleResetCountDown,
+    LastLevelCompleted,
+    SetCampaign,
+    MultiplayerStartGame,
+    MultiplayerResetCountDown,
+    MultiplayerWaitForPlayers,
     BattleSendLines,
     BattleGotLines,
     BattleKnockedOut,
     BattleYouDidKO,
-    BattleWaitForPlayers,
     BattleNextTetrominoGotLines,
     BattleNextTetrominoSuccessful
   };
 
-  enum class Value { None, DropScore, LinesSent, GotLines,  LevelUp,  };
-
-  explicit Event(Type type) : type_(type), lines_cleared_() {}
+  explicit Event(Type type) : type_(type), lines_() {}
 
   Event(Type type, const Lines& lines_cleared, const Position& pos, TSpinType tspin_type)
-    : type_(type), lines_cleared_(lines_cleared), pos_(pos), tspin_type_(tspin_type) {}
+    : type_(type), lines_(lines_cleared), pos_(pos), tspin_type_(tspin_type) {}
 
-  Event(Type type, const Lines& lines_cleared) : type_(type), lines_cleared_(lines_cleared) {}
+  Event(Type type, const Lines& lines, int lines_to_clear) : type_(type), lines_(lines), value_(lines_to_clear) {}
 
-  Event(Type type, const Position& pos, int score, int lines_sent, int lines_cleared) : type_(type), pos_(pos), score_(score), value_(lines_sent), value2_(lines_cleared) {}
+  Event(Type type, const Position& pos, int score, int lines_sent) : type_(type), pos_(pos), score_(score), value_(lines_sent) {}
 
   Event(Type type, int value) : type_(type), value_(value) {}
 
+  Event(Type type, CampaignType campaign_type) : type_(type), value_(ToInt(campaign_type)) {}
+
   Event(Type type, const Lines& lines_cleared, TSpinType tspin_type, ComboType combo_type, int combo_counter) :
-      type_(type), lines_cleared_(lines_cleared), tspin_type_(tspin_type), combo_type_(combo_type), combo_counter_(combo_counter) {}
+      type_(type), lines_(lines_cleared), tspin_type_(tspin_type), combo_type_(combo_type), combo_counter_(combo_counter) {}
 
   operator Event::Type() const { return type_; }
 
@@ -70,20 +73,19 @@ struct Event {
 
   inline Type type() const { return type_; }
 
-  inline int lines_cleared() const { return static_cast<int>(lines_cleared_.size()); }
-
   inline bool operator==(Event::Type type) { return type == type_; }
 
   inline bool operator==(const Event& e) { return e.type_ == type_; }
 
+  inline int lines() const { return static_cast<int>(lines_.size()); }
+
   Type type_;
-  Lines lines_cleared_;
+  Lines lines_;
   Position pos_ = Position(-1, -1);
   TSpinType tspin_type_ = TSpinType::None;
   ComboType combo_type_ = ComboType::None;
   int score_ = 0;
   int value_ = 0;
-  int value2_ = 0;
   int combo_counter_ = 0;
 };
 

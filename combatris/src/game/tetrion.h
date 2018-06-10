@@ -16,7 +16,11 @@ class Tetrion final {
     Hold,
     Pause,
     Start,
-    ToggleCampaign,
+    F1,
+    F2,
+    F3,
+    F4,
+    F5,
     Quit,
     DebugSendLine
   };
@@ -44,7 +48,7 @@ class Tetrion final {
     }
   }
 
-  void ToggleCampaign();
+  void SetCampaign(Controls control_pressed);
 
   void ResetCountDown();
 

@@ -7,7 +7,7 @@
 
 class Assets final {
  public:
-  enum class Type { Checkmark };
+  enum class Type { Checkmark, Circle };
 
   explicit Assets(SDL_Renderer *renderer);
 

@@ -32,7 +32,7 @@ void Moves::Update(const Event& event) {
   auto line2 = kTSpinTypes[static_cast<int>(event.tspin_type_)];
 
   if (line2.empty()) {
-    line2 = kBasicScoreTypes[event.lines_cleared()];
+    line2 = kBasicScoreTypes[event.lines()];
   }
   if (line1.empty()) {
     SetCenteredText(line2, Color::Red, Bold35);

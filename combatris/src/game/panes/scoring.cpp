@@ -14,6 +14,40 @@ const std::vector<int> kLinesToClearTSpin = { 4, 8, 12, 16 };
 
 } // namespace
 
+void Scoring::Update(const Event& event) {
+  if (!IsIn(event, { Event::Type::ClearedLinesScoreData, Event::Type::DropScoreData, Event::Type::PerfectClear, Event::Type::SetCampaign })) {
+    return;
+  }
+  if (event.Is(Event::Type::SetCampaign)) {
+    auto type = ToCampaignType(event.value_);
+
+    lines_cleared_mode_ = LinesClearedMode::Normal;
+    if (CampaignType::Marathon == type || CampaignType::MultiPlayerMarathon == type) {
+      lines_cleared_mode_ = LinesClearedMode::Marathon;
+    }
+    return;
+  }
+  if (event.Is(Event::Type::ClearedLinesScoreData)) {
+    auto [base_score, combo_score, combo_type, lines_to_send, lines_to_clear] = Calculate(event);
+
+    auto score = (base_score * level_->level()) + (combo_score * level_->level());
+
+    if (event.Is(Event::Type::PerfectClear)) {
+      lines_to_send += 10;
+    }
+    UpdateEvents(score, combo_type, lines_to_send, lines_to_clear, event);
+    score_ += score;
+  }
+  score_ += event.value_;
+  DisplayScore(score_);
+}
+
+void Scoring::DisplayScore(int score) {
+  std::tie(score_texture_, rc_.w, rc_.h) = CreateTextureFromText(renderer_, assets_->GetFont(TimerFont), std::to_string(score), Color::Yellow);
+  rc_.x = x_ - rc_.w;
+  rc_.y = y_ - rc_.h;
+}
+
 void Scoring::UpdateEvents(int score, ComboType combo_type, int lines_to_send, int lines_to_clear, const Event& event) {
   if (score == 0) {
     return;
@@ -31,11 +65,13 @@ void Scoring::UpdateEvents(int score, ComboType combo_type, int lines_to_send, i
       counter = combo_counter_ - 1;
       break;
   }
-  if (event.lines_cleared() > 0) {
-    events_.Push(Event::Type::LinesCleared, event.lines_cleared_);
+  lines_to_clear = (LinesClearedMode::Normal == lines_cleared_mode_) ? event.lines() : lines_to_clear;
+
+  if (lines_to_clear > 0) {
+    events_.Push(Event::Type::LinesCleared, event.lines_, lines_to_clear);
   }
-  events_.Push(Event::Type::CalculatedScore, event.pos_, score, lines_to_send, lines_to_clear);
-  events_.Push(Event::Type::Moves, event.lines_cleared_, event.tspin_type_, combo_type, counter);
+  events_.Push(Event::Type::CalculatedScore, event.pos_, score, lines_to_send);
+  events_.Push(Event::Type::Moves, event.lines_, event.tspin_type_, combo_type, counter);
 }
 
 std::tuple<int, int, ComboType, int, int> Scoring::Calculate(const Event& event) {
@@ -48,16 +84,16 @@ std::tuple<int, int, ComboType, int, int> Scoring::Calculate(const Event& event)
   ++combo_counter_;
   switch (event.tspin_type_) {
     case TSpinType::None:
-      lines_to_send = kLinesToSendForLines.at(event.lines_cleared());
-      lines_to_clear = kLinesToClear.at(event.lines_cleared());
-      base_score = kScoreForLines.at(event.lines_cleared());
-      if (event.lines_cleared() == 4) {
+      lines_to_send = kLinesToSendForLines.at(event.lines());
+      lines_to_clear = kLinesToClear.at(event.lines());
+      base_score = kScoreForLines.at(event.lines());
+      if (event.lines() == 4) {
         if (++b2b_counter_ > 1) {
           combo_score = 1200;
           lines_to_send += 2;
           combo_type = ComboType::B2BTetris;
         }
-      } else if (event.lines_cleared() > 0) {
+      } else if (event.lines() > 0) {
         b2b_counter_ = 0;
         if (combo_counter_ > 1) {
           lines_to_send += kLinesToSendForCombo.at(combo_counter_ - 1);
@@ -71,7 +107,7 @@ std::tuple<int, int, ComboType, int, int> Scoring::Calculate(const Event& event)
     case TSpinType::TSpin:
     case TSpinType::TSpinMini:
       if (TSpinType::TSpinMini == event.tspin_type_) {
-        if (event.lines_cleared() > 0) {
+        if (event.lines() > 0) {
           lines_to_send += 1;
           lines_to_clear += 2;
           base_score = 200;
@@ -81,14 +117,14 @@ std::tuple<int, int, ComboType, int, int> Scoring::Calculate(const Event& event)
           base_score =  100;
         }
       } else {
-        lines_to_send = kScoreForTSpin.at(event.lines_cleared());
-        lines_to_clear = kLinesToClearTSpin.at(event.lines_cleared());
-        base_score = kScoreForTSpin.at(event.lines_cleared());
+        lines_to_send = kScoreForTSpin.at(event.lines());
+        lines_to_clear = kLinesToClearTSpin.at(event.lines());
+        base_score = kScoreForTSpin.at(event.lines());
       }
-      if (event.lines_cleared() > 0 && ++b2b_counter_ > 1) {
-        combo_score = kB2BScoreForTSpin.at(event.lines_cleared());
+      if (event.lines() > 0 && ++b2b_counter_ > 1) {
+        combo_score = kB2BScoreForTSpin.at(event.lines());
         combo_type = ComboType::B2BTSpin;
-        lines_to_send += kB2BSLinesToSendForTSprin.at(event.lines_cleared());
+        lines_to_send += kB2BSLinesToSendForTSprin.at(event.lines());
       }
       break;
   }
@@ -96,24 +132,4 @@ std::tuple<int, int, ComboType, int, int> Scoring::Calculate(const Event& event)
     lines_to_clear += (0.5 * lines_to_clear);
   }
   return std::make_tuple(base_score, combo_score, combo_type, lines_to_send, lines_to_clear);
-}
-
-void Scoring::Update(const Event& event) {
-  if (!IsIn(event, { Event::Type::ClearedLinesScoreData, Event::Type::DropScoreData, Event::Type::PerfectClear })) {
-    return;
-  }
-  if (event.Is(Event::Type::ClearedLinesScoreData)) {
-    auto [base_score, combo_score, combo_type, lines_to_send, lines_to_clear] = Calculate(event);
-
-    auto score = (base_score * level_->level()) + (combo_score * level_->level());
-
-    if (event.Is(Event::Type::PerfectClear)) {
-      lines_to_send += 10;
-    }
-    UpdateEvents(score, combo_type, lines_to_send, lines_to_clear, event);
-    score_ += score;
-  }
-  score_ += event.value_;
-
-  TextPane::SetCenteredText(score_, Color::SteelGray, Normal35);
 }

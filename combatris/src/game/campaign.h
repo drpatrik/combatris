@@ -2,19 +2,23 @@
 
 #include "game/panes/multi_player.h"
 #include "game/panes/total_lines.h"
+#include "game/panes/lines_sent.h"
+#include "game/panes/goal.h"
 #include "game/panes/scoring.h"
 #include "game/panes/high_score.h"
+#include "game/panes/knockout.h"
 #include "game/panes/next_queue.h"
 #include "game/panes/hold_queue.h"
 #include "game/panes/moves.h"
+#include "game/campaign_types.h"
+
+#include <unordered_set>
 
 class Campaign {
  public:
-  enum class Type { SinglePlayer, Battle }; //Tetris, Marathon, VS, Battle };
-
   Campaign(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Matrix>& matrix);
 
-  void Set(SDL_Window* window);
+  void Set(SDL_Window* window, CampaignType type);
 
   void Render(double delta_time);
 
@@ -35,9 +39,9 @@ class Campaign {
     level_->ResetTime();
   }
 
-  inline bool IsSinglePlayer() const { return type_ == Type::SinglePlayer; }
+  inline bool IsSinglePlayer() const { return type_ == CampaignType::Tetris || type_ == CampaignType::Marathon ; }
 
-  inline bool IsBattle() const { return type_ == Type::Battle; }
+  inline bool IsBattle() const { return type_ == CampaignType::MultiPlayerBattle; }
 
   inline std::shared_ptr<MultiPlayer> GetMultiPlayerPane() { return multi_player_; }
 
@@ -46,17 +50,9 @@ class Campaign {
   inline std::shared_ptr<TetrominoGenerator> GetTetrominoGenerator() { return tetromino_generator_; }
 
  protected:
-  void AddPane(PaneInterface* pane) { panes_.push_back(pane); }
+  void AddListener(EventListener* listener) { event_listeners_.push_back(listener); }
 
-  void AddPane(Pane* pane) {
-    panes_.push_back(pane);
-
-    auto sink = dynamic_cast<EventListener*>(pane);
-
-    if (nullptr != sink) {
-      event_listeners_.push_back(sink);
-    }
-  }
+  void SetupCampaign(CampaignType type);
 
  private:
   SDL_Renderer* renderer_;
@@ -69,10 +65,14 @@ class Campaign {
   std::unique_ptr<HighScore> high_score_;
   std::unique_ptr<NextQueue> next_queue_;
   std::shared_ptr<HoldQueue> hold_queue_;
+  std::shared_ptr<LinesSent> lines_sent_;
+  std::unique_ptr<Goal> goal_;
   std::unique_ptr<TotalLines> total_lines_;
   std::unique_ptr<Moves> moves_;
+  std::unique_ptr<Knockout> knockout_;
   std::shared_ptr<MultiPlayer> multi_player_;
   std::vector<PaneInterface*> panes_;
   std::vector<EventListener*> event_listeners_;
-  Type type_ = Type::Battle;
+  std::unordered_set<Event::Type> events_to_ignore_;
+  CampaignType type_ = CampaignType::None;
 };

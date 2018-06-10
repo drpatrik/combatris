@@ -131,7 +131,15 @@ class Combatris {
     } else if (event.key.keysym.scancode == SDL_SCANCODE_P) {
       current_control = Tetrion::Controls::Pause;
     } else if (event.key.keysym.scancode == SDL_SCANCODE_F1) {
-      current_control = Tetrion::Controls::ToggleCampaign;
+      current_control = Tetrion::Controls::F1;
+    } else if (event.key.keysym.scancode == SDL_SCANCODE_F2) {
+      current_control = Tetrion::Controls::F2;
+    } else if (event.key.keysym.scancode == SDL_SCANCODE_F3) {
+      current_control = Tetrion::Controls::F3;
+    } else if (event.key.keysym.scancode == SDL_SCANCODE_F4) {
+      current_control = Tetrion::Controls::F4;
+    } else if (event.key.keysym.scancode == SDL_SCANCODE_F5) {
+      current_control = Tetrion::Controls::F5;
     } else if (event.key.keysym.scancode == SDL_SCANCODE_Q) {
       current_control = Tetrion::Controls::Quit;
     } else if (event.key.keysym.scancode >=  SDL_SCANCODE_1 && event.key.keysym.scancode <=  SDL_SCANCODE_9) {
@@ -248,8 +256,12 @@ class Combatris {
           case Tetrion::Controls::Pause:
             tetrion_->Pause();
             break;
-          case Tetrion::Controls::ToggleCampaign:
-            tetrion_->ToggleCampaign();
+          case Tetrion::Controls::F1:
+          case Tetrion::Controls::F2:
+          case Tetrion::Controls::F3:
+          case Tetrion::Controls::F4:
+          case Tetrion::Controls::F5:
+            tetrion_->SetCampaign(current_control);
             break;
           case Tetrion::Controls::Quit:
             quit = true;
