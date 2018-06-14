@@ -10,16 +10,19 @@ class Goal final : public TextPane, public EventListener {
   virtual void Reset() override {
     goal_ = level_->level() * 5;
     level_->SetLinesForNextLevel(goal_);
-    SetCenteredText(std::to_string(goal_));
+    SetCenteredText(goal_);
   }
 
   virtual void Update(const Event& event) override {
-    if (!IsIn(event, { Event::Type::LinesCleared, Event::Type::LevelUp })) {
+    if (!IsIn(event, { Event::Type::LinesCleared, Event::Type::LevelUp, Event::Type::SetStartLevel })) {
       return;
     }
-    if (Event::Type::LinesCleared == event) {
+    if (event.Is(Event::Type::SetStartLevel)) {
+      goal_ = level_->level() * 5;
+      level_->SetLinesForNextLevel(goal_);
+    } else if (event == Event::Type::LinesCleared) {
       goal_ = std::max(goal_ - event.value_, 0);
-      std::cout << goal_ << std::endl;
+      std::cout << "current goal " << goal_ << std::endl;
     } else {
       goal_ = level_->level() * 5;
       level_->SetLinesForNextLevel(goal_);

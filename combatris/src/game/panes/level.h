@@ -3,8 +3,6 @@
 #include "game/events.h"
 #include "game/panes/pane.h"
 
-// kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace), (kMatrixStartY - kMinoHeight) + 428
-
 class Level final : public TextPane, public EventListener {
  public:
   Level(SDL_Renderer* renderer, int offset, Events& events, const std::shared_ptr<Assets>& assets)
@@ -38,6 +36,9 @@ class Level final : public TextPane, public EventListener {
 
  protected:
   void SetLevel(int lvl) {
+    std::cout << lvl << std::endl;
+    lvl = std::max(lvl, 0);
+    lvl = std::min(lvl, 14);
     start_level_ = level_ = lvl;
     SetThresholds();
     SetCenteredText(level());

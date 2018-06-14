@@ -31,10 +31,7 @@ const std::vector<LevelData> kLevelData = {
 } // namespace
 
 void Level::SetThresholds() {
-  if (level_ + 1 > static_cast<int>(kLevelData.size())) {
-    events_.Push(Event::Type::LastLevelCompleted);
-  }
-  auto index = std::min(level_ + 1, static_cast<int>(kLevelData.size()));
+  auto index = std::min(level_, static_cast<int>(kLevelData.size() - 1));
 
   wait_time_ = (1.0 / kLevelData.at(index).gravity_) / 60.0;
   lock_delay_ = kLevelData.at(index).lock_delay_;
@@ -71,9 +68,14 @@ void Level::Update(const Event& event) {
   if (lines_this_level_ >= lines_for_next_level_) {
     lines_this_level_ = 0;
     level_++;
-    SetThresholds();
-    SetCenteredText(level());
-    events_.Push(Event::Type::LevelUp, level_ + 1);
-    std::cout << "lines for next level " << lines_for_next_level_ << std::endl;
+    if (level_ >= static_cast<int>(kLevelData.size())) {
+      events_.Push(Event::Type::LastLevelCompleted);
+      std::cout << "Last level completed" << std::endl;
+    } else {
+      SetThresholds();
+      SetCenteredText(level());
+      events_.Push(Event::Type::LevelUp, level_ + 1);
+      std::cout << "lines for next level " << lines_for_next_level_ << std::endl;
+    }
   }
 }

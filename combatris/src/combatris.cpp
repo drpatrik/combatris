@@ -140,6 +140,10 @@ class Combatris {
       current_control = Tetrion::Controls::F4;
     } else if (event.key.keysym.scancode == SDL_SCANCODE_F5) {
       current_control = Tetrion::Controls::F5;
+    } else if (event.key.keysym.scancode == SDL_SCANCODE_F9) {
+      current_control = Tetrion::Controls::Minus;
+    } else if (event.key.keysym.scancode == SDL_SCANCODE_F10) {
+      current_control = Tetrion::Controls::Plus;
     } else if (event.key.keysym.scancode == SDL_SCANCODE_Q) {
       current_control = Tetrion::Controls::Quit;
     } else if (event.key.keysym.scancode >=  SDL_SCANCODE_1 && event.key.keysym.scancode <=  SDL_SCANCODE_9) {
@@ -238,30 +242,11 @@ class Combatris {
           case Tetrion::Controls::SoftDrop:
             Repeatable(Tetrion::Controls::SoftDrop, previous_control, function_to_repeat, repeat_count, time_since_last_auto_repeat);
             break;
-          case Tetrion::Controls::RotateCounterClockwise:
-            tetrion_->GameControl(Tetrion::Controls::RotateCounterClockwise);;
-            break;
-          case Tetrion::Controls::RotateClockwise:
-            tetrion_->GameControl(Tetrion::Controls::RotateClockwise);
-            break;
-          case Tetrion::Controls::HardDrop:
-            tetrion_->GameControl(Tetrion::Controls::HardDrop);
-            break;
-          case Tetrion::Controls::Hold:
-            tetrion_->GameControl(Tetrion::Controls::Hold);
-            break;
           case Tetrion::Controls::Start:
             tetrion_->NewGame();
             break;
           case Tetrion::Controls::Pause:
             tetrion_->Pause();
-            break;
-          case Tetrion::Controls::F1:
-          case Tetrion::Controls::F2:
-          case Tetrion::Controls::F3:
-          case Tetrion::Controls::F4:
-          case Tetrion::Controls::F5:
-            tetrion_->SetCampaign(current_control);
             break;
           case Tetrion::Controls::Quit:
             quit = true;
@@ -272,6 +257,7 @@ class Combatris {
 #endif
             break;
           default:
+            tetrion_->GameControl(current_control);
             break;
         }
         if (kAutoRepeatControls.count(current_control) == 0) {

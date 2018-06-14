@@ -56,7 +56,7 @@ Tetrion::~Tetrion() noexcept {
   SDL_DestroyWindow(window_);
 }
 
-void Tetrion::SetCampaign(Controls control_pressed) {
+void Tetrion::HandleGameSettings(Controls control_pressed) {
   if (tetromino_in_play_) {
     return;
   }
@@ -76,12 +76,19 @@ void Tetrion::SetCampaign(Controls control_pressed) {
     case Controls::F5:
       campaign_->Set(window_, CampaignType::MultiPlayerBattle);
       break;
+    case Controls::Plus:
+      events_.Push(Event::Type::SetStartLevel, campaign_->GetLevel()->level());
+      break;
+    case Controls::Minus:
+      events_.Push(Event::Type::SetStartLevel, campaign_->GetLevel()->level() - 2);
+      break;
     default:
       break;
   }
 }
 
 void Tetrion::GameControl(Controls control_pressed, int lines) {
+  HandleGameSettings(control_pressed);
   if (!tetromino_in_play_ || game_paused_) {
     return;
   }

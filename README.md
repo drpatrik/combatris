@@ -6,12 +6,9 @@
 A modern C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only),
 OSX 10.12/10.13, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
 
-Combatris allows up to 6 players to play against each other. Any line clear over 1 will send lines over
-to your opponents. Using combo’s and special moves you can send even more lines and secure the victory.
-
-In the battle campaign score does not matter, number of knock-outs and lines sent are what matters.
-
-You can also play against your self in the single player campaign.
+Combatris supports Tetris, Marathon and Battle. The two first campaigns are available as both single-player
+and multi-player. The purpose of Marathon and Tetris is to maximize the score while Battle is only judged based
+on number of line sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
 
 I have tested the game with up to five players running on a heterogeneous set of computers using both wireless
 and Ethernet based connections. The game works well but there can be a lag up to 0.5 seconds, since heartbeats
@@ -35,6 +32,42 @@ Level advancement | 10 lines
 T-Spin recognition | 3-corner with kicks
 Back-to-back Recognition | Tetris / T-spin
 Platform | PC / OSX / Linux / Raspian
+
+**Scoring - Tetris Campaign**
+
+Action | Points
+------ | ------
+Single/T-Spin Mini | 100×level
+T-Spin Mini Single | 200×level
+Double | 300×level
+T-Spin | 400×level
+Triple | 500×level
+Tetris/T-Spin Single | 800×level
+B2B T-Spin Single/B2B Tetris | 1,200×level
+T-Spin Double | 1,200×level
+T-Spin Triple | 1,600×level
+B2B T-Spin Double | 1,800×level
+B2B T-Spin Triple | 2,700×level
+Combo | 50×combo count×level (singles only for 20)
+Soft drop | 1 point per cell (Max of 20)
+Hard drop | 2 points per cell (Max of 40)
+
+**Lines Cleared - Marathon**
+
+Action | Lines Cleared
+------ | -------------
+Single | 1
+T-Spin Mini | 1
+T-Spin Mini Single | 2
+Double | 3
+T-Spin | 4
+Triple | 5
+Tetris | T-Spin Single | 8
+T-Spin Double | 12
+T-Spin Triple | 16
+Back-to-Back Bonus | 0.5 x Total Line Clears
+
+Finish all 15-levels are considered a win.
 
 **Lines Sent - Battle Campaign**
 
@@ -64,25 +97,6 @@ B2B T-Spin Triple | 9
 6 Combo | 12 (3)
 7 Combo | 16 (4)
 ... Combo | ... (4)
-
-**Scoring - Single Campaign**
-
-Action | Points
------- | ------
-Single/T-Spin Mini | 100×level
-T-Spin Mini Single | 200×level
-Double | 300×level
-T-Spin | 400×level
-Triple | 500×level
-Tetris/T-Spin Single | 800×level
-B2B T-Spin Single/B2B Tetris | 1,200×level
-T-Spin Double | 1,200×level
-T-Spin Triple | 1,600×level
-B2B T-Spin Double | 1,800×level
-B2B T-Spin Triple | 2,700×level
-Combo | 50×combo count×level (singles only for 20)
-Soft drop | 1 point per cell (Max of 20)
-Hard drop | 2 points per cell (Max of 40)
 
 **Status**
 - [x] Rotate left / right
@@ -115,16 +129,16 @@ Hard drop | 2 points per cell (Max of 40)
 - [X] Make Battle Mode timer based
 - [X] Wait for all in State waiting to get to Play before starting the game
 - [X] In Battle mode show interactive matrix for all players instead of current status
-- [ ] Introduce Marathon mode for single and multiplayer campaigns
-- [ ] Introduce VS mode for multiplayer campaign
-- [ ] Add KO box and sent lines box in battle
-- [ ] Add possibility to have different UI components based on campaign
+- [X] Introduce Marathon mode for single and multiplayer campaigns
+- [X] Introduce VS mode for multiplayer campaign
+- [X] Add KO box and sent lines box in battle
+- [X] Add possibility to have different UI components based on campaign
 - [ ] Sound
 - [ ] Remove the pane for showing combo/latest move and display combo/last move direct on the frame
 - [ ] Add new animation for combo/last clearing move (expanding text)
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
-- [ ] Allow user to change  game settings (level, etc) in a config-file or UI
+- [X] Allow user to change game settings (level, etc) in UI
 - [ ] Auto discovery of broadcast address (e.g. 192.168.1.255)
 - [ ] Write a TCP/IP gateway server for Internet based support
 - [ ] Do a proper implementation of the sliding window protocol
@@ -144,6 +158,13 @@ Right | Move Right
 Down | Soft Drop
 Space | Hard Drop
 Shift | Hold piece
+F1 | Tetris
+F2 | Marathon
+F3 | Multiplayer VS.
+F4 | Multiplayer Marathon
+F5 | Multiplayer Battle
+F9 | Start Level - 1
+F10 | Start Level + 1
 Q | Quit
 
 **Joystick Commands (PS3 Controller)**

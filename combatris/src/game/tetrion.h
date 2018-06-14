@@ -21,6 +21,8 @@ class Tetrion final {
     F3,
     F4,
     F5,
+    Plus,
+    Minus,
     Quit,
     DebugSendLine
   };
@@ -48,9 +50,9 @@ class Tetrion final {
     }
   }
 
-  void SetCampaign(Controls control_pressed);
-
   void ResetCountDown();
+
+  void HandleGameSettings(Controls control_pressed);
 
   void GameControl(Controls control_pressed, int lines = 0);
 

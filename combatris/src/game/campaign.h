@@ -43,6 +43,8 @@ class Campaign {
 
   inline std::shared_ptr<MultiPlayer> GetMultiPlayerPane() { return multi_player_; }
 
+  inline std::shared_ptr<Level> GetLevel() { return level_; }
+
   inline std::shared_ptr<HoldQueue> GetHoldQueuePane() { return hold_queue_; }
 
   inline std::shared_ptr<TetrominoGenerator> GetTetrominoGenerator() { return tetromino_generator_; }
