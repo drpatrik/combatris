@@ -52,7 +52,7 @@ Combo | 50×combo count×level (singles only for 20)
 Soft drop | 1 point per cell (Max of 20)
 Hard drop | 2 points per cell (Max of 40)
 
-**Lines Cleared - Marathon**
+**Lines Cleared - Marathon Campaign**
 
 Action | Lines Cleared
 ------ | -------------
