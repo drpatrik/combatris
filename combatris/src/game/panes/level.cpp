@@ -59,7 +59,11 @@ bool Level::WaitForLockDelay(double time_delta) {
 }
 
 void Level::Update(const Event& event) {
-  if (!event.Is(Event::Type::LinesCleared)) {
+  if (!IsIn(event, { Event::Type::LinesCleared, Event::Type::SetStartLevel })) {
+    return;
+  }
+  if (event.Is(Event::Type::SetStartLevel)) {
+    SetLevel(event.value_);
     return;
   }
   lines_this_level_ += event.value_;

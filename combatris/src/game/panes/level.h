@@ -30,19 +30,20 @@ class Level final : public TextPane, public EventListener {
 
   inline int level() const { return level_ + 1; }
 
-  Events& GetEvents() { return events_; }
+  inline Events& GetEvents() { return events_; }
 
-  void SetThresholds();
+  inline void SetLinesForNextLevel(int lines) { lines_for_next_level_ = lines; }
 
+  inline void ResetTime() { time_ = 0.0; }
+
+ protected:
   void SetLevel(int lvl) {
     start_level_ = level_ = lvl;
     SetThresholds();
     SetCenteredText(level());
   }
 
-  void SetLinesForNextLevel(int lines) { lines_for_next_level_ = lines; }
-
-  inline void ResetTime() { time_ = 0.0; }
+  void SetThresholds();
 
  private:
   Events& events_;

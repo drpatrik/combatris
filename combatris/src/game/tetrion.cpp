@@ -224,9 +224,6 @@ void Tetrion::EventHandler(Events& events) {
       matrix_->InsertLines(event.value_);
       events_.Push(Event::Type::BattleNextTetrominoGotLines);
       break;
-    case Event::Type::BattleYouDidKO:
-      AddAnimation<MessageAnimation>(renderer_, assets_, "*** K.O. ***", Color::Gold, 100.0);
-      break;
     default:
       break;
   }

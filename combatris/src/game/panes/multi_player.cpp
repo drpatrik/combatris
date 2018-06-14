@@ -159,7 +159,14 @@ void MultiPlayer::SortScoreBoard() {
     }
 #endif
   } else {
-    std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) { return a->score() > b->score(); });
+    std::sort(score_board_.begin(), score_board_.end(),
+              [](const auto& a, const auto& b) { return a->score() > b->score(); });
+#if !defined(NDEBUG)
+    std::cout << "-----\n";
+    for (const auto& p : score_board_) {
+      std::cout << p->name() << " Score: " << p->score() << "\n";
+    }
+#endif
   }
 }
 
@@ -205,7 +212,7 @@ void MultiPlayer::GotNewGame(uint64_t host_id) {
 }
 
 void MultiPlayer::GotStartGame() {
-  if (CanStartGame()) {
+  if (1 == players_.size() || CanStartGame()) {
     events_.Push(Event::Type::NextTetromino);
   } else {
     events_.Push(Event::Type::MultiplayerWaitForPlayers);
