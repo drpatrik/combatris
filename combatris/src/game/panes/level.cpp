@@ -31,11 +31,20 @@ const std::vector<LevelData> kLevelData = {
 } // namespace
 
 void Level::SetThresholds() {
-  auto index = std::min(level_, static_cast<int>(kLevelData.size() - 1));
+  auto index = std::min(level_ - 1, static_cast<int>(kLevelData.size() - 1));
 
   wait_time_ = (1.0 / kLevelData.at(index).gravity_) / 60.0;
   lock_delay_ = kLevelData.at(index).lock_delay_;
-  std::cout << "Current level index " << index << std::endl;
+  lines_for_next_level_ = (rule_type_ == CampaignRuleType::Normal) ? 10 : level_ * 5;
+  std::cout << "Lines for next level: " << lines_for_next_level_ << " Index: " << index << std::endl;
+}
+
+void Level::SetLevel(int lvl) {
+  lvl = std::max(lvl, 1);
+  lvl = std::min(lvl, static_cast<int>(kLevelData.size()));
+  start_level_ = level_ = lvl;
+  SetThresholds();
+  SetCenteredText(level());
 }
 
 bool Level::WaitForMoveDown(double time_delta) {
@@ -56,26 +65,30 @@ bool Level::WaitForLockDelay(double time_delta) {
 }
 
 void Level::Update(const Event& event) {
-  if (!IsIn(event, { Event::Type::LinesCleared, Event::Type::SetStartLevel })) {
+  if (!IsIn(event, { Event::Type::LinesCleared, Event::Type::SetStartLevel, Event::Type::SetCampaign })) {
     return;
   }
-  if (event.Is(Event::Type::SetStartLevel)) {
+  if (event.Is(Event::Type::SetCampaign)) {
+    rule_type_ = CampaignToRuleType(ToCampaignType(event.value_));
+    return;
+  } else if (event.Is(Event::Type::SetStartLevel)) {
     SetLevel(event.value_);
     return;
   }
   lines_this_level_ += event.value_;
 
+  std::cout << "Lines this level: " << lines_this_level_ << std::endl;
   if (lines_this_level_ >= lines_for_next_level_) {
     lines_this_level_ = 0;
     level_++;
-    if (level_ >= static_cast<int>(kLevelData.size())) {
+    std::cout << "New level: " << level_ << std::endl;
+    if (level_ > static_cast<int>(kLevelData.size())) {
       events_.Push(Event::Type::LastLevelCompleted);
       std::cout << "Last level completed" << std::endl;
     } else {
       SetThresholds();
       SetCenteredText(level());
-      events_.Push(Event::Type::LevelUp, level_ + 1);
-      std::cout << "lines for next level " << lines_for_next_level_ << std::endl;
+      events_.Push(Event::Type::LevelUp, level_);
     }
   }
 }

@@ -16,6 +16,8 @@ class Campaign {
  public:
   Campaign(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Matrix>& matrix);
 
+  operator CampaignType() const { return type_; }
+
   void Set(SDL_Window* window, CampaignType type);
 
   void Render(double delta_time);
@@ -36,10 +38,6 @@ class Campaign {
     next_queue_->Show();
     level_->ResetTime();
   }
-
-  inline bool IsSinglePlayer() const { return type_ == CampaignType::Tetris || type_ == CampaignType::Marathon ; }
-
-  inline bool IsBattle() const { return type_ == CampaignType::MultiPlayerBattle; }
 
   inline std::shared_ptr<MultiPlayer> GetMultiPlayerPane() { return multi_player_; }
 

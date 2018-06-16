@@ -5,6 +5,7 @@
 
 class Level final : public TextPane, public EventListener {
  public:
+  enum class LinesForNextLevelMode { Normal, Marathon };
   Level(SDL_Renderer* renderer, int offset, Events& events, const std::shared_ptr<Assets>& assets)
       : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace), (kMatrixStartY - kMinoHeight) + offset, "LEVEL", assets),
         events_(events) { SetCenteredText(1); SetThresholds(); }
@@ -26,34 +27,23 @@ class Level final : public TextPane, public EventListener {
     SetLevel(start_level_);
   }
 
-  inline int level() const { return level_ + 1; }
-
-  inline Events& GetEvents() { return events_; }
-
-  inline void SetLinesForNextLevel(int lines) { lines_for_next_level_ = lines; }
+  inline int level() const { return level_; }
 
   inline void ResetTime() { time_ = 0.0; }
 
  protected:
-  void SetLevel(int lvl) {
-    std::cout << lvl << std::endl;
-    lvl = std::max(lvl, 0);
-    lvl = std::min(lvl, 14);
-    start_level_ = level_ = lvl;
-    SetThresholds();
-    SetCenteredText(level());
-  }
-
   void SetThresholds();
+  void SetLevel(int lvl);
 
  private:
   Events& events_;
   double time_ = 0.0;
   double wait_time_ = 0.0;
   double lock_delay_ = 0.0;
-  int level_ = 0;
   int total_lines_ = 0;
   int lines_this_level_ = 0;
-  int lines_for_next_level_ = 10;
-  int start_level_ = 0;
+  int lines_for_next_level_ = 0;
+  int level_ = 1;
+  int start_level_ = 1;
+  CampaignRuleType rule_type_ = CampaignRuleType::Normal;
 };

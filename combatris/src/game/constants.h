@@ -1,5 +1,6 @@
 #pragma once
 
+const int kMaxNumberOfLevels = 15;
 const int kVisibleRows = 20;
 const int kVisibleCols = 10;
 const int kVisibleRowStart = 2;

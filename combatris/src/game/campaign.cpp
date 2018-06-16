@@ -45,14 +45,14 @@ Campaign::Campaign(SDL_Renderer* renderer, Events& events, const std::shared_ptr
   level_ = std::make_shared<Level>(renderer_, 150, events_, assets_);
   AddListener(level_.get());
   tetromino_generator_ = std::make_shared<TetrominoGenerator>(matrix_, level_, events_, assets_);
-  scoring_ = std::make_unique<Scoring>(renderer_, assets_, level_);
+  scoring_ = std::make_unique<Scoring>(renderer_, assets_, events_);
   AddListener(scoring_.get());
   high_score_ = std::make_unique<HighScore>(renderer_, assets_);
   AddListener(high_score_.get());
   next_queue_ = std::make_unique<NextQueue>(renderer_, tetromino_generator_, assets_);
   hold_queue_ = std::make_unique<HoldQueue>(renderer_, tetromino_generator_, assets_);
   AddListener(hold_queue_.get());
-  goal_ = std::make_unique<Goal>(renderer_, 300, assets_, level_);
+  goal_ = std::make_unique<Goal>(renderer_, 300, assets_);
   AddListener(goal_.get());
   total_lines_ = std::make_unique<TotalLines>(renderer_, 578, assets_);
   AddListener(total_lines_.get());
@@ -96,14 +96,14 @@ void Campaign::Set(SDL_Window* window, CampaignType type) {
     default:
       break;
   }
-  SetupCampaignWindow(window, renderer_, IsSinglePlayer());
+  SetupCampaignWindow(window, renderer_, IsSinglePlayerCampaign(*this));
   SDL_SetWindowTitle(window, title.c_str());
   SetupCampaign(type_);
   events_.Push(Event::Type::SetCampaign, type_);
 }
 
 void Campaign::Render(double delta_time) {
-  RenderWindowBackground(renderer_, GetWindowRc(IsSinglePlayer()));
+  RenderWindowBackground(renderer_, GetWindowRc(IsSinglePlayerCampaign(*this)));
   std::for_each(panes_.begin(), panes_.end(), [delta_time](const auto& pane) { pane->Render(delta_time); });
 }
 

@@ -76,12 +76,18 @@ void Tetrion::HandleGameSettings(Controls control_pressed) {
     case Controls::F5:
       campaign_->Set(window_, CampaignType::MultiPlayerBattle);
       break;
-    case Controls::Plus:
-      events_.Push(Event::Type::SetStartLevel, campaign_->GetLevel()->level());
+    case Controls::Plus: {
+      auto level = std::min(campaign_->GetLevel()->level() + 1, kMaxNumberOfLevels);
+
+      events_.Push(Event::Type::SetStartLevel, level);
       break;
-    case Controls::Minus:
-      events_.Push(Event::Type::SetStartLevel, campaign_->GetLevel()->level() - 2);
+    }
+    case Controls::Minus: {
+      auto level = std::max(campaign_->GetLevel()->level() - 1, 1);
+
+      events_.Push(Event::Type::SetStartLevel, level);
       break;
+    }
     default:
       break;
   }
@@ -128,7 +134,7 @@ void Tetrion::GameControl(Controls control_pressed, int lines) {
 void Tetrion::HandleNextTetromino(TetrominoSprite::State state, Events& events) {
   switch (state) {
     case TetrominoSprite::State::Falling:
-      if (!campaign_->IsBattle()) {
+      if (!IsBattleCampaign(*campaign_)) {
         break;
       }
       events.Push(Event::Type::BattleNextTetrominoSuccessful);
@@ -182,7 +188,7 @@ void Tetrion::EventHandler(Events& events) {
       AddAnimation<LinesClearedAnimation>(renderer_, assets_, event.lines_);
       break;
     case Event::Type::CalculatedScore:
-      if (!campaign_->IsBattle()) {
+      if (!IsBattleCampaign(*campaign_)) {
         AddAnimation<ScoreAnimation>(renderer_, assets_, event.pos_, event.score_);
       }
       break;
@@ -194,7 +200,7 @@ void Tetrion::EventHandler(Events& events) {
       events.Clear();
       unpause_pressed_ = game_paused_ = false;
       campaign_->Reset();
-      if (campaign_->IsSinglePlayer()) {
+      if (IsSinglePlayerCampaign(*campaign_)) {
         AddAnimation<CountDownAnimation>(renderer_, assets_, kSinglePlayerCountDown, Event::Type::NextTetromino);
       } else {
         multi_player_->NewGame();

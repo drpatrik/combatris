@@ -54,7 +54,7 @@ void MultiPlayer::Update(const Event& event) {
       break;
     case Event::Type::CalculatedScore:
       accumulator_.AddScore(event.score_);
-      if (IsBattle() && event.value_ > 0) {
+      if (IsBattleCampaign(campaign_type_) && event.value_ > 0) {
         multiplayer_controller_->SendUpdate(event.value_);
         events_.Push(Event::Type::BattleSendLines, event.value_);
       }
@@ -73,7 +73,7 @@ void MultiPlayer::Update(const Event& event) {
       multiplayer_controller_->SendUpdate(GameState::GameOver);
       break;
     case Event::Type::NextTetromino:
-      if (IsBattle() && !timer_.IsStarted()) {
+      if (IsBattleCampaign(campaign_type_) && !timer_.IsStarted()) {
         timer_.Start();
       }
       break;
@@ -81,7 +81,7 @@ void MultiPlayer::Update(const Event& event) {
       multiplayer_controller_->StartGame();
       break;
     case Event::Type::BattleNextTetrominoSuccessful:
-      if (!IsBattle()) {
+      if (!IsBattleCampaign(campaign_type_)) {
         break;
       }
       if (!got_lines_from_.empty()) {
@@ -89,7 +89,7 @@ void MultiPlayer::Update(const Event& event) {
       }
       break;
     case Event::Type::BattleKnockedOut:
-      if (!IsBattle()) {
+      if (!IsBattleCampaign(campaign_type_)) {
         break;
       }
       multiplayer_controller_->SendUpdate(got_lines_from_.front());
@@ -131,7 +131,7 @@ void MultiPlayer::Render(double delta_time) {
       x_offset = 0;
     }
   }
-  if (IsBattle()) {
+  if (IsBattleCampaign(campaign_type_)) {
     Pane::RenderCopy(timer_texture_.get(), timer_texture_rc_);
   }
   ticks_progess_update_ += delta_time;
@@ -145,7 +145,7 @@ void MultiPlayer::Render(double delta_time) {
 }
 
 void MultiPlayer::SortScoreBoard() {
-  if (IsBattle()) {
+  if (IsBattleCampaign(campaign_type_)) {
     std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) {
       if (a->ko() != b->ko()) {
         return a->ko() > b->ko();
@@ -236,7 +236,7 @@ void MultiPlayer::GotProgressUpdate(uint64_t host_id, int lines, int score, int 
 }
 
 void MultiPlayer::GotLines(uint64_t host_id, int lines) {
-  if (!IsBattle()) {
+  if (!IsBattleCampaign(campaign_type_)) {
     return;
   }
   if (!IsUs(host_id)) {

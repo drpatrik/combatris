@@ -6,9 +6,10 @@ class Scoring final : public Pane, public EventListener {
  public:
   enum class LinesClearedMode { Normal, Marathon };
 
-  Scoring(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Level>& level) : Pane(renderer, kMatrixEndX + kMinoWidth, kMatrixStartY - kMinoHeight, assets), level_(level), events_(level->GetEvents()) { Reset(); }
+  Scoring(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, Events& events) : Pane(renderer, kMatrixEndX + kMinoWidth, kMatrixStartY - kMinoHeight, assets), events_(events) { Reset(); }
 
   virtual void Reset() override {
+    level_ = start_level_;
     score_ = 0;
     ClearCounters();
     DisplayScore(score_);
@@ -28,12 +29,13 @@ class Scoring final : public Pane, public EventListener {
   std::tuple<int, int, ComboType, int, int> Calculate(const Event& event);
 
  private:
-  std::shared_ptr<Level> level_;
   Events& events_;
   int score_ = 0;
   int combo_counter_ = 0;
   int b2b_counter_ = 0;
   SDL_Rect rc_;
   UniqueTexturePtr score_texture_ = nullptr;
-  LinesClearedMode lines_cleared_mode_ = LinesClearedMode::Normal;
+  CampaignRuleType rule_type_ = CampaignRuleType::Normal;
+  int level_ = 1;
+  int start_level_ = 1;
 };

@@ -73,8 +73,6 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
 private:
   inline bool IsUs(uint64_t host_id) const { return multiplayer_controller_->IsUs(host_id); }
 
-  inline bool IsBattle() const { return campaign_type_ == CampaignType::MultiPlayerBattle; }
-
   void SortScoreBoard();
 
   std::shared_ptr<Matrix> matrix_;

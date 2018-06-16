@@ -15,31 +15,41 @@ const std::vector<int> kLinesToClearTSpin = { 4, 8, 12, 16 };
 } // namespace
 
 void Scoring::Update(const Event& event) {
-  if (!IsIn(event, { Event::Type::ClearedLinesScoreData, Event::Type::DropScoreData, Event::Type::PerfectClear, Event::Type::SetCampaign })) {
+  if (!IsIn(event, { Event::Type::ClearedLinesScoreData, Event::Type::DropScoreData, Event::Type::PerfectClear, Event::Type::SetCampaign, Event::Type::SetStartLevel, Event::Type::LevelUp })) {
     return;
   }
-  if (event.Is(Event::Type::SetCampaign)) {
-    auto type = ToCampaignType(event.value_);
+  switch (event) {
+    case Event::Type::SetCampaign:
+      rule_type_ = CampaignToRuleType(ToCampaignType(event.value_));
+      break;
+    case Event::Type::SetStartLevel:
+      start_level_ = event.value_;
+      std::cout << "Scoring new start level " << start_level_ << std::endl;
+      break;
+    case Event::Type::LevelUp:
+      level_ = event.value_;
+      std::cout << "Scoring new level " << level_ << std::endl;
+      break;
+    case Event::Type::ClearedLinesScoreData: {
+      auto [base_score, combo_score, combo_type, lines_to_send, lines_to_clear] = Calculate(event);
 
-    lines_cleared_mode_ = LinesClearedMode::Normal;
-    if (CampaignType::Marathon == type || CampaignType::MultiPlayerMarathon == type) {
-      lines_cleared_mode_ = LinesClearedMode::Marathon;
+      auto score = (base_score * level_) + (combo_score * level_);
+
+      if (event.Is(Event::Type::PerfectClear)) {
+        lines_to_send += 10;
+      }
+      UpdateEvents(score, combo_type, lines_to_send, lines_to_clear, event);
+      score_ += score;
+      DisplayScore(score_);
+      break;
     }
-    return;
+    case Event::Type::DropScoreData:
+      score_ += event.value_;
+      DisplayScore(score_);
+      break;
+    default:
+      break;
   }
-  if (event.Is(Event::Type::ClearedLinesScoreData)) {
-    auto [base_score, combo_score, combo_type, lines_to_send, lines_to_clear] = Calculate(event);
-
-    auto score = (base_score * level_->level()) + (combo_score * level_->level());
-
-    if (event.Is(Event::Type::PerfectClear)) {
-      lines_to_send += 10;
-    }
-    UpdateEvents(score, combo_type, lines_to_send, lines_to_clear, event);
-    score_ += score;
-  }
-  score_ += event.value_;
-  DisplayScore(score_);
 }
 
 void Scoring::DisplayScore(int score) {
@@ -65,9 +75,10 @@ void Scoring::UpdateEvents(int score, ComboType combo_type, int lines_to_send, i
       counter = combo_counter_ - 1;
       break;
   }
-  lines_to_clear = (LinesClearedMode::Normal == lines_cleared_mode_) ? event.lines() : lines_to_clear;
+  lines_to_clear = (CampaignRuleType::Normal == rule_type_) ? event.lines() : lines_to_clear;
 
   if (lines_to_clear > 0) {
+    std::cout << "Lines cleared: " << lines_to_clear << std::endl;
     events_.Push(Event::Type::LinesCleared, event.lines_, lines_to_clear);
   }
   events_.Push(Event::Type::CalculatedScore, event.pos_, score, lines_to_send);

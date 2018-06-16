@@ -133,6 +133,8 @@ B2B T-Spin Triple | 9
 - [X] Introduce VS mode for multiplayer campaign
 - [X] Add KO box and sent lines box in battle
 - [X] Add possibility to have different UI components based on campaign
+- [ ] Display Winner / Position on game over screen
+- [ ] New splash screen, allowing user to select campaign and starting level
 - [ ] Sound
 - [ ] Remove the pane for showing combo/latest move and display combo/last move direct on the frame
 - [ ] Add new animation for combo/last clearing move (expanding text)
