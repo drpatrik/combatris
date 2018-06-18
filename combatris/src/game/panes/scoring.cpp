@@ -140,7 +140,7 @@ std::tuple<int, int, ComboType, int, int> Scoring::Calculate(const Event& event)
       break;
   }
   if (combo_counter_ > 1 || b2b_counter_ > 1) {
-    lines_to_clear += (0.5 * lines_to_clear);
+    lines_to_clear += static_cast<int>(0.5 * lines_to_clear);
   }
   return std::make_tuple(base_score, combo_score, combo_type, lines_to_send, lines_to_clear);
 }

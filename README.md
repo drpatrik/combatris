@@ -2,6 +2,7 @@
 
 ![screenshots](screenshots/combatris-demo-1.gif)
 ![screenshots](screenshots/combatris-demo-2.png)
+![screenshots](screenshots/combatris-marathon.png)
 
 A modern C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only),
 OSX 10.12/10.13, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
