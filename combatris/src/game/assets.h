@@ -15,9 +15,11 @@ class Assets final {
 
   Assets(const Assets&) = delete;
 
-  TTF_Font* GetFont(const Font& font) const { return fonts_.Get(font); }
+  TTF_Font* GetFont(const Font& font) const { return fonts_->Get(font); }
 
-  TTF_Font* GetFont(Font::Typeface typeface, Font::Emphasis emphasis, int size) const { return fonts_.Get(typeface, emphasis, size); }
+  TTF_Font* GetFont(Font::Typeface typeface, Font::Emphasis emphasis, int size) const { return fonts_->Get(typeface, emphasis, size); }
+
+  std::shared_ptr<Fonts> fonts() { return fonts_; }
 
   std::tuple<std::shared_ptr<SDL_Texture>, int, int> GetTexture(Type type) const;
 
@@ -36,5 +38,5 @@ class Assets final {
   std::vector<std::shared_ptr<SDL_Texture>> textures_;
   std::vector<std::shared_ptr<SDL_Texture>> alpha_textures_;
   std::vector<std::shared_ptr<SDL_Texture>> hourglass_textures_;
-  Fonts fonts_;
+  std::shared_ptr<Fonts> fonts_;
 };

@@ -10,7 +10,7 @@ const double kUpdateInterval = 0.250;
 
 std::pair<UniqueTexturePtr, SDL_Rect> CreateTimerTexture(SDL_Renderer* renderer, const Assets& assets,
                                                          const std::string& text, Color color = Color::White) {
-  auto [texture, width, height] = CreateTextureFromText(renderer, assets.GetFont(TimerFont), text, color);
+  auto [texture, width, height] = CreateTextureFromText(renderer, assets.GetFont(ObelixPro40), text, color);
 
   return std::make_pair(std::move(texture), SDL_Rect{ kMatrixStartX, 5, width, height });
 }

@@ -53,7 +53,7 @@ void Scoring::Update(const Event& event) {
 }
 
 void Scoring::DisplayScore(int score) {
-  std::tie(score_texture_, rc_.w, rc_.h) = CreateTextureFromText(renderer_, assets_->GetFont(TimerFont), std::to_string(score), Color::Yellow);
+  std::tie(score_texture_, rc_.w, rc_.h) = CreateTextureFromText(renderer_, assets_->GetFont(ObelixPro40), std::to_string(score), Color::Yellow);
   rc_.x = x_ - rc_.w;
   rc_.y = y_ - rc_.h;
 }

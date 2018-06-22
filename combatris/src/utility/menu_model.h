@@ -4,6 +4,8 @@
 #include <vector>
 #include <stdexcept>
 
+namespace utility {
+
 class MenuAction {
  public:
   virtual void ItemSelected(size_t item) = 0;
@@ -15,7 +17,9 @@ class MenuModel {
  public:
   enum class MenuItemType { SubMenu, Name };
 
-  MenuModel(MenuAction* menu_action) : menu_action_(menu_action) {}
+  MenuModel() {}
+
+  void SetActionListener(MenuAction* menu_action) { menu_action_ = menu_action; }
 
   void Select(size_t item) {
     if (item >= model_.size()) {
@@ -46,7 +50,18 @@ class MenuModel {
     }
   }
 
-  size_t GetSelected() const { return selected_item_; }
+  size_t GetSelected() {
+    if (set_selected_item_) {
+      for (size_t i = 0; i < model_.size(); ++i) {
+        if (MenuItemType::SubMenu == std::get<0>(model_.at(i))) {
+          selected_item_ = i;
+          break;
+        }
+      }
+      set_selected_item_ = false;
+    }
+    return selected_item_;
+  }
 
   size_t GetSelected(size_t item) const { return std::get<1>(model_.at(item)); }
 
@@ -140,14 +155,19 @@ class MenuModel {
  protected:
   void Add(MenuItemType type, const std::vector<std::string>& items) {
     model_.emplace_back(std::make_tuple(type, 0, items));
+    set_selected_item_ = true;
   }
 
   void Add(MenuItemType type, const std::string& item) {
     model_.emplace_back(std::make_tuple(type, 0, std::vector<std::string>{ item }));
+    set_selected_item_ = true;
   }
 
  private:
   std::vector<std::tuple<MenuItemType, size_t, std::vector<std::string>>> model_;
   size_t selected_item_ = 0;
   MenuAction* menu_action_ = nullptr;
+  bool set_selected_item_ = true;
 };
+
+} // namespace utility

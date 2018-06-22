@@ -52,7 +52,3 @@ class Position final {
   int row_ = -1;
   int col_ = -1;
 };
-
-inline int Center(int w1, int w2 ) {
-  return std::abs(w1 - w2) / 2;
-}

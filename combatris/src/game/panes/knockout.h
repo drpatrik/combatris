@@ -16,9 +16,9 @@ class Knockout final : public Pane, public EventListener {
     circle_rc_ = { kX, kY, kCircleDim, kCircleDim };
     caption_rc_ = { kX + 15, kY - 20, 0, 0 };
     std::tie(caption_texture_, caption_rc_.w, caption_rc_.h) =
-        CreateTextureFromText(renderer_, assets_->GetFont(KoFont), "K.O.", Color::White);
+        CreateTextureFromText(renderer_, assets_->GetFont(ObelixPro35), "K.O.", Color::White);
     std::tie(plus_one_texture_, plus_one_rc_.w, plus_one_rc_.h) =
-        CreateTextureFromText(renderer_, assets_->GetFont(KoFontPlusOne), "+1", Color::Blue);
+        CreateTextureFromText(renderer_, assets_->GetFont(ObelixPro50), "+1", Color::Blue);
     plus_one_rc_.x = circle_rc_.x + Center(kCircleDim, plus_one_rc_.w);
     plus_one_rc_.y = circle_rc_.y + Center(kCircleDim, plus_one_rc_.h);
   }
@@ -52,7 +52,7 @@ class Knockout final : public Pane, public EventListener {
 
  protected:
   void Display(int ko) {
-    std::tie(n_ko_texture_, n_ko_rc_.w, n_ko_rc_.h) = CreateTextureFromText(renderer_, assets_->GetFont(TimerFont), std::to_string(ko), Color::Yellow);
+    std::tie(n_ko_texture_, n_ko_rc_.w, n_ko_rc_.h) = CreateTextureFromText(renderer_, assets_->GetFont(ObelixPro40), std::to_string(ko), Color::Yellow);
     n_ko_rc_.x = circle_rc_.x + Center(kCircleDim, n_ko_rc_.w);
     n_ko_rc_.y = circle_rc_.y + Center(kCircleDim, n_ko_rc_.h);
 }

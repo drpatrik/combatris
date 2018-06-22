@@ -1,7 +1,9 @@
 #pragma once
 
+#include "utility/menu_view.h"
 #include "game/panes/multi_player.h"
 #include "game/tetromino_sprite.h"
+#include "game/combatris_menu_model.h"
 
 namespace {
 
@@ -241,22 +243,22 @@ private:
 class SplashScreenAnimation final : public Animation {
  public:
   SplashScreenAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets>& assets)
-      : Animation(renderer, assets) {
+      : Animation(renderer, assets), menu_view_(renderer, { kMatrixStartX, 0, kMatrixWidth, kMenuHeight }, assets->fonts(), std::make_shared<CombatrisMenuModel>()) {
     int width, height;
 
     std::tie(texture_1_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold55), "COMBATRIS", Color::SteelGray);
     rc_1_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100, width, height };
-    std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal25), "Press 'N' or Start to play", Color::White);
-    rc_2_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_1_.y + rc_1_.h + 10 , width, height };
-    std::tie(texture_3_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal15), "'F1' toggle Single player and Battle campaign", Color::White);
-    rc_3_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_2_.y + rc_2_.h + 10 , width, height };
+    menu_view_.SetY(rc_1_.y + height + 25);
+    std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(ObelixPro18), "Press 'N' or Start to play", Color::White);
+    rc_2_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_1_.y + kMenuHeight, width, height };
+
   }
 
   virtual void Render(double) override {
     SetBlackBackground(*this);
     RenderCopy(texture_1_.get(), rc_1_);
     RenderCopy(texture_2_.get(), rc_2_);
-    RenderCopy(texture_3_.get(), rc_3_);
+    menu_view_.Render();
   }
 
   virtual std::pair<bool, Event::Type> IsReady() const override { return std::make_pair(false, Event::Type::None); }
@@ -267,7 +269,7 @@ private:
   UniqueTexturePtr texture_3_;
   SDL_Rect rc_1_;
   SDL_Rect rc_2_;
-  SDL_Rect rc_3_;
+  MenuView menu_view_;
 };
 
 class GameOverAnimation final : public Animation {

@@ -83,7 +83,7 @@ std::vector<TextureAssetData> kTextures {
 
 } // namespace
 
-Assets::Assets(SDL_Renderer *renderer) {
+Assets::Assets(SDL_Renderer *renderer) : fonts_(std::make_shared<Fonts>()) {
   for (const auto& data : kTetrominoAssetData) {
     tetrominos_.push_back(std::make_shared<Tetromino>(
         renderer, data.type_, data.color_, data.rotations_,
@@ -96,7 +96,7 @@ Assets::Assets(SDL_Renderer *renderer) {
   for (int i = 1; i <=24; ++i) {
     hourglass_textures_.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, "Hourglass", i), DeleteTexture));
   }
-  std::for_each(kFontsToPreload.begin(), kFontsToPreload.end(), [this](const auto& f) { fonts_.Get(f); });
+  std::for_each(kFontsToPreload.begin(), kFontsToPreload.end(), [this](const auto& f) { fonts_->Get(f); });
 }
 
 std::tuple<std::shared_ptr<SDL_Texture>, int, int> Assets::GetTexture(Type type) const {
