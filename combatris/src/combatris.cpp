@@ -18,6 +18,7 @@ const std::unordered_map<std::string, const std::unordered_map<int, Tetrion::Con
       { HatValueToButtonValue(8), Tetrion::Controls::Left },
       { HatValueToButtonValue(2), Tetrion::Controls::Right },
       { HatValueToButtonValue(4), Tetrion::Controls::SoftDrop },
+      { HatValueToButtonValue(1), Tetrion::Controls::RotateCounterClockwise },
       { 0, Tetrion::Controls::RotateCounterClockwise },
       { 2, Tetrion::Controls::RotateClockwise },
       { 3, Tetrion::Controls::Hold },

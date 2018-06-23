@@ -1,8 +1,9 @@
 #pragma once
 
+#include <algorithm>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <stdexcept>
 
 namespace utility {
 
@@ -122,7 +123,7 @@ class MenuModel {
     if (0 == selected) {
       return;
     }
-    auto new_selection = std::max(selected - 1, 0ul);
+    auto new_selection = std::max(selected - 1, static_cast<size_t>(0));
 
     if (new_selection != selected) {
       selected = new_selection;
@@ -163,7 +164,7 @@ class MenuModel {
   }
 
   void Add(MenuItemType type, const std::string& item) {
-    model_.emplace_back(std::make_tuple(type, 0, std::vector<std::string>{ item }));
+    model_.emplace_back(std::make_tuple(type, 0, std::vector<std::string>{item}));
     set_selected_item_ = true;
   }
 
@@ -174,4 +175,4 @@ class MenuModel {
   bool set_selected_item_ = true;
 };
 
-} // namespace utility
+}  // namespace utility

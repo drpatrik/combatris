@@ -28,9 +28,9 @@ class CombatrisMenu : public utility::MenuModel, public utility::MenuAction {
 
   virtual void ItemSelected(size_t item, size_t sub_item) override {
     if (kSelectCampaign == item) {
-      events_.Push(Event::Type::MenuSetCampaign, sub_item + 1);
+      events_.Push(Event::Type::MenuSetCampaign, static_cast<int>(sub_item + 1));
     } else if (kSelectLevel == item) {
-      events_.Push(Event::Type::SetStartLevel, sub_item + 1);
+      events_.Push(Event::Type::SetStartLevel, static_cast<int>(sub_item + 1));
     }
   }
 

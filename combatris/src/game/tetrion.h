@@ -18,7 +18,7 @@ class Tetrion final {
     Start,
     Quit,
     DebugSendLine,
-    Up = RotateClockwise,
+    Up = RotateCounterClockwise,
     Down = SoftDrop
   };
 
