@@ -8,7 +8,7 @@
 namespace {
 
 // DAS settings
-int64_t kAutoRepeatInitialDelay = 150; // milliseconds
+int64_t kAutoRepeatInitialDelay = 160; // milliseconds
 int64_t kAutoRepeatSubsequentDelay = 90; // milliseconds
 
 constexpr int HatValueToButtonValue(Uint8 value) { return (0xFF << 8) | value; }
@@ -18,7 +18,7 @@ const std::unordered_map<std::string, const std::unordered_map<int, Tetrion::Con
       { HatValueToButtonValue(8), Tetrion::Controls::Left },
       { HatValueToButtonValue(2), Tetrion::Controls::Right },
       { HatValueToButtonValue(4), Tetrion::Controls::SoftDrop },
-      { HatValueToButtonValue(1), Tetrion::Controls::RotateCounterClockwise },
+      { HatValueToButtonValue(1), Tetrion::Controls::RotateClockwise },
       { 0, Tetrion::Controls::RotateCounterClockwise },
       { 2, Tetrion::Controls::RotateClockwise },
       { 3, Tetrion::Controls::Hold },
@@ -31,6 +31,7 @@ const std::unordered_map<std::string, const std::unordered_map<int, Tetrion::Con
       { 7, Tetrion::Controls::Left },
       { 5, Tetrion::Controls::Right },
       { 6, Tetrion::Controls::SoftDrop },
+      { 4, Tetrion::Controls::RotateClockwise },
       { 15, Tetrion::Controls::RotateCounterClockwise },
       { 13, Tetrion::Controls::RotateClockwise },
       { 12, Tetrion::Controls::Hold },
