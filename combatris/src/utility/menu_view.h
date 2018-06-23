@@ -9,11 +9,11 @@ namespace utility {
 class MenuView : protected MenuAction {
  public:
   MenuView(SDL_Renderer* renderer, const SDL_Rect& rc, const std::shared_ptr<Fonts>& fonts,
-           const std::shared_ptr<MenuModel>& menu_model);
+           const std::shared_ptr<MenuModel>& menu_model, MenuAction* menu_action);
+
+  virtual ~MenuView() noexcept {}
 
   void SetY(int y) { rc_.y = y; }
-
-  void SetActionListener(MenuAction* menu_action) { menu_action_ = menu_action; }
 
   void Render();
 

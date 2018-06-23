@@ -117,8 +117,12 @@ class MenuModel {
     if (MenuItemType::SubMenu != type) {
       return;
     }
-    auto new_selection = std::max(selected_item_ - 1, 0ul);
     auto& selected = std::get<1>(model_.at(selected_item_));
+
+    if (0 == selected) {
+      return;
+    }
+    auto new_selection = std::max(selected - 1, 0ul);
 
     if (new_selection != selected) {
       selected = new_selection;
@@ -132,7 +136,7 @@ class MenuModel {
     if (MenuItemType::SubMenu != type) {
       return;
     }
-    auto new_selection = std::min(selected_item_ + 1, sub_items.size() - 1);
+    auto new_selection = std::min(selected + 1, sub_items.size() - 1);
 
     if (new_selection != selected) {
       selected = new_selection;

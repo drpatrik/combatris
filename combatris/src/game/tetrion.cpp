@@ -46,7 +46,8 @@ Tetrion::Tetrion() : events_() {
   hold_queue_ = campaign_->GetHoldQueuePane();
   multi_player_ = campaign_->GetMultiPlayerPane();
   tetromino_generator_ = campaign_->GetTetrominoGenerator();
-  AddAnimation<SplashScreenAnimation>(renderer_, assets_);
+  combatris_menu_ = std::make_shared<CombatrisMenu>(events_);
+  AddAnimation<SplashScreenAnimation>(renderer_, combatris_menu_, assets_);
   campaign_->Set(window_, CampaignType::Tetris);
   SDL_RaiseWindow(window_);
 }
@@ -61,33 +62,18 @@ void Tetrion::HandleGameSettings(Controls control_pressed) {
     return;
   }
   switch (control_pressed) {
-    case Controls::F1:
-      campaign_->Set(window_, CampaignType::Tetris);
+    case Controls::Up:
+      combatris_menu_->Previous();
       break;
-    case Controls::F2:
-      campaign_->Set(window_, CampaignType::Marathon);
+    case Controls::Down:
+      combatris_menu_->Next();
       break;
-    case Controls::F3:
-      campaign_->Set(window_, CampaignType::MultiPlayerVS);
+    case Controls::Left:
+      combatris_menu_->PrevSubItem();
       break;
-    case Controls::F4:
-      campaign_->Set(window_, CampaignType::MultiPlayerMarathon);
+    case Controls::Right:
+      combatris_menu_->NextSubItem();
       break;
-    case Controls::F5:
-      campaign_->Set(window_, CampaignType::MultiPlayerBattle);
-      break;
-    case Controls::Plus: {
-      auto level = std::min(campaign_->GetLevel()->level() + 1, kMaxNumberOfLevels);
-
-      events_.Push(Event::Type::SetStartLevel, level);
-      break;
-    }
-    case Controls::Minus: {
-      auto level = std::max(campaign_->GetLevel()->level() - 1, 1);
-
-      events_.Push(Event::Type::SetStartLevel, level);
-      break;
-    }
     default:
       break;
   }
@@ -163,6 +149,9 @@ void Tetrion::EventHandler(Events& events) {
   auto event = campaign_->PreprocessEvent(events.Pop());
 
   switch (event.type()) {
+    case Event::Type::MenuSetCampaign:
+      campaign_->Set(window_, ToCampaignType(event.value_));
+      break;
     case Event::Type::Pause:
       campaign_->Pause();
       AddAnimation<PauseAnimation>(renderer_, assets_, unpause_pressed_);
@@ -210,7 +199,7 @@ void Tetrion::EventHandler(Events& events) {
       events.Clear();
       animations_.clear();
       tetromino_in_play_.reset();
-      AddAnimation<GameOverAnimation>(renderer_, assets_);
+      AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_);
       break;
     case Event::Type::OnFloor:
       AddAnimation<OnFloorAnimation>(renderer_, assets_, tetromino_in_play_);

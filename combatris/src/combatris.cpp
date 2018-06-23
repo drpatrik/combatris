@@ -130,20 +130,6 @@ class Combatris {
       current_control = Tetrion::Controls::Start;
     } else if (event.key.keysym.scancode == SDL_SCANCODE_P) {
       current_control = Tetrion::Controls::Pause;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_F1) {
-      current_control = Tetrion::Controls::F1;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_F2) {
-      current_control = Tetrion::Controls::F2;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_F3) {
-      current_control = Tetrion::Controls::F3;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_F4) {
-      current_control = Tetrion::Controls::F4;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_F5) {
-      current_control = Tetrion::Controls::F5;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_F9) {
-      current_control = Tetrion::Controls::Minus;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_F10) {
-      current_control = Tetrion::Controls::Plus;
     } else if (event.key.keysym.scancode == SDL_SCANCODE_Q) {
       current_control = Tetrion::Controls::Quit;
     } else if (event.key.keysym.scancode >=  SDL_SCANCODE_1 && event.key.keysym.scancode <=  SDL_SCANCODE_9) {

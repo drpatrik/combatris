@@ -12,8 +12,8 @@ const Font kFontItem = Font(Font::Typeface::ObelixPro, Font::Emphasis::Normal, 1
 namespace utility {
 
 MenuView::MenuView(SDL_Renderer* renderer, const SDL_Rect& rc, const std::shared_ptr<Fonts>& fonts,
-                   const std::shared_ptr<MenuModel>& menu_model)
-    : renderer_(renderer), rc_(rc), fonts_(fonts), menu_model_(menu_model), selected_item_(menu_model->GetSelected()) {
+                   const std::shared_ptr<MenuModel>& menu_model, MenuAction* menu_action)
+    : renderer_(renderer), rc_(rc), fonts_(fonts), menu_model_(menu_model), selected_item_(menu_model->GetSelected()), menu_action_(menu_action) {
   menu_model_->SetActionListener(this);
   const std::vector<std::string> kStrings = {"[", "]"};
 

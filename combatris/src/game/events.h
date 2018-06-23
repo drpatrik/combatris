@@ -22,6 +22,7 @@ enum class ComboType { None, B2BTSpin, B2BTetris, Combo };
 struct Event {
   enum class Type {
     None,
+    MenuSetCampaign,
     Pause,
     UnPause,
     NewGame,

@@ -3,7 +3,7 @@
 #include "utility/menu_view.h"
 #include "game/panes/multi_player.h"
 #include "game/tetromino_sprite.h"
-#include "game/combatris_menu_model.h"
+#include "game/combatris_menu.h"
 
 namespace {
 
@@ -157,7 +157,7 @@ class CountDownAnimation final : public Animation {
 
 class MessageAnimation final : public Animation {
  public:
-  MessageAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets>& assets, const std::string& msg, Color color, double display_speed = 45.0)
+  MessageAnimation(SDL_Renderer *renderer, const std::shared_ptr<Assets>& assets, const std::string& msg, Color color, double display_speed = 45.0)
       : Animation(renderer, assets), display_speed_(display_speed) {
     int width, height;
 
@@ -189,7 +189,7 @@ private:
 
 class OnFloorAnimation final : public Animation {
  public:
-  OnFloorAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets>& assets, const std::shared_ptr<TetrominoSprite>& tetromino_sprite)
+  OnFloorAnimation(SDL_Renderer *renderer, const std::shared_ptr<Assets>& assets, const std::shared_ptr<TetrominoSprite>& tetromino_sprite)
       : Animation(renderer, assets), tetromino_sprite_(tetromino_sprite), tetromino_(tetromino_sprite->tetromino()) {
     alpha_texture_ = assets->GetAlphaTextures(tetromino_sprite_->tetromino().type());
     SDL_GetTextureAlphaMod(alpha_texture_.get(), &alpha_saved_);
@@ -218,7 +218,7 @@ private:
 
 class PauseAnimation final : public Animation {
  public:
-  PauseAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets>& assets, bool& unpause_pressed)
+  PauseAnimation(SDL_Renderer *renderer, const std::shared_ptr<Assets>& assets, bool& unpause_pressed)
       : Animation(renderer, assets), unpause_pressed_(unpause_pressed) {
     int width, height;
 
@@ -242,8 +242,8 @@ private:
 
 class SplashScreenAnimation final : public Animation {
  public:
-  SplashScreenAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets>& assets)
-      : Animation(renderer, assets), menu_view_(renderer, { kMatrixStartX, 0, kMatrixWidth, kMenuHeight }, assets->fonts(), std::make_shared<CombatrisMenuModel>()) {
+  SplashScreenAnimation(SDL_Renderer *renderer, const std::shared_ptr<CombatrisMenu>& menu, const std::shared_ptr<Assets>& assets)
+      : Animation(renderer, assets), menu_view_(renderer, { kMatrixStartX, 0, kMatrixWidth, kMenuHeight }, assets->fonts(), menu, menu.get()) {
     int width, height;
 
     std::tie(texture_1_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold55), "COMBATRIS", Color::SteelGray);
@@ -251,7 +251,6 @@ class SplashScreenAnimation final : public Animation {
     menu_view_.SetY(rc_1_.y + height + 25);
     std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(ObelixPro18), "Press 'N' or Start to play", Color::White);
     rc_2_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_1_.y + kMenuHeight, width, height };
-
   }
 
   virtual void Render(double) override {
@@ -274,18 +273,18 @@ private:
 
 class GameOverAnimation final : public Animation {
  public:
-  GameOverAnimation(SDL_Renderer *renderer, std::shared_ptr<Assets>& assets)
-      : Animation(renderer, assets) {
+  GameOverAnimation(SDL_Renderer *renderer, const std::shared_ptr<CombatrisMenu>& menu, const std::shared_ptr<Assets>& assets)
+      : Animation(renderer, assets), menu_view_(renderer, { kMatrixStartX, 0, kMatrixWidth, kMenuHeight }, assets->fonts(), menu, menu.get()) {
     int width, height;
 
     std::tie(texture_1_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal55), "Game Over", Color::White);
     rc_1_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100 , width, height };
-    std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal25), "Press 'N' or Start to play", Color::White);
-    rc_2_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_1_.y + rc_1_.h + 10 , width, height };
-    std::tie(texture_3_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal15), "'F1' toggle Single player and Battle campaign", Color::White);
-    rc_3_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_2_.y + rc_2_.h + 10 , width, height };
+    menu_view_.SetY(rc_1_.y + height + 25);
 
-    blackbox_rc_ = { rc_1_.x - 20, rc_1_.y - 20, rc_1_.w + 40, rc_1_.h + rc_2_.h + rc_3_.h + 50 };
+    std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal25), "Press 'N' or Start to play", Color::White);
+    rc_2_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_1_.y + kMenuHeight, width, height };
+
+    blackbox_rc_ = { rc_1_.x - 20, rc_1_.y - 20, rc_1_.w + 40, rc_1_.h + kMenuHeight };
   }
 
   virtual void Render(double) override {
@@ -294,6 +293,7 @@ class GameOverAnimation final : public Animation {
     RenderCopy(texture_1_.get(), rc_1_);
     RenderCopy(texture_2_.get(), rc_2_);
     RenderCopy(texture_3_.get(), rc_3_);
+    menu_view_.Render();
   }
 
   virtual std::pair<bool, Event::Type> IsReady() const override { return std::make_pair(false, Event::Type::None); }
@@ -306,12 +306,13 @@ private:
   SDL_Rect rc_2_;
   SDL_Rect rc_3_;
   SDL_Rect blackbox_rc_;
+  MenuView menu_view_;
 };
 
 // We make this class generic when we have more gifs
 class HourglassAnimation final : public Animation {
  public:
-  HourglassAnimation(SDL_Renderer* renderer, std::shared_ptr<Assets>& assets, std::shared_ptr<MultiPlayer> multi_player)
+  HourglassAnimation(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, const std::shared_ptr<MultiPlayer>& multi_player)
       : Animation(renderer, assets), multi_player_(multi_player), textures_(GetAsset().GetHourGlassTextures()) {
     int width, height;
 

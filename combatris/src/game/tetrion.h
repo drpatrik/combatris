@@ -16,15 +16,10 @@ class Tetrion final {
     Hold,
     Pause,
     Start,
-    F1,
-    F2,
-    F3,
-    F4,
-    F5,
-    Plus,
-    Minus,
     Quit,
-    DebugSendLine
+    DebugSendLine,
+    Up = RotateClockwise,
+    Down = SoftDrop
   };
 
   Tetrion();
@@ -83,4 +78,5 @@ class Tetrion final {
   std::shared_ptr<MultiPlayer> multi_player_;
   std::shared_ptr<TetrominoGenerator> tetromino_generator_;
   std::deque<std::shared_ptr<Animation>> animations_;
+  std::shared_ptr<CombatrisMenu> combatris_menu_;
 };

@@ -135,7 +135,7 @@ B2B T-Spin Triple | 9
 - [X] Add KO box and sent lines box in battle
 - [X] Add possibility to have different UI components based on campaign
 - [ ] Display Winner / Position on game over screen
-- [ ] New splash screen, allowing user to select campaign and starting level
+- [X] New splash screen, allowing user to select campaign and starting level
 - [ ] Sound
 - [ ] Remove the pane for showing combo/latest move and display combo/last move direct on the frame
 - [ ] Add new animation for combo/last clearing move (expanding text)
@@ -161,13 +161,6 @@ Right | Move Right
 Down | Soft Drop
 Space | Hard Drop
 Shift | Hold piece
-F1 | Tetris
-F2 | Marathon
-F3 | Multiplayer VS.
-F4 | Multiplayer Marathon
-F5 | Multiplayer Battle
-F9 | Start Level - 1
-F10 | Start Level + 1
 Q | Quit
 
 **Joystick Commands (PS3 Controller)**
