@@ -5,7 +5,7 @@ namespace {
 double kDisplayTime = 0.7;
 
 const std::vector<std::string> kBasicScoreTypes = { "", "SINGLE", "DOUBLE", "TRIPLE", "TETRIS" };
-const std::vector<std::string> kTSpinTypes = { "", "T-Spin", "T-Spin mini" };
+const std::vector<std::string> kTSpinTypes = { "", "T-SPIN", "t-spin" };
 const std::vector<std::string> kScoreModifiers = { "", "B2B #", "Combo #" };
 
 std::string GetComboType(const Event& event) {

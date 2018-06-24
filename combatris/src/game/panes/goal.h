@@ -21,7 +21,6 @@ class Goal final : public TextPane, public EventListener {
       case Event::Type::SetStartLevel:
         level_ = start_level_ = event.value_;
         goal_ = level_ * 5;
-        std::cout << "current goal " << goal_ << std::endl;
         break;
       case Event::Type::LinesCleared:
         goal_ = std::max(goal_ - event.value_, 0);
@@ -29,7 +28,6 @@ class Goal final : public TextPane, public EventListener {
       case Event::Type::LevelUp:
         level_ = event.value_;
         goal_ = level_ * 5;
-        std::cout << "New Goal: " << goal_ << std::endl;
         break;
       default:
         break;

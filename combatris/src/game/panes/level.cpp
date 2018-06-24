@@ -36,7 +36,6 @@ void Level::SetThresholds() {
   wait_time_ = (1.0 / kLevelData.at(index).gravity_) / 60.0;
   lock_delay_ = kLevelData.at(index).lock_delay_;
   lines_for_next_level_ = (rule_type_ == CampaignRuleType::Normal) ? 10 : level_ * 5;
-  std::cout << "Lines for next level: " << lines_for_next_level_ << " Index: " << index << std::endl;
 }
 
 void Level::SetLevel(int lvl) {
@@ -77,14 +76,11 @@ void Level::Update(const Event& event) {
   }
   lines_this_level_ += event.value_;
 
-  std::cout << "Lines this level: " << lines_this_level_ << std::endl;
   if (lines_this_level_ >= lines_for_next_level_) {
     lines_this_level_ = 0;
     level_++;
-    std::cout << "New level: " << level_ << std::endl;
     if (level_ > static_cast<int>(kLevelData.size())) {
       events_.Push(Event::Type::LastLevelCompleted);
-      std::cout << "Last level completed" << std::endl;
     } else {
       SetThresholds();
       SetCenteredText(level());

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <algorithm>
-#include <stdexcept>
+
 #include <string>
 #include <vector>
+#include <tuple>
 
 namespace utility {
 
@@ -20,136 +20,25 @@ class MenuModel {
 
   MenuModel() {}
 
-  void SetActionListener(MenuAction* menu_action) { menu_action_ = menu_action; }
+  inline void SetActionListener(MenuAction* menu_action) { menu_action_ = menu_action; }
 
-  void Select(size_t item) {
-    if (item >= model_.size()) {
-      throw std::out_of_range("item not valid" + std::to_string(item));
-    }
+  size_t GetSelected();
 
-    if (item != selected_item_) {
-      selected_item_ = item;
-      menu_action_->ItemSelected(item);
-    }
-  }
+  inline size_t GetSelected(size_t item) const { return std::get<1>(model_.at(item)); }
 
-  void Select(size_t item, size_t sub_item) {
-    if (item >= model_.size()) {
-      throw std::out_of_range("item not valid" + std::to_string(item));
-    }
-    auto& [type, selected, sub_items] = model_.at(item);
+  inline bool HasSubItems(size_t item) const { return std::get<2>(model_.at(item)).size() > 1; }
 
-    if (type != MenuItemType::SubMenu) {
-      throw std::invalid_argument("item has not a submenu");
-    }
-    if (sub_item >= sub_items.size()) {
-      throw std::out_of_range("sub_item not valid" + std::to_string(sub_item));
-    }
-    if (selected != sub_item) {
-      selected = sub_item;
-      menu_action_->ItemSelected(item, sub_item);
-    }
-  }
+  inline bool IsSelected(size_t item) const { return selected_item_ == item; }
 
-  size_t GetSelected() {
-    if (set_selected_item_) {
-      for (size_t i = 0; i < model_.size(); ++i) {
-        if (MenuItemType::SubMenu == std::get<0>(model_.at(i))) {
-          selected_item_ = i;
-          break;
-        }
-      }
-      set_selected_item_ = false;
-    }
-    return selected_item_;
-  }
+  inline size_t size() const { return model_.size(); }
 
-  size_t GetSelected(size_t item) const { return std::get<1>(model_.at(item)); }
+  void Previous();
 
-  void Previous() {
-    bool accept = false;
-    auto new_selection = selected_item_;
+  void Next();
 
-    if (0 == new_selection) {
-      return;
-    }
-    while (true) {
-      new_selection--;
-      if (MenuItemType::SubMenu == std::get<0>(model_.at(new_selection))) {
-        accept = true;
-        break;
-      }
-      if (0 == new_selection) {
-        break;
-      }
-    }
-    if (accept && new_selection != selected_item_) {
-      selected_item_ = new_selection;
-      menu_action_->ItemSelected(selected_item_);
-    }
-  }
+  void PrevSubItem();
 
-  void Next() {
-    bool accept = false;
-    auto new_selection = selected_item_;
-
-    if (model_.size() - 1 == new_selection) {
-      return;
-    }
-    while (true) {
-      new_selection++;
-      if (MenuItemType::SubMenu == std::get<0>(model_.at(new_selection))) {
-        accept = true;
-        break;
-      }
-      if (new_selection >= model_.size()) {
-        break;
-      }
-    }
-    if (accept && new_selection != selected_item_) {
-      selected_item_ = new_selection;
-      menu_action_->ItemSelected(selected_item_);
-    }
-  }
-
-  void PrevSubItem() {
-    auto type = std::get<0>(model_.at(selected_item_));
-
-    if (MenuItemType::SubMenu != type) {
-      return;
-    }
-    auto& selected = std::get<1>(model_.at(selected_item_));
-
-    if (0 == selected) {
-      return;
-    }
-    auto new_selection = std::max(selected - 1, static_cast<size_t>(0));
-
-    if (new_selection != selected) {
-      selected = new_selection;
-      menu_action_->ItemSelected(selected_item_, selected);
-    }
-  }
-
-  void NextSubItem() {
-    auto& [type, selected, sub_items] = model_.at(selected_item_);
-
-    if (MenuItemType::SubMenu != type) {
-      return;
-    }
-    auto new_selection = std::min(selected + 1, sub_items.size() - 1);
-
-    if (new_selection != selected) {
-      selected = new_selection;
-      menu_action_->ItemSelected(selected_item_, selected);
-    }
-  }
-
-  bool HasSubItems(size_t item) const { return std::get<2>(model_.at(item)).size() > 1; }
-
-  bool IsSelected(size_t item) const { return selected_item_ == item; }
-
-  size_t size() const { return model_.size(); }
+  void NextSubItem();
 
   std::pair<MenuItemType, std::string> GetItem(size_t item) const {
     const auto& [type, selected, sub_items] = model_.at(item);

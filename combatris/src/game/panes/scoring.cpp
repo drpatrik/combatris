@@ -24,11 +24,9 @@ void Scoring::Update(const Event& event) {
       break;
     case Event::Type::SetStartLevel:
       start_level_ = event.value_;
-      std::cout << "Scoring new start level " << start_level_ << std::endl;
       break;
     case Event::Type::LevelUp:
       level_ = event.value_;
-      std::cout << "Scoring new level " << level_ << std::endl;
       break;
     case Event::Type::ClearedLinesScoreData: {
       auto [base_score, combo_score, combo_type, lines_to_send, lines_to_clear] = Calculate(event);
@@ -78,7 +76,6 @@ void Scoring::UpdateEvents(int score, ComboType combo_type, int lines_to_send, i
   lines_to_clear = (CampaignRuleType::Normal == rule_type_) ? event.lines() : lines_to_clear;
 
   if (lines_to_clear > 0) {
-    std::cout << "Lines cleared: " << lines_to_clear << std::endl;
     events_.Push(Event::Type::LinesCleared, event.lines_, lines_to_clear);
   }
   events_.Push(Event::Type::CalculatedScore, event.pos_, score, lines_to_send);
