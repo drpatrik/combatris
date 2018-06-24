@@ -5,6 +5,7 @@ using namespace network;
 namespace {
 
 const int kMaxPlayers = 6;
+const int kTimesUpSoon = 15;
 const int kGameTime = 120;
 const double kUpdateInterval = 0.250;
 
@@ -111,7 +112,7 @@ void MultiPlayer::Render(double delta_time) {
     auto [updated, time_in_sec] = timer_.GetTimeInSeconds();
 
     if (updated) {
-      auto color = (time_in_sec <= 15) ? Color::Red : Color::White;
+      auto color = (time_in_sec <= kTimesUpSoon) ? Color::Red : Color::White;
 
       std::tie(timer_texture_, timer_texture_rc_) = CreateTimerTexture(renderer_, *assets_, timer_.FormatTime(time_in_sec), color);
       if (timer_.IsZero()) {
@@ -247,7 +248,7 @@ void MultiPlayer::GotNewState(uint64_t host_id, network::GameState state) {
 void MultiPlayer::GotProgressUpdate(uint64_t host_id, int lines, int score, int level, const MatrixState& state) {
   auto& player = players_.at(host_id);
 
-  score =  (IsBattleCampaign(campaign_type_)) ? 0 : score;
+  score = (IsBattleCampaign(campaign_type_)) ? -1 : score;
   if (player->ProgressUpdate(lines, score, level)) {
     SortScoreBoard();
   }
