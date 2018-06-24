@@ -69,7 +69,7 @@ const std::vector<Field> kFields = {
   Field(ID::ScoreCaption, "Score", kScoreCaptionFieldRc),
   Field(ID::Score, "0", kScoreFieldRc, Color::Yellow),
   Field(ID::LevelCaption, "Lvl", kLevelCaptionFieldRc),
-  Field(ID::Level, "1", kLevelFieldRc, Color::Yellow),
+  Field(ID::Level, "-", kLevelFieldRc, Color::Yellow),
   Field(ID::KO, "0", kKOFieldRc, Color::Yellow),
   Field(ID::KOCaption, "KO's", kKOCaptionFieldRc),
   Field(ID::LinesSentCaption, "Lines Sent", kLinesSentCaptionFieldRc),
@@ -116,7 +116,8 @@ int Player::Update(Player::TextureID id, int new_value, int old_value, Function 
   }
   auto& stat = textures_.at(id);
 
-  auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), to_string(new_value), Color::Yellow);
+  auto txt = (new_value == -1) ? "-" : to_string(new_value);
+  auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), txt, Color::Yellow);
 
   stat->Set(std::move(texture), w, h);
 
@@ -157,13 +158,15 @@ void Player::SetKO(int ko, bool set_to_zero) { ko_ = Update(ID::KO, ko, ko_, Int
 void Player::Reset() {
   lines_ = 0;
   score_ = 0;
-  level_ = 1;
+  level_ = -1;
   ProgressUpdate(lines_, score_, level_, true);
   lines_sent_ = 0;
   SetLinesSent(lines_sent_, true);
   ko_ = 0;
   SetKO(ko_, true);
   matrix_ = kEmptyMatrix;
+  state_ = (GameState::GameOver == state_) ? GameState::Idle : state_;
+  SetState(state_);
 }
 
 void Player::Render(int x_offset, int y_offset, bool is_my_status) const {
@@ -185,8 +188,10 @@ void Player::Render(int x_offset, int y_offset, bool is_my_status) const {
   SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kLinesFieldRc)));
 
   for (const auto& it : textures_) {
+    const auto& field = it.second;
+
     SDL_RenderCopy(renderer_, it.second->texture_.get(), nullptr,
-                   &AddOffset(tmp, x_offset, y_offset, *InsideBox(tmp, it.second->rc_, it.second->w_, it.second->h_)));
+                   &AddOffset(tmp, x_offset, y_offset, *InsideBox(tmp, field->rc_, field->w_, field->h_)));
   }
   int y_pos = 0;
 

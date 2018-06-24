@@ -26,6 +26,13 @@ void RemoveAnimation(std::deque<std::shared_ptr<Animation>>& animations) {
     [](const auto &a) { return a->name() == typeid(T).name(); }), animations.end());
 }
 
+template <class T>
+
+bool IsAnimationActive(std::deque<std::shared_ptr<Animation>>& animations) {
+  return std::find_if(animations.begin(), animations.end(),
+    [](const auto& a) { return a->name() == typeid(T).name(); }) != animations.end();
+}
+
 } // namespace
 
 Tetrion::Tetrion() : events_() {
@@ -58,7 +65,7 @@ Tetrion::~Tetrion() noexcept {
 }
 
 void Tetrion::HandleGameSettings(Controls control_pressed) {
-  if (tetromino_in_play_) {
+  if (!(IsAnimationActive<SplashScreenAnimation>(animations_) || IsAnimationActive<GameOverAnimation>(animations_))) {
     return;
   }
   switch (control_pressed) {
@@ -80,8 +87,8 @@ void Tetrion::HandleGameSettings(Controls control_pressed) {
 }
 
 void Tetrion::GameControl(Controls control_pressed, int lines) {
-  HandleGameSettings(control_pressed);
   if (!tetromino_in_play_ || game_paused_) {
+    HandleGameSettings(control_pressed);
     return;
   }
   switch (control_pressed) {

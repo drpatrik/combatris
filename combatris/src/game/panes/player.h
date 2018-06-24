@@ -24,7 +24,13 @@ class Player final {
 
   Player(const Player&) = delete;
 
+  const std::string& name() const { return name_; }
+
+  uint64_t host_id() const { return host_id_; }
+
   void ProgressUpdate(int lines, int score, int level, bool set_to_zero = false);
+
+  int score() const { return score_; }
 
   void SetMatrixState(const network::MatrixState& state);
 
@@ -40,16 +46,11 @@ class Player final {
 
   int ko() const { return ko_; }
 
-  int score() const { return score_; }
-
   void Reset();
 
   void Render(int x_offset, int y_offset, bool is_my_status) const;
 
-  const std::string& name() const { return name_; }
-
-  uint64_t host_id() const { return host_id_; }
-
+ private:
   struct Texture {
     Texture(UniqueTexturePtr&& texture, int w, int h, SDL_Rect rc)
         : texture_(std::move(texture)), w_(w), h_(h), rc_(rc) {}
@@ -74,7 +75,7 @@ class Player final {
   int lines_ = 0;
   int lines_sent_ = 0;
   int score_ = 0;
-  int level_ = 0;
+  int level_ = -1;
   int ko_ = 0;
   GameState state_ = GameState::None;
   MatrixType matrix_;
