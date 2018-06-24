@@ -150,6 +150,9 @@ void MultiPlayer::Render(double delta_time) {
 void MultiPlayer::SortScoreBoard() {
   if (IsBattleCampaign(campaign_type_)) {
     std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) {
+      if (GameState::Idle == b->state()) {
+        return true;
+      }
       if (a->ko() != b->ko()) {
         return a->ko() > b->ko();
       }
@@ -163,7 +166,12 @@ void MultiPlayer::SortScoreBoard() {
 #endif
   } else {
     std::sort(score_board_.begin(), score_board_.end(),
-              [](const auto& a, const auto& b) { return a->score() > b->score(); });
+              [](const auto& a, const auto& b) {
+      if (GameState::Idle == b->state()) {
+        return true;
+      }
+      return a->score() > b->score();
+    });
 #if !defined(NDEBUG)
     std::cout << "-----\n";
     for (const auto& p : score_board_) {
@@ -207,7 +215,6 @@ void MultiPlayer::GotNewGame(uint64_t host_id) {
     for (auto& player : score_board_) {
       player->Reset();
     }
-    SortScoreBoard();
     events_.Push(Event::Type::MultiplayerResetCountDown);
   } else if (GameState::Waiting == game_state_) {
     events_.Push(Event::Type::MultiplayerResetCountDown);
@@ -220,6 +227,7 @@ void MultiPlayer::GotStartGame() {
       player->SetState(GameState::Idle);
     }
   }
+  SortScoreBoard();
   if (1 == players_.size() || CanStartGame()) {
     events_.Push(Event::Type::NextTetromino);
   } else {
