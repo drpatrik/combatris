@@ -1,19 +1,19 @@
 # Combatris - A Tetris clone
 
-![screenshots](screenshots/combatris-demo-1.gif)
-![screenshots](screenshots/combatris-demo-2.png)
+![screenshots](screenshots/combatris-splash.png)
 ![screenshots](screenshots/combatris-marathon.png)
+![screenshots](screenshots/combatris-battle.png)
 
 A modern C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only),
 OSX 10.12/10.13, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
 
 Combatris supports Tetris, Marathon and Battle. The two first campaigns are available as both single-player
 and multi-player. The purpose of Marathon and Tetris is to maximize the score while Battle is only judged based
-on number of line sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
+on number of lines sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
 
 I have tested the game with up to five players running on a heterogeneous set of computers using both wireless
 and Ethernet based connections. The game works well but there can be a lag up to 0.5 seconds, since heartbeats
-are sent every 0.5 second and status updates every 250 milliseconds (if something has happened). Heartbeats are
+are sent every 200 ms and status updates every 250 ms (if something has happened). Heartbeats are
 suppressed if other messages have been sent within the heartbeat interval (to keep network congestion down).
 
 Since its only me playing, and sometimes the family when they feel pity for me, the game most probably
@@ -134,14 +134,14 @@ B2B T-Spin Triple | 9
 - [X] Introduce VS mode for multiplayer campaign
 - [X] Add KO box and sent lines box in battle
 - [X] Add possibility to have different UI components based on campaign
-- [ ] Display Winner / Position on game over screen
 - [X] New splash screen, allowing user to select campaign and starting level
+- [X] Allow user to change game settings (level, etc) in UI
+- [ ] Display Winner / Position on game-over splash screen
 - [ ] Sound
 - [ ] Remove the pane for showing combo/latest move and display combo/last move direct on the frame
-- [ ] Add new animation for combo/last clearing move (expanding text)
+- [ ] Add new animation for combo/last clearing move
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
-- [X] Allow user to change game settings (level, etc) in UI
 - [ ] Auto discovery of broadcast address (e.g. 192.168.1.255)
 - [ ] Write a TCP/IP gateway server for Internet based support
 - [ ] Do a proper implementation of the sliding window protocol
@@ -153,7 +153,6 @@ Key | Action
 --- | ------
 N  | New game
 P | Pause
-F1 | Toggle Single Player / Battle mode
 Z | Rotate counter clockwise
 Up / X | Rotate clockwise
 Left | Move Left
@@ -194,7 +193,7 @@ A | Hard Drop
 ## Network Considerations
 
 The default port is 11000 and default broadcast IP are 192.168.1.255
-Use the environment variables COMBATRIS_BROADCAST_PORT and COMBATRIS_BROADCAST_IP to
+Set the environment variables COMBATRIS_BROADCAST_PORT and COMBATRIS_BROADCAST_IP to
 change the port and broadcast IP accordingly.
 
 The network protocol is UDP based and uses a sliding window for handling lost and out of order
@@ -244,15 +243,23 @@ make cppcheck
 You need to activate the OpenGL driver otherwise the game will be far to slow.
 
 The code builds cleanly and has been tested with GCC 7.3.0 and Clang 6.0.0, instructions how
-to install the GCC compiler can be found here:
+to install the compilers can be found here:
 
 https://solarianprogrammer.com/2017/12/08/raspberry-pi-raspbian-install-gcc-compile-cpp-17-programs/
+https://solarianprogrammer.com/2018/04/22/raspberry-pi-raspbian-install-clang-compile-cpp-17-programs/
 
-You need to set these flag before running make:
+You need to set these environment variables before running make:
 
 ```bash
 export PATH=/usr/local/gcc-7.3.0/bin:$PATH
 export CXX=gcc-7.3.0
+```
+
+or
+
+```bash
+export PATH=/usr/local/clang_6.0.0/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/clang_6.0.0/lib:$LD_LIBRARY_PATH
 ```
 
 **Ubuntu**
