@@ -1,20 +1,20 @@
-# Combatris - A Tetris clone
+# COMBATRIS - A Tetris clone
 
 ![screenshots](screenshots/combatris-splash.png)
 ![screenshots](screenshots/combatris-marathon.png)
 ![screenshots](screenshots/combatris-battle.png)
 
-A modern C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only),
+A C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only),
 OSX 10.12/10.13, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
 
-Combatris supports Tetris, Marathon and Battle. The two first campaigns are available as both single-player
+Combatris supports Tetris, Marathon and Battle modes. The two first campaigns are available as both single-player
 and multi-player. The purpose of Marathon and Tetris is to maximize the score while Battle is only judged based
 on number of lines sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
 
 I have tested the game with up to five players running on a heterogeneous set of computers using both wireless
-and Ethernet based connections. The game works well but there can be a lag up to 0.5 seconds, since heartbeats
-are sent every 200 ms and status updates every 250 ms (if something has happened). Heartbeats are
-suppressed if other messages have been sent within the heartbeat interval (to keep network congestion down).
+and Ethernet based connections. The game works well but there can be lag, since heartbeats are sent
+every 200 ms and status updates every 250 ms (if something has happened). Heartbeats are suppressed if
+other messages have been sent within the heartbeat interval (to keep network congestion down).
 
 Since its only me playing, and sometimes the family when they feel pity for me, the game most probably
 have many bugs left.
