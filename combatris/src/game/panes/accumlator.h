@@ -2,7 +2,7 @@
 
 struct Accumlator final {
 
-  Accumlator() { Reset(); }
+  Accumlator() { Reset(1); }
 
   void AddLines(int lines) { lines_ += lines; }
 
@@ -10,21 +10,13 @@ struct Accumlator final {
 
   void SetLevel(int level) { level_ = level; }
 
-  void AddLinesSent(int lines) { lines_sent_ += lines; }
-
-  void AddKnockedOut(int ko) { ko_ += ko; }
-
-  void Reset() {
+  void Reset(int start_level) {
     lines_ = 0;
     score_ = 0;
-    level_ = 0;
-    lines_sent_ = 0;
-    ko_ = 0;
+    level_ = start_level;
   }
 
   int lines_;
   int score_;
   int level_;
-  int lines_sent_;
-  int ko_;
 };

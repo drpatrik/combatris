@@ -49,6 +49,9 @@ void MultiPlayer::Update(const Event& event) {
     return;
   }
   switch (event.type()) {
+    case Event::Type::SetStartLevel:
+      start_level_ = event.value_;
+      break;
     case Event::Type::SetCampaign:
       campaign_type_ = ToCampaignType(event.value_);
       break;
@@ -199,7 +202,7 @@ void MultiPlayer::GotLeave(uint64_t host_id) {
 
 void MultiPlayer::GotNewGame(uint64_t host_id) {
   if (IsUs(host_id)) {
-    accumulator_.Reset();
+    accumulator_.Reset(start_level_);
     std::tie(timer_texture_, timer_texture_rc_) = CreateTimerTexture(renderer_, *assets_, timer_.FormatTime(kGameTime));
     for (auto& player : score_board_) {
       player->Reset();
@@ -212,6 +215,11 @@ void MultiPlayer::GotNewGame(uint64_t host_id) {
 }
 
 void MultiPlayer::GotStartGame() {
+  for (auto& player : score_board_) {
+    if (GameState::GameOver == player->state()) {
+      player->SetState(GameState::Idle);
+    }
+  }
   if (1 == players_.size() || CanStartGame()) {
     events_.Push(Event::Type::NextTetromino);
   } else {
@@ -231,7 +239,10 @@ void MultiPlayer::GotNewState(uint64_t host_id, network::GameState state) {
 void MultiPlayer::GotProgressUpdate(uint64_t host_id, int lines, int score, int level, const MatrixState& state) {
   auto& player = players_.at(host_id);
 
-  player->ProgressUpdate(lines, score, level);
+  score =  (IsBattleCampaign(campaign_type_)) ? 0 : score;
+  if (player->ProgressUpdate(lines, score, level)) {
+    SortScoreBoard();
+  }
   player->SetMatrixState(state);
 }
 
@@ -245,8 +256,7 @@ void MultiPlayer::GotLines(uint64_t host_id, int lines) {
   }
   auto& player = players_.at(host_id);
 
-  accumulator_.AddLinesSent(lines);
-  player->SetLinesSent(accumulator_.lines_sent_);
+  player->AddLinesSent(lines);
   SortScoreBoard();
 }
 
@@ -256,7 +266,6 @@ void MultiPlayer::GotPlayerKnockedOut(uint64_t host_id) {
   }
   auto& player = players_.at(host_id);
 
-  accumulator_.AddKnockedOut(1);
-  player->SetKO(accumulator_.ko_);
+  player->AddKO(1);
   SortScoreBoard();
 }

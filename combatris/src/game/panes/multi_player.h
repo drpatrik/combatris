@@ -88,4 +88,5 @@ private:
   UniqueTexturePtr timer_texture_;
   SDL_Rect timer_texture_rc_;
   CampaignType campaign_type_ = CampaignType::None;
+  int start_level_ = 1;
 };

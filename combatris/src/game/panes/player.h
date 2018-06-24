@@ -28,7 +28,7 @@ class Player final {
 
   uint64_t host_id() const { return host_id_; }
 
-  void ProgressUpdate(int lines, int score, int level, bool set_to_zero = false);
+  bool ProgressUpdate(int lines, int score, int level, bool set_to_zero = false);
 
   int score() const { return score_; }
 
@@ -38,11 +38,11 @@ class Player final {
 
   GameState state() const { return state_; }
 
-  void SetLinesSent(int lines_sent, bool set_to_zero = false);
+  void AddLinesSent(int lines_sent, bool set_to_zero = false);
 
   int lines_sent() const { return lines_sent_; }
 
-  void SetKO(int ko, bool set_to_zero = false);
+  void AddKO(int ko, bool set_to_zero = false);
 
   int ko() const { return ko_; }
 
