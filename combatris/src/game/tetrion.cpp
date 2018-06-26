@@ -180,8 +180,10 @@ void Tetrion::EventHandler(Events& events) {
       AddAnimation<MessageAnimation>(renderer_, assets_, "LEVEL UP", Color::SteelGray, 100);
       break;
     case Event::Type::LinesCleared:
-      RemoveAnimation<LinesClearedAnimation>(animations_);
-      AddAnimation<LinesClearedAnimation>(renderer_, assets_, event.lines_);
+      if (event.lines_.size() > 0) {	
+	RemoveAnimation<LinesClearedAnimation>(animations_);
+	AddAnimation<LinesClearedAnimation>(renderer_, assets_, event.lines_);
+      }
       break;
     case Event::Type::CalculatedScore:
       if (!IsBattleCampaign(*campaign_)) {
