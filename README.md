@@ -202,7 +202,7 @@ packages.
 ## Build Combatris
 
 **Dependencies:**
-* C++17 compliant compiler (tested with clang 5/6, clang-9.0.0, Visual Studio 2017.3, GCC 7.x.x)
+* C++17 compliant compiler (tested with clang 5/6, clang-9.x.0, Visual Studio 2017.x, GCC 7.x.x)
 * cmake 3.10.0 or later (Windows) or 3.5.0 or later (OSX/Linux)
 * git
 * SDL2 (x64 only)
