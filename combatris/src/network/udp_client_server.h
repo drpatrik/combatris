@@ -25,10 +25,6 @@ namespace network {
 
 const int SOCKET_TIMEOUT = -2;
 
-std::string GetBroadcastIP();
-
-int GetPort();
-
 class UDPClient {
  public:
   UDPClient(const std::string& broadcast_address, int port);
@@ -74,5 +70,9 @@ void Startup();
 void Cleanup();
 
 std::string GetHostName();
+
+std::string GetBroadcastAddress();
+
+int GetPort();
 
 }  // namespace network

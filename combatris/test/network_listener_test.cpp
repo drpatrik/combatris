@@ -43,7 +43,7 @@ void CheckResponse(Listener& listener, const std::string& expected_host_name, Re
 }
 
 TEST_CASE("TestDuplicatePackageDetection") {
-  UDPClient client(GetBroadcastIP(), GetPort());
+  UDPClient client(GetBroadcastAddress(), GetPort());
   Listener listener;
 
   std::deque<Package> sliding_window;
@@ -61,7 +61,7 @@ TEST_CASE("TestDuplicatePackageDetection") {
 }
 
 TEST_CASE("TestGapDetection") {
-  UDPClient client(GetBroadcastIP(), GetPort());
+  UDPClient client(GetBroadcastAddress(), GetPort());
   Listener listener;
 
   std::deque<Package> sliding_window;
@@ -106,7 +106,7 @@ TEST_CASE("TestGapDetection") {
 }
 
 TEST_CASE("LostTooManyPackagesDetection") {
-  UDPClient client(GetBroadcastIP(), GetPort());
+  UDPClient client(GetBroadcastAddress(), GetPort());
   Listener listener;
 
   std::deque<Package> sliding_window;
@@ -126,7 +126,7 @@ TEST_CASE("LostTooManyPackagesDetection") {
 }
 
 TEST_CASE("TestTimeout") {
-  UDPClient client(GetBroadcastIP(), GetPort());
+  UDPClient client(GetBroadcastAddress(), GetPort());
   Listener listener;
 
   std::deque<Package> sliding_window;
@@ -141,7 +141,7 @@ TEST_CASE("TestTimeout") {
 }
 
 TEST_CASE("TestJoinOutOfOrder") {
-  UDPClient client(GetBroadcastIP(), GetPort());
+  UDPClient client(GetBroadcastAddress(), GetPort());
   Listener listener;
 
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -176,7 +176,7 @@ void SendPackage(UDPClient& client, std::deque<Package>& sliding_window, const P
 
 TEST_CASE("FakeClient", "[!hide]") {
   int dummy;
-  UDPClient client(GetBroadcastIP(), GetPort());
+  UDPClient client(GetBroadcastAddress(), GetPort());
 
   std::deque<Package> sliding_window;
 

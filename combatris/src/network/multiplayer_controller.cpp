@@ -114,13 +114,14 @@ void MultiPlayerController::Dispatch() {
 }
 
 void MultiPlayerController::Run() {
+  const auto broadcast_address = GetBroadcastAddress();
   uint32_t sequence_nr_reliable = 0;
   uint32_t sequence_nr_unreliable = 0;
   std::deque<Package> sliding_window;
-  UDPClient client(GetBroadcastIP(), GetPort());
+  UDPClient client(broadcast_address, GetPort());
   auto time_since_last_package = utility::time_in_ms();
 
-  std::cout << "Broadcast IP: " << GetBroadcastIP() << ", Port: " << GetPort() << std::endl;
+  std::cout << "Broadcast IP: " << broadcast_address << ", Port: " << GetPort() << std::endl;
 
   for (;;) {
     if (cancelled_.load(std::memory_order_acquire)) {

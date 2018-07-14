@@ -60,7 +60,7 @@ TEST_CASE("ClientServerTest") {
   std::promise<int> recieved_broadcasts;
   std::future<int> result_recieved_broadcasts{ recieved_broadcasts.get_future() };
   std::thread server_thread{ server, std::move(server_started), std::move(recieved_broadcasts) };
-  UDPClient client(GetBroadcastIP(), GetPort());
+  UDPClient client(GetBroadcastAddress(), GetPort());
 
   result_server_started.get();
   for (int n = 0; n < kHeartBeats; n++) {
@@ -101,7 +101,7 @@ TEST_CASE("RunServer", "[!hide]") {
 }
 
 TEST_CASE("RunClient", "[!hide]") {
-  UDPClient client(GetBroadcastIP(), GetPort());
+  UDPClient client(GetBroadcastAddress(), GetPort());
 
   for (int n = 0; n < kHeartBeats; n++) {
     TestPackage package(client.host_name(), Request::HeartBeat);

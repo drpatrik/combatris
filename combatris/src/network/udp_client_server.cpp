@@ -104,7 +104,7 @@ void VerifyAddressAndPort(const std::string& broadcast_address, int port) {
 namespace network {
 
 // Handles only IP4 addresses
-std::string GetBroadcastAddress();
+std::string FindBroadcastAddress();
 
 UDPClient::UDPClient(const std::string& broadcast_address, int port) {
   VerifyAddressAndPort(broadcast_address, port);
@@ -265,11 +265,11 @@ std::string GetHostName() {
   return host_name;
 }
 
-std::string GetBroadcastIP() {
+std::string GetBroadcastAddress() {
   auto env = getenv(kEnvServer.c_str());
 
   if (nullptr == env) {
-    return GetBroadcastAddress();
+    return FindBroadcastAddress();
   }
   return env;
 }
@@ -304,7 +304,7 @@ void Startup() {
 
 void Cleanup() { WSACleanup(); }
 
-std::string GetBroadcastAddress() {
+std::string FindBroadcastAddress() {
   addrinfo hints{};
 
   hints.ai_family = AF_INET;
@@ -348,7 +348,7 @@ void Startup() {}
 
 void Cleanup() {}
 
-std::string GetBroadcastAddress() {
+std::string FindBroadcastAddress() {
   auto address = kDefaultBroadcastIP;
   ifaddrs* addrs = nullptr;
 
