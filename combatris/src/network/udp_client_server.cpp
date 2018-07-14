@@ -103,10 +103,10 @@ void VerifyAddressAndPort(const std::string& broadcast_address, int port) {
 
 namespace network {
 
-  // Handles only IP4 addresses
-  std::string GetBroadcastAddress();
-  
-  UDPClient::UDPClient(const std::string& broadcast_address, int port) {
+// Handles only IP4 addresses
+std::string GetBroadcastAddress();
+
+UDPClient::UDPClient(const std::string& broadcast_address, int port) {
   VerifyAddressAndPort(broadcast_address, port);
 
   addrinfo hints{};
@@ -327,7 +327,7 @@ std::string GetBroadcastAddress() {
 
       if (IsValidAddress(sockaddr_ipv4->sin_addr.S_un.S_addr)) {
         if (address != kDefaultBroadcastIP) {
-          std::cout << "Failed to autodetect broadcast address" << std::endl;
+          std::cout << "Warning - several network interfaces found" << std::endl;
           break;
         }
         sockaddr_ipv4->sin_addr.S_un.S_un_b.s_b4 = 255;
@@ -361,7 +361,7 @@ std::string GetBroadcastAddress() {
 
       if (IsValidAddress(ip)) {
         if (address != kDefaultBroadcastIP) {
-          std::cout << "Failed to autodetect broadcast address" << std::endl;
+          std::cout << "Warning - several network interfaces found" << std::endl;
           break;
         }
         p_addr->sin_addr.s_addr = htonl(ip | 0xFF);
@@ -375,6 +375,7 @@ std::string GetBroadcastAddress() {
 
   return address;
 }
+
 #endif
 
 }  // namespace network
