@@ -151,13 +151,13 @@ class Combatris {
     return mapping.at(v);
   }
 
-  void Repeatable(const Tetrion::Controls control, Tetrion::Controls& previous_control, RepeatFunc& func,
-                  int& repeat_count, int64_t& time_since_last_auto_repeat) {
+  template <Tetrion::Controls control>
+  void Repeatable(Tetrion::Controls& previous_control, RepeatFunc& func, int& repeat_count, int64_t& time_since_last_auto_repeat) {
     if (control == previous_control) {
       return;
     }
     previous_control = control;
-    func = [this, control]() { tetrion_->GameControl(control); };
+    func = [this, previous_control]() { tetrion_->GameControl(previous_control); };
     repeat_count = 0;
     time_since_last_auto_repeat = 0;
   }
@@ -222,13 +222,13 @@ class Combatris {
         }
         switch (current_control) {
           case Tetrion::Controls::Left:
-            Repeatable(Tetrion::Controls::Left, previous_control, function_to_repeat, repeat_count, time_since_last_auto_repeat);
+            Repeatable<Tetrion::Controls::Left>(previous_control, function_to_repeat, repeat_count, time_since_last_auto_repeat);
             break;
           case Tetrion::Controls::Right:
-            Repeatable(Tetrion::Controls::Right, previous_control, function_to_repeat, repeat_count, time_since_last_auto_repeat);
+            Repeatable<Tetrion::Controls::Right>(previous_control, function_to_repeat, repeat_count, time_since_last_auto_repeat);
             break;
           case Tetrion::Controls::SoftDrop:
-            Repeatable(Tetrion::Controls::SoftDrop, previous_control, function_to_repeat, repeat_count, time_since_last_auto_repeat);
+            Repeatable<Tetrion::Controls::SoftDrop>(previous_control, function_to_repeat, repeat_count, time_since_last_auto_repeat);
             break;
           case Tetrion::Controls::Start:
             tetrion_->NewGame();

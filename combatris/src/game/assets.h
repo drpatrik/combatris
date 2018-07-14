@@ -11,7 +11,7 @@ class Assets final {
 
   explicit Assets(SDL_Renderer *renderer);
 
-  ~Assets() = default;
+  ~Assets() noexcept = default;
 
   Assets(const Assets&) = delete;
 

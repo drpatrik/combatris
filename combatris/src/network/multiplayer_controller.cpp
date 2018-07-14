@@ -30,7 +30,7 @@ MultiPlayerController::MultiPlayerController(ListenerInterface* listener_if) : l
   send_thread_ = std::make_unique<std::thread>(std::bind(&MultiPlayerController::Run, this));
 }
 
-MultiPlayerController::~MultiPlayerController() {
+MultiPlayerController::~MultiPlayerController() noexcept {
   Leave();
   do {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));

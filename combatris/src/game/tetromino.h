@@ -34,9 +34,9 @@ class Tetromino final {
   void Render(int x, int y, SDL_Texture* texture, Angle angle) const {
     const auto& rotation = rotations_[static_cast<int>(angle)];
 
-    for (size_t row = 0; row < rotation.shape_.size(); ++row) {
+    for (int row = 0; row < static_cast<int>(rotation.shape_.size()); ++row) {
       auto t_x = x;
-      for (size_t col = 0; col < rotation.shape_.at(row).size(); ++col) {
+      for (int col = 0; col < static_cast<int>(rotation.shape_[row].size()); ++col) {
         const auto& shape = rotation.shape_;
         const SDL_Rect rc = { t_x, y, kMinoWidth, kMinoHeight };
 
@@ -57,9 +57,9 @@ class Tetromino final {
     x += (((kMinoWidth * 4) - rotation.width_) / 2);
     y -= (((kMinoHeight * 2) - rotation.height_) / 2);
 
-    for (size_t row = 0; row < rotation.shape_.size(); ++row) {
+    for (int row = 0; row < static_cast<int>(rotation.shape_.size()); ++row) {
       auto t_x = x;
-      for (size_t col = 0; col < rotation.shape_.at(row).size(); ++col) {
+      for (int col = 0; col < static_cast<int>(rotation.shape_[row].size()); ++col) {
         const auto& shape = rotation.shape_;
 
         if (shape[row][col] != 0) {

@@ -43,23 +43,19 @@ TSpinType DetectTSpin(const Matrix::Type& matrix, const Position& pos, int angle
   auto tspin_corners = 0;
   auto tspin_minicorners = 0;
 
-  for (size_t row = 0; row < shape.size(); ++row) {
-    for (size_t col  = 0; col < shape.at(row).size(); ++col) {
+  for (int row = 0; row < static_cast<int>(shape.size()); ++row) {
+    for (int col  = 0; col < static_cast<int>(shape.at(row).size()); ++col) {
       const auto elem = matrix.at(pos.row() + row).at(pos.col() + col);
 
-      if (shape.at(row).at(col) == kTSpinCorner && elem != kEmptyID && elem != kBombID) {
-        tspin_corners++;
-      }
-      if (shape.at(row).at(col) == kTSpinMiniCorner && elem != kEmptyID && elem != kBombID) {
-        tspin_minicorners++;
-      }
+      tspin_corners += (kTSpinCorner == shape.at(row).at(col) && elem != kEmptyID && elem != kBombID);
+      tspin_minicorners += (kTSpinMiniCorner == shape.at(row).at(col) && elem != kEmptyID && elem != kBombID);
     }
   }
   auto tspin_type = TSpinType::None;
 
-  if (tspin_corners == 2 && tspin_minicorners >= 1) {
+  if (2 == tspin_corners && tspin_minicorners >= 1) {
     tspin_type = TSpinType::TSpin;
-  } else if (tspin_corners == 1 && tspin_minicorners >= 2) {
+  } else if (1 == tspin_corners && tspin_minicorners >= 2) {
     tspin_type = TSpinType::TSpinMini;
   }
 

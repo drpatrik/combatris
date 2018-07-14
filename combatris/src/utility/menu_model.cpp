@@ -7,7 +7,7 @@ namespace utility {
 
 size_t MenuModel::GetSelected() {
   if (set_selected_item_) {
-    for (size_t i = 0; i < model_.size(); ++i) {
+    for (int i = 0; i < static_cast<int>(model_.size()); ++i) {
       if (MenuItemType::SubMenu == std::get<0>(model_.at(i))) {
         selected_item_ = i;
         break;

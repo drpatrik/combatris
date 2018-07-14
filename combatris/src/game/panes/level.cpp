@@ -35,7 +35,7 @@ void Level::SetThresholds() {
 
   wait_time_ = (1.0 / kLevelData.at(index).gravity_) / 60.0;
   lock_delay_ = kLevelData.at(index).lock_delay_;
-  lines_for_next_level_ = (rule_type_ == CampaignRuleType::Normal) ? 10 : level_ * 5;
+  lines_for_next_level_ = (CampaignRuleType::Normal == rule_type_) ? 10 : level_ * 5;
 }
 
 void Level::SetLevel(int lvl) {

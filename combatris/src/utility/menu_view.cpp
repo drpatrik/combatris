@@ -24,7 +24,7 @@ MenuView::MenuView(SDL_Renderer* renderer, const SDL_Rect& rc, const std::shared
         CreateTextureFromText(renderer_, fonts_->Get(kFontItem), str, Color::SteelGray);
     selection_.emplace_back(s);
   }
-  for (size_t i = 0; i < menu_model_->size(); ++i) {
+  for (int i = 0; i < static_cast<int>(menu_model_->size()); ++i) {
     items_.emplace_back(CreateItem(i));
   }
 }

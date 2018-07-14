@@ -100,7 +100,7 @@ class LinesClearedAnimation final : public Animation {
 
       const auto& minos = line.minos_;
 
-      for (size_t l = kVisibleColStart; l < kVisibleColEnd; ++l) {
+      for (int l = kVisibleColStart; l < kVisibleColEnd; ++l) {
         auto x = col_to_pixel_adjusted(l);
 
         const auto& tetromino = GetAsset().GetTetromino(static_cast<Tetromino::Type>(minos[l]));
@@ -196,7 +196,7 @@ class OnFloorAnimation final : public Animation {
     SDL_SetTextureAlphaMod(alpha_texture_.get(), static_cast<Uint8>(kAlpha));
   }
 
-  virtual ~OnFloorAnimation() { SDL_SetTextureAlphaMod(alpha_texture_.get(), alpha_saved_); }
+  virtual ~OnFloorAnimation() noexcept { SDL_SetTextureAlphaMod(alpha_texture_.get(), alpha_saved_); }
 
   virtual void Render(double) override {
     SDL_RenderSetClipRect(*this, &kMatrixRc);
@@ -249,7 +249,7 @@ class SplashScreenAnimation final : public Animation {
     std::tie(texture_1_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold55), "COMBATRIS", Color::SteelGray);
     rc_1_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100, width, height };
     menu_view_.SetY(rc_1_.y + height + 25);
-    std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(ObelixPro18), "Press 'N' or Start to play", Color::White);
+    std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(ObelixPro18), "Press N or START to play", Color::White);
     rc_2_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_1_.y + kMenuHeight, width, height };
   }
 
@@ -281,7 +281,7 @@ class GameOverAnimation final : public Animation {
     rc_1_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100 , width, height };
     menu_view_.SetY(rc_1_.y + height + 25);
 
-    std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal25), "Press 'N' or Start to play", Color::White);
+    std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(ObelixPro18), "Press N or START to play", Color::White);
     rc_2_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_1_.y + kMenuHeight, width, height };
 
     blackbox_rc_ = { rc_1_.x - 20, rc_1_.y - 20, rc_1_.w + 40, rc_1_.h + kMenuHeight };
@@ -329,7 +329,7 @@ class HourglassAnimation final : public Animation {
     ticks_ += delta;
     if (ticks_ >= 0.07) {
       frame_++;
-      if (frame_ == textures_.size()) {
+      if (textures_.size() == frame_) {
         frame_ = 0;
       }
       ticks_ = 0.0;

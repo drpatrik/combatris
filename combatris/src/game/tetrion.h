@@ -47,8 +47,6 @@ class Tetrion final {
 
   void ResetCountDown();
 
-  void HandleGameSettings(Controls control_pressed);
-
   void GameControl(Controls control_pressed, int lines = 0);
 
   void Update(double delta_timer);
@@ -56,6 +54,8 @@ class Tetrion final {
  protected:
   template<class T, class ...Args>
   void AddAnimation(Args&&... args) { animations_.push_back(std::make_shared<T>(std::forward<Args>(args)...)); }
+
+  void HandleMenu(Controls control_pressed);
 
   void HandleNextTetromino(TetrominoSprite::State state, Events& events);
 

@@ -50,33 +50,8 @@ const uint32_t kSignature = 0x50415243; // PARC
 // UDP Maximum Transmision Unit 1500 bytes - 20 byte (IPv4 header) - 8 byte UDP-header
 const int kMTU = 1472;
 const int kWindowSize = 14;
-
-const std::string kEnvServer = "COMBATRIS_BROADCAST_IP";
-const std::string kEnvPort = "COMBATRIS_BROADCAST_PORT";
-
-const std::string kDefaultBroadcastIP = "192.168.1.255";
-const int kDefaultPort = 11000;
-
 const int kMatrixStateSize = 20 * 5;
 using MatrixState = std::array<uint8_t, kMatrixStateSize>;
-
-inline std::string GetBroadcastIP() {
-  auto env = getenv(kEnvServer.c_str());
-
-  if (nullptr == env) {
-    return kDefaultBroadcastIP;
-  }
-  return env;
-}
-
-inline int GetPort() {
-  auto env = getenv(kEnvPort.c_str());
-
-  if (nullptr == env) {
-    return kDefaultPort;
-  }
-  return std::stoi(env);
-}
 
 inline uint64_t SetHostName(const std::string& from, char *to) {
   auto tmp(from);

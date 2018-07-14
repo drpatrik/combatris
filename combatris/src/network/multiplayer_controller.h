@@ -6,7 +6,7 @@ namespace network {
 
 class ListenerInterface {
  public:
-  virtual ~ListenerInterface() {}
+  virtual ~ListenerInterface() noexcept {}
 
   virtual bool GotJoin(const std::string& display_name, uint64_t host_id) = 0;
 
@@ -43,7 +43,7 @@ class MultiPlayerController {
 
   MultiPlayerController(ListenerInterface* listener);
 
-  ~MultiPlayerController();
+  ~MultiPlayerController() noexcept;
 
   void Join(network::GameState state = GameState::Idle);
 

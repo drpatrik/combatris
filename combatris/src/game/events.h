@@ -53,23 +53,23 @@ struct Event {
     BattleNextTetrominoSuccessful
   };
 
-  explicit Event(Type type) : type_(type), lines_() {}
+  inline explicit Event(Type type) : type_(type), lines_() {}
 
-  Event(Type type, const Lines& lines_cleared, const Position& pos, TSpinType tspin_type)
+  inline Event(Type type, const Lines& lines_cleared, const Position& pos, TSpinType tspin_type)
     : type_(type), lines_(lines_cleared), pos_(pos), tspin_type_(tspin_type) {}
 
-  Event(Type type, const Lines& lines, int lines_to_clear) : type_(type), lines_(lines), value_(lines_to_clear) {}
+  inline Event(Type type, const Lines& lines, int lines_to_clear) : type_(type), lines_(lines), value_(lines_to_clear) {}
 
-  Event(Type type, const Position& pos, int score, int lines_sent) : type_(type), pos_(pos), score_(score), value_(lines_sent) {}
+  inline Event(Type type, const Position& pos, int score, int lines_sent) : type_(type), pos_(pos), score_(score), value_(lines_sent) {}
 
-  Event(Type type, int value) : type_(type), value_(value) {}
+  inline Event(Type type, int value) : type_(type), value_(value) {}
 
-  Event(Type type, CampaignType campaign_type) : type_(type), value_(ToInt(campaign_type)) {}
+  inline Event(Type type, CampaignType campaign_type) : type_(type), value_(ToInt(campaign_type)) {}
 
-  Event(Type type, const Lines& lines_cleared, TSpinType tspin_type, ComboType combo_type, int combo_counter) :
+  inline Event(Type type, const Lines& lines_cleared, TSpinType tspin_type, ComboType combo_type, int combo_counter) :
       type_(type), lines_(lines_cleared), tspin_type_(tspin_type), combo_type_(combo_type), combo_counter_(combo_counter) {}
 
-  operator Event::Type() const { return type_; }
+  inline operator Event::Type() const { return type_; }
 
   inline bool Is(Event::Type type) const { return type == type_; }
 
@@ -110,6 +110,8 @@ class Events {
 
   Events(const Events&) = delete;
 
+  Events(const Events&&) noexcept = delete;
+
   void Push(Event::Type type, QueueRule queue_rule = QueueRule::AllowDuplicates) {
     if (Event::Type::None == type) {
       return;
@@ -134,7 +136,7 @@ class Events {
     return event;
   }
 
-  void Clear() { events_.clear(); }
+  inline void Clear() { events_.clear(); }
 
   inline bool IsEmpty() const { return events_.empty(); }
 

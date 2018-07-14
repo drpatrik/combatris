@@ -57,10 +57,10 @@ Lines RemoveLinesCleared(Matrix::Type& matrix) {
   for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
     const auto& line = matrix[row];
 
-    if (line[kVisibleColStart] == kEmptyID) {
+    if (kEmptyID == line[kVisibleColStart]) {
       continue;
     }
-    if (std::find_if(line.begin(), line.end(), [](auto elem) { return elem == kEmptyID || elem == kBombID; }) == line.end()) {
+    if (std::find_if(line.begin(), line.end(), [](auto elem) { return kEmptyID == elem || kBombID == elem; }) == line.end()) {
       lines.push_back(Line(row, line));
       matrix[row] = kEmptyRow;
     }
@@ -82,9 +82,7 @@ void CollapseMatrix(const Lines& lines_cleared, Matrix::Type& matrix) {
   }
 }
 
-bool DetectPerfectClear(const Matrix::Type& matrix) {
-  return matrix[matrix.size() - 3] == kEmptyRow;
-}
+bool DetectPerfectClear(const Matrix::Type& matrix) { return kEmptyRow == matrix[matrix.size() - 3]; }
 
 int MoveLinesUp(int lines, Matrix::Type& matrix) {
   int first_non_empty_row = 0;
@@ -115,12 +113,12 @@ void InsertSolidLines(int lines, Matrix::Type& matrix) {
   int n = 0;
 
   for (int l = lines - 1; l >= 0; --l) {
-    matrix.at(kVisibleRowEnd - l - 1) = kSolidRow;
+    matrix[kVisibleRowEnd - l - 1] = kSolidRow;
     if (i % 2 == 0) {
       n = static_cast<int>(kDistribution(kGenerator));
     }
     i++;
-    matrix.at(kVisibleRowEnd - l - 1).at(kVisibleRowStart + n) = kBombID;
+    matrix[kVisibleRowEnd - l - 1][kVisibleRowStart + n] = kBombID;
   }
 }
 
@@ -192,8 +190,8 @@ bool Matrix::IsValid(const Position& pos, const TetrominoRotationData& rotation_
   }
   const auto& shape = rotation_data.shape_;
 
-  for (size_t row = 0; row < shape.size(); ++row) {
-    for (size_t col  = 0; col < shape[row].size(); ++col) {
+  for (int row = 0; row < static_cast<int>(shape.size()); ++row) {
+    for (int col  = 0; col < static_cast<int>(shape[row].size()); ++col) {
       const auto elem = master_matrix_[pos.row() + row][pos.col() + col];
 
       if (elem != kEmptyID && elem != kBombID && shape[row][col] != kEmptyID) {
@@ -208,15 +206,12 @@ void Matrix::Insert(Type& matrix, const Position& pos, const TetrominoRotationDa
   const auto ghost_add_on = (insert_ghost) ? kGhostAddOn : 0;
   const auto& shape = rotation_data.shape_;
 
-  for (size_t row = 0; row < shape.size(); ++row) {
-    for (size_t col  = 0; col < shape[row].size(); ++col) {
-      auto insert_row = pos.row() + row;
-      auto insert_col = pos.col() + col;
-
-      if (shape[row][col] == kEmptyID) {
+  for (int row = 0; row < static_cast<int>(shape.size()); ++row) {
+    for (int col  = 0; col < static_cast<int>(shape[row].size()); ++col) {
+      if (kEmptyID == shape[row][col]) {
         continue;
       }
-      matrix[insert_row][insert_col] = shape[row][col] + ghost_add_on;
+      matrix[pos.row() + row][pos.col() + col] = shape[row][col] + ghost_add_on;
     }
   }
 }
@@ -238,7 +233,7 @@ Matrix::CommitReturnType Matrix::Commit(Tetromino::Type type, Tetromino::Move la
 
   auto tspin_type = TSpinType::None;
 
-  if (Tetromino::Type::T == type && latest_move == Tetromino::Move::Rotation) {
+  if (Tetromino::Type::T == type && Tetromino::Move::Rotation == latest_move) {
     tspin_type = DetectTSpin(master_matrix_, pos, rotation_data.angle_index_);
   }
 

@@ -59,7 +59,7 @@ class ThreadSafeQueue {
 
   inline size_t size() const { return size_; }
 
-  inline bool empty() const { return size_ == 0; }
+  inline bool empty() const { return 0 == size_; }
 
  private:
   mutable std::mutex mutex_;

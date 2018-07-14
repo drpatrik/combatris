@@ -136,15 +136,15 @@ B2B T-Spin Triple | 9
 - [X] Add possibility to have different UI components based on campaign
 - [X] New splash screen, allowing user to select campaign and starting level
 - [X] Allow user to change game settings (level, etc) in UI
+- [X] Auto discovery of broadcast address (e.g. 192.168.1.255)
 - [ ] Display Winner / Position on game-over splash screen
 - [ ] Sound
 - [ ] Remove the pane for showing combo/latest move and display combo/last move direct on the frame
 - [ ] Add new animation for combo/last clearing move
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
-- [ ] Auto discovery of broadcast address (e.g. 192.168.1.255)
 - [ ] Write a TCP/IP gateway server for Internet based support
-- [ ] Do a proper implementation of the sliding window protocol
+- [ ] Do a proper implementation of the sliding window protocolx
 - [ ] Unit tests for all score combinations
 
 **Keyboard Commands**

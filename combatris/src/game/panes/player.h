@@ -24,6 +24,8 @@ class Player final {
 
   Player(const Player&) = delete;
 
+  Player(const Player&&) noexcept = delete;
+
   const std::string& name() const { return name_; }
 
   uint64_t host_id() const { return host_id_; }

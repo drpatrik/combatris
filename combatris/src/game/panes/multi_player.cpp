@@ -200,7 +200,7 @@ bool MultiPlayer::GotJoin(const std::string& name, uint64_t host_id)  {
 }
 
 void MultiPlayer::GotLeave(uint64_t host_id) {
-  if (players_.count(host_id) == 0) {
+  if (0 == players_.count(host_id)) {
     return;
   }
   auto it = std::find_if(score_board_.begin(), score_board_.end(), [host_id](const auto& e) { return host_id == e->host_id(); });

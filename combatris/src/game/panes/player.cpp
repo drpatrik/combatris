@@ -7,7 +7,7 @@ namespace {
 const int kPlayerMinoWidth = 8;
 const int kPlayerMinoHeight = 8;
 const int kLineThinkness = 2;
-const int kMatrixStartPosX = 4;
+const int kMatrixStartPosX = 2;
 const int kMatrixStartPosY = 46;
 
 const SDL_Rect kNameFieldRc = { kX, kY, 140, 24 };
@@ -16,12 +16,12 @@ const SDL_Rect kScoreCaptionFieldRc = { kX, kY + 22, 140, 24 };
 const SDL_Rect kScoreFieldRc = { kX + 50, kY + 22, 140, 24 };
 const SDL_Rect kLevelCaptionFieldRc = { kX + 138, kY + 22, 82, 24 };
 const SDL_Rect kLevelFieldRc = { kX + 165, kY + 22, 82, 24 };
-const SDL_Rect kKOCaptionFieldRc = { kX + 102, kY + 44, 118, 24 };
-const SDL_Rect kKOFieldRc = { kX + 102, kY + 66, 118, 24 };
-const SDL_Rect kLinesSentCaptionFieldRc = { kX + 102, kY + 90, 118, 24 };
-const SDL_Rect kLinesSentFieldRc = { kX + 102, kY + 112, 118, 24 };
-const SDL_Rect kLinesCaptionFieldRc = { kX + 102, kY + 136, 118, 24 };
-const SDL_Rect kLinesFieldRc = { kX + 102, kY + 158, 118, 24 };
+const SDL_Rect kKOCaptionFieldRc = { kX + 98, kY + 44, 122, 24 };
+const SDL_Rect kKOFieldRc = { kX + 98, kY + 66, 122, 24 };
+const SDL_Rect kLinesSentCaptionFieldRc = { kX + 98, kY + 90, 122, 24 };
+const SDL_Rect kLinesSentFieldRc = { kX + 98, kY + 112, 122, 24 };
+const SDL_Rect kLinesCaptionFieldRc = { kX + 98, kY + 136, 122, 24 };
+const SDL_Rect kLinesFieldRc = { kX + 98, kY + 158, 122, 24 };
 const SDL_Rect kMatrixFieldRc = { kX + kMatrixStartPosX, kY + kMatrixStartPosY, 84 + kPlayerMinoWidth, 166 + kPlayerMinoHeight };
 
 const Font kTextFont(Font::Typeface::Cabin, Font::Emphasis::Bold, 15);
@@ -111,12 +111,12 @@ Player::Player(SDL_Renderer* renderer, const std::string& name, uint64_t host_id
 }
 
 int Player::Update(Player::TextureID id, int new_value, int old_value, Function to_string, bool set_to_zero) {
-  if (!set_to_zero && (new_value == 0 || new_value == old_value)) {
+  if (!set_to_zero && (0 == new_value || new_value == old_value)) {
     return old_value;
   }
   auto& stat = textures_.at(id);
 
-  auto txt = (new_value == -1) ? "-" : to_string(new_value);
+  auto txt = (-1 == new_value) ? "-" : to_string(new_value);
   auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), txt, Color::Yellow);
 
   stat->Set(std::move(texture), w, h);
@@ -136,10 +136,10 @@ bool Player::ProgressUpdate(int lines, int score, int level, bool set_to_zero) {
 void Player::SetMatrixState(const network::MatrixState& state) {
   int i = 0;
 
-  for (size_t row = 1; row < matrix_.size() - 1; ++row) {
+  for (int row = 1; row < static_cast<int>(matrix_.size() - 1); ++row) {
     auto& col_vec = matrix_[row];
 
-    for (size_t col = 1; col < col_vec.size() - 1; col +=2) {
+    for (int col = 1; col < static_cast<int>(col_vec.size() - 1); col +=2) {
       col_vec[col] = state[i] >> 4;
       col_vec[col + 1] = state[i] & 0x0F;
       i++;
@@ -197,21 +197,20 @@ void Player::Render(int x_offset, int y_offset, bool is_my_status) const {
                    &AddOffset(tmp, x_offset, y_offset, *InsideBox(tmp, field->rc_, field->w_, field->h_)));
   }
   int y_pos = 0;
+  int x_pos = 0;
 
-  for (size_t row = 0; row < matrix_.size(); ++row) {
-    int x_pos = 0;
+  for (int row = 0; row < static_cast<int>(matrix_.size()); ++row) {
+    x_pos = 0;
 
-    for (size_t col = 0; col < matrix_[row].size(); ++col) {
+    for (int col = 0; col < static_cast<int>(matrix_[row].size()); ++col) {
       const auto id = matrix_[row][col];
 
       if (kEmptyID == id) {
         x_pos += kPlayerMinoWidth;
         continue;
       }
-      const int x = kX + kMatrixStartPosX + x_pos + x_offset;
-      const int y = kY + kMatrixStartPosY + y_pos + y_offset;
-
-      RenderMino(renderer_, x, y, kPlayerMinoWidth, kPlayerMinoHeight, tetrominos_[id - 1]->texture());
+      RenderMino(renderer_, kX + kMatrixStartPosX + x_pos + x_offset, kY + kMatrixStartPosY + y_pos + y_offset,
+                 kPlayerMinoWidth, kPlayerMinoHeight, tetrominos_[id - 1]->texture());
       x_pos += kPlayerMinoWidth;
     }
     y_pos += kPlayerMinoHeight;

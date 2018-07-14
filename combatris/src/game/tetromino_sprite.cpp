@@ -19,13 +19,13 @@ const std::unordered_map<Tetromino::Angle, const std::unordered_map<Tetromino::A
 inline const std::vector<std::vector<int>>& GetWallKickData(Tetromino::Type type, Tetromino::Angle from_angle, Tetromino::Angle to_angle) {
   auto state = kStates.at(from_angle).at(to_angle);
 
-  return (type == Tetromino::Type::I) ? kWallKickDataForI[state] : kWallKickDataForJLSTZ[state];
+  return (Tetromino::Type::I == type) ? kWallKickDataForI[state] : kWallKickDataForJLSTZ[state];
 }
 
 Tetromino::Angle GetNextAngle(Tetromino::Angle current_angle, Rotation rotate) {
   auto angle= static_cast<int>(current_angle);
 
-  angle += (rotate == Rotation::Clockwise) ? 1 : -1;
+  angle += (Rotation::Clockwise == rotate) ? 1 : -1;
   if (angle > static_cast<int>(Tetromino::Angle::A270)) {
     angle = 0;
   } else if (angle < 0) {
@@ -46,15 +46,20 @@ void TetrominoSprite::ResetDelayCounter() {
 }
 
 opt::optional<std::pair<Position, Tetromino::Angle>> TetrominoSprite::TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate) {
+  if (Tetromino::Type::O == type) {
+    return {};
+  }
   enum { GetX = 0, GetY = 1 };
 
   auto try_angle = GetNextAngle(current_angle, rotate);
+
+  const auto& rotation_data = tetromino_.GetRotationData(try_angle);
   const auto& wallkick_data = GetWallKickData(type, current_angle, try_angle);
 
   for (const auto& offsets : wallkick_data) {
     Position try_pos(current_pos.row() + offsets[GetY], current_pos.col() + offsets[GetX]);
 
-    if (matrix_->IsValid(try_pos, tetromino_.GetRotationData(try_angle))) {
+    if (matrix_->IsValid(try_pos, rotation_data)) {
       ResetDelayCounter();
       return opt::make_optional(std::make_pair(try_pos, try_angle));
     }

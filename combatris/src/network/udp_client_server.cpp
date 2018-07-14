@@ -17,6 +17,7 @@
 #endif
 
 #include <fcntl.h>
+#include <ifaddrs.h>
 #include <errno.h>
 #include <string.h>
 #include <limits.h>
@@ -25,6 +26,11 @@
 #include <iostream>
 
 namespace {
+
+const std::string kEnvServer = "COMBATRIS_BROADCAST_IP";
+const std::string kEnvPort = "COMBATRIS_BROADCAST_PORT";
+const std::string kDefaultBroadcastIP = "192.168.1.255";
+const int kDefaultPort = 11000;
 
 #if defined(_WIN64)
 
@@ -254,6 +260,60 @@ std::string GetHostName() {
   }
 
   return host_name;
+}
+
+bool IsValidAddress(unsigned ip) {
+  auto c = (ip >> 24) & 0xFF;
+
+  return (c != 169 && c != 127);
+}
+
+// Handles only IP4 addresses
+std::string GetBroadcastAddress() {
+  std::string address;
+  ifaddrs* addrs = nullptr;
+
+  getifaddrs(&addrs);
+
+  for (auto addr = addrs; addr; ) {
+    if (addr->ifa_addr && AF_INET == addr->ifa_addr->sa_family) {
+      auto p_addr = reinterpret_cast<sockaddr_in *>(addr->ifa_addr);
+      auto ip = ntohl(p_addr->sin_addr.s_addr);
+
+      if (IsValidAddress(ip)) {
+        if (!address.empty()) {
+          std::cout << "Failed to autodetect broadcast address" << std::endl;
+          address = kDefaultBroadcastIP;
+        }
+        p_addr->sin_addr.s_addr = htonl(ip | 0xFF);
+        address = inet_ntoa(p_addr->sin_addr);
+      }
+    }
+    addr = addr->ifa_next;
+  }
+  if (addrs != nullptr) {
+    freeifaddrs(addrs);
+  }
+
+  return address;
+}
+
+std::string GetBroadcastIP() {
+  auto env = getenv(kEnvServer.c_str());
+
+  if (nullptr == env) {
+    return GetBroadcastAddress();
+  }
+  return env;
+}
+
+int GetPort() {
+  auto env = getenv(kEnvPort.c_str());
+
+  if (nullptr == env) {
+    return kDefaultPort;
+  }
+  return std::stoi(env);
 }
 
 #if defined(_WIN64)

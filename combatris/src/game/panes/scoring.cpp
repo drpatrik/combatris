@@ -57,7 +57,7 @@ void Scoring::DisplayScore(int score) {
 }
 
 void Scoring::UpdateEvents(int score, ComboType combo_type, int lines_to_send, int lines_to_clear, const Event& event) {
-  if (score == 0) {
+  if (0 == score) {
     return;
   }
   int counter = 0;
