@@ -11,13 +11,13 @@
 
 #else
 
+#include <ifaddrs.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 
 #endif
 
 #include <fcntl.h>
-#include <ifaddrs.h>
 #include <errno.h>
 #include <string.h>
 #include <limits.h>
@@ -103,7 +103,10 @@ void VerifyAddressAndPort(const std::string& broadcast_address, int port) {
 
 namespace network {
 
-UDPClient::UDPClient(const std::string& broadcast_address, int port) {
+  // Handles only IP4 addresses
+  std::string GetBroadcastAddress();
+  
+  UDPClient::UDPClient(const std::string& broadcast_address, int port) {
   VerifyAddressAndPort(broadcast_address, port);
 
   addrinfo hints{};
@@ -262,42 +265,6 @@ std::string GetHostName() {
   return host_name;
 }
 
-bool IsValidAddress(unsigned ip) {
-  auto c = (ip >> 24) & 0xFF;
-
-  return (c != 169 && c != 127);
-}
-
-// Handles only IP4 addresses
-std::string GetBroadcastAddress() {
-  std::string address;
-  ifaddrs* addrs = nullptr;
-
-  getifaddrs(&addrs);
-
-  for (auto addr = addrs; addr; ) {
-    if (addr->ifa_addr && AF_INET == addr->ifa_addr->sa_family) {
-      auto p_addr = reinterpret_cast<sockaddr_in *>(addr->ifa_addr);
-      auto ip = ntohl(p_addr->sin_addr.s_addr);
-
-      if (IsValidAddress(ip)) {
-        if (!address.empty()) {
-          std::cout << "Failed to autodetect broadcast address" << std::endl;
-          address = kDefaultBroadcastIP;
-        }
-        p_addr->sin_addr.s_addr = htonl(ip | 0xFF);
-        address = inet_ntoa(p_addr->sin_addr);
-      }
-    }
-    addr = addr->ifa_next;
-  }
-  if (addrs != nullptr) {
-    freeifaddrs(addrs);
-  }
-
-  return address;
-}
-
 std::string GetBroadcastIP() {
   auto env = getenv(kEnvServer.c_str());
 
@@ -316,6 +283,12 @@ int GetPort() {
   return std::stoi(env);
 }
 
+bool IsValidAddress(unsigned ip) {
+  auto c = (ip >> 24) & 0xFF;
+
+  return (c != 169 && c != 127);
+}
+
 #if defined(_WIN64)
 
 void Startup() {
@@ -331,12 +304,76 @@ void Startup() {
 
 void Cleanup() { WSACleanup(); }
 
+std::string GetBroadcastAddress() {
+  addrinfo hints{};
+
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
+
+  addrinfo* addrs = nullptr;
+
+  auto ret_val = getaddrinfo(GetHostName().c_str(), nullptr, &hints, &addrs);
+
+  if (ret_val != 0) {
+    std::cout << "getaddrinfo failed with error: " << get_error_string(ret_val) << std::endl;
+    return kDefaultBroadcastIP;
+  }
+  std::string address = kDefaultBroadcastIP;
+
+  for (auto addr = addrs; addr != nullptr; addr = addr->ai_next) {
+    if (AF_INET == addrs->ai_family) {
+      auto sockaddr_ipv4 = reinterpret_cast<sockaddr_in*>(addr->ai_addr);
+
+      if (IsValidAddress(sockaddr_ipv4->sin_addr.S_un.S_addr)) {
+        if (address != kDefaultBroadcastIP) {
+          std::cout << "Failed to autodetect broadcast address" << std::endl;
+          break;
+        }
+        sockaddr_ipv4->sin_addr.S_un.S_un_b.s_b4 = 255;
+        address = inet_ntoa(sockaddr_ipv4->sin_addr);
+      }
+    }
+  }
+  if (addrs != nullptr) {
+    freeaddrinfo(addrs);
+  }
+  return address;
+}
 #else
 
 void Startup() {}
 
 void Cleanup() {}
 
+std::string GetBroadcastAddress() {
+  std::string address;
+  ifaddrs* addrs = nullptr;
+
+  getifaddrs(&addrs);
+
+  for (auto addr = addrs; addr; addr = addr->ifa_next) {
+    if (addr->ifa_addr && AF_INET == addr->ifa_addr->sa_family) {
+      auto p_addr = reinterpret_cast<sockaddr_in *>(addr->ifa_addr);
+      auto ip = ntohl(p_addr->sin_addr.s_addr);
+
+      if (IsValidAddress(ip)) {
+        if (!address.empty()) {
+          std::cout << "Failed to autodetect broadcast address" << std::endl;
+          address = kDefaultBroadcastIP;
+          break;
+        }
+        p_addr->sin_addr.s_addr = htonl(ip | 0xFF);
+        address = inet_ntoa(p_addr->sin_addr);
+      }
+    }
+  }
+  if (addrs != nullptr) {
+    freeifaddrs(addrs);
+  }
+
+  return address;
+}
 #endif
 
 }  // namespace network
