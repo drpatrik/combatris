@@ -65,14 +65,14 @@ class UDPServer {
   std::string host_name_;
 };
 
-void Startup();
-
-void Cleanup();
-
 std::string GetHostName();
 
 std::string GetBroadcastAddress();
 
 int GetPort();
+
+void Startup();
+
+void Cleanup();
 
 }  // namespace network

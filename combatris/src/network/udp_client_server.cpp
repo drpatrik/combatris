@@ -108,6 +108,46 @@ bool IsValidAddress(unsigned ip) {
   return (c != 169 && c != 127);
 }
 
+// Handles IP4 addresses only
+std::string FindBroadcastAddress() {
+  addrinfo hints{};
+
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_DGRAM;
+  hints.ai_protocol = IPPROTO_UDP;
+
+  addrinfo* addrs = nullptr;
+
+  auto ret_val = getaddrinfo(network::GetHostName().c_str(), nullptr, &hints, &addrs);
+
+  if (ret_val != 0) {
+    std::cout << "getaddrinfo failed with error: " << get_error_string(ret_val) << std::endl;
+    return kDefaultBroadcastIP;
+  }
+  auto address = kDefaultBroadcastIP;
+
+  for (auto addr = addrs; addr != nullptr; addr = addr->ai_next) {
+    if (AF_INET == addrs->ai_family) {
+      auto sockaddr_ipv4 = reinterpret_cast<sockaddr_in*>(addr->ai_addr);
+      auto ip = ntohl(GetAddressAsUnsigned(sockaddr_ipv4->sin_addr));
+
+      if (IsValidAddress(ip)) {
+        if (address != kDefaultBroadcastIP) {
+          std::cout << "Warning - several network interfaces found" << std::endl;
+          break;
+        }
+        GetAddressAsUnsigned(sockaddr_ipv4->sin_addr) = htonl(ip | 0xFF);
+        address = inet_ntoa(sockaddr_ipv4->sin_addr);
+      }
+    }
+  }
+  if (addrs != nullptr) {
+    freeaddrinfo(addrs);
+  }
+
+  return address;
+}
+
 } // namespace
 
 namespace network {
@@ -269,46 +309,6 @@ std::string GetHostName() {
   }
 
   return host_name;
-}
-
-// Handles IP4 addresses only
-std::string FindBroadcastAddress() {
-  addrinfo hints{};
-
-  hints.ai_family = AF_INET;
-  hints.ai_socktype = SOCK_DGRAM;
-  hints.ai_protocol = IPPROTO_UDP;
-
-  addrinfo* addrs = nullptr;
-
-  auto ret_val = getaddrinfo(GetHostName().c_str(), nullptr, &hints, &addrs);
-
-  if (ret_val != 0) {
-    std::cout << "getaddrinfo failed with error: " << get_error_string(ret_val) << std::endl;
-    return kDefaultBroadcastIP;
-  }
-  auto address = kDefaultBroadcastIP;
-
-  for (auto addr = addrs; addr != nullptr; addr = addr->ai_next) {
-    if (AF_INET == addrs->ai_family) {
-      auto sockaddr_ipv4 = reinterpret_cast<sockaddr_in*>(addr->ai_addr);
-      auto ip = ntohl(GetAddressAsUnsigned(sockaddr_ipv4->sin_addr));
-
-      if (IsValidAddress(ip)) {
-        if (address != kDefaultBroadcastIP) {
-          std::cout << "Warning - several network interfaces found" << std::endl;
-          break;
-        }
-        GetAddressAsUnsigned(sockaddr_ipv4->sin_addr) = htonl(ip | 0xFF);
-        address = inet_ntoa(sockaddr_ipv4->sin_addr);
-      }
-    }
-  }
-  if (addrs != nullptr) {
-    freeaddrinfo(addrs);
-  }
-
-  return address;
 }
 
 std::string GetBroadcastAddress() {
