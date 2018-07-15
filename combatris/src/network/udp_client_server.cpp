@@ -11,7 +11,6 @@
 
 #else
 
-#include <ifaddrs.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 
@@ -99,12 +98,23 @@ void VerifyAddressAndPort(const std::string& broadcast_address, int port) {
   }
 }
 
+bool IsValidAddress(unsigned ip) {
+  auto c = (ip >> 24) & 0xFF;
+
+  return (c != 169 && c != 127);
+}
+
+inline unsigned& GetAddressAsUnsigned(in_addr& addr) {
+#if defined(_WIN64)
+  return addr.S_un.S_addr;
+#else
+  return addr.s_addr;
+#endif
+}
+
 } // namespace
 
 namespace network {
-
-// Handles only IP4 addresses
-std::string FindBroadcastAddress();
 
 UDPClient::UDPClient(const std::string& broadcast_address, int port) {
   VerifyAddressAndPort(broadcast_address, port);
@@ -265,6 +275,45 @@ std::string GetHostName() {
   return host_name;
 }
 
+std::string FindBroadcastAddress() {
+  addrinfo hints{};
+
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_DGRAM;
+  hints.ai_protocol = IPPROTO_UDP;
+
+  addrinfo* addrs = nullptr;
+
+  auto ret_val = getaddrinfo(GetHostName().c_str(), nullptr, &hints, &addrs);
+
+  if (ret_val != 0) {
+    std::cout << "getaddrinfo failed with error: " << get_error_string(ret_val) << std::endl;
+    return kDefaultBroadcastIP;
+  }
+  auto address = kDefaultBroadcastIP;
+
+  for (auto addr = addrs; addr != nullptr; addr = addr->ai_next) {
+    if (AF_INET == addrs->ai_family) {
+      auto sockaddr_ipv4 = reinterpret_cast<sockaddr_in*>(addr->ai_addr);
+      auto ip = ntohl(GetAddressAsUnsigned(sockaddr_ipv4->sin_addr));
+
+      if (IsValidAddress(ip)) {
+        if (address != kDefaultBroadcastIP) {
+          std::cout << "Warning - several network interfaces found" << std::endl;
+          break;
+        }
+        GetAddressAsUnsigned(sockaddr_ipv4->sin_addr) = htonl(ip | 0xFF);
+        address = inet_ntoa(sockaddr_ipv4->sin_addr);
+      }
+    }
+  }
+  if (addrs != nullptr) {
+    freeaddrinfo(addrs);
+  }
+
+  return address;
+}
+
 std::string GetBroadcastAddress() {
   auto env = getenv(kEnvServer.c_str());
 
@@ -283,12 +332,6 @@ int GetPort() {
   return std::stoi(env);
 }
 
-bool IsValidAddress(unsigned ip) {
-  auto c = (ip >> 24) & 0xFF;
-
-  return (c != 169 && c != 127);
-}
-
 #if defined(_WIN64)
 
 void Startup() {
@@ -304,6 +347,7 @@ void Startup() {
 
 void Cleanup() { WSACleanup(); }
 
+// Handles only IP4 addresses
 std::string FindBroadcastAddress() {
   addrinfo hints{};
 
@@ -347,34 +391,6 @@ std::string FindBroadcastAddress() {
 void Startup() {}
 
 void Cleanup() {}
-
-std::string FindBroadcastAddress() {
-  auto address = kDefaultBroadcastIP;
-  ifaddrs* addrs = nullptr;
-
-  getifaddrs(&addrs);
-
-  for (auto addr = addrs; addr; addr = addr->ifa_next) {
-    if (addr->ifa_addr && AF_INET == addr->ifa_addr->sa_family) {
-      auto p_addr = reinterpret_cast<sockaddr_in *>(addr->ifa_addr);
-      auto ip = ntohl(p_addr->sin_addr.s_addr);
-
-      if (IsValidAddress(ip)) {
-        if (address != kDefaultBroadcastIP) {
-          std::cout << "Warning - several network interfaces found" << std::endl;
-          break;
-        }
-        p_addr->sin_addr.s_addr = htonl(ip | 0xFF);
-        address = inet_ntoa(p_addr->sin_addr);
-      }
-    }
-  }
-  if (addrs != nullptr) {
-    freeifaddrs(addrs);
-  }
-
-  return address;
-}
 
 #endif
 

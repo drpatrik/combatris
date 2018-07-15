@@ -157,7 +157,7 @@ class Combatris {
       return;
     }
     previous_control = control;
-    func = [this, previous_control]() { tetrion_->GameControl(previous_control); };
+    func = [this]() { tetrion_->GameControl(control); };
     repeat_count = 0;
     time_since_last_auto_repeat = 0;
   }
