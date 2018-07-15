@@ -192,7 +192,12 @@ A | Hard Drop
 
 ## Network Considerations
 
-The default port is 11000 and default broadcast IP are 192.168.1.255
+The default port is 11000 and Combatris will try to auto detect the broadcast address. This will work
+fine as long as you do not have two active network interfaces (e.g. wifi and ethernet). I do not recommend
+having more then one active network interface when playing.
+
+If auto detection of broadcast address failed default will be used (192.168.1.255).
+
 Set the environment variables COMBATRIS_BROADCAST_PORT and COMBATRIS_BROADCAST_IP to
 change the port and broadcast IP accordingly.
 
@@ -202,7 +207,7 @@ packages.
 ## Build Combatris
 
 **Dependencies:**
-* C++17 compliant compiler (tested with clang 5/6, clang-9.x.0, Visual Studio 2017.x, GCC 7.x.x)
+* C++17 compliant compiler (tested with clang 5/6, clang-9.x.0, Visual Studio 15.x.x, GCC 7.x.x)
 * cmake 3.10.0 or later (Windows) or 3.5.0 or later (OSX/Linux)
 * git
 * SDL2 (x64 only)
@@ -268,7 +273,7 @@ The code builds cleanly and has been tested with Clang 5.0.0 and Clang 6.0.0
 
 **64-bit Windows 10**
 
-The code has been tested with Visual Studio Community Edition 15.6.1. Using the following settings:
+The code has been tested with Visual Studio Community Edition 15.x.x. Using the following settings:
 
 Download the latest versions of the development libraries at https://www.libsdl.org.
 
