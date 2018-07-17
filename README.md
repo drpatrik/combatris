@@ -11,6 +11,8 @@ Combatris supports Tetris, Marathon and Battle modes. The two first campaigns ar
 and multi-player. The purpose of Marathon and Tetris is to maximize the score while Battle is only judged based
 on number of lines sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
 
+The game supports both keyboard and Gamepads / Joysticks (PS3 Controller, Logitech F310, 8Bitdo NES30).
+
 I have tested the game with up to five players running on a heterogeneous set of computers using both wireless
 and Ethernet based connections. The game works well but there can be lag, since heartbeats are sent
 every 200 ms and status updates every 250 ms (if something has happened). Heartbeats are suppressed if
@@ -29,7 +31,7 @@ Infinity limit | 15
 Bag randomizer | 7-bag
 Top out | Line at 22
 Levels | 15
-Level advancement | 10 lines
+Level advancement | 10 lines / 5 * level Marathon
 T-Spin recognition | 3-corner with kicks
 Back-to-back Recognition | Tetris / T-spin
 Platform | PC / OSX / Linux / Raspian
@@ -134,7 +136,6 @@ B2B T-Spin Triple | 9
 - [X] Introduce VS mode for multiplayer campaign
 - [X] Add KO box and sent lines box in battle
 - [X] Add possibility to have different UI components based on campaign
-- [X] New splash screen, allowing user to select campaign and starting level
 - [X] Allow user to change game settings (level, etc) in UI
 - [X] Auto discovery of broadcast address (e.g. 192.168.1.255)
 - [ ] Display Winner / Position on game-over splash screen
@@ -189,6 +190,20 @@ Right | Move Right
 Down | Soft Drop
 Y | Hold piece
 A | Hard Drop
+
+**Joystick Commands (8Bitdo NES30 Gamepad)**
+
+Key | Action
+--- | ------
+Start  | New game
+Select | Pause
+Y | Rotate counter clockwise
+A | Rotate clockwise
+Left | Move Left
+Right | Move Right
+Down | Soft Drop
+X | Hold piece
+B | Hard Drop
 
 ## Network Considerations
 

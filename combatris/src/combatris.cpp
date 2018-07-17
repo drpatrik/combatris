@@ -8,8 +8,8 @@
 namespace {
 
 // DAS settings
-int64_t kAutoRepeatInitialDelay = 160; // milliseconds
-int64_t kAutoRepeatSubsequentDelay = 90; // milliseconds
+int64_t kAutoRepeatInitialDelay = 200; // milliseconds
+int64_t kAutoRepeatSubsequentDelay = 50; // milliseconds
 
 constexpr int HatValueToButtonValue(Uint8 value) { return (0xFF << 8) | value; }
 
@@ -39,13 +39,28 @@ const std::unordered_map<std::string, const std::unordered_map<int, Tetrion::Con
       { 3, Tetrion::Controls::Start },
       { 0, Tetrion::Controls::Pause }
     }
+  },
+  {"8Bitdo NES30 GamePad", {
+      { 6, Tetrion::Controls::Left },
+      { 7, Tetrion::Controls::Right },
+      { -1, Tetrion::Controls::SoftDrop },
+      { -1, Tetrion::Controls::RotateClockwise },
+      { 4, Tetrion::Controls::RotateCounterClockwise },
+      { 0, Tetrion::Controls::RotateClockwise },
+      { 3, Tetrion::Controls::Hold },
+      { 1, Tetrion::Controls::HardDrop },
+      { 11, Tetrion::Controls::Start },
+      { 10, Tetrion::Controls::Pause }
+    }
   }
 };
 
-const std::unordered_map<std::string, std::string> kTranslateJoystickName = {
-  { "Logitech Dual Action", "Logitech Dual Action"},
-  { "Logitech Logitech Dual Action", "Logitech Dual Action"},
-  { "PLAYSTATION(R)3 Controller", "PLAYSTATION(R)3 Controller"}
+// use_axismotion, joystick mapping
+const std::unordered_map<std::string, std::pair<bool, std::string>> kTranslateJoystickName = {
+  { "Logitech Dual Action", { false, "Logitech Dual Action" } },
+  { "Logitech Logitech Dual Action", { false, "Logitech Dual Action" } },
+  { "PLAYSTATION(R)3 Controller", { false, "PLAYSTATION(R)3 Controller" } },
+  { "8Bitdo NES30 GamePad", { true, "8Bitdo NES30 GamePad"} }
 };
 
 const std::set<Tetrion::Controls> kAutoRepeatControls = { Tetrion::Controls::SoftDrop, Tetrion::Controls::Left, Tetrion::Controls::Right };
@@ -68,9 +83,6 @@ class Combatris {
     }
     SDL_JoystickEventState(SDL_ENABLE);
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
-    if (SDL_NumJoysticks() > 0) {
-      AttachJoystick(0);
-    }
   }
 
   ~Combatris() {
@@ -96,7 +108,7 @@ class Combatris {
       std::cout << "Non supported joystick found: " <<  joystick_name_ << " it will be DISABLED" << std::endl;
       DetachJoystick(joystick_index_);
     } else {
-      joystick_name_ = kTranslateJoystickName.at(joystick_name_);
+      std::tie(use_axismotion_ , joystick_name_) = kTranslateJoystickName.at(joystick_name_);
       std::cout << "Joystick found: " <<  joystick_name_ << std::endl;
     }
   }
@@ -142,13 +154,26 @@ class Combatris {
   }
 
   Tetrion::Controls TranslateJoystickCommands(SDL_JoystickID index, ButtonType type, Uint8 button) const {
+    if (index != joystick_index_) {
+      return Tetrion::Controls::None;
+    }
     const auto& mapping = kJoystickMappings.at(joystick_name_);
     int v = (type == ButtonType::JoyButton) ? button : HatValueToButtonValue(button);
 
-    if (index != joystick_index_ || !mapping.count(v)) {
+    if (!mapping.count(v)) {
       return Tetrion::Controls::None;
     }
     return mapping.at(v);
+  }
+
+  Tetrion::Controls TranslateJoystickAxisMotion(SDL_JoystickID index, Uint8 axis, Sint16 value) const {
+    if (!use_axismotion_ || index != joystick_index_) {
+      return Tetrion::Controls::None;
+    }
+    if (0 == axis) {
+      return (-32768 == value) ? Tetrion::Controls::Left : Tetrion::Controls::Right;
+    }
+    return (-32768 == value) ? Tetrion::Controls::Up : Tetrion::Controls::Down;
   }
 
   template <Tetrion::Controls control>
@@ -191,17 +216,23 @@ class Combatris {
           if (event.type == SDL_JOYBUTTONDOWN) {
             event.jbutton.button = event.jhat.value;
           }
+        } else if (use_axismotion_ && SDL_JOYAXISMOTION == event.type) {
+          event.type = (0 == event.jaxis.value) ? SDL_JOYBUTTONUP : SDL_JOYAXISMOTION;
         }
         current_control = Tetrion::Controls::None;
 
         switch (event.type) {
           case SDL_KEYDOWN:
             current_control = TranslateKeyboardCommands(event, button_pressed);
-            button_pressed = true;
+            button_pressed = (current_control != Tetrion::Controls::None);
+            break;
+          case SDL_JOYAXISMOTION:
+            current_control = TranslateJoystickAxisMotion(event.jbutton.which, event.jaxis.axis, event.jaxis.value);
+            button_pressed = (current_control != Tetrion::Controls::None);
             break;
           case SDL_JOYBUTTONDOWN:
             current_control = TranslateJoystickCommands(event.jbutton.which, button_type, event.jbutton.button);
-            button_pressed = true;
+            button_pressed = (current_control != Tetrion::Controls::None);
             break;
           case SDL_KEYUP:
           case SDL_JOYBUTTONUP:
@@ -270,6 +301,7 @@ class Combatris {
   int joystick_index_ = -1;
   std::string joystick_name_;
   SDL_Joystick* joystick_ = nullptr;
+  bool use_axismotion_ = false;
   std::shared_ptr<Tetrion> tetrion_ = nullptr;
 };
 
