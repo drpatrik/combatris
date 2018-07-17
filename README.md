@@ -36,6 +36,63 @@ T-Spin recognition | 3-corner with kicks
 Back-to-back Recognition | Tetris / T-spin
 Platform | PC / OSX / Linux / Raspian
 
+**Keyboard Commands**
+
+Key | Action
+--- | ------
+N  | New game
+P | Pause
+Z | Rotate counter clockwise
+Up / X | Rotate clockwise
+Left | Move Left
+Right | Move Right
+Down | Soft Drop
+Space | Hard Drop
+Shift | Hold piece
+Q | Quit
+
+**Joystick Commands (PS3 Controller)**
+
+Key | Action
+--- | ------
+Start  | New game
+Select | Pause
+Square | Rotate counter clockwise
+Circle | Rotate clockwise
+Left | Move Left
+Right | Move Right
+Down | Soft Drop
+Triangle | Hold piece
+X | Hard Drop
+
+**Joystick Commands (Logitech F310 Gamepad)**
+
+Key | Action
+--- | ------
+Start  | New game
+Select | Pause
+X | Rotate counter clockwise
+B | Rotate clockwise
+Left | Move Left
+Right | Move Right
+Down | Soft Drop
+Y | Hold piece
+A | Hard Drop
+
+**Joystick Commands (8Bitdo NES30 Gamepad)**
+
+Key | Action
+--- | ------
+Start  | New game
+Select | Pause
+Y | Rotate counter clockwise
+A | Rotate clockwise
+Left | Move Left
+Right | Move Right
+Down | Soft Drop
+X | Hold piece
+B | Hard Drop
+
 **Scoring - Tetris Campaign**
 
 Action | Points
@@ -147,63 +204,6 @@ B2B T-Spin Triple | 9
 - [ ] Write a TCP/IP gateway server for Internet based support
 - [ ] Do a proper implementation of the sliding window protocolx
 - [ ] Unit tests for all score combinations
-
-**Keyboard Commands**
-
-Key | Action
---- | ------
-N  | New game
-P | Pause
-Z | Rotate counter clockwise
-Up / X | Rotate clockwise
-Left | Move Left
-Right | Move Right
-Down | Soft Drop
-Space | Hard Drop
-Shift | Hold piece
-Q | Quit
-
-**Joystick Commands (PS3 Controller)**
-
-Key | Action
---- | ------
-Start  | New game
-Select | Pause
-Square | Rotate counter clockwise
-Circle | Rotate clockwise
-Left | Move Left
-Right | Move Right
-Down | Soft Drop
-Triangle | Hold piece
-X | Hard Drop
-
-**Joystick Commands (Logitech F310 Gamepad)**
-
-Key | Action
---- | ------
-Start  | New game
-Select | Pause
-X | Rotate counter clockwise
-B | Rotate clockwise
-Left | Move Left
-Right | Move Right
-Down | Soft Drop
-Y | Hold piece
-A | Hard Drop
-
-**Joystick Commands (8Bitdo NES30 Gamepad)**
-
-Key | Action
---- | ------
-Start  | New game
-Select | Pause
-Y | Rotate counter clockwise
-A | Rotate clockwise
-Left | Move Left
-Right | Move Right
-Down | Soft Drop
-X | Hold piece
-B | Hard Drop
 
 ## Network Considerations
 
