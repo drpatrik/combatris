@@ -89,6 +89,7 @@ class Combatris {
     }
     SDL_JoystickEventState(SDL_ENABLE);
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
+    tetrion_ = std::make_shared<Tetrion>();
   }
 
   ~Combatris() {
@@ -192,6 +193,33 @@ class Combatris {
     time_since_last_auto_repeat = kAutoRepeatInitialDelay;
   }
 
+  exp::optional<std::pair<ButtonType, SDL_Event>> PollEvent(int repeat_count) {
+    SDL_Event event;
+
+    if (!SDL_PollEvent(&event)) {
+      return {};
+    }
+    auto button_type = ButtonType::JoyButton;
+
+    if (SDL_JOYHATMOTION == event.type) {
+      button_type = ButtonType::HatButton;
+      event.type = (event.jhat.value == 0) ? SDL_JOYBUTTONUP : SDL_JOYBUTTONDOWN;
+
+      if (event.type == SDL_JOYBUTTONDOWN) {
+        event.jbutton.button = event.jhat.value;
+      }
+    } else if (use_axismotion_ && SDL_JOYAXISMOTION == event.type) {
+      if (event.jaxis.value == 0 && repeat_count == 0) {
+        event.type = SDL_FIRSTEVENT;
+      } else {
+        button_type = ButtonType::AxisMotion;
+        event.type = (0 == event.jaxis.value) ? SDL_JOYBUTTONUP : SDL_JOYBUTTONDOWN;
+      }
+    }
+
+    return exp::make_optional(std::make_pair(button_type, event));
+  }
+
   void Play() {
     bool quit = false;
     DeltaTimer delta_timer;
@@ -200,36 +228,17 @@ class Combatris {
     int64_t time_since_last_auto_repeat = 0;
     int64_t auto_repeat_threshold = kAutoRepeatInitialDelay;
     std::function<void()> function_to_repeat;
-    Tetrion::Controls current_control;
     Tetrion::Controls previous_control = Tetrion::Controls::None;
 
-    tetrion_ = std::make_shared<Tetrion>();
     while (!quit) {
-      SDL_Event event;
+      while (auto poll_result = PollEvent(repeat_count)) {
+        auto [button_type, event] = *poll_result;
 
-      while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
           quit = true;
           break;
         }
-        auto button_type = ButtonType::JoyButton;
-
-        if (SDL_JOYHATMOTION == event.type) {
-          button_type = ButtonType::HatButton;
-          event.type = (event.jhat.value == 0) ? SDL_JOYBUTTONUP : SDL_JOYBUTTONDOWN;
-
-          if (event.type == SDL_JOYBUTTONDOWN) {
-            event.jbutton.button = event.jhat.value;
-          }
-        } else if (use_axismotion_ && SDL_JOYAXISMOTION == event.type) {
-          if (event.jaxis.value == 0 && repeat_count == 0) {
-            event.type = SDL_FIRSTEVENT;
-          } else {
-            button_type = ButtonType::AxisMotion;
-            event.type = (0 == event.jaxis.value) ? SDL_JOYBUTTONUP : SDL_JOYBUTTONDOWN;
-          }
-        }
-        current_control = Tetrion::Controls::None;
+        auto current_control = Tetrion::Controls::None;
 
         switch (event.type) {
           case SDL_KEYDOWN:
