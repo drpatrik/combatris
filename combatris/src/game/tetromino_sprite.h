@@ -5,10 +5,10 @@
 
 #if __has_include(<optional>)
 #include <optional>
-namespace exp = std;
+namespace opt = std;
 #else
 #include <experimental/optional>
-namespace exp = std::experimental;
+namespace opt = std::experimental;
 #endif
 
 namespace {
@@ -66,7 +66,7 @@ class TetrominoSprite {
  protected:
   void ResetDelayCounter();
 
-  exp::optional<std::pair<Position, Tetromino::Angle>> TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate);
+  opt::optional<std::pair<Position, Tetromino::Angle>> TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate);
 
  private:
   const Tetromino& tetromino_;

@@ -195,7 +195,7 @@ class Combatris {
     time_since_last_auto_repeat = kAutoRepeatInitialDelay;
   }
 
-  exp::optional<std::pair<ButtonType, SDL_Event>> PollEvent(int repeat_count) {
+  opt::optional<std::pair<ButtonType, SDL_Event>> PollEvent(int repeat_count) {
     SDL_Event event;
 
     if (!SDL_PollEvent(&event)) {
@@ -219,7 +219,7 @@ class Combatris {
       }
     }
 
-    return exp::make_optional(std::make_pair(button_type, event));
+    return opt::make_optional(std::make_pair(button_type, event));
   }
 
   void Play() {
