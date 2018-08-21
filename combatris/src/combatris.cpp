@@ -8,8 +8,8 @@
 namespace {
 
 // DAS settings
-const int64_t kAutoRepeatInitialDelay = 200; // milliseconds
-const int64_t kAutoRepeatSubsequentDelay = 50; // milliseconds
+const int64_t kAutoRepeatInitialDelay = 190; // milliseconds
+const int64_t kAutoRepeatSubsequentDelay = 45; // milliseconds
 
 constexpr int HatValueToButtonValue(Uint8 value) { return (0xFF << 8) | value; }
 
@@ -131,33 +131,35 @@ class Combatris {
     joystick_name_ = "";
   }
 
-  Tetrion::Controls TranslateKeyboardCommands(const SDL_Event& event, bool button_pressed) const {
+  Tetrion::Controls TranslateKeyboardCommands(const SDL_Event& event) const {
     auto current_control = Tetrion::Controls::None;
 
-    if (event.key.keysym.scancode == SDL_SCANCODE_LEFT) {
+    if (SDL_SCANCODE_LEFT == event.key.keysym.scancode) {
       current_control = Tetrion::Controls::Left;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
+    } else if (SDL_SCANCODE_RIGHT == event.key.keysym.scancode) {
       current_control = Tetrion::Controls::Right;
-    }  if (event.key.keysym.scancode == SDL_SCANCODE_DOWN) {
+    } if (SDL_SCANCODE_DOWN == event.key.keysym.scancode) {
       current_control = Tetrion::Controls::SoftDrop;
-    } else if (!button_pressed && event.key.keysym.scancode == SDL_SCANCODE_Z) {
-      current_control = Tetrion::Controls::RotateCounterClockwise;
-    } else if (!button_pressed && (event.key.keysym.scancode == SDL_SCANCODE_UP || event.key.keysym.scancode == SDL_SCANCODE_X)) {
-      current_control = Tetrion::Controls::RotateClockwise;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_LSHIFT || event.key.keysym.scancode == SDL_SCANCODE_C) {
-      current_control = Tetrion::Controls::Hold;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
-      current_control = Tetrion::Controls::HardDrop;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_N) {
-      current_control = Tetrion::Controls::Start;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_P) {
-      current_control = Tetrion::Controls::Pause;
-    } else if (event.key.keysym.scancode == SDL_SCANCODE_Q) {
-      current_control = Tetrion::Controls::Quit;
-    } else if (event.key.keysym.scancode >=  SDL_SCANCODE_1 && event.key.keysym.scancode <=  SDL_SCANCODE_9) {
-      current_control = Tetrion::Controls::DebugSendLine;
     }
-
+    if (0 == event.key.repeat) {
+      if (event.key.keysym.scancode == SDL_SCANCODE_Z) {
+        current_control = Tetrion::Controls::RotateCounterClockwise;
+      } else if (SDL_SCANCODE_UP == event.key.keysym.scancode || SDL_SCANCODE_X == event.key.keysym.scancode) {
+        current_control = Tetrion::Controls::RotateClockwise;
+      } else if (SDL_SCANCODE_LSHIFT == event.key.keysym.scancode || SDL_SCANCODE_C == event.key.keysym.scancode) {
+        current_control = Tetrion::Controls::Hold;
+      } else if (SDL_SCANCODE_SPACE == event.key.keysym.scancode) {
+        current_control = Tetrion::Controls::HardDrop;
+      } else if (SDL_SCANCODE_N == event.key.keysym.scancode) {
+        current_control = Tetrion::Controls::Start;
+      } else if (SDL_SCANCODE_P == event.key.keysym.scancode) {
+        current_control = Tetrion::Controls::Pause;
+      } else if (SDL_SCANCODE_Q == event.key.keysym.scancode) {
+        current_control = Tetrion::Controls::Quit;
+      } else if (event.key.keysym.scancode >=  SDL_SCANCODE_1 && event.key.keysym.scancode <=  SDL_SCANCODE_9) {
+        current_control = Tetrion::Controls::DebugSendLine;
+      }
+    }
     return current_control;
   }
 
@@ -173,7 +175,7 @@ class Combatris {
       return (-32768 == event.jaxis.value) ? Tetrion::Controls::Up : Tetrion::Controls::Down;
     }
     const auto& mapping = kJoystickMappings.at(joystick_name_);
-    const auto v = (type == ButtonType::JoyButton) ? event.jbutton.button : HatValueToButtonValue(event.jbutton.button);
+    const auto v = (ButtonType::JoyButton == type) ? event.jbutton.button : HatValueToButtonValue(event.jbutton.button);
 
     if (!mapping.count(v)) {
       return Tetrion::Controls::None;
@@ -187,9 +189,9 @@ class Combatris {
     if (control == previous_control) {
       return;
     }
+    repeat_count = 0;
     previous_control = control;
     func = [this]() { tetrion_->GameControl(control); };
-    repeat_count = 0;
     time_since_last_auto_repeat = kAutoRepeatInitialDelay;
   }
 
@@ -205,11 +207,11 @@ class Combatris {
       button_type = ButtonType::HatButton;
       event.type = (event.jhat.value == 0) ? SDL_JOYBUTTONUP : SDL_JOYBUTTONDOWN;
 
-      if (event.type == SDL_JOYBUTTONDOWN) {
+      if (SDL_JOYBUTTONDOWN == event.type) {
         event.jbutton.button = event.jhat.value;
       }
     } else if (use_axismotion_ && SDL_JOYAXISMOTION == event.type) {
-      if (event.jaxis.value == 0 && repeat_count == 0) {
+      if (0 == event.jaxis.value && 0 == repeat_count) {
         event.type = SDL_FIRSTEVENT;
       } else {
         button_type = ButtonType::AxisMotion;
@@ -224,7 +226,6 @@ class Combatris {
     bool quit = false;
     DeltaTimer delta_timer;
     int repeat_count = 0;
-    bool button_pressed = false;
     int64_t time_since_last_auto_repeat = 0;
     int64_t auto_repeat_threshold = kAutoRepeatInitialDelay;
     std::function<void()> function_to_repeat;
@@ -234,7 +235,7 @@ class Combatris {
       while (auto poll_result = PollEvent(repeat_count)) {
         auto [button_type, event] = *poll_result;
 
-        if (event.type == SDL_QUIT) {
+        if (SDL_QUIT == event.type) {
           quit = true;
           break;
         }
@@ -242,17 +243,14 @@ class Combatris {
 
         switch (event.type) {
           case SDL_KEYDOWN:
-            current_control = TranslateKeyboardCommands(event, button_pressed);
-            button_pressed = (current_control != Tetrion::Controls::None);
+            current_control = TranslateKeyboardCommands(event);
             break;
           case SDL_JOYBUTTONDOWN:
             current_control = TranslateJoystickCommands(button_type, event);
-            button_pressed = (current_control != Tetrion::Controls::None);
             break;
           case SDL_KEYUP:
           case SDL_JOYBUTTONUP:
             repeat_count = 0;
-            button_pressed = false;
             function_to_repeat = nullptr;
             previous_control = Tetrion::Controls::None;
             break;
@@ -300,11 +298,12 @@ class Combatris {
           previous_control = Tetrion::Controls::None;
         }
       }
-      if (button_pressed && (time_in_ms() - time_since_last_auto_repeat) >= auto_repeat_threshold) {
+      if (previous_control != Tetrion::Controls::None &&
+          (time_in_ms() - time_since_last_auto_repeat) >= auto_repeat_threshold) {
         if (function_to_repeat) {
           function_to_repeat();
         }
-        auto_repeat_threshold = (repeat_count == 0) ? kAutoRepeatInitialDelay : kAutoRepeatSubsequentDelay;
+        auto_repeat_threshold = (0 == repeat_count) ? kAutoRepeatInitialDelay : kAutoRepeatSubsequentDelay;
         repeat_count++;
         time_since_last_auto_repeat = time_in_ms();
       }
