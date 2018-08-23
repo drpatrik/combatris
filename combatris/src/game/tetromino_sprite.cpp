@@ -96,6 +96,7 @@ void TetrominoSprite::SoftDrop() {
 }
 
 void TetrominoSprite::HardDrop() {
+  state_ = State::Commit;
   if (State::OnFloor == state_) {
     return;
   }
@@ -103,7 +104,6 @@ void TetrominoSprite::HardDrop() {
 
   pos_ = matrix_->GetDropPosition(pos_, rotation_data_);
   level_->Release();
-  state_ = State::Commit;
   last_move_ = Tetromino::Move::Down;
   events_.Push(Event::Type::DropScoreData, (kVisibleRows - drop_row) * 2);
 }
