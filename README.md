@@ -11,7 +11,7 @@ Combatris supports Tetris, Marathon and Battle modes. The two first campaigns ar
 and multi-player. The purpose of Marathon and Tetris is to maximize the score while Battle is only judged based
 on number of lines sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
 
-The game supports both keyboard and Gamepads / Joysticks (listed bellow).
+The game supports both keyboard and Gamepads / Joysticks (listed below).
 
 I have tested the game with up to five players running on a heterogeneous set of computers using both wireless
 and Ethernet based connections. The game works well but there can be lag, since heartbeats are sent
