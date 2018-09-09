@@ -74,7 +74,8 @@ const std::unordered_map<std::string, std::string> kTranslateJoystickName = {
   { "PLAYSTATION(R)3 Controller", "PLAYSTATION(R)3 Controller" },
   { "8Bitdo NES30 GamePad", "8Bitdo NES30 GamePad" },
   { "NES30 Joystick", "8Bitdo NES30 GamePad" },
-  { "Microsoft X-Box 360 pad", "Retroflag Classic USB Gamepad" }
+  { "Microsoft X-Box 360 pad", "Retroflag Classic USB Gamepad" },
+  { "XInput Controller #1", "Retroflag Classic USB Gamepad" }
 };
 
 const std::set<std::string> kUseAxisMotion = { "8Bitdo NES30 GamePad" };
