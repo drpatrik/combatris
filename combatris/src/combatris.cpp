@@ -52,6 +52,19 @@ const std::unordered_map<std::string, const std::unordered_map<int, Tetrion::Con
       { 11, Tetrion::Controls::Start },
       { 10, Tetrion::Controls::Pause }
     }
+  },
+  {"Retroflag Classic USB Gamepad", {
+      { HatValueToButtonValue(8), Tetrion::Controls::Left },
+      { HatValueToButtonValue(2), Tetrion::Controls::Right },
+      { HatValueToButtonValue(4), Tetrion::Controls::SoftDrop },
+      { HatValueToButtonValue(1), Tetrion::Controls::RotateClockwise },
+      { 2, Tetrion::Controls::RotateCounterClockwise },
+      { 1, Tetrion::Controls::RotateClockwise },
+      { 3, Tetrion::Controls::Hold },
+      { 0, Tetrion::Controls::HardDrop },
+      { 7, Tetrion::Controls::Start },
+      { 6, Tetrion::Controls::Pause }
+    }
   }
 };
 
@@ -60,7 +73,8 @@ const std::unordered_map<std::string, std::string> kTranslateJoystickName = {
   { "Logitech Logitech Dual Action", "Logitech Dual Action" },
   { "PLAYSTATION(R)3 Controller", "PLAYSTATION(R)3 Controller" },
   { "8Bitdo NES30 GamePad", "8Bitdo NES30 GamePad" },
-  { "NES30 Joystick", "8Bitdo NES30 GamePad" }
+  { "NES30 Joystick", "8Bitdo NES30 GamePad" },
+  { "Microsoft X-Box 360 pad", "Retroflag Classic USB Gamepad" }
 };
 
 const std::set<std::string> kUseAxisMotion = { "8Bitdo NES30 GamePad" };
