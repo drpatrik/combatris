@@ -34,7 +34,7 @@ Levels | 15
 Level advancement | 10 lines / 5 * level Marathon
 T-Spin recognition | 3-corner with kicks
 Back-to-back Recognition | Tetris / T-spin
-Platform | PC / OSX / Linux / Raspian
+Platforms | PC / OSX / Linux / Raspian
 
 **Keyboard Commands**
 
@@ -51,12 +51,12 @@ Space | Hard Drop
 Shift | Hold piece
 Q | Quit
 
-**Joystick Commands (PS3 Controller)**
+**Joystick Commands (PS3/PS4 Controller)**
 
 Key | Action
 --- | ------
-Start  | New game
-Select | Pause
+Start/Trackpad  | New game
+Select/Option | Pause
 Square | Rotate counter clockwise
 Circle | Rotate clockwise
 Left | Move Left
@@ -64,6 +64,8 @@ Right | Move Right
 Down | Soft Drop
 Triangle | Hold piece
 X | Hard Drop
+
+*Tested on OSX only*
 
 **Joystick Commands (Logitech F310 Gamepad)**
 
@@ -79,6 +81,8 @@ Down | Soft Drop
 Y | Hold piece
 A | Hard Drop
 
+*Tested on Windows, OSX and Raspian*
+
 **Joystick Commands (Retroflag Classic USB Gamepad)**
 
 Key | Action
@@ -93,6 +97,8 @@ Down | Soft Drop
 X | Hold piece
 B | Hard Drop
 
+*Tested on Raspian*
+
 **Joystick Commands (8Bitdo NES30 Gamepad)**
 
 Key | Action
@@ -106,6 +112,8 @@ Right | Move Right
 Down | Soft Drop
 X | Hold piece
 B | Hard Drop
+
+*Tested on Raspian*
 
 **Scoring - Tetris Campaign**
 
@@ -209,6 +217,7 @@ B2B T-Spin Triple | 9
 - [X] Add possibility to have different UI components based on campaign
 - [X] Allow user to change game settings (level, etc) in UI
 - [X] Auto discovery of broadcast address (e.g. 192.168.1.255)
+- [ ] Refactor out Joystick code into a more reusable component
 - [ ] Display Winner / Position on game-over splash screen
 - [ ] Add support for TCP/IP so we allow play over internet
 - [ ] Sound
@@ -216,7 +225,6 @@ B2B T-Spin Triple | 9
 - [ ] Add new animation for combo/last clearing move
 - [ ] Configure which joystick to use (if many available)
 - [ ] Move joystick mapping and other settings to a config-file
-- [ ] Do a proper implementation of the sliding window protocolx
 - [ ] Unit tests for all score combinations
 
 ## Network Considerations
@@ -325,8 +333,8 @@ Generate Visual Studio project files with CMakeSetup.exe (Choose Visual Studio 1
 
 Some sources has there own license and is not covered by the source codes license.
 
-* Fonts https://www.dafont.com/cabin.font
-* Fonts https://www.dafont.com/obelixpro.font
+* Font https://www.dafont.com/cabin.font
+* Font https://www.dafont.com/obelixpro.font
 * Wall kick tables from https://harddrop.com/wiki/SRS
 * Tetris info from http://tetris.wikia.com and https://tetris.wiki
 * Tetrominos from https://commons.wikimedia.org/wiki/File:Tetrominoes_IJLO_STZ_Worlds.svg

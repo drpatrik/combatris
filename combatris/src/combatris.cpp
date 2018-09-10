@@ -40,9 +40,22 @@ const std::unordered_map<std::string, const std::unordered_map<int, Tetrion::Con
       { 0, Tetrion::Controls::Pause }
     }
   },
+  {"PLAYSTATION(R)4 Controller", {
+      { HatValueToButtonValue(8), Tetrion::Controls::Left },
+      { HatValueToButtonValue(2), Tetrion::Controls::Right },
+      { HatValueToButtonValue(4), Tetrion::Controls::SoftDrop },
+      { HatValueToButtonValue(1), Tetrion::Controls::RotateClockwise },
+      { 0, Tetrion::Controls::RotateCounterClockwise },
+      { 2, Tetrion::Controls::RotateClockwise },
+      { 3, Tetrion::Controls::Hold },
+      { 1, Tetrion::Controls::HardDrop },
+      { 13, Tetrion::Controls::Start },
+      { 9, Tetrion::Controls::Pause }
+    }
+  },
   {"8Bitdo NES30 GamePad", {
-      { 6, Tetrion::Controls::Left },
-      { 7, Tetrion::Controls::Right },
+      { -1, Tetrion::Controls::Left },
+      { -1, Tetrion::Controls::Right },
       { -1, Tetrion::Controls::SoftDrop },
       { -1, Tetrion::Controls::RotateClockwise },
       { 4, Tetrion::Controls::RotateCounterClockwise },
@@ -75,7 +88,8 @@ const std::unordered_map<std::string, std::string> kTranslateJoystickName = {
   { "8Bitdo NES30 GamePad", "8Bitdo NES30 GamePad" },
   { "NES30 Joystick", "8Bitdo NES30 GamePad" },
   { "Microsoft X-Box 360 pad", "Retroflag Classic USB Gamepad" },
-  { "XInput Controller #1", "Retroflag Classic USB Gamepad" }
+  { "XInput Controller #1", "Retroflag Classic USB Gamepad" },
+  { "Wireless Controller", "PLAYSTATION(R)4 Controller" }
 };
 
 const std::set<std::string> kUseAxisMotion = { "8Bitdo NES30 GamePad" };
