@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game/panes/timer.h"
 #include "game/panes/multi_player.h"
 #include "game/panes/total_lines.h"
 #include "game/panes/lines_sent.h"
@@ -60,6 +61,7 @@ class Campaign {
   std::shared_ptr<Matrix> matrix_;
   std::shared_ptr<Level> level_;
   std::unique_ptr<Scoring> scoring_;
+  std::unique_ptr<Timer> timer_;
   std::unique_ptr<HighScore> high_score_;
   std::unique_ptr<NextQueue> next_queue_;
   std::shared_ptr<HoldQueue> hold_queue_;

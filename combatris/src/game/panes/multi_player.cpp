@@ -5,16 +5,7 @@ using namespace network;
 namespace {
 
 const int kMaxPlayers = 6;
-const int kTimesUpSoon = 15;
-const int kGameTime = 120;
 const double kUpdateInterval = 0.250;
-
-std::pair<UniqueTexturePtr, SDL_Rect> CreateTimerTexture(SDL_Renderer* renderer, const Assets& assets,
-                                                         const std::string& text, Color color = Color::White) {
-  auto [texture, width, height] = CreateTextureFromText(renderer, assets.GetFont(ObelixPro40), text, color);
-
-  return std::make_pair(std::move(texture), SDL_Rect{ kMatrixStartX, 5, width, height });
-}
 
 MatrixState GetMatrixState(const std::shared_ptr<Matrix>& m) {
   MatrixState matrix_state;
@@ -41,9 +32,7 @@ MatrixState GetMatrixState(const std::shared_ptr<Matrix>& m) {
 
 MultiPlayer::MultiPlayer(SDL_Renderer* renderer, const std::shared_ptr<Matrix>& matrix, Events& events,
                          const std::shared_ptr<Assets>& assets)
-    : Pane(renderer, kX, kY, assets), matrix_(matrix), events_(events), timer_(kGameTime) {
-  std::tie(timer_texture_, timer_texture_rc_) = CreateTimerTexture(renderer, *assets, timer_.FormatTime(kGameTime));
-}
+    : Pane(renderer, kX, kY, assets), matrix_(matrix), events_(events) {}
 
 void MultiPlayer::Update(const Event& event) {
   if (!multiplayer_controller_) {
@@ -73,13 +62,7 @@ void MultiPlayer::Update(const Event& event) {
       accumulator_.SetLevel(event.value_);
       break;
     case Event::Type::GameOver:
-      timer_.Stop();
       multiplayer_controller_->SendUpdate(GameState::GameOver);
-      break;
-    case Event::Type::NextTetromino:
-      if (IsBattleCampaign(campaign_type_) && !timer_.IsStarted()) {
-        timer_.Start();
-      }
       break;
     case Event::Type::MultiplayerStartGame:
       multiplayer_controller_->StartGame();
@@ -108,19 +91,6 @@ void MultiPlayer::Render(double delta_time) {
   if (!multiplayer_controller_) {
     return;
   }
-  if (timer_.IsStarted()) {
-    auto [updated, time_in_sec] = timer_.GetTimeInSeconds();
-
-    if (updated) {
-      auto color = (time_in_sec <= kTimesUpSoon) ? Color::Red : Color::White;
-
-      std::tie(timer_texture_, timer_texture_rc_) = CreateTimerTexture(renderer_, *assets_, timer_.FormatTime(time_in_sec), color);
-      if (timer_.IsZero()) {
-        timer_.Stop();
-        events_.Push(Event::Type::GameOver);
-      }
-    }
-  }
   Pane::SetDrawColor(renderer_, Color::Black);
   Pane::FillRect(renderer_, kX, kY, kMultiPlayerPaneWidth, kMultiPlayerPaneHeight);
 
@@ -134,9 +104,6 @@ void MultiPlayer::Render(double delta_time) {
       y_offset++;
       x_offset = 0;
     }
-  }
-  if (IsBattleCampaign(campaign_type_)) {
-    Pane::RenderCopy(timer_texture_.get(), timer_texture_rc_);
   }
   ticks_progess_update_ += delta_time;
   if (ticks_progess_update_ >= kUpdateInterval) {
@@ -212,7 +179,6 @@ void MultiPlayer::GotLeave(uint64_t host_id) {
 void MultiPlayer::GotNewGame(uint64_t host_id) {
   if (IsUs(host_id)) {
     accumulator_.Reset(start_level_);
-    std::tie(timer_texture_, timer_texture_rc_) = CreateTimerTexture(renderer_, *assets_, timer_.FormatTime(kGameTime));
     for (auto& player : score_board_) {
       player->Reset();
     }

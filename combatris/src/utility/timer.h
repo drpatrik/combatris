@@ -19,6 +19,8 @@ class Timer final {
 
   explicit Timer(int value) : initial_value_(value), count_down_(value), start_(SystemClock::now()) {}
 
+  operator int() { return GetTimeInSeconds().second; }
+
   std::pair<bool, int> GetTimeInSeconds() {
     if (std::chrono::duration_cast<std::chrono::milliseconds>(SystemClock::now() - start_).count() >= 1000) {
       start_ = SystemClock::now();

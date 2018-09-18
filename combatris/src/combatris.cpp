@@ -102,6 +102,8 @@ const std::set<Tetrion::Controls> kAutoRepeatControls = {
 
 } // namespace
 
+using namespace utility;
+
 class Combatris {
  public:
   enum class ButtonType { AxisMotion, HatButton, JoyButton };

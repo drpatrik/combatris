@@ -15,11 +15,13 @@ class Assets final {
 
   Assets(const Assets&) = delete;
 
-  TTF_Font* GetFont(const Font& font) const { return fonts_->Get(font); }
+  TTF_Font* GetFont(const utility::Font& font) const { return fonts_->Get(font); }
 
-  TTF_Font* GetFont(Font::Typeface typeface, Font::Emphasis emphasis, int size) const { return fonts_->Get(typeface, emphasis, size); }
+  TTF_Font* GetFont(utility::Font::Typeface typeface, utility::Font::Emphasis emphasis, int size) const {
+    return fonts_->Get(typeface, emphasis, size);
+  }
 
-  std::shared_ptr<Fonts> fonts() { return fonts_; }
+  std::shared_ptr<utility::Fonts> fonts() { return fonts_; }
 
   std::tuple<std::shared_ptr<SDL_Texture>, int, int> GetTexture(Type type) const;
 
@@ -32,11 +34,11 @@ class Assets final {
   std::vector<std::shared_ptr<SDL_Texture>> GetHourGlassTextures() const { return hourglass_textures_; }
 
  private:
-   using UniqueFontPtr = std::unique_ptr<TTF_Font, function_caller<void(TTF_Font*), &TTF_CloseFont>>;
+  using UniqueFontPtr = std::unique_ptr<TTF_Font, utility::function_caller<void(TTF_Font*), &TTF_CloseFont>>;
 
   std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
   std::vector<std::shared_ptr<SDL_Texture>> textures_;
   std::vector<std::shared_ptr<SDL_Texture>> alpha_textures_;
   std::vector<std::shared_ptr<SDL_Texture>> hourglass_textures_;
-  std::shared_ptr<Fonts> fonts_;
+  std::shared_ptr<utility::Fonts> fonts_;
 };

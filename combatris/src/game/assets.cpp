@@ -4,6 +4,8 @@
 #include <iostream>
 #include <algorithm>
 
+using namespace utility;
+
 namespace {
 
 #if defined(__linux__)

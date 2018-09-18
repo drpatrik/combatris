@@ -34,6 +34,8 @@ bool IsAnimationActive(std::deque<std::shared_ptr<Animation>>& animations) {
 
 } // namespace
 
+using namespace utility;
+
 Tetrion::Tetrion() : events_() {
   window_ = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED, kWidth, kHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);

@@ -54,15 +54,15 @@ class Player final {
 
  private:
   struct Texture {
-    Texture(UniqueTexturePtr&& texture, int w, int h, SDL_Rect rc)
+    Texture(utility::UniqueTexturePtr&& texture, int w, int h, SDL_Rect rc)
         : texture_(std::move(texture)), w_(w), h_(h), rc_(rc) {}
 
-    void Set(UniqueTexturePtr&& texture, int w, int h) {
+    void Set(utility::UniqueTexturePtr&& texture, int w, int h) {
       texture_ = std::move(texture);
       w_ = w;
       h_ = h;
     }
-    UniqueTexturePtr texture_ = nullptr;
+    utility::UniqueTexturePtr texture_ = nullptr;
     int w_;
     int h_;
     SDL_Rect rc_;

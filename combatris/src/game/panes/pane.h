@@ -7,6 +7,9 @@
 
 class Pane : public PaneInterface {
  public:
+  using Font = utility::Font;
+  using Color = utility::Color;
+
   Pane(SDL_Renderer* renderer, int x, int y, const std::shared_ptr<Assets>& assets) : renderer_(renderer), x_(x), y_(y), assets_(assets) {}
 
   Pane(const Pane&) = delete;
@@ -30,8 +33,8 @@ class Pane : public PaneInterface {
   static void RenderCopy(SDL_Renderer* renderer, SDL_Texture *texture, const SDL_Rect& rc) { SDL_RenderCopy(renderer, texture, nullptr, &rc); }
 
  protected:
-  void RenderText(int x, int y, const Font& font, const std::string& text, Color text_color) const {
-    ::RenderText(renderer_, x_ + x, y_ + y, assets_->GetFont(font), text, text_color);
+  void RenderText(int x, int y, const Font& font, const std::string& text, utility::Color text_color) const {
+    utility::RenderText(renderer_, x_ + x, y_ + y, assets_->GetFont(font), text, text_color);
   }
 
   void SetDrawColor(const Color& c) const { SetDrawColor(renderer_, c); }
@@ -116,11 +119,11 @@ class TextPane : public Pane {
     int y_ = 0;
     int w_ = 0;
     int h_ = 0;
-    UniqueTexturePtr texture_ = nullptr;
+    utility::UniqueTexturePtr texture_ = nullptr;
   };
   std::vector<TextLine> lines_;
   int caption_width_ = 0;
   int caption_height_ = 0;
-  UniqueTexturePtr caption_texture_ = nullptr;
+  utility::UniqueTexturePtr caption_texture_ = nullptr;
   Orientation orientation_ = Orientation::Right;
 };

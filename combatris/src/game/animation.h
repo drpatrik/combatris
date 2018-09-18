@@ -18,6 +18,9 @@ void SetBlackBackground(SDL_Renderer* renderer) {
 
 class Animation {
 public:
+  using Color = utility::Color;
+  using UniqueTexturePtr = utility::UniqueTexturePtr;
+
   Animation(SDL_Renderer *renderer,  const std::shared_ptr<Assets>& assets) : renderer_(renderer), assets_(assets) {}
 
   Animation(const Animation&) = delete;
@@ -52,7 +55,7 @@ class ScoreAnimation final : public Animation {
     int width, height;
     std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold30), std::to_string(score), Color::Coral);
 
-    auto x = col_to_pixel_adjusted(pos.col()) + Center(kMinoWidth * 4, width);
+    auto x = col_to_pixel_adjusted(pos.col()) + utility::Center(kMinoWidth * 4, width);
     auto y = row_to_pixel_adjusted(pos.row());
 
     if (x + width > kMatrixEndX) {
@@ -144,7 +147,7 @@ class CountDownAnimation final : public Animation {
     int width, height;
 
     std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal200), std::to_string(i), Color::White);
-    rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100, width, height };
+    rc_ = { kMatrixStartX + utility::Center(kMatrixWidth, width), kMatrixStartY + 100, width, height };
   }
 
  private:
@@ -163,7 +166,7 @@ class MessageAnimation final : public Animation {
 
     std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold55), msg, color);
 
-    rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + Center(kMatrixHeight, height), width, height };
+    rc_ = { kMatrixStartX + utility::Center(kMatrixWidth, width), kMatrixStartY + utility::Center(kMatrixHeight, height), width, height };
     y_ = rc_.y;
     end_pos_ = y_ - (kMinoHeight * 3);
   }
@@ -224,7 +227,7 @@ class PauseAnimation final : public Animation {
 
     std::tie(texture_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal45), "Paused ... ", Color::White);
 
-    rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + Center(kMatrixHeight, height) , width, height };
+    rc_ = { kMatrixStartX + utility::Center(kMatrixWidth, width), kMatrixStartY + utility::Center(kMatrixHeight, height) , width, height };
   }
 
   virtual void Render(double) override {
@@ -247,10 +250,10 @@ class SplashScreenAnimation final : public Animation {
     int width, height;
 
     std::tie(texture_1_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Bold55), "COMBATRIS", Color::SteelGray);
-    rc_1_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100, width, height };
+    rc_1_ = { kMatrixStartX + utility::Center(kMatrixWidth, width), kMatrixStartY + 100, width, height };
     menu_view_.SetY(rc_1_.y + height + 25);
     std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(ObelixPro18), "Press N or START to play", Color::White);
-    rc_2_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_1_.y + kMenuHeight, width, height };
+    rc_2_ = { kMatrixStartX + utility::Center(kMatrixWidth, width), rc_1_.y + kMenuHeight, width, height };
   }
 
   virtual void Render(double) override {
@@ -268,7 +271,7 @@ private:
   UniqueTexturePtr texture_3_;
   SDL_Rect rc_1_;
   SDL_Rect rc_2_;
-  MenuView menu_view_;
+  utility::MenuView menu_view_;
 };
 
 class GameOverAnimation final : public Animation {
@@ -278,11 +281,11 @@ class GameOverAnimation final : public Animation {
     int width, height;
 
     std::tie(texture_1_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal55), "Game Over", Color::White);
-    rc_1_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100 , width, height };
+    rc_1_ = { kMatrixStartX + utility::Center(kMatrixWidth, width), kMatrixStartY + 100 , width, height };
     menu_view_.SetY(rc_1_.y + height + 25);
 
     std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(ObelixPro18), "Press N or START to play", Color::White);
-    rc_2_ = { kMatrixStartX + Center(kMatrixWidth, width), rc_1_.y + kMenuHeight, width, height };
+    rc_2_ = { kMatrixStartX + utility::Center(kMatrixWidth, width), rc_1_.y + kMenuHeight, width, height };
 
     blackbox_rc_ = { rc_1_.x - 20, rc_1_.y - 20, rc_1_.w + 40, rc_1_.h + kMenuHeight };
   }
@@ -306,7 +309,7 @@ private:
   SDL_Rect rc_2_;
   SDL_Rect rc_3_;
   SDL_Rect blackbox_rc_;
-  MenuView menu_view_;
+  utility::MenuView menu_view_;
 };
 
 // We make this class generic when we have more gifs
@@ -317,11 +320,11 @@ class HourglassAnimation final : public Animation {
     int width, height;
 
     std::tie(text_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal25), "Waiting for all players", Color::White);
-    rc_ = { kMatrixStartX + Center(kMatrixWidth, width), kMatrixStartY + 100 , width, height };
+    rc_ = { kMatrixStartX + utility::Center(kMatrixWidth, width), kMatrixStartY + 100 , width, height };
   }
 
   virtual void Render(double delta) override {
-    const SDL_Rect kHourglassRc { kMatrixStartX + Center(kMatrixWidth, 128), kMatrixStartY + 150, 128, 128 };
+    const SDL_Rect kHourglassRc { kMatrixStartX + utility::Center(kMatrixWidth, 128), kMatrixStartY + 150, 128, 128 };
 
     SetBlackBackground(*this);
     RenderCopy(textures_.at(frame_).get(), kHourglassRc);

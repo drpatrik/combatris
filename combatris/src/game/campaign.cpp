@@ -47,6 +47,8 @@ Campaign::Campaign(SDL_Renderer* renderer, Events& events, const std::shared_ptr
   tetromino_generator_ = std::make_shared<TetrominoGenerator>(matrix_, level_, events_, assets_);
   scoring_ = std::make_unique<Scoring>(renderer_, assets_, events_);
   AddListener(scoring_.get());
+  timer_ = std::make_unique<::Timer>(renderer_, assets_, events_);
+  AddListener(timer_.get());
   high_score_ = std::make_unique<HighScore>(renderer_, assets_);
   AddListener(high_score_.get());
   next_queue_ = std::make_unique<NextQueue>(renderer_, tetromino_generator_, assets_);
@@ -135,6 +137,7 @@ void Campaign::SetupCampaign(CampaignType type) {
       panes_.push_back(goal_.get());
       break;
     case CampaignType::MultiPlayerBattle:
+      panes_.push_back(timer_.get());
       panes_.push_back(lines_sent_.get());
       panes_.push_back(knockout_.get());
       break;

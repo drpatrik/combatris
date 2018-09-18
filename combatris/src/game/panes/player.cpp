@@ -1,5 +1,6 @@
 #include "game/panes/player.h"
 
+using namespace utility;
 using namespace network;
 
 namespace {

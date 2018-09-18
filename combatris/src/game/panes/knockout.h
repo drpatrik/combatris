@@ -19,8 +19,8 @@ class Knockout final : public Pane, public EventListener {
         CreateTextureFromText(renderer_, assets_->GetFont(ObelixPro35), "K.O.", Color::White);
     std::tie(plus_one_texture_, plus_one_rc_.w, plus_one_rc_.h) =
         CreateTextureFromText(renderer_, assets_->GetFont(ObelixPro50), "+1", Color::Blue);
-    plus_one_rc_.x = circle_rc_.x + Center(kCircleDim, plus_one_rc_.w);
-    plus_one_rc_.y = circle_rc_.y + Center(kCircleDim, plus_one_rc_.h);
+    plus_one_rc_.x = circle_rc_.x + utility::Center(kCircleDim, plus_one_rc_.w);
+    plus_one_rc_.y = circle_rc_.y + utility::Center(kCircleDim, plus_one_rc_.h);
   }
 
   virtual void Update(const Event& event) override {
@@ -53,8 +53,8 @@ class Knockout final : public Pane, public EventListener {
  protected:
   void Display(int ko) {
     std::tie(n_ko_texture_, n_ko_rc_.w, n_ko_rc_.h) = CreateTextureFromText(renderer_, assets_->GetFont(ObelixPro40), std::to_string(ko), Color::Yellow);
-    n_ko_rc_.x = circle_rc_.x + Center(kCircleDim, n_ko_rc_.w);
-    n_ko_rc_.y = circle_rc_.y + Center(kCircleDim, n_ko_rc_.h);
+    n_ko_rc_.x = circle_rc_.x + utility::Center(kCircleDim, n_ko_rc_.w);
+    n_ko_rc_.y = circle_rc_.y + utility::Center(kCircleDim, n_ko_rc_.h);
 }
 
  private:
@@ -63,10 +63,10 @@ class Knockout final : public Pane, public EventListener {
   SDL_Rect circle_rc_;
   std::shared_ptr<SDL_Texture> circle_texture_;
   SDL_Rect caption_rc_;
-  UniqueTexturePtr caption_texture_;
+  utility::UniqueTexturePtr caption_texture_;
   SDL_Rect plus_one_rc_;
-  UniqueTexturePtr plus_one_texture_;
+  utility::UniqueTexturePtr plus_one_texture_;
   SDL_Rect n_ko_rc_;
-  UniqueTexturePtr n_ko_texture_;
+  utility::UniqueTexturePtr n_ko_texture_;
   int n_ko_ = 0;
 };
