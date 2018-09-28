@@ -5,7 +5,7 @@
 ![screenshots](screenshots/combatris-battle.png)
 
 A C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only),
-OSX 10.12/10.13, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
+OSX 10.12/10.13/10.14, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
 
 Combatris supports Tetris, Marathon and Battle modes. The two first campaigns are available as both single-player
 and multi-player. The purpose of Marathon and Tetris is to maximize the score while Battle is only judged based
@@ -244,7 +244,7 @@ packages.
 ## Build Combatris
 
 **Dependencies:**
-* C++17 compliant compiler (tested with clang 5/6, clang-9.x.0, Visual Studio 15.x.x, GCC 7.x.x)
+* C++17 compliant compiler (tested with clang 5/6, clang-9.x.0 or later, Visual Studio 15.x.x, GCC 7.x.x)
 * cmake 3.10.0 or later (Windows) or 3.5.0 or later (OSX/Linux)
 * git
 * SDL2 (x64 only)
