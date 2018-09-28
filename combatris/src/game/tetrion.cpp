@@ -56,8 +56,8 @@ Tetrion::Tetrion() : events_() {
   tetromino_generator_ = campaign_->GetTetrominoGenerator();
   combatris_menu_ = std::make_shared<CombatrisMenu>(events_);
   AddAnimation<SplashScreenAnimation>(renderer_, combatris_menu_, assets_);
-  campaign_->Set(window_, CampaignType::Tetris);
   SDL_RaiseWindow(window_);
+  events_.Push(Event::Type::MenuSetCampaign, ToInt(CampaignType::Tetris));
 }
 
 Tetrion::~Tetrion() noexcept {
