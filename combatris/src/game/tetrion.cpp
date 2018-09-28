@@ -48,6 +48,10 @@ Tetrion::Tetrion() : events_() {
     std::cout << "Failed to create renderer : " << SDL_GetError() << std::endl;
     exit(-1);
   }
+  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+  SDL_RaiseWindow(window_);
+  events_.Push(Event::Type::MenuSetCampaign, ToInt(CampaignType::Tetris));
+
   assets_ = std::make_shared<Assets>(renderer_);
   matrix_ = std::make_shared<Matrix>(renderer_, assets_->GetTetrominos());
   campaign_ = std::make_shared<Campaign>(renderer_, events_, assets_, matrix_);
@@ -56,8 +60,6 @@ Tetrion::Tetrion() : events_() {
   tetromino_generator_ = campaign_->GetTetrominoGenerator();
   combatris_menu_ = std::make_shared<CombatrisMenu>(events_);
   AddAnimation<SplashScreenAnimation>(renderer_, combatris_menu_, assets_);
-  SDL_RaiseWindow(window_);
-  events_.Push(Event::Type::MenuSetCampaign, ToInt(CampaignType::Tetris));
 }
 
 Tetrion::~Tetrion() noexcept {
