@@ -35,7 +35,7 @@ struct Event {
     SetStartLevel,
     LinesCleared,
     OnFloor,
-    Falling,
+    ClearOnFloor,
     CountdownAfterUnPauseDone,
     GameOver,
     GameStatistics,

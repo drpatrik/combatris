@@ -216,7 +216,7 @@ void Tetrion::EventHandler(Events& events) {
     case Event::Type::OnFloor:
       AddAnimation<OnFloorAnimation>(renderer_, assets_, tetromino_in_play_);
       break;
-    case Event::Type::Falling:
+    case Event::Type::ClearOnFloor:
       RemoveAnimation<OnFloorAnimation>(animations_);
       break;
     case Event::Type::MultiplayerWaitForPlayers:
