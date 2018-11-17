@@ -1,6 +1,6 @@
 #pragma once
 
-const int kMenuHeight = 260;
+const int kMenuHeight = 350;
 const int kMaxNumberOfLevels = 15;
 const int kVisibleRows = 20;
 const int kVisibleCols = 10;

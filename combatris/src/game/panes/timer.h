@@ -16,8 +16,9 @@ class Timer final : public Pane, public EventListener {
 
  private:
   Events& events_;
-  utility::Timer timer_;
+  std::unique_ptr<utility::TimerInterface> timer_;
   utility::UniqueTexturePtr timer_texture_;
   SDL_Rect timer_texture_rc_;
+  bool timer_in_use_ = false;
   CampaignType campaign_type_ = CampaignType::None;
 };

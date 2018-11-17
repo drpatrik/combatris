@@ -64,6 +64,8 @@ void MenuView::ItemSelected(size_t item, size_t sub_item) {
   menu_action_->ItemSelected(item, sub_item);
 }
 
+void MenuView::ItemChanged(size_t item) { items_.at(item) = CreateItem(item); }
+
 std::shared_ptr<MenuView::MenuItem> MenuView::CreateItem(size_t item_nr) {
   auto [type, text] = menu_model_->GetItem(item_nr);
 

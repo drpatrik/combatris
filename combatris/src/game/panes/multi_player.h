@@ -51,7 +51,10 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
     multiplayer_controller_->SendUpdate(lines);
   }
 
-  const std::string& our_host_name() const { return multiplayer_controller_->our_host_name(); }
+  const std::string& our_host_name() const {
+    assert(multiplayer_controller_ != nullptr);
+    return multiplayer_controller_->our_host_name();
+  }
 
  protected:
   virtual bool GotJoin(const std::string& name, uint64_t host_id) override;
@@ -84,6 +87,6 @@ private:
   std::unique_ptr<network::MultiPlayerController> multiplayer_controller_;
   Accumlator accumulator_;
   double ticks_progess_update_ = 0.0;
-  CampaignType campaign_type_ = CampaignType::None;
+  CampaignType campaign_type_ = CampaignType::Combatris;
   int start_level_ = 1;
 };

@@ -35,7 +35,7 @@ class Scoring final : public Pane, public EventListener {
   int b2b_counter_ = 0;
   SDL_Rect rc_;
   utility::UniqueTexturePtr score_texture_ = nullptr;
-  CampaignRuleType rule_type_ = CampaignRuleType::Normal;
+  CampaignType campaign_type_ = CampaignType::Combatris;
   int level_ = 1;
   int start_level_ = 1;
 };

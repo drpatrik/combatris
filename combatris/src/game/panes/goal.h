@@ -4,30 +4,40 @@
 
 class Goal final : public TextPane, public EventListener {
  public:
-  // 578
-  Goal(SDL_Renderer* renderer, int offset, const std::shared_ptr<Assets>& assets) : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace), (kMatrixStartY - kMinoHeight) + offset, "GOAL", assets) { Reset(); }
+  const int kSprintGoal = 40;
+
+  Goal(SDL_Renderer* renderer, int offset, const std::shared_ptr<Assets>& assets, Events& events)
+      : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace), (kMatrixStartY - kMinoHeight) + offset,
+                 "GOAL", assets), events_(events) { Reset(); }
 
   virtual void Reset() override {
     level_ = start_level_;
-    goal_ = level_ * 5;
+    goal_ = (CampaignType::Sprint == campaign_type_) ? kSprintGoal : level_ * 5;
     SetCenteredText(goal_);
   }
 
   virtual void Update(const Event& event) override {
-    if (!IsIn(event, { Event::Type::LinesCleared, Event::Type::LevelUp, Event::Type::SetStartLevel })) {
+    if (!IsIn(event, { Event::Type::LinesCleared, Event::Type::LevelUp, Event::Type::SetStartLevel, Event::Type::SetCampaign })) {
       return;
     }
     switch (event) {
+      case Event::Type::SetCampaign:
+        campaign_type_ = event.campaign_type();
+        goal_ = IsSprintCampaign(campaign_type_) ? kSprintGoal : level_ * 5;
+        break;
       case Event::Type::SetStartLevel:
         level_ = start_level_ = event.value_;
-        goal_ = level_ * 5;
+        goal_ = IsSprintCampaign(campaign_type_) ? kSprintGoal : level_ * 5;
         break;
       case Event::Type::LinesCleared:
-        goal_ = std::max(goal_ - event.value_, 0);
+        goal_ = std::max(goal_ - static_cast<int>(event.value_), 0);
+        if (IsSprintCampaign(campaign_type_) && goal_ == 0) {
+          events_.Push(Event::Type::SprintClearedAll);
+        }
         break;
       case Event::Type::LevelUp:
         level_ = event.value_;
-        goal_ = level_ * 5;
+        goal_ = IsSprintCampaign(campaign_type_) ? goal_ : level_ * 5;
         break;
       default:
         break;
@@ -39,4 +49,6 @@ class Goal final : public TextPane, public EventListener {
   int goal_ = 0;
   int level_ = 1;
   int start_level_ = 1;
+  Events& events_;
+  CampaignType campaign_type_ = CampaignType::None;
 };

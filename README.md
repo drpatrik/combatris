@@ -7,8 +7,12 @@
 A C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only),
 OSX 10.12/10.13/10.14, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
 
-Combatris supports Tetris, Marathon and Battle modes. The two first campaigns are available as both single-player
-and multi-player. The purpose of Marathon and Tetris is to maximize the score while Battle is only judged based
+Features Combatris, Marathon, Sprint, Ultra Battle campaigns in single and multiplayer modes:
+
+* Combatris, Marathon: The winner is based on score.
+* Sprint: The first player to clear 40 lines are the winner.
+* Ultra: Clear as many lines as possible within 3 minutes.
+* Battle: Battle is only judged based
 on number of lines sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
 
 The game supports both keyboard and Gamepads / Joysticks (listed below).
@@ -33,7 +37,7 @@ Top out | Line at 22
 Levels | 15
 Level advancement | 10 lines / 5 * level Marathon
 T-Spin recognition | 3-corner with kicks
-Back-to-back Recognition | Tetris / T-spin
+Back-to-back Recognition | Combatris / T-spin
 Platforms | PC / OSX / Linux / Raspian
 
 **Keyboard Commands**
@@ -115,7 +119,7 @@ B | Hard Drop
 
 *Tested on Raspian*
 
-**Scoring - Tetris Campaign**
+**Scoring - Combatris Campaign**
 
 Action | Points
 ------ | ------
@@ -124,8 +128,8 @@ T-Spin Mini Single | 200×level
 Double | 300×level
 T-Spin | 400×level
 Triple | 500×level
-Tetris/T-Spin Single | 800×level
-B2B T-Spin Single/B2B Tetris | 1,200×level
+Combatris/T-Spin Single | 800×level
+B2B T-Spin Single/B2B Combatris | 1,200×level
 T-Spin Double | 1,200×level
 T-Spin Triple | 1,600×level
 B2B T-Spin Double | 1,800×level
@@ -144,7 +148,7 @@ T-Spin Mini Single | 2
 Double | 3
 T-Spin | 4
 Triple | 5
-Tetris | T-Spin Single | 8
+Combatris | T-Spin Single | 8
 T-Spin Double | 12
 T-Spin Triple | 16
 Back-to-Back Bonus | 0.5 x Total Line Clears
@@ -158,8 +162,8 @@ Move | Lines Sent (Lines per combo step)
 Single | 0
 Double | 1
 Triple | 2
-Tetris | 4
-B2B Tetris | 6
+Combatris | 4
+B2B Combatris | 6
 Perfect Clear | 10
 T-Spin | 0
 T-Spin Mini Single | 1
@@ -189,7 +193,7 @@ B2B T-Spin Triple | 9
 - [x] T-Spin (scoring)
 - [x] T-Spin mini (scoring)
 - [x] B2B T-Spin (scoring)
-- [x] B2B Tetris (scoring)
+- [x] B2B Combatris (scoring)
 - [x] Combos (scoring)
 - [X] Perfect clear (cleared matrix after game started)
 - [X] Hard Drop & Soft Drop (scoring)
@@ -336,7 +340,7 @@ Some sources has there own license and is not covered by the source codes licens
 * Font https://www.dafont.com/cabin.font
 * Font https://www.dafont.com/obelixpro.font
 * Wall kick tables from https://harddrop.com/wiki/SRS
-* Tetris info from http://tetris.wikia.com and https://tetris.wiki
+* Game info from http://tetris.wikia.com and https://tetris.wiki
 * Tetrominos from https://commons.wikimedia.org/wiki/File:Tetrominoes_IJLO_STZ_Worlds.svg
 * Original FindSDL2_mixer https://github.com/rlsosborne/doom
 * DeltaTimer adapted from http://headerphile.com/sdl2/sdl2-part-9-no-more-delays/

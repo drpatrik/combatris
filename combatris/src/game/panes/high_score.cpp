@@ -14,6 +14,7 @@ void HighScore::Read() {
 
   if (fs) {
     fs >> highscore_;
+    fs >> best_time_;
   }
 }
 
@@ -24,5 +25,6 @@ void HighScore::Save() const {
     std::cout << "Failed to save highscore to disk" << std::endl;
   } else {
     fs << highscore_ << std::endl;
+    fs << best_time_ << std::endl;
   }
 }

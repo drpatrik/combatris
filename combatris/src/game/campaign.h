@@ -11,15 +11,14 @@
 #include "game/panes/next_queue.h"
 #include "game/panes/hold_queue.h"
 #include "game/panes/moves.h"
-#include "game/campaign_types.h"
 
 class Campaign {
  public:
   Campaign(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Matrix>& matrix);
 
-  operator CampaignType() const { return type_; }
+  inline operator CampaignType() const { return campaign_type_; }
 
-  void Set(SDL_Window* window, CampaignType type);
+  void Set(SDL_Window* window, ModeType mode_type, CampaignType campaign_type);
 
   void Render(double delta_time);
 
@@ -39,6 +38,8 @@ class Campaign {
     next_queue_->Show();
     level_->ResetTime();
   }
+
+  inline bool IsSinglePlayer() { return ModeType::SinglePlayer == mode_type_; }
 
   inline std::shared_ptr<MultiPlayer> GetMultiPlayerPane() { return multi_player_; }
 
@@ -73,5 +74,6 @@ class Campaign {
   std::shared_ptr<MultiPlayer> multi_player_;
   std::vector<PaneInterface*> panes_;
   std::vector<EventListener*> event_listeners_;
-  CampaignType type_ = CampaignType::None;
+  ModeType mode_type_ = ModeType::None;
+  CampaignType campaign_type_ = CampaignType::None;
 };

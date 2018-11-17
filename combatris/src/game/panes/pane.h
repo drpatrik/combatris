@@ -70,6 +70,8 @@ class TextPane : public Pane {
 
   void SetCenteredText(int text, Color color = Color::SteelGray, const Font& font = Bold45) { SetCenteredText(std::to_string(text), color, font); }
 
+  void SetCenteredText(size_t text, Color color = Color::SteelGray, const Font& font = Bold45) { SetCenteredText(std::to_string(text), color, font); }
+
   void SetCenteredText(const std::string& text, Color color = Color::SteelGray, const Font& font = Bold45) {
     lines_.resize(1);
     auto& line = lines_[0];

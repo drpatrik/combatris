@@ -22,6 +22,8 @@ class MenuView : protected MenuAction {
 
   virtual void ItemSelected(size_t item, size_t sub_item) override;
 
+  virtual void ItemChanged(size_t item) override;
+
   struct MenuItem {
     MenuItem(MenuModel::MenuItemType type) : type_(type) {}
     MenuModel::MenuItemType type_;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "game/coordinates.h"
-#include "game/campaign_types.h"
+#include "game/combatris_types.h"
 
 #include <deque>
 #include <vector>
@@ -17,12 +17,11 @@ struct Line {
 using Lines = std::vector<Line>;
 
 enum class TSpinType { None, TSpin, TSpinMini };
-enum class ComboType { None, B2BTSpin, B2BTetris, Combo };
+enum class ComboType { None, B2BTSpin, B2BCombatris, Combo };
 
 struct Event {
   enum class Type {
     None,
-    MenuSetCampaign,
     Pause,
     UnPause,
     NewGame,
@@ -42,6 +41,9 @@ struct Event {
     PerfectClear,
     LastLevelCompleted,
     SetCampaign,
+    NewTime,
+    SprintClearedAll,
+    MenuSetModeAndCampaign,
     MultiplayerStartGame,
     MultiplayerResetCountDown,
     MultiplayerWaitForPlayers,
@@ -64,6 +66,10 @@ struct Event {
 
   inline Event(Type type, int value) : type_(type), value_(value) {}
 
+  inline Event(Type type, size_t value) : type_(type), value_(value) {}
+
+  inline Event(Type type, ModeType mode, CampaignType campaign) : type_(type), score_(ToInt(mode)), value_(ToInt(campaign)) {}
+
   inline Event(Type type, CampaignType campaign_type) : type_(type), value_(ToInt(campaign_type)) {}
 
   inline Event(Type type, const Lines& lines_cleared, TSpinType tspin_type, ComboType combo_type, int combo_counter) :
@@ -81,13 +87,17 @@ struct Event {
 
   inline int lines() const { return static_cast<int>(lines_.size()); }
 
+  ModeType mode_type() const { return static_cast<ModeType>(score_); }
+
+  CampaignType campaign_type() const { return static_cast<CampaignType>(value_); }
+
   Type type_;
   Lines lines_;
   Position pos_ = Position(-1, -1);
   TSpinType tspin_type_ = TSpinType::None;
   ComboType combo_type_ = ComboType::None;
   int score_ = 0;
-  int value_ = 0;
+  size_t value_ = 0;
   int combo_counter_ = 0;
 };
 

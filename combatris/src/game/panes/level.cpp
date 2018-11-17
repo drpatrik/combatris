@@ -35,7 +35,7 @@ void Level::SetThresholds() {
 
   wait_time_ = (1.0 / kLevelData.at(index).gravity_) / 60.0;
   lock_delay_ = kLevelData.at(index).lock_delay_;
-  lines_for_next_level_ = (CampaignRuleType::Normal == rule_type_) ? 10 : level_ * 5;
+  lines_for_next_level_ = (CampaignType::Marathon == campaign_type_) ? level_ * 5 : 10;
 }
 
 void Level::SetLevel(int lvl) {
@@ -68,7 +68,7 @@ void Level::Update(const Event& event) {
     return;
   }
   if (event.Is(Event::Type::SetCampaign)) {
-    rule_type_ = CampaignToRuleType(ToCampaignType(event.value_));
+    campaign_type_ = event.campaign_type();
     return;
   } else if (event.Is(Event::Type::SetStartLevel)) {
     SetLevel(event.value_);

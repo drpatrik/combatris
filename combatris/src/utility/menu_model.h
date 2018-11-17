@@ -9,9 +9,13 @@ namespace utility {
 
 class MenuAction {
  public:
+  virtual ~MenuAction() {}
+
   virtual void ItemSelected(size_t item) = 0;
 
   virtual void ItemSelected(size_t item, size_t sub_item) = 0;
+
+  virtual void ItemChanged(size_t item) = 0;
 };
 
 class MenuModel {
@@ -55,6 +59,14 @@ class MenuModel {
   void Add(MenuItemType type, const std::string& item) {
     model_.emplace_back(std::make_tuple(type, 0, std::vector<std::string>{item}));
     set_selected_item_ = true;
+  }
+
+  void Set(size_t item, const std::vector<std::string>& items) {
+    auto& e = model_.at(item);
+
+    std::get<1>(e) = 0;
+    std::get<2>(e) = items;
+    menu_action_->ItemChanged(item);
   }
 
  private:

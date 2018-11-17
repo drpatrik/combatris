@@ -25,16 +25,16 @@ std::string ToString(CampaignType type) {
   switch (type) {
     case CampaignType::None:
       return "ERROR NO CAMPAIGN SET";
-    case CampaignType::Tetris:
-      return "COMBATRIS";
+    case CampaignType::Combatris:
+      return "Combatris";
     case CampaignType::Marathon:
-      return "COMBATRIS - Marathon";
-    case CampaignType::MultiPlayerVS:
-      return "COMBATRIS - Multiplayer Vs.";
-    case CampaignType::MultiPlayerMarathon:
-      return "COMBATRIS - Multiplayer Marathon";
-    case CampaignType::MultiPlayerBattle:
-      return "COMBATRIS - Multiplayer Battle";
+      return "Marathon";
+    case CampaignType::Sprint:
+      return "Sprint";
+    case CampaignType::Ultra:
+      return "Ultra";
+    case CampaignType::Battle:
+      return "Battle";
   }
   return "";
 }
@@ -54,7 +54,7 @@ Campaign::Campaign(SDL_Renderer* renderer, Events& events, const std::shared_ptr
   next_queue_ = std::make_unique<NextQueue>(renderer_, tetromino_generator_, assets_);
   hold_queue_ = std::make_unique<HoldQueue>(renderer_, tetromino_generator_, assets_);
   AddListener(hold_queue_.get());
-  goal_ = std::make_unique<Goal>(renderer_, 300, assets_);
+  goal_ = std::make_unique<Goal>(renderer_, 300, assets_, events_);
   AddListener(goal_.get());
   total_lines_ = std::make_unique<TotalLines>(renderer_, 578, assets_);
   AddListener(total_lines_.get());
@@ -68,44 +68,30 @@ Campaign::Campaign(SDL_Renderer* renderer, Events& events, const std::shared_ptr
   AddListener(multi_player_.get());
 }
 
-void Campaign::Set(SDL_Window* window, CampaignType type) {
-  if (type == type_) {
-    return;
-  }
-  type_ = type;
+void Campaign::Set(SDL_Window* window, ModeType mode_type, CampaignType campaign_type) {
+  std::string title = ToString(campaign_type);
 
-  std::string title = ToString(type_);
-
-  switch (type_) {
-    case CampaignType::Tetris:
-      multi_player_->Disable();
-      break;
-    case CampaignType::Marathon:
-      multi_player_->Disable();
-      break;
-    case CampaignType::MultiPlayerVS:
-      multi_player_->Enable();
-      title += " (" + multi_player_->our_host_name() + " )";
-      break;
-    case CampaignType::MultiPlayerMarathon:
-      multi_player_->Enable();
-      title += " (" + multi_player_->our_host_name() + " )";
-      break;
-    case CampaignType::MultiPlayerBattle:
-      multi_player_->Enable();
-      title += " (" + multi_player_->our_host_name() + " )";
-      break;
-    default:
-      break;
+  if (mode_type != mode_type_) {
+    mode_type_ = mode_type;
+    switch (mode_type_) {
+      case ModeType::SinglePlayer:
+        multi_player_->Disable();
+        break;
+      case ModeType::MultiPlayer:
+        multi_player_->Enable();
+        title += " (" + multi_player_->our_host_name() + " )";
+        break;
+      default:
+        break;
+    }
   }
-  SetupCampaignWindow(window, renderer_, IsSinglePlayerCampaign(*this));
+  SetupCampaignWindow(window, renderer_, IsSinglePlayer());
   SDL_SetWindowTitle(window, title.c_str());
-  SetupCampaign(type_);
-  events_.Push(Event::Type::SetCampaign, type_);
+  SetupCampaign(campaign_type);
 }
 
 void Campaign::Render(double delta_time) {
-  RenderWindowBackground(renderer_, GetWindowRc(IsSinglePlayerCampaign(*this)));
+  RenderWindowBackground(renderer_, GetWindowRc(IsSinglePlayer()));
   std::for_each(panes_.begin(), panes_.end(), [delta_time](const auto& pane) { pane->Render(delta_time); });
 }
 
@@ -115,6 +101,10 @@ Event Campaign::PreprocessEvent(const Event& event) {
 }
 
 void Campaign::SetupCampaign(CampaignType type) {
+  if (type == campaign_type_) {
+    return;
+  }
+  campaign_type_ = type;
   panes_.clear();
   panes_.push_back(matrix_.get());
   panes_.push_back(level_.get());
@@ -124,19 +114,27 @@ void Campaign::SetupCampaign(CampaignType type) {
   panes_.push_back(multi_player_.get());
 
   switch (type) {
-    case CampaignType::Tetris:
-    case CampaignType::MultiPlayerVS:
+    case CampaignType::Combatris:
       panes_.push_back(scoring_.get());
       panes_.push_back(high_score_.get());
       panes_.push_back(total_lines_.get());
       break;
     case CampaignType::Marathon:
-    case CampaignType::MultiPlayerMarathon:
       panes_.push_back(scoring_.get());
       panes_.push_back(high_score_.get());
       panes_.push_back(goal_.get());
       break;
-    case CampaignType::MultiPlayerBattle:
+    case CampaignType::Sprint:
+      panes_.push_back(timer_.get());
+      panes_.push_back(goal_.get());
+      panes_.push_back(high_score_.get());
+      break;
+    case CampaignType::Ultra:
+      panes_.push_back(timer_.get());
+      panes_.push_back(scoring_.get());
+      panes_.push_back(high_score_.get());
+      break;
+    case CampaignType::Battle:
       panes_.push_back(timer_.get());
       panes_.push_back(lines_sent_.get());
       panes_.push_back(knockout_.get());
@@ -144,4 +142,5 @@ void Campaign::SetupCampaign(CampaignType type) {
     default:
       break;
   }
+  events_.Push(Event::Type::SetCampaign, campaign_type_);
 }

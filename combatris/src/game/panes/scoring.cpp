@@ -20,7 +20,7 @@ void Scoring::Update(const Event& event) {
   }
   switch (event) {
     case Event::Type::SetCampaign:
-      rule_type_ = CampaignToRuleType(ToCampaignType(event.value_));
+      campaign_type_ = event.campaign_type();
       break;
     case Event::Type::SetStartLevel:
       start_level_ = event.value_;
@@ -66,14 +66,14 @@ void Scoring::UpdateEvents(int score, ComboType combo_type, int lines_to_send, i
     case ComboType::None:
       break;
     case ComboType::B2BTSpin:
-    case ComboType::B2BTetris:
+    case ComboType::B2BCombatris:
       counter = b2b_counter_ - 1;
       break;
     case ComboType::Combo:
       counter = combo_counter_ - 1;
       break;
   }
-  lines_to_clear = (CampaignRuleType::Normal == rule_type_) ? event.lines() : lines_to_clear;
+  lines_to_clear = (CampaignType::Marathon == campaign_type_) ?  lines_to_clear : event.lines();
 
   if (lines_to_clear > 0) {
     events_.Push(Event::Type::LinesCleared, event.lines_, lines_to_clear);
@@ -99,7 +99,7 @@ std::tuple<int, int, ComboType, int, int> Scoring::Calculate(const Event& event)
         if (++b2b_counter_ > 1) {
           combo_score = 1200;
           lines_to_send += 2;
-          combo_type = ComboType::B2BTetris;
+          combo_type = ComboType::B2BCombatris;
         }
       } else if (event.lines() > 0) {
         b2b_counter_ = 0;

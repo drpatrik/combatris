@@ -50,8 +50,7 @@ Tetrion::Tetrion() : events_() {
   }
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
   SDL_RaiseWindow(window_);
-  events_.Push(Event::Type::MenuSetCampaign, ToInt(CampaignType::Tetris));
-
+  events_.Push(Event::Type::MenuSetModeAndCampaign, ModeType::SinglePlayer, CampaignType::Combatris);
   assets_ = std::make_shared<Assets>(renderer_);
   matrix_ = std::make_shared<Matrix>(renderer_, assets_->GetTetrominos());
   campaign_ = std::make_shared<Campaign>(renderer_, events_, assets_, matrix_);
@@ -159,8 +158,8 @@ void Tetrion::EventHandler(Events& events) {
   auto event = campaign_->PreprocessEvent(events.Pop());
 
   switch (event.type()) {
-    case Event::Type::MenuSetCampaign:
-      campaign_->Set(window_, ToCampaignType(event.value_));
+    case Event::Type::MenuSetModeAndCampaign:
+      campaign_->Set(window_, event.mode_type(), event.campaign_type());
       break;
     case Event::Type::Pause:
       campaign_->Pause();
@@ -201,7 +200,7 @@ void Tetrion::EventHandler(Events& events) {
       events.Clear();
       unpause_pressed_ = game_paused_ = false;
       campaign_->Reset();
-      if (IsSinglePlayerCampaign(*campaign_)) {
+      if (campaign_->IsSinglePlayer()) {
         AddAnimation<CountDownAnimation>(renderer_, assets_, kSinglePlayerCountDown, Event::Type::NextTetromino);
       } else {
         multi_player_->NewGame();

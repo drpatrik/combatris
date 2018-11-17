@@ -32,21 +32,23 @@ class Player final {
 
   bool ProgressUpdate(int lines, int score, int level, bool set_to_zero = false);
 
-  int score() const { return score_; }
+  inline int score() const { return score_; }
 
   void SetMatrixState(const network::MatrixState& state);
 
   void SetState(GameState state, bool set_to_zero = false);
 
-  GameState state() const { return state_; }
+  inline GameState state() const { return state_; }
 
   void AddLinesSent(int lines_sent, bool set_to_zero = false);
 
-  int lines_sent() const { return lines_sent_; }
+  inline int lines_sent() const { return lines_sent_; }
 
   void AddKO(int ko, bool set_to_zero = false);
 
   int ko() const { return ko_; }
+
+  inline int lines() const { return lines_; }
 
   void Reset();
 

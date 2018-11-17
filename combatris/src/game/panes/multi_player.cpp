@@ -43,7 +43,7 @@ void MultiPlayer::Update(const Event& event) {
       start_level_ = event.value_;
       break;
     case Event::Type::SetCampaign:
-      campaign_type_ = ToCampaignType(event.value_);
+      campaign_type_ = event.campaign_type();
       break;
     case Event::Type::CalculatedScore:
       accumulator_.AddScore(event.score_);
@@ -126,12 +126,14 @@ void MultiPlayer::SortScoreBoard() {
       }
       return a->lines_sent() > b->lines_sent();
     });
-#if !defined(NDEBUG)
-    std::cout << "-----\n";
-    for (const auto& p : score_board_) {
-      std::cout << p->name() << " Ko: " << p->ko() << ", LS: " << p->lines_sent() << "\n";
-    }
-#endif
+  } else if (IsSprintCampaign(campaign_type_)) {
+    std::sort(score_board_.begin(), score_board_.end(),
+              [](const auto& a, const auto& b) {
+      if (GameState::Idle == b->state()) {
+        return true;
+      }
+      return a->lines() > b->lines();
+    });
   } else {
     std::sort(score_board_.begin(), score_board_.end(),
               [](const auto& a, const auto& b) {
@@ -140,13 +142,8 @@ void MultiPlayer::SortScoreBoard() {
       }
       return a->score() > b->score();
     });
-#if !defined(NDEBUG)
-    std::cout << "-----\n";
-    for (const auto& p : score_board_) {
-      std::cout << p->name() << " Score: " << p->score() << "\n";
-    }
-#endif
   }
+
 }
 
 // ListenerInterface

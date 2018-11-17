@@ -45,5 +45,5 @@ class Level final : public TextPane, public EventListener {
   int lines_for_next_level_ = 0;
   int level_ = 1;
   int start_level_ = 1;
-  CampaignRuleType rule_type_ = CampaignRuleType::Normal;
+  CampaignType campaign_type_ = CampaignType::Combatris;
 };

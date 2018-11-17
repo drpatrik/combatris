@@ -4,7 +4,7 @@ namespace {
 
 double kDisplayTime = 0.7;
 
-const std::vector<std::string> kBasicScoreTypes = { "", "SINGLE", "DOUBLE", "TRIPLE", "TETRIS" };
+const std::vector<std::string> kBasicScoreTypes = { "", "SINGLE", "DOUBLE", "TRIPLE", "COMBATRIS" };
 const std::vector<std::string> kTSpinTypes = { "", "T-SPIN", "t-spin" };
 const std::vector<std::string> kScoreModifiers = { "", "B2B #", "Combo #" };
 
@@ -35,7 +35,7 @@ void Moves::Update(const Event& event) {
     line2 = kBasicScoreTypes[event.lines()];
   }
   if (line1.empty()) {
-    SetCenteredText(line2, Color::Red, Bold35);
+    SetCenteredText(line2, Color::Red, Bold25);
   } else {
     SetCenteredText(line1, Color::Green, line2, Color::Red);
   }
