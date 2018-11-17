@@ -1,5 +1,7 @@
 #pragma once
 
+#include <assert.h>
+
 #include "game/matrix.h"
 #include "game/panes/accumlator.h"
 #include "game/panes/player.h"
