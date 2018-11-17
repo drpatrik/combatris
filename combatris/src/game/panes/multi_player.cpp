@@ -48,7 +48,7 @@ void MultiPlayer::Update(const Event& event) {
     case Event::Type::CalculatedScore:
       accumulator_.AddScore(event.score_);
       if (IsBattleCampaign(campaign_type_) && event.value_ > 0) {
-        multiplayer_controller_->SendUpdate(event.value_);
+        multiplayer_controller_->SendUpdate(static_cast<int>(event.value_));
         events_.Push(Event::Type::BattleSendLines, event.value_);
       }
       break;
