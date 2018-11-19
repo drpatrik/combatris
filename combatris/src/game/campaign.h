@@ -12,13 +12,14 @@
 #include "game/panes/hold_queue.h"
 #include "game/panes/moves.h"
 
-class Campaign {
+class Campaign : public EventListener {
  public:
-  Campaign(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Matrix>& matrix);
+  Campaign(SDL_Window* window, SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets,
+           const std::shared_ptr<Matrix>& matrix);
 
   inline operator CampaignType() const { return campaign_type_; }
 
-  void Set(SDL_Window* window, ModeType mode_type, CampaignType campaign_type);
+  virtual void Update(const Event& event) override;
 
   void Render(double delta_time);
 
@@ -55,6 +56,7 @@ class Campaign {
   void SetupCampaign(CampaignType type);
 
  private:
+  SDL_Window* window_;
   SDL_Renderer* renderer_;
   Events& events_;
   std::shared_ptr<Assets> assets_;

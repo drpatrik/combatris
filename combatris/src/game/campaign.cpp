@@ -41,7 +41,9 @@ std::string ToString(CampaignType type) {
 
 } // namespace
 
-Campaign::Campaign(SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Matrix>& matrix) : renderer_(renderer), events_(events), assets_(assets), matrix_(matrix) {
+Campaign::Campaign(SDL_Window* window, SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets,
+                   const std::shared_ptr<Matrix>& matrix)
+    : window_(window), renderer_(renderer), events_(events), assets_(assets), matrix_(matrix) {
   level_ = std::make_shared<Level>(renderer_, 150, events_, assets_);
   AddListener(level_.get());
   tetromino_generator_ = std::make_shared<TetrominoGenerator>(matrix_, level_, events_, assets_);
@@ -66,28 +68,33 @@ Campaign::Campaign(SDL_Renderer* renderer, Events& events, const std::shared_ptr
   AddListener(knockout_.get());
   multi_player_ = std::make_shared<MultiPlayer>(renderer_, matrix_, events_, assets_);
   AddListener(multi_player_.get());
+  AddListener(this);
 }
 
-void Campaign::Set(SDL_Window* window, ModeType mode_type, CampaignType campaign_type) {
-  std::string title = ToString(campaign_type);
+void Campaign::Update(const Event& event) {
+  if (!event.Is(Event::Type::MenuSetModeAndCampaign)) {
+    return;
+  }
+  auto title = ToString(event.campaign_type());
 
-  if (mode_type != mode_type_) {
-    mode_type_ = mode_type;
+  if (event.mode_type() != mode_type_) {
+    mode_type_ = event.mode_type();
     switch (mode_type_) {
       case ModeType::SinglePlayer:
         multi_player_->Disable();
         break;
       case ModeType::MultiPlayer:
         multi_player_->Enable();
-        title += " (" + multi_player_->our_host_name() + " )";
+        title = "Multiplayer - " + title + " (" + multi_player_->our_host_name() + " )";
         break;
       default:
         break;
     }
   }
-  SetupCampaignWindow(window, renderer_, IsSinglePlayer());
-  SDL_SetWindowTitle(window, title.c_str());
-  SetupCampaign(campaign_type);
+  SetupCampaignWindow(window_, renderer_, IsSinglePlayer());
+  SDL_SetWindowTitle(window_, title.c_str());
+  SetupCampaign(event.campaign_type());
+
 }
 
 void Campaign::Render(double delta_time) {
@@ -133,6 +140,7 @@ void Campaign::SetupCampaign(CampaignType type) {
       panes_.push_back(timer_.get());
       panes_.push_back(scoring_.get());
       panes_.push_back(high_score_.get());
+      panes_.push_back(total_lines_.get());
       break;
     case CampaignType::Battle:
       panes_.push_back(timer_.get());

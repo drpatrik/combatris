@@ -211,7 +211,7 @@ void MultiPlayer::GotNewState(uint64_t host_id, network::GameState state) {
 void MultiPlayer::GotProgressUpdate(uint64_t host_id, int lines, int score, int level, const MatrixState& state) {
   auto& player = players_.at(host_id);
 
-  score = (IsBattleCampaign(campaign_type_)) ? -1 : score;
+  score = IsBattleCampaign(campaign_type_) ? -1 : score;
   if (player->ProgressUpdate(lines, score, level)) {
     SortScoreBoard();
   }

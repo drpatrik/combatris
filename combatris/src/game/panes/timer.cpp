@@ -35,6 +35,13 @@ void ::Timer::Update(const Event& event) {
       }
       Reset();
       break;
+    case Event::Type::NewGame:
+      timer_->Stop();
+      break;
+    case Event::Type::Pause:
+    case Event::Type::CountdownAfterUnPauseDone:
+      timer_->TogglePause();
+      break;
     case Event::Type::GameOver:
       timer_->Stop();
       break;

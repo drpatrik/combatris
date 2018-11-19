@@ -27,6 +27,8 @@ class TimerInterface {
 
   virtual void Stop() = 0;
 
+  virtual void TogglePause()  = 0;
+
   virtual bool IsStarted() const = 0;
 
   virtual void Reset() = 0;
@@ -44,6 +46,9 @@ class Timer final : public TimerInterface {
   explicit Timer(int value) : initial_value_(value), count_down_(value), start_(SystemClock::now()) {}
 
   virtual std::pair<bool, size_t> GetTime() override {
+    if (paused_) {
+      return std::make_pair(false, count_down_);
+    }
     if (std::chrono::duration_cast<std::chrono::milliseconds>(SystemClock::now() - start_).count() >= 1000) {
       start_ = SystemClock::now();
       --count_down_;
@@ -65,9 +70,17 @@ class Timer final : public TimerInterface {
 
   virtual void Stop() override { timer_started_ = false; }
 
+  virtual void TogglePause() override {
+    paused_ = !paused_;
+    if (!paused_) {
+      start_ = SystemClock::now();
+    }
+  }
+
   virtual bool IsStarted() const override { return timer_started_; }
 
   virtual void Reset() override {
+    paused_ = false;
     timer_started_ = false;
     count_down_ = initial_value_;
     start_ = SystemClock::now();
@@ -82,6 +95,7 @@ class Timer final : public TimerInterface {
   int count_down_;
   TimePoint start_;
   bool timer_started_ = false;
+  bool paused_ = false;
 };
 
 class Clock final : public TimerInterface {
@@ -92,8 +106,8 @@ class Clock final : public TimerInterface {
   Clock() : ms_(0), start_(SystemClock::now()) {}
 
   virtual std::pair<bool, size_t> GetTime() override {
-    if (!timer_started_) {
-      return std::make_pair(true, ms_);
+    if (paused_) {
+      return std::make_pair(false, ms_);
     }
     auto d = std::chrono::duration_cast<std::chrono::milliseconds>(SystemClock::now() - start_).count();
 
@@ -114,9 +128,17 @@ class Clock final : public TimerInterface {
 
   virtual void Stop() override { timer_started_ = false; }
 
+  virtual void TogglePause() override {
+    paused_ = !paused_;
+    if (!paused_) {
+      start_ = SystemClock::now();
+    }
+  }
+
   virtual bool IsStarted() const override { return timer_started_; }
 
   virtual void Reset() override {
+    paused_ = false;
     timer_started_ = false;
     ms_ = 0;
     start_ = SystemClock::now();
@@ -130,6 +152,7 @@ class Clock final : public TimerInterface {
   size_t ms_;
   TimePoint start_;
   bool timer_started_ = false;
+  bool paused_ = false;
 };
 
 

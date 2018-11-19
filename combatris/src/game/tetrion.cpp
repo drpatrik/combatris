@@ -50,15 +50,16 @@ Tetrion::Tetrion() : events_() {
   }
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
   SDL_RaiseWindow(window_);
-  events_.Push(Event::Type::MenuSetModeAndCampaign, ModeType::SinglePlayer, CampaignType::Combatris);
   assets_ = std::make_shared<Assets>(renderer_);
   matrix_ = std::make_shared<Matrix>(renderer_, assets_->GetTetrominos());
-  campaign_ = std::make_shared<Campaign>(renderer_, events_, assets_, matrix_);
+  campaign_ = std::make_shared<Campaign>(window_, renderer_, events_, assets_, matrix_);
   hold_queue_ = campaign_->GetHoldQueuePane();
   multi_player_ = campaign_->GetMultiPlayerPane();
   tetromino_generator_ = campaign_->GetTetrominoGenerator();
   combatris_menu_ = std::make_shared<CombatrisMenu>(events_);
   AddAnimation<SplashScreenAnimation>(renderer_, combatris_menu_, assets_);
+
+  events_.Push(Event::Type::MenuSetModeAndCampaign, ModeType::SinglePlayer, CampaignType::Combatris);
 }
 
 Tetrion::~Tetrion() noexcept {
@@ -158,9 +159,6 @@ void Tetrion::EventHandler(Events& events) {
   auto event = campaign_->PreprocessEvent(events.Pop());
 
   switch (event.type()) {
-    case Event::Type::MenuSetModeAndCampaign:
-      campaign_->Set(window_, event.mode_type(), event.campaign_type());
-      break;
     case Event::Type::Pause:
       campaign_->Pause();
       AddAnimation<PauseAnimation>(renderer_, assets_, unpause_pressed_);

@@ -64,27 +64,32 @@ bool Level::WaitForLockDelay(double time_delta) {
 }
 
 void Level::Update(const Event& event) {
-  if (!IsIn(event, { Event::Type::LinesCleared, Event::Type::SetStartLevel, Event::Type::SetCampaign })) {
-    return;
-  }
-  if (event.Is(Event::Type::SetCampaign)) {
-    campaign_type_ = event.campaign_type();
-    return;
-  } else if (event.Is(Event::Type::SetStartLevel)) {
-    SetLevel(event.value_);
-    return;
-  }
-  lines_this_level_ += event.value_;
+  switch (event) {
+    case Event::Type::SetCampaign:
+      campaign_type_ = event.campaign_type();
+      break;
+    case Event::Type::SetStartLevel:
+      SetLevel(event.value_);
+      break;
+    case Event::Type::LinesCleared:
+      if (IsSprintCampaign(campaign_type_) || IsUltraCampaign(campaign_type_)) {
+        return;
+      }
+      lines_this_level_ += event.value_;
 
-  if (lines_this_level_ >= lines_for_next_level_) {
-    lines_this_level_ = 0;
-    level_++;
-    if (level_ > static_cast<int>(kLevelData.size())) {
-      events_.Push(Event::Type::LastLevelCompleted);
-    } else {
-      SetThresholds();
-      SetCenteredText(level());
-      events_.Push(Event::Type::LevelUp, level_);
-    }
+      if (lines_this_level_ >= lines_for_next_level_) {
+        lines_this_level_ = 0;
+        level_++;
+        if (level_ > static_cast<int>(kLevelData.size())) {
+          events_.Push(Event::Type::LastLevelCompleted);
+        } else {
+          SetThresholds();
+          SetCenteredText(level());
+          events_.Push(Event::Type::LevelUp, level_);
+        }
+      }
+      break;
+    default:
+      break;
   }
 }
