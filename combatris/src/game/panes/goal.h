@@ -4,8 +4,6 @@
 
 class Goal final : public TextPane, public EventListener {
  public:
-  const int kSprintGoal = 40;
-
   Goal(SDL_Renderer* renderer, int offset, const std::shared_ptr<Assets>& assets, Events& events)
       : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace), (kMatrixStartY - kMinoHeight) + offset,
                  "GOAL", assets), events_(events) { Reset(); }

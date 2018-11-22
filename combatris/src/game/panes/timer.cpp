@@ -5,10 +5,6 @@ namespace {
 using UniqueTexturePtr = utility::UniqueTexturePtr;
 using Color = utility::Color;
 
-const int kTimesUpSoon = 15;
-const int kGameTimeBattle = 120;
-const int kGameTimeUltra = 180;
-
 std::pair<UniqueTexturePtr, SDL_Rect> CreateTimerTexture(SDL_Renderer* renderer, const Assets& assets,
                                                          const std::string& text, Color color = Color::White) {
   auto [texture, width, height] = CreateTextureFromText(renderer, assets.GetFont(ObelixPro40), text, color);
@@ -22,6 +18,9 @@ Timer::Timer(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, Even
     : Pane(renderer, 0, 0, assets), events_(events) {}
 
 void ::Timer::Update(const Event& event) {
+  if (!event.Is(Event::Type::SetCampaign) && timer_ == nullptr) {
+    return;
+  }
   switch (event.type()) {
     case Event::Type::SetCampaign:
       campaign_type_ = event.campaign_type();
@@ -46,8 +45,9 @@ void ::Timer::Update(const Event& event) {
       timer_->Stop();
       break;
     case Event::Type::SprintClearedAll:
+      timer_->Stop();
       events_.Push(Event::Type::NewTime, timer_->GetTime().second);
-      events_.Push(Event::Type::GameOver);
+      events_.Push(Event::Type::GameOver, 1);
       break;
     case Event::Type::NextTetromino:
       if (timer_in_use_ && !timer_->IsStarted()) {

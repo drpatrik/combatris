@@ -23,6 +23,8 @@ class ListenerInterface {
   virtual void GotLines(uint64_t host_id, int lines) = 0;
 
   virtual void GotPlayerKnockedOut(uint64_t host_id) = 0;
+
+  virtual void GotTime(uint64_t host_id, uint64_t time) = 0;
 };
 
 class MultiPlayerController {
@@ -53,11 +55,13 @@ class MultiPlayerController {
 
   void StartGame();
 
-  void SendUpdate(int lines);
+  void SendLines(int lines);
 
-  void SendUpdate(uint64_t knockout_by);
+  void SendKnockedoutBy(uint64_t knockout_by);
 
-  void SendUpdate(GameState state);
+  void SendTime(uint64_t time);
+
+  void SendState(GameState state);
 
   void SendUpdate(int lines, int score, int level, const MatrixState& state);
 

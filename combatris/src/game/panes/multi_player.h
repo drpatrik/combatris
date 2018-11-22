@@ -50,7 +50,7 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
     if (!multiplayer_controller_) {
       return;
     }
-    multiplayer_controller_->SendUpdate(lines);
+    multiplayer_controller_->SendLines(lines);
   }
 
   const std::string& our_host_name() const {
@@ -74,6 +74,8 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
   virtual void GotLines(uint64_t host_id, int lines) override;
 
   virtual void GotPlayerKnockedOut(uint64_t host_id) override;
+
+  virtual void GotTime(uint64_t host_id, uint64_t time) override;
 
 private:
   inline bool IsUs(uint64_t host_id) const { return multiplayer_controller_->IsUs(host_id); }

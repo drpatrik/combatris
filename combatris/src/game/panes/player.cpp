@@ -23,6 +23,8 @@ const SDL_Rect kLinesSentCaptionFieldRc = { kX + 98, kY + 90, 122, 24 };
 const SDL_Rect kLinesSentFieldRc = { kX + 98, kY + 112, 122, 24 };
 const SDL_Rect kLinesCaptionFieldRc = { kX + 98, kY + 136, 122, 24 };
 const SDL_Rect kLinesFieldRc = { kX + 98, kY + 158, 122, 24 };
+const SDL_Rect kTimeCaptionFieldRc = { kX + 98, kY + 182, 122, 24 };
+const SDL_Rect kTimeFieldRc = { kX + 138, kY + 182, 82, 24 };
 const SDL_Rect kMatrixFieldRc = { kX + kMatrixStartPosX, kY + kMatrixStartPosY, 84 + kPlayerMinoWidth, 166 + kPlayerMinoHeight };
 
 const Font kTextFont(Font::Typeface::Cabin, Font::Emphasis::Bold, 15);
@@ -72,11 +74,13 @@ const std::vector<Field> kFields = {
   Field(ID::LevelCaption, "Lvl", kLevelCaptionFieldRc),
   Field(ID::Level, "-", kLevelFieldRc, Color::Yellow),
   Field(ID::KO, "0", kKOFieldRc, Color::Yellow),
-  Field(ID::KOCaption, "KO's", kKOCaptionFieldRc),
+  Field(ID::KOCaption, "Knockouts", kKOCaptionFieldRc),
   Field(ID::LinesSentCaption, "Lines Sent", kLinesSentCaptionFieldRc),
   Field(ID::LinesSent, "0", kLinesSentFieldRc, Color::Yellow),
   Field(ID::LinesCaption, "Lines Cleared", kLinesCaptionFieldRc),
-  Field(ID::Lines, "0", kLinesFieldRc, Color::Yellow)
+  Field(ID::Lines, "0", kLinesFieldRc, Color::Yellow),
+  Field(ID::TimeCaption, "Time", kTimeCaptionFieldRc),
+  Field(ID::Time, FormatTimeMMSSHS(0), kTimeFieldRc, Color::Yellow)
 };
 
 inline SDL_Rect* AddBorder(SDL_Rect& tmp, const SDL_Rect& rc) {
@@ -161,6 +165,16 @@ void Player::AddKO(int ko, bool set_to_zero) {
   ko_ = Update(ID::KO, ko + ko_, ko_, IntToString, set_to_zero);
 }
 
+void Player::SetTime(uint64_t time) {
+  time_ = time;
+
+  auto& stat = textures_.at(ID::Time);
+
+  auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), FormatTimeMMSSHS(time_), Color::Yellow);
+
+  stat->Set(std::move(texture), w, h);
+}
+
 void Player::Reset() {
   lines_ = 0;
   score_ = 0;
@@ -170,6 +184,8 @@ void Player::Reset() {
   AddLinesSent(lines_sent_, true);
   ko_ = 0;
   AddKO(ko_, true);
+  time_ = 0;
+  SetTime(time_);
   matrix_ = kEmptyMatrix;
 }
 
@@ -190,6 +206,7 @@ void Player::Render(int x_offset, int y_offset, bool is_my_status) const {
   SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kLinesSentFieldRc)));
   SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kLinesCaptionFieldRc)));
   SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kLinesFieldRc)));
+  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kTimeCaptionFieldRc)));
 
   for (const auto& it : textures_) {
     const auto& field = it.second;

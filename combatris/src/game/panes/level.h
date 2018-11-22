@@ -5,7 +5,6 @@
 
 class Level final : public TextPane, public EventListener {
  public:
-  enum class LinesForNextLevelMode { Normal, Marathon };
   Level(SDL_Renderer* renderer, int offset, Events& events, const std::shared_ptr<Assets>& assets)
       : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace), (kMatrixStartY - kMinoHeight) + offset, "LEVEL", assets),
         events_(events) { SetCenteredText(1); SetThresholds(); }
@@ -33,6 +32,7 @@ class Level final : public TextPane, public EventListener {
 
  protected:
   void SetThresholds();
+
   void SetLevel(int lvl);
 
  private:

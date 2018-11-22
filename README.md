@@ -7,15 +7,16 @@
 A C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only),
 OSX 10.12/10.13/10.14, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
 
-Features Combatris, Marathon, Sprint, Ultra Battle campaigns in single and multiplayer modes:
+Features Combatris, Marathon, Sprint, Ultra Battle campaigns in single and multiplayer mode:
 
-* Combatris, Marathon: The winner is based on score.
-* Sprint: The first player to clear 40 lines are the winner.
+* Combatris and Marathon: The winner is based on score.
+* Sprint: The fastest player to clear 40 lines are the winner.
 * Ultra: Clear as many lines as possible within 3 minutes.
-* Battle: Battle is only judged based
-on number of lines sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
+* Battle: Battle is only judged based on number of lines sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
 
 The game supports both keyboard and Gamepads / Joysticks (listed below).
+
+**The next version will use the offical mappings for gamepads and joysticks.**
 
 I have tested the game with up to five players running on a heterogeneous set of computers using both wireless
 and Ethernet based connections. The game works well but there can be lag, since heartbeats are sent
@@ -222,13 +223,13 @@ B2B T-Spin Triple | 9
 - [X] Allow user to change game settings (level, etc) in UI
 - [X] Auto discovery of broadcast address (e.g. 192.168.1.255)
 - [ ] Refactor out Joystick code into a more reusable component
-- [ ] Display Winner / Position on game-over splash screen
+- [ ] Move joystick mapping and other settings to a config-file
+- [ ] Configure which joystick to use (if many available)
+- [X] Display Winner / Position on game-over splash screen
 - [ ] Add support for TCP/IP so we allow play over internet
 - [ ] Sound
 - [ ] Remove the pane for showing combo/latest move and display combo/last move direct on the frame
 - [ ] Add new animation for combo/last clearing move
-- [ ] Configure which joystick to use (if many available)
-- [ ] Move joystick mapping and other settings to a config-file
 - [ ] Unit tests for all score combinations
 
 ## Network Considerations

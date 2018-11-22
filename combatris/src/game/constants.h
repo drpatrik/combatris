@@ -32,3 +32,8 @@ const int kFrameStartY = kMatrixStartY - kMinoHeight;
 const int kFrameRows = kVisibleRows + 2;
 const int kFrameCols = kVisibleCols + 2;
 const int kSpace = 8;
+// Campaign specific constants
+const int kSprintGoal = 40;
+const int kTimesUpSoon = 15;
+const int kGameTimeBattle = 120;
+const int kGameTimeUltra = 180;

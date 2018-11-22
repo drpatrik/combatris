@@ -35,6 +35,7 @@ void Scoring::Update(const Event& event) {
 
       if (event.Is(Event::Type::PerfectClear)) {
         lines_to_send += 10;
+        score += 100000;
       }
       UpdateEvents(score, combo_type, lines_to_send, lines_to_clear, event);
       score_ += score;

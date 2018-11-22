@@ -81,7 +81,7 @@ void Level::Update(const Event& event) {
         lines_this_level_ = 0;
         level_++;
         if (level_ > static_cast<int>(kLevelData.size())) {
-          events_.Push(Event::Type::LastLevelCompleted);
+          events_.Push(Event::Type::GameOver, 1);
         } else {
           SetThresholds();
           SetCenteredText(level());

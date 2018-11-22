@@ -68,7 +68,7 @@ inline uint64_t SetHostName(const std::string& from, char *to) {
   return std::hash<std::string>{}(from);
 }
 
-enum Request : uint8_t { Empty, Join, Leave, NewGame, StartGame, NewState, SendLines, KnockedOutBy, ProgressUpdate, HeartBeat };
+enum Request : uint8_t { Empty, Join, Leave, NewGame, StartGame, NewState, SendLines, KnockedOutBy, Time, ProgressUpdate, HeartBeat };
 
 inline std::string ToString(Request request) {
   switch (request) {
@@ -88,6 +88,8 @@ inline std::string ToString(Request request) {
       return "Request::SendLines";
     case Request::KnockedOutBy:
       return "Request::KnockedOutBy";
+    case Request::Time:
+      return "Request::Time";
     case Request::ProgressUpdate:
       return "Request::ProgressUpdate";
     case Request::HeartBeat:

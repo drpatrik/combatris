@@ -55,11 +55,13 @@ void MultiPlayerController::NewGame() { send_queue_->Push(CreatePackage(Request:
 
 void MultiPlayerController::StartGame() { send_queue_->Push(CreatePackage(Request::StartGame, GameState::Playing)); }
 
-void MultiPlayerController::SendUpdate(int lines) { send_queue_->Push(CreatePackage(Request::SendLines, lines)); }
+void MultiPlayerController::SendLines(int lines) { send_queue_->Push(CreatePackage(Request::SendLines, lines)); }
 
-void MultiPlayerController::SendUpdate(uint64_t host_id) { send_queue_->Push(CreatePackage(Request::KnockedOutBy, host_id)); }
+void MultiPlayerController::SendKnockedoutBy(uint64_t host_id) { send_queue_->Push(CreatePackage(Request::KnockedOutBy, host_id)); }
 
-void MultiPlayerController::SendUpdate(GameState state) { send_queue_->Push(CreatePackage(Request::NewState, state)); }
+void MultiPlayerController::SendTime(uint64_t time) { send_queue_->Push(CreatePackage(Request::Time, time)); }
+
+void MultiPlayerController::SendState(GameState state) { send_queue_->Push(CreatePackage(Request::NewState, state)); }
 
 void MultiPlayerController::SendUpdate(int lines, int score, int level, const MatrixState& state) {
   send_queue_->Push(CreatePackage(static_cast<uint16_t>(lines), score, static_cast<uint8_t>(level), state));
@@ -102,6 +104,9 @@ void MultiPlayerController::Dispatch() {
         break;
       case Request::KnockedOutBy:
         listener_if_->GotPlayerKnockedOut(payload.value());
+        break;
+      case Request::Time:
+        listener_if_->GotTime(host_id, payload.value());
         break;
       case Request::ProgressUpdate:
         listener_if_->GotProgressUpdate(host_id, response.progress_payload_.lines(), response.progress_payload_.score(),

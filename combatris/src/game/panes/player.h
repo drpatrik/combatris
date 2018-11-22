@@ -14,7 +14,22 @@ const int kY = kMatrixStartY - kMinoHeight;
 
 class Player final {
  public:
-  enum TextureID { Name, State, ScoreCaption, Score, KOCaption, KO, LevelCaption, Level, LinesCaption, Lines, LinesSentCaption, LinesSent};
+  enum TextureID {
+    Name,
+    State,
+    ScoreCaption,
+    Score,
+    KOCaption,
+    KO,
+    LevelCaption,
+    Level,
+    LinesCaption,
+    Lines,
+    LinesSentCaption,
+    LinesSent,
+    TimeCaption,
+    Time
+  };
   using Ptr = std::shared_ptr<Player>;
   using GameState = network::GameState;
   using Function = std::function<std::string(int)>;
@@ -32,6 +47,8 @@ class Player final {
 
   bool ProgressUpdate(int lines, int score, int level, bool set_to_zero = false);
 
+  inline int lines() const { return lines_; }
+
   inline int score() const { return score_; }
 
   void SetMatrixState(const network::MatrixState& state);
@@ -48,7 +65,9 @@ class Player final {
 
   int ko() const { return ko_; }
 
-  inline int lines() const { return lines_; }
+  void SetTime(uint64_t time);
+
+  uint64_t time() const { return time_; }
 
   void Reset();
 
@@ -81,6 +100,7 @@ class Player final {
   int score_ = 0;
   int level_ = -1;
   int ko_ = 0;
+  uint64_t time_ = 0;
   GameState state_ = GameState::None;
   MatrixType matrix_;
   std::vector<std::shared_ptr<const Tetromino>> tetrominos_;

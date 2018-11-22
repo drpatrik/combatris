@@ -32,6 +32,12 @@ bool IsAnimationActive(std::deque<std::shared_ptr<Animation>>& animations) {
     [](const auto& a) { return a->name() == typeid(T).name(); }) != animations.end();
 }
 
+std::string RankToText(int rank) {
+  const std::vector<std::string> kRanks = { "Winner", "2nd place", "3rd place", "4th place", "5th place", "6th place" };
+
+  return kRanks.at(rank);
+}
+
 } // namespace
 
 using namespace utility;
@@ -204,11 +210,21 @@ void Tetrion::EventHandler(Events& events) {
         multi_player_->NewGame();
       }
       break;
+    case Event::Type::CampaignOver:
+      RemoveAnimation<GameOverAnimation>(animations_);
+      AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_, RankToText(static_cast<int>(event.value_)));
+      break;
     case Event::Type::GameOver:
       events.Clear();
       animations_.clear();
       tetromino_in_play_.reset();
-      AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_);
+      if (campaign_->IsSinglePlayer()) {
+        const auto text = (event.value_ == 1) ? "Winner" : "Game Over";
+
+        AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_, text);
+      } else {
+        AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_, "Waiting ...");
+      }
       break;
     case Event::Type::OnFloor:
       AddAnimation<OnFloorAnimation>(renderer_, assets_, tetromino_in_play_);
@@ -218,6 +234,9 @@ void Tetrion::EventHandler(Events& events) {
       break;
     case Event::Type::MultiplayerWaitForPlayers:
       AddAnimation<HourglassAnimation>(renderer_, assets_, multi_player_);
+      break;
+    case Event::Type::PerfectClear:
+      AddAnimation<MessageAnimation>(renderer_, assets_, "PERFECT CLEAR", Color::Gold, 100.0);
       break;
     case Event::Type::BattleSendLines:
       AddAnimation<MessageAnimation>(renderer_, assets_, "Sent " + std::to_string(event.value_) + " lines", Color::SteelGray, 200.0);

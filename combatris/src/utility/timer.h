@@ -106,7 +106,7 @@ class Clock final : public TimerInterface {
   Clock() : ms_(0), start_(SystemClock::now()) {}
 
   virtual std::pair<bool, size_t> GetTime() override {
-    if (paused_) {
+    if (paused_ || !timer_started_) {
       return std::make_pair(false, ms_);
     }
     auto d = std::chrono::duration_cast<std::chrono::milliseconds>(SystemClock::now() - start_).count();

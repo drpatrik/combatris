@@ -276,18 +276,20 @@ private:
 
 class GameOverAnimation final : public Animation {
  public:
-  GameOverAnimation(SDL_Renderer *renderer, const std::shared_ptr<CombatrisMenu>& menu, const std::shared_ptr<Assets>& assets)
-      : Animation(renderer, assets), menu_view_(renderer, { kMatrixStartX, 0, kMatrixWidth, kMenuHeight }, assets->fonts(), menu, menu.get()) {
+  GameOverAnimation(SDL_Renderer* renderer, const std::shared_ptr<CombatrisMenu>& menu,
+                    const std::shared_ptr<Assets>& assets, const std::string text = "Game Over")
+      : Animation(renderer, assets),
+        menu_view_(renderer, {kMatrixStartX, 0, kMatrixWidth, kMenuHeight}, assets->fonts(), menu, menu.get()), text_(text) {
     int width, height;
 
-    std::tie(texture_1_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal55), "Game Over", Color::White);
+    std::tie(texture_1_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(Normal55), text, Color::White);
     rc_1_ = { kMatrixStartX + utility::Center(kMatrixWidth, width), kMatrixStartY + 100 , width, height };
     menu_view_.SetY(rc_1_.y + height + 25);
 
     std::tie(texture_2_, width, height) = CreateTextureFromText(*this, GetAsset().GetFont(ObelixPro18), "Press N or START to play", Color::White);
     rc_2_ = { kMatrixStartX + utility::Center(kMatrixWidth, width), rc_1_.y + kMenuHeight, width, height };
 
-    blackbox_rc_ = { rc_1_.x - 20, rc_1_.y - 20, rc_1_.w + 40, rc_1_.h + kMenuHeight };
+    blackbox_rc_ = { rc_2_.x - 20, rc_1_.y - 20, rc_2_.w + 40, rc_1_.h + kMenuHeight };
   }
 
   virtual void Render(double) override {
@@ -310,6 +312,7 @@ private:
   SDL_Rect rc_3_;
   SDL_Rect blackbox_rc_;
   utility::MenuView menu_view_;
+  std::string text_;
 };
 
 // We make this class generic when we have more gifs

@@ -48,7 +48,7 @@ void MultiPlayer::Update(const Event& event) {
     case Event::Type::CalculatedScore:
       accumulator_.AddScore(event.score_);
       if (IsBattleCampaign(campaign_type_) && event.value_ > 0) {
-        multiplayer_controller_->SendUpdate(static_cast<int>(event.value_));
+        multiplayer_controller_->SendLines(static_cast<int>(event.value_));
         events_.Push(Event::Type::BattleSendLines, event.value_);
       }
       break;
@@ -62,10 +62,13 @@ void MultiPlayer::Update(const Event& event) {
       accumulator_.SetLevel(event.value_);
       break;
     case Event::Type::GameOver:
-      multiplayer_controller_->SendUpdate(GameState::GameOver);
+      multiplayer_controller_->SendState(GameState::GameOver);
       break;
     case Event::Type::MultiplayerStartGame:
       multiplayer_controller_->StartGame();
+      break;
+    case Event::Type::NewTime:
+      multiplayer_controller_->SendTime(event.value_);
       break;
     case Event::Type::BattleNextTetrominoSuccessful:
       if (!IsBattleCampaign(campaign_type_)) {
@@ -79,7 +82,7 @@ void MultiPlayer::Update(const Event& event) {
       if (!IsBattleCampaign(campaign_type_)) {
         break;
       }
-      multiplayer_controller_->SendUpdate(got_lines_from_.front());
+      multiplayer_controller_->SendKnockedoutBy(got_lines_from_.front());
       got_lines_from_.pop_front();
       break;
     default:
@@ -131,6 +134,12 @@ void MultiPlayer::SortScoreBoard() {
               [](const auto& a, const auto& b) {
       if (GameState::Idle == b->state()) {
         return true;
+      }
+      if (a->time() != b->time()) {
+        if (b->time() == 0) {
+          return true;
+        }
+        return a->time() < b->time();
       }
       return a->lines() > b->lines();
     });
@@ -206,12 +215,19 @@ void MultiPlayer::GotNewState(uint64_t host_id, network::GameState state) {
   auto& player = players_.at(host_id);
 
   player->SetState(state);
+  if (GameState::GameOver == state && CanStartGame()) {
+    auto it = std::find_if(score_board_.begin(), score_board_.end(), [this](const auto p) { return IsUs(p->host_id()); });
+    size_t index = std::distance(score_board_.begin(), it);
+
+    events_.Push(Event::Type::CampaignOver, index);
+  }
 }
 
 void MultiPlayer::GotProgressUpdate(uint64_t host_id, int lines, int score, int level, const MatrixState& state) {
   auto& player = players_.at(host_id);
 
-  score = IsBattleCampaign(campaign_type_) ? -1 : score;
+  score = (IsBattleCampaign(campaign_type_) || IsSprintCampaign(campaign_type_)) ? -1 : score;
+  lines = IsSprintCampaign(campaign_type_) ? std::min(lines, kSprintGoal) : lines;
   if (player->ProgressUpdate(lines, score, level)) {
     SortScoreBoard();
   }
@@ -239,5 +255,15 @@ void MultiPlayer::GotPlayerKnockedOut(uint64_t host_id) {
   auto& player = players_.at(host_id);
 
   player->AddKO(1);
+  SortScoreBoard();
+}
+
+void MultiPlayer::GotTime(uint64_t host_id, uint64_t time) {
+  if (!IsSprintCampaign(campaign_type_)) {
+    return;
+  }
+  auto& player = players_.at(host_id);
+
+  player->SetTime(time);
   SortScoreBoard();
 }
