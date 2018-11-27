@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/panes/pane.h"
+#include "utility/texture.h"
 #include "network/multiplayer_controller.h"
 
 #include <functional>
@@ -28,7 +29,8 @@ class Player final {
     LinesSentCaption,
     LinesSent,
     TimeCaption,
-    Time
+    Time,
+    LastEntry
   };
   using Ptr = std::shared_ptr<Player>;
   using GameState = network::GameState;
@@ -74,18 +76,8 @@ class Player final {
   void Render(int x_offset, int y_offset, bool is_my_status) const;
 
  private:
-  struct Texture {
-    Texture(utility::UniqueTexturePtr&& texture, int w, int h, SDL_Rect rc)
-        : texture_(std::move(texture)), w_(w), h_(h), rc_(rc) {}
-
-    void Set(utility::UniqueTexturePtr&& texture, int w, int h) {
-      texture_ = std::move(texture);
-      w_ = w;
-      h_ = h;
-    }
-    utility::UniqueTexturePtr texture_ = nullptr;
-    int w_;
-    int h_;
+  struct Field {
+    std::unique_ptr<utility::Texture> texture_;
     SDL_Rect rc_;
   };
 
@@ -104,5 +96,5 @@ class Player final {
   GameState state_ = GameState::None;
   MatrixType matrix_;
   std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
-  std::unordered_map<TextureID, std::shared_ptr<Texture>> textures_;
+  std::array<Field, TextureID::LastEntry> fields_;
 };

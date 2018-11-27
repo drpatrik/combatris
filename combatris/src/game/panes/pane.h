@@ -43,7 +43,7 @@ class Pane : public PaneInterface {
 
   void RenderCopy(SDL_Texture* texture, int x, int y, int w, int h) const { RenderCopy(renderer_, texture, x_ + x, y_ + y, w, h); }
 
-  void RenderCopy(SDL_Texture* texture, SDL_Rect& rc) { SDL_RenderCopy(renderer_, texture, nullptr, &rc); }
+  void RenderCopy(SDL_Texture* texture, const SDL_Rect& rc) { SDL_RenderCopy(renderer_, texture, nullptr, &rc); }
 
   SDL_Renderer* renderer_;
   int x_;

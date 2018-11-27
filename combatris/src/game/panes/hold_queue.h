@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utility/texture.h"
 #include "game/panes/pane.h"
 #include "game/tetromino_generator.h"
 
@@ -12,9 +13,8 @@ class HoldQueue final : public TextPane, public EventListener {
             const std::shared_ptr<TetrominoGenerator> &tetromino_generator,
             const std::shared_ptr<Assets> &assets)
       : TextPane(renderer, kX, kY, "HOLD", assets), tetromino_generator_(tetromino_generator) {
-    rc_.x = kX + 90;
-    rc_.y = kY - 10;
-    std::tie(checkmark_texture_, rc_.w, rc_.h) = assets_->GetTexture(Assets::Type::Checkmark);
+    checkmark_texture_ = utility::Texture(assets_->GetTexture(Assets::Type::Checkmark));
+    checkmark_texture_.SetXY(kX + 90, kY - 10);
   }
 
   std::shared_ptr<TetrominoSprite> Hold(const std::shared_ptr<TetrominoSprite>& old_tetromino_sprite) {
@@ -58,7 +58,7 @@ class HoldQueue final : public TextPane, public EventListener {
       display_checkmark_ = false;
     }
     if (display_checkmark_) {
-      Pane::RenderCopy(checkmark_texture_.get(), rc_);
+      Pane::RenderCopy(checkmark_texture_, checkmark_texture_);
     }
   }
 
@@ -74,7 +74,6 @@ class HoldQueue final : public TextPane, public EventListener {
   bool wait_for_lock_ = false;
   bool display_checkmark_ = false;
   Tetromino::Type tetromino_ = Tetromino::Type::Empty;
-  SDL_Rect rc_;
-  std::shared_ptr<SDL_Texture> checkmark_texture_;
+  utility::Texture checkmark_texture_;
   const std::shared_ptr<TetrominoGenerator> tetromino_generator_;
 };

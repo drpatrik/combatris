@@ -105,13 +105,11 @@ std::string IntToString(int v) { return std::to_string(v); }
 Player::Player(SDL_Renderer* renderer, const std::string& name, uint64_t host_id, const std::shared_ptr<Assets>& assets)
     : renderer_(renderer), name_(name), host_id_(host_id), assets_(assets), tetrominos_(assets_->GetTetrominos()) {
   for (const auto& field : kFields) {
-    auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), field.name_, field.color_);
-
-    textures_.insert(std::make_pair(field.id_, std::make_shared<Texture>(std::move(texture), w, h, field.rc_)));
+    fields_[field.id_].texture_ = std::make_unique<Texture>(renderer_, assets_->GetFont(kTextFont), field.name_, field.color_);
+    fields_[field.id_].rc_ = field.rc_;
   }
-  auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), name_, Color::Yellow);
-
-  textures_.insert(std::make_pair(ID::Name, std::make_shared<Texture>(std::move(texture), w, h, kNameFieldRc)));
+  fields_[ID::Name].texture_ = std::make_unique<Texture>(renderer_, assets_->GetFont(kTextFont), name_, Color::Yellow);
+  fields_[ID::Name].rc_ = kNameFieldRc;
   matrix_ = kEmptyMatrix;
 }
 
@@ -119,12 +117,9 @@ int Player::Update(Player::TextureID id, int new_value, int old_value, Function 
   if (!set_to_zero && (0 == new_value || new_value == old_value)) {
     return old_value;
   }
-  auto& stat = textures_.at(id);
-
   auto txt = (-1 == new_value) ? "-" : to_string(new_value);
-  auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), txt, Color::Yellow);
 
-  stat->Set(std::move(texture), w, h);
+  fields_[id].texture_ = std::make_unique<Texture>(renderer_, assets_->GetFont(kTextFont), txt, Color::Yellow);
 
   return new_value;
 }
@@ -167,12 +162,7 @@ void Player::AddKO(int ko, bool set_to_zero) {
 
 void Player::SetTime(uint64_t time) {
   time_ = time;
-
-  auto& stat = textures_.at(ID::Time);
-
-  auto [texture, w, h] = CreateTextureFromText(renderer_, assets_->GetFont(kTextFont), FormatTimeMMSSHS(time_), Color::Yellow);
-
-  stat->Set(std::move(texture), w, h);
+  fields_[ID::Time].texture_ = std::make_unique<Texture>(renderer_, assets_->GetFont(kTextFont), FormatTimeMMSSHS(time_), Color::Yellow);
 }
 
 void Player::Reset() {
@@ -208,11 +198,10 @@ void Player::Render(int x_offset, int y_offset, bool is_my_status) const {
   SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kLinesFieldRc)));
   SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kTimeCaptionFieldRc)));
 
-  for (const auto& it : textures_) {
-    const auto& field = it.second;
-
-    SDL_RenderCopy(renderer_, it.second->texture_.get(), nullptr,
-                   &AddOffset(tmp, x_offset, y_offset, *InsideBox(tmp, field->rc_, field->w_, field->h_)));
+  for (const auto& field : fields_) {
+    SDL_RenderCopy(renderer_, *field.texture_, nullptr,
+                   &AddOffset(tmp, x_offset, y_offset,
+                              *InsideBox(tmp, field.rc_, field.texture_->width(), field.texture_->height())));
   }
   int y_pos = 0;
   int x_pos = 0;
