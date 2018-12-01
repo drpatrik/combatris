@@ -12,15 +12,9 @@ class Knockout final : public Pane, public EventListener {
 
   Knockout(SDL_Renderer *renderer, const std::shared_ptr<Assets> &assets)
       : Pane(renderer, kX, kY, assets) {
-    std::tie(circle_texture_, circle_rc_.w, circle_rc_.h) = assets_->GetTexture(Assets::Type::Circle);
-    circle_rc_ = { kX, kY, kCircleDim, kCircleDim };
-    caption_rc_ = { kX + 15, kY - 20, 0, 0 };
-    std::tie(caption_texture_, caption_rc_.w, caption_rc_.h) =
-        CreateTextureFromText(renderer_, assets_->GetFont(ObelixPro35), "K.O.", Color::White);
-    std::tie(plus_one_texture_, plus_one_rc_.w, plus_one_rc_.h) =
-        CreateTextureFromText(renderer_, assets_->GetFont(ObelixPro50), "+1", Color::Blue);
-    plus_one_rc_.x = circle_rc_.x + utility::Center(kCircleDim, plus_one_rc_.w);
-    plus_one_rc_.y = circle_rc_.y + utility::Center(kCircleDim, plus_one_rc_.h);
+    caption_texture_.SetXY(kX + 15, kY - 20);
+    plus_one_texture_.SetX(circle_texture_.x() + utility::Center(kCircleDim, plus_one_texture_.width()));
+    plus_one_texture_.SetY(circle_texture_.y() + utility::Center(kCircleDim, plus_one_texture_.height()));
   }
 
   virtual void Update(const Event& event) override {
@@ -37,14 +31,14 @@ class Knockout final : public Pane, public EventListener {
     if (0 == n_ko_) {
       return;
     }
-    Pane::RenderCopy(circle_texture_.get(), circle_rc_);
-    Pane::RenderCopy(caption_texture_.get(), caption_rc_);
+    Pane::RenderCopy(circle_texture_);
+    Pane::RenderCopy(caption_texture_);
     if (show_plus_one_)  {
-      Pane::RenderCopy(plus_one_texture_.get(), plus_one_rc_);
+      Pane::RenderCopy(plus_one_texture_);
       ticks_ += delta_time;
       show_plus_one_ = (ticks_ < kDisplayTime);
     } else {
-      Pane::RenderCopy(n_ko_texture_.get(), n_ko_rc_);
+      Pane::RenderCopy(n_ko_texture_);
     }
   }
 
@@ -52,21 +46,19 @@ class Knockout final : public Pane, public EventListener {
 
  protected:
   void Display(int ko) {
-    std::tie(n_ko_texture_, n_ko_rc_.w, n_ko_rc_.h) = CreateTextureFromText(renderer_, assets_->GetFont(ObelixPro40), std::to_string(ko), Color::Yellow);
-    n_ko_rc_.x = circle_rc_.x + utility::Center(kCircleDim, n_ko_rc_.w);
-    n_ko_rc_.y = circle_rc_.y + utility::Center(kCircleDim, n_ko_rc_.h);
-}
+    n_ko_texture_ = utility::Texture(renderer_, assets_->GetFont(ObelixPro40), std::to_string(ko), Color::Yellow);
+    n_ko_texture_.SetX(kX + utility::Center(kCircleDim, n_ko_texture_.width()));
+    n_ko_texture_.SetY(kY + utility::Center(kCircleDim, n_ko_texture_.height()));
+    n_ko_texture_.SetWidth(kCircleDim);
+    n_ko_texture_.SetHeight(kCircleDim);
+  }
 
  private:
   double ticks_ = 0;
   bool show_plus_one_ = false;
-  SDL_Rect circle_rc_;
-  std::shared_ptr<SDL_Texture> circle_texture_;
-  SDL_Rect caption_rc_;
-  utility::UniqueTexturePtr caption_texture_;
-  SDL_Rect plus_one_rc_;
-  utility::UniqueTexturePtr plus_one_texture_;
-  SDL_Rect n_ko_rc_;
-  utility::UniqueTexturePtr n_ko_texture_;
+  utility::Texture circle_texture_ = utility::Texture(assets_->GetTexture(Assets::Type::Circle));
+  utility::Texture caption_texture_ = utility::Texture(renderer_, assets_->GetFont(ObelixPro35), "K.O.", Color::White);
+  utility::Texture plus_one_texture_ = utility::Texture(renderer_, assets_->GetFont(ObelixPro50), "+1", Color::Blue);
+  utility::Texture n_ko_texture_;
   int n_ko_ = 0;
 };

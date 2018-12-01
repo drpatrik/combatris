@@ -22,25 +22,35 @@ class Texture {
     rc_.h = std::get<2>(texture);
   }
 
-  operator SDL_Texture*() { return texture_.get(); }
+  inline bool is_null() const { return nullptr == texture_; }
 
-  operator const SDL_Rect&() { return rc_; }
+  inline operator SDL_Texture*() { return texture_.get(); }
 
-  operator const SDL_Rect*() { return &rc_; }
+  inline operator const SDL_Rect&() { return rc_; }
 
-  void SetX(int x) { rc_.x = x; }
+  inline operator const SDL_Rect*() { return &rc_; }
 
-  void SetY(int y) { rc_.y = y; }
+  inline void SetX(int x) { rc_.x = x; }
 
-  void SetXY(int x, int y) { rc_.x = x;  rc_.y = y; }
+  inline void SetY(int y) { rc_.y = y; }
 
-  int x() const { return rc_.x; }
+  inline void SetXY(int x, int y) { rc_.x = x;  rc_.y = y; }
 
-  int y() const { return rc_.y; }
+  inline int x() const { return rc_.x; }
 
-  int width() const { return rc_.w; }
+  inline int center_x(int w) const { return utility::Center(w, rc_.w); }
 
-  int height() const { return rc_.h; }
+  inline int center_y(int h) const { return utility::Center(h, rc_.h); }
+
+  inline int y() const { return rc_.y; }
+
+  inline int width() const { return rc_.w; }
+
+  inline void SetWidth(int w) { rc_.w = w; }
+
+  inline int height() const { return rc_.h; }
+
+  inline void SetHeight(int h) { rc_.h = h; }
 
  private:
   UniqueTexturePtr texture_ = nullptr;

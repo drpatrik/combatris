@@ -1,6 +1,5 @@
 #pragma once
 
-#include "utility/texture.h"
 #include "game/panes/pane.h"
 #include "game/tetromino_generator.h"
 
@@ -43,7 +42,7 @@ class HoldQueue final : public TextPane, public EventListener {
     wait_for_lock_ = false;
   }
 
-  std::shared_ptr<TetrominoSprite> Get() { return tetromino_generator_->Get(tetromino_); }
+  inline std::shared_ptr<TetrominoSprite> Get() { return tetromino_generator_->Get(tetromino_); }
 
   virtual void Render(double delta_time) override {
     const auto kDisplayTime = 0.4;
@@ -51,7 +50,7 @@ class HoldQueue final : public TextPane, public EventListener {
     TextPane::Render(delta_time);
 
     if (Tetromino::Type::Empty != tetromino_) {
-      assets_->GetTetromino(tetromino_)->RenderTetromino(x_ + 10, y_ + caption_height_ + 15);
+      assets_->GetTetromino(tetromino_)->RenderTetromino(x_ + 10, y_ + caption_texture_.height() + 15);
     }
     ticks_ += delta_time;
     if (ticks_ >= kDisplayTime) {
@@ -67,7 +66,7 @@ class HoldQueue final : public TextPane, public EventListener {
     tetromino_ = Tetromino::Type::Empty;
   }
 
-  bool CanHold() const { return !wait_for_lock_; }
+  inline bool CanHold() const { return !wait_for_lock_; }
 
  private:
   double ticks_ = 0.0;

@@ -32,9 +32,9 @@ public:
 
   virtual std::pair<bool, Event::Type> IsReady() const = 0;
 
-  operator SDL_Renderer *() const { return renderer_; }
+  inline operator SDL_Renderer*() const { return renderer_; }
 
-  const Assets& GetAsset() const { return *assets_; }
+  inline const Assets& GetAsset() const { return *assets_; }
 
   virtual std::string name() const { return typeid(*this).name(); }
 

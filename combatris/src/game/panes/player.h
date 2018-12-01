@@ -1,7 +1,6 @@
 #pragma once
 
 #include "game/panes/pane.h"
-#include "utility/texture.h"
 #include "network/multiplayer_controller.h"
 
 #include <functional>
