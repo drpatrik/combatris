@@ -185,51 +185,15 @@ B2B T-Spin Triple | 9
 7 Combo | 16 (4)
 ... Combo | ... (4)
 
-**Status**
-- [x] Rotate left / right
-- [x] Soft / Hard drop
-- [x] BPS Random Generator
-- [x] Wall kicks (Super Rotating System)
-- [X] Hold piece
-- [x] T-Spin (scoring)
-- [x] T-Spin mini (scoring)
-- [x] B2B T-Spin (scoring)
-- [x] B2B Combatris (scoring)
-- [x] Combos (scoring)
-- [X] Perfect clear (cleared matrix after game started)
-- [X] Hard Drop & Soft Drop (scoring)
-- [X] Panes for score / next tetrominos / hold piece / level and high score
-- [X] Pane showing the last clearing move (B2B / Combo / T-Spin / Single / Double /etc.)
-- [X] Joystick support (PS3 joystick and Logitech F310 tested)
-- [X] Joystick Mapping to enable support for different brands
-- [X] Hot add / remove joystick device
-- [X] Tetromino locked animations
-- [X] Level up animations
-- [X] Score animation
-- [X] Lines cleared animation
-- [X] Count down before game start animations
-- [X] Game Over Screen
-- [X] Pause Screen
-- [X] Splash Screen
-- [X] Battle Mode (P2P based on UDP)
-- [X] Introduce KO in Battle mode
-- [X] Make Battle Mode timer based
-- [X] Wait for all in State waiting to get to Play before starting the game
-- [X] In Battle mode show interactive matrix for all players instead of current status
-- [X] Introduce Marathon mode for single and multiplayer campaigns
-- [X] Introduce VS mode for multiplayer campaign
-- [X] Add KO box and sent lines box in battle
-- [X] Add possibility to have different UI components based on campaign
-- [X] Allow user to change game settings (level, etc) in UI
-- [X] Auto discovery of broadcast address (e.g. 192.168.1.255)
+**Progress for new features / improvements**
 - [ ] Refactor out Joystick code into a more reusable component
 - [ ] Move joystick mapping and other settings to a config-file
+- [ ] Change joystick settings to follow the standard
 - [ ] Configure which joystick to use (if many available)
-- [X] Display Winner / Position on game-over splash screen
-- [ ] Add support for TCP/IP so we allow play over internet
-- [ ] Sound
+- [ ] Add support for Internet online play
 - [ ] Remove the pane for showing combo/latest move and display combo/last move direct on the frame
 - [ ] Add new animation for combo/last clearing move
+- [ ] Sound
 - [ ] Unit tests for all score combinations
 
 ## Network Considerations
