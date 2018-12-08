@@ -6,6 +6,8 @@ namespace {
 
 const int kMaxPlayers = 6;
 const double kUpdateInterval = 0.250;
+const int kSpaceingW = kBoxWidth + kSpaceBetweenBoxes;
+const int kSpacingH = kBoxHeight + kSpaceBetweenBoxes;
 
 MatrixState GetMatrixState(const std::shared_ptr<Matrix>& m) {
   MatrixState matrix_state;
@@ -101,7 +103,7 @@ void MultiPlayer::Render(double delta_time) {
   int y_offset = 0;
 
   for (const auto& player : score_board_) {
-    player->Render((kBoxWidth + kSpaceBetweenBoxes) * x_offset, (kBoxHeight + kSpaceBetweenBoxes) * y_offset, IsUs(player->host_id()));
+    player->Render(kSpaceingW * x_offset, kSpacingH * y_offset, campaign_type_);
     x_offset++;
     if (x_offset > 1) {
       y_offset++;
@@ -166,7 +168,7 @@ bool MultiPlayer::GotJoin(const std::string& name, uint64_t host_id)  {
     multiplayer_controller_->Join(game_state_);
   }
   score_board_.push_back(
-      players_.insert(std::make_pair(host_id, std::make_shared<Player>(renderer_, name, host_id, assets_)))
+      players_.insert(std::make_pair(host_id, std::make_shared<Player>(renderer_, name, host_id, IsUs(host_id), assets_)))
           .first->second);
 
   return true;
@@ -182,13 +184,18 @@ void MultiPlayer::GotLeave(uint64_t host_id) {
   players_.erase(host_id);
 }
 
-void MultiPlayer::GotNewGame(uint64_t host_id) {
+void MultiPlayer::GotNewGame(uint64_t host_id, CampaignType type) {
+  auto& player = players_.at(host_id);
+
+  player->SetCampaignType(type);
+
   if (IsUs(host_id)) {
     accumulator_.Reset(start_level_);
     for (auto& player : score_board_) {
       player->Reset();
     }
     events_.Push(Event::Type::MultiplayerResetCountDown);
+    return;
   } else if (GameState::Waiting == game_state_) {
     events_.Push(Event::Type::MultiplayerResetCountDown);
   }

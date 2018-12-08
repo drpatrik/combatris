@@ -5,6 +5,10 @@
 #include <iomanip>
 
 namespace {
+
+const SDL_Rect kMatrixRc { kMatrixStartX, kMatrixStartY, kMatrixWidth, kMatrixHeight };
+const SDL_Color kGray { 51, 55, 66, 255 };
+
 std::mt19937 kGenerator{ std::random_device{}() };
 std::uniform_int_distribution<size_t> kDistribution(0, kVisibleCols - 1);
 
@@ -25,15 +29,11 @@ void Print(const Matrix::Type& matrix) {
 }
 
 void RenderGrid(SDL_Renderer* renderer) {
-  const SDL_Color gray { 51, 55, 66, 255 };
-
-  SDL_SetRenderDrawColor(renderer, gray.r, gray.g, gray.b, gray.a);
-  SDL_Rect rc { kMatrixStartX, kMatrixStartY, kMatrixWidth, kMatrixHeight };
-  SDL_RenderFillRect(renderer, &rc);
-
+  SDL_SetRenderDrawColor(renderer, kGray.r, kGray.g, kGray.b, kGray.a);
+  SDL_RenderFillRect(renderer, &kMatrixRc);
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 
-  rc = { 0, kMatrixStartY + 1, kMinoWidth - 2, kMinoHeight - 2 };
+  SDL_Rect rc { 0, kMatrixStartY + 1, kMinoWidth - 2, kMinoHeight - 2 };
 
   for (int row = 0; row < kVisibleRows; ++row) {
     rc.x = kMatrixStartX + 1;
@@ -65,6 +65,7 @@ Lines RemoveLinesCleared(Matrix::Type& matrix) {
       matrix[row] = kEmptyRow;
     }
   }
+
   return lines;
 }
 
@@ -146,7 +147,7 @@ void Matrix::Render(double) {
         continue;
       }
       const auto& tetromino = (id < kGhostAddOn) ? *tetrominos_[id - 1] : *tetrominos_[id - kGhostAddOn - 1];
-      Position pos(row_to_visible(row), col_to_visible(col));
+      const Position pos(row_to_visible(row), col_to_visible(col));
 
       if (id < kGhostAddOn) {
         tetromino.Render(pos);
@@ -163,7 +164,6 @@ bool Matrix::InsertLines(int lines) {
   if (lines <= 0) {
     return false;
   }
-
   InsertSolidLines(lines, master_matrix_);
   matrix_ = master_matrix_;
 

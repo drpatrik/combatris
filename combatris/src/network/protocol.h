@@ -68,6 +68,10 @@ inline uint64_t SetHostName(const std::string& from, char *to) {
   return std::hash<std::string>{}(from);
 }
 
+enum class CampaignType { None, Combatris, Marathon, Sprint, Ultra, Battle };
+
+constexpr int ToInt(CampaignType type) { return static_cast<int>(type); }
+
 enum Request : uint8_t { Empty, Join, Leave, NewGame, StartGame, NewState, SendLines, KnockedOutBy, Time, ProgressUpdate, HeartBeat };
 
 inline std::string ToString(Request request) {
@@ -293,6 +297,16 @@ inline auto CreatePackage(Request request, GameState state) {
 
   package.header_ = Header(request);
   package.payload_.SetState(state);
+
+  return package;
+}
+
+inline auto CreatePackage(CampaignType type) {
+  Package package;
+
+  package.header_ = Header(Request::NewGame);
+  package.payload_.SetState(GameState::Waiting);
+  package.payload_.SetValue(ToInt(type));
 
   return package;
 }

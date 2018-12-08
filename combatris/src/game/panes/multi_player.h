@@ -36,15 +36,15 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
     players_.clear();
   }
 
-  bool CanPressNewGame() const {
+  inline bool CanPressNewGame() const {
     return std::none_of(score_board_.begin(), score_board_.end(), [](const auto& p) { return p->state() == network::GameState::Playing; });
   }
 
-  bool CanStartGame() const {
+  inline bool CanStartGame() const {
     return std::none_of(score_board_.begin(), score_board_.end(), [](const auto& p) { return p->state() == network::GameState::Waiting; });
   }
 
-  void NewGame() { multiplayer_controller_->NewGame(); }
+  inline void NewGame() { multiplayer_controller_->NewGame(campaign_type_); }
 
   void DebugSend(int lines) {
     if (!multiplayer_controller_) {
@@ -53,7 +53,7 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
     multiplayer_controller_->SendLines(lines);
   }
 
-  const std::string& our_host_name() const {
+  inline const std::string& our_host_name() const {
     assert(multiplayer_controller_ != nullptr);
     return multiplayer_controller_->our_host_name();
   }
@@ -63,7 +63,7 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
 
   virtual void GotLeave(uint64_t host_id) override;
 
-  virtual void GotNewGame(uint64_t host_id) override;
+  virtual void GotNewGame(uint64_t host_id, CampaignType type) override;
 
   virtual void GotStartGame() override;
 

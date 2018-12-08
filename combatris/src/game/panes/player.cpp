@@ -102,8 +102,8 @@ std::string IntToString(int v) { return std::to_string(v); }
 
 } // namespace
 
-Player::Player(SDL_Renderer* renderer, const std::string& name, uint64_t host_id, const std::shared_ptr<Assets>& assets)
-    : renderer_(renderer), name_(name), host_id_(host_id), assets_(assets), tetrominos_(assets_->GetTetrominos()) {
+Player::Player(SDL_Renderer* renderer, const std::string& name, uint64_t host_id, bool is_us, const std::shared_ptr<Assets>& assets)
+    : renderer_(renderer), name_(name), host_id_(host_id), is_us_(is_us), assets_(assets), tetrominos_(assets_->GetTetrominos()) {
   for (const auto& field : kFields) {
     fields_[field.id_].texture_ = std::make_unique<Texture>(renderer_, assets_->GetFont(kTextFont), field.name_, field.color_);
     fields_[field.id_].rc_ = field.rc_;
@@ -179,8 +179,12 @@ void Player::Reset() {
   matrix_ = kEmptyMatrix;
 }
 
-void Player::Render(int x_offset, int y_offset, bool is_my_status) const {
-  Pane::SetDrawColor(renderer_, (is_my_status) ? Color::Green : Color::White);
+void Player::Render(int x_offset, int y_offset, CampaignType type) const {
+  if (is_us_) {
+    Pane::SetDrawColor(renderer_, Color::Green);
+  } else {
+    Pane::SetDrawColor(renderer_, (IsSameCampaignType(type)) ? Color::White : Color::Red);
+  }
   Pane::FillRect(renderer_, kX + x_offset, kY + y_offset, kBoxWidth, kBoxHeight);
   Pane::SetDrawColor(renderer_, Color::Black);
   SDL_Rect tmp;

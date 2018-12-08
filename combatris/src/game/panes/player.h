@@ -33,18 +33,19 @@ class Player final {
   };
   using Ptr = std::shared_ptr<Player>;
   using GameState = network::GameState;
+  using CampaignType = network::CampaignType;
   using Function = std::function<std::string(int)>;
   using MatrixType = std::array<std::array<uint8_t, kVisibleCols + 2>, kVisibleRows + 2>;
 
-  Player(SDL_Renderer* renderer, const std::string& name, uint64_t host_id, const std::shared_ptr<Assets>& assets);
+  Player(SDL_Renderer* renderer, const std::string& name, uint64_t host_id, bool is_us, const std::shared_ptr<Assets>& assets);
 
   Player(const Player&) = delete;
 
   Player(const Player&&) noexcept = delete;
 
-  const std::string& name() const { return name_; }
+  inline const std::string& name() const { return name_; }
 
-  uint64_t host_id() const { return host_id_; }
+  inline uint64_t host_id() const { return host_id_; }
 
   bool ProgressUpdate(int lines, int score, int level, bool set_to_zero = false);
 
@@ -64,15 +65,21 @@ class Player final {
 
   void AddKO(int ko, bool set_to_zero = false);
 
-  int ko() const { return ko_; }
+  inline int ko() const { return ko_; }
 
   void SetTime(uint64_t time);
 
-  uint64_t time() const { return time_; }
+  inline uint64_t time() const { return time_; }
+
+  inline void SetCampaignType(CampaignType type) { campaign_type_ = type; }
+
+  inline bool IsSameCampaignType(CampaignType type) const {
+    return GameState::Idle == state_ || GameState::GameOver == state_ || campaign_type_ == type;
+  }
 
   void Reset();
 
-  void Render(int x_offset, int y_offset, bool is_my_status) const;
+  void Render(int x_offset, int y_offset, CampaignType type) const;
 
  private:
   struct Field {
@@ -85,6 +92,7 @@ class Player final {
   SDL_Renderer* renderer_;
   std::string name_;
   uint64_t host_id_;
+  bool is_us_ = false;
   const std::shared_ptr<Assets>& assets_;
   int lines_ = 0;
   int lines_sent_ = 0;
@@ -94,6 +102,7 @@ class Player final {
   uint64_t time_ = 0;
   GameState state_ = GameState::None;
   MatrixType matrix_;
+  CampaignType campaign_type_ = CampaignType::None;
   std::vector<std::shared_ptr<const Tetromino>> tetrominos_;
   std::array<Field, TextureID::LastEntry> fields_;
 };

@@ -51,7 +51,7 @@ void MultiPlayerController::Leave()  {
   send_queue_->Push(CreatePackage(Request::Leave, GameState::Idle));
 }
 
-void MultiPlayerController::NewGame() { send_queue_->Push(CreatePackage(Request::NewGame, GameState::Waiting)); }
+void MultiPlayerController::NewGame(CampaignType type) { send_queue_->Push(CreatePackage(type)); }
 
 void MultiPlayerController::StartGame() { send_queue_->Push(CreatePackage(Request::StartGame, GameState::Playing)); }
 
@@ -87,7 +87,7 @@ void MultiPlayerController::Dispatch() {
         listener_if_->GotLeave(host_id);
         break;
       case Request::NewGame:
-        listener_if_->GotNewGame(host_id);
+        listener_if_->GotNewGame(host_id, static_cast<CampaignType>(payload.value()));
         listener_if_->GotNewState(host_id, payload.state());
         break;
       case Request::StartGame:

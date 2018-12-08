@@ -12,7 +12,7 @@ class ListenerInterface {
 
   virtual void GotLeave(uint64_t host_id) = 0;
 
-  virtual void GotNewGame(uint64_t host_id) = 0;
+  virtual void GotNewGame(uint64_t host_id, CampaignType type) = 0;
 
   virtual void GotStartGame() = 0;
 
@@ -51,7 +51,7 @@ class MultiPlayerController {
 
   void Leave();
 
-  void NewGame();
+  void NewGame(CampaignType type);
 
   void StartGame();
 

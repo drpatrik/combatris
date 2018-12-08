@@ -1,10 +1,10 @@
 #pragma once
 
+#include "network/protocol.h"
+
+using CampaignType = network::CampaignType;
+
 enum class ModeType { None, SinglePlayer, MultiPlayer };
-
-enum class CampaignType { None, Combatris, Marathon, Sprint, Ultra, Battle };
-
-constexpr int ToInt(CampaignType type) { return static_cast<int>(type); }
 
 constexpr int ToInt(ModeType type) { return static_cast<int>(type); }
 
