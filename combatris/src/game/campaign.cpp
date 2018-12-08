@@ -85,11 +85,13 @@ void Campaign::Update(const Event& event) {
         break;
       case ModeType::MultiPlayer:
         multi_player_->Enable();
-        title = "Multiplayer - " + title + " (" + multi_player_->our_host_name() + " )";
         break;
       default:
         break;
     }
+  }
+  if (ModeType::MultiPlayer == mode_type_) {
+    title = "Multiplayer - " + title + " (" + multi_player_->our_host_name() + " )";
   }
   SetupCampaignWindow(window_, renderer_, IsSinglePlayer());
   SDL_SetWindowTitle(window_, title.c_str());
