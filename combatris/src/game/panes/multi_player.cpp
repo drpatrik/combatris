@@ -30,6 +30,14 @@ MatrixState GetMatrixState(const std::shared_ptr<Matrix>& m) {
   return matrix_state;
 }
 
+inline bool IsPlaying(GameState state) { return GameState::Playing == state; }
+
+inline bool IsIdle(GameState state) { return GameState::Idle == state; }
+
+inline bool IsWaiting(GameState state) { return GameState::Waiting == state; }
+
+inline bool IsGameOver(GameState state) { return GameState::GameOver == state; }
+
 } // namespace
 
 MultiPlayer::MultiPlayer(SDL_Renderer* renderer, const std::shared_ptr<Matrix>& matrix, Events& events,
@@ -123,7 +131,7 @@ void MultiPlayer::Render(double delta_time) {
 void MultiPlayer::SortScoreBoard() {
   if (IsBattleCampaign(campaign_type_)) {
     std::sort(score_board_.begin(), score_board_.end(), [](const auto& a, const auto& b) {
-      if (GameState::Idle == b->state()) {
+      if (IsIdle(b->state())) {
         return true;
       }
       if (a->ko() != b->ko()) {
@@ -134,7 +142,7 @@ void MultiPlayer::SortScoreBoard() {
   } else if (IsSprintCampaign(campaign_type_)) {
     std::sort(score_board_.begin(), score_board_.end(),
               [](const auto& a, const auto& b) {
-      if (GameState::Idle == b->state()) {
+      if (IsIdle(b->state())) {
         return true;
       }
       if (a->time() != b->time()) {
@@ -148,7 +156,7 @@ void MultiPlayer::SortScoreBoard() {
   } else {
     std::sort(score_board_.begin(), score_board_.end(),
               [](const auto& a, const auto& b) {
-      if (GameState::Idle == b->state()) {
+      if (IsIdle(b->state())) {
         return true;
       }
       return a->score() > b->score();
@@ -187,33 +195,32 @@ void MultiPlayer::GotLeave(uint64_t host_id) {
 }
 
 void MultiPlayer::GotNewGame(uint64_t host_id, CampaignType type) {
-  auto& player = players_.at(host_id);
-
-  player->SetCampaignType(type);
-
   if (IsUs(host_id)) {
     accumulator_.Reset(start_level_);
     for (auto& player : score_board_) {
       player->Reset();
     }
     events_.Push(Event::Type::MultiplayerResetCountDown);
-  } else if (GameState::Waiting == game_state_) {
+  } else if (IsWaiting(game_state_)) {
     events_.Push(Event::Type::MultiplayerResetCountDown);
   } else {
-    if (game_state_ == GameState::GameOver) {
-      game_state_ = network::GameState::Idle;
+    if (IsGameOver(game_state_)) {
+      game_state_ = GameState::Idle;
       players_.at(multiplayer_controller_->our_host_id())->SetState(GameState::Idle);
       events_.Push(Event::Type::ShowSplashScreen);
     }
-    if (game_state_ == GameState::Idle) {
+    if (IsIdle(game_state_)) {
       SortScoreBoard();
     }
   }
+  auto& player = players_.at(host_id);
+
+  player->SetCampaignType(type);
 }
 
 void MultiPlayer::GotStartGame() {
   for (auto& player : score_board_) {
-    if (GameState::GameOver == player->state()) {
+    if (IsGameOver(player->state())) {
       player->SetState(GameState::Idle);
     }
   }
@@ -228,8 +235,8 @@ void MultiPlayer::GotNewState(uint64_t host_id, network::GameState state) {
   auto& player = players_.at(host_id);
 
   player->SetState(state);
-  if (GameState::Idle != game_state_) {
-    if (GameState::GameOver == state && CanPressNewGame()) {
+  if (!IsIdle(game_state_)) {
+    if (IsGameOver(state) && CanPressNewGame()) {
       auto it = std::find_if(score_board_.begin(), score_board_.end(), [this](const auto p) { return IsUs(p->host_id()); });
 
       events_.Push(Event::Type::MultiplayerCampaignOver, static_cast<size_t>(std::distance(score_board_.begin(), it)));
@@ -249,7 +256,7 @@ void MultiPlayer::GotProgressUpdate(uint64_t host_id, int lines, int score, int 
 }
 
 void MultiPlayer::GotLines(uint64_t host_id, int lines) {
-  if (!IsBattleCampaign(campaign_type_)) {
+  if (!IsPlaying(game_state_) || !IsBattleCampaign(campaign_type_)) {
     return;
   }
   if (!IsUs(host_id)) {
