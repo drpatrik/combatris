@@ -210,11 +210,12 @@ void Tetrion::EventHandler(Events& events) {
         multi_player_->NewGame();
       }
       break;
-    case Event::Type::CampaignOver:
-      RemoveAnimation<GameOverAnimation>(animations_);
+    case Event::Type::MultiplayerCampaignOver:
+      RemoveAnimation<HourglassAnimation>(animations_);
       AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_, RankToText(static_cast<int>(event.value_)));
       break;
     case Event::Type::GameOver:
+    case Event::Type::MultiplayerRejected:
       events.Clear();
       animations_.clear();
       tetromino_in_play_.reset();
@@ -223,7 +224,11 @@ void Tetrion::EventHandler(Events& events) {
 
         AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_, text);
       } else {
-        AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_, "Waiting ...");
+        if (Event::Type::MultiplayerRejected == event.type()) {
+          AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_, "You where rejected");
+        } else {
+          AddAnimation<HourglassAnimation>(renderer_, assets_);
+        }
       }
       break;
     case Event::Type::OnFloor:
@@ -231,9 +236,6 @@ void Tetrion::EventHandler(Events& events) {
       break;
     case Event::Type::ClearOnFloor:
       RemoveAnimation<OnFloorAnimation>(animations_);
-      break;
-    case Event::Type::MultiplayerWaitForPlayers:
-      AddAnimation<HourglassAnimation>(renderer_, assets_, multi_player_);
       break;
     case Event::Type::PerfectClear:
       AddAnimation<MessageAnimation>(renderer_, assets_, "PERFECT CLEAR", Color::Gold, 100.0);

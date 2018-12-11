@@ -40,10 +40,6 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
     return std::none_of(score_board_.begin(), score_board_.end(), [](const auto& p) { return p->state() == network::GameState::Playing; });
   }
 
-  inline bool CanStartGame() const {
-    return std::none_of(score_board_.begin(), score_board_.end(), [](const auto& p) { return p->state() == network::GameState::Waiting; });
-  }
-
   inline void NewGame() { multiplayer_controller_->NewGame(campaign_type_); }
 
   void DebugSend(int lines) {

@@ -29,6 +29,7 @@ class Player final {
     LinesSent,
     TimeCaption,
     Time,
+    CurrentCampaignType,
     LastEntry
   };
   using Ptr = std::shared_ptr<Player>;
@@ -71,7 +72,7 @@ class Player final {
 
   inline uint64_t time() const { return time_; }
 
-  inline void SetCampaignType(CampaignType type) { campaign_type_ = type; }
+  void SetCampaignType(CampaignType type);
 
   inline bool IsSameCampaignType(CampaignType type) const {
     return GameState::Idle == state_ || GameState::GameOver == state_ || campaign_type_ == type;

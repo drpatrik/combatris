@@ -72,6 +72,24 @@ enum class CampaignType { None, Combatris, Marathon, Sprint, Ultra, Battle };
 
 constexpr int ToInt(CampaignType type) { return static_cast<int>(type); }
 
+inline std::string ToString(CampaignType type) {
+  switch (type) {
+    case CampaignType::None:
+      return "-";
+    case CampaignType::Combatris:
+      return "Combatris";
+    case CampaignType::Marathon:
+      return "Marathon";
+    case CampaignType::Sprint:
+      return "Sprint";
+    case CampaignType::Ultra:
+      return "Ultra";
+    case CampaignType::Battle:
+      return "Battle";
+  }
+  return "Unknown";
+}
+
 enum Request : uint8_t { Empty, Join, Leave, NewGame, StartGame, NewState, SendLines, KnockedOutBy, Time, ProgressUpdate, HeartBeat };
 
 inline std::string ToString(Request request) {

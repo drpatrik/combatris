@@ -21,24 +21,6 @@ void RenderWindowBackground(SDL_Renderer* renderer, const SDL_Rect& rc) {
   SDL_RenderFillRect(renderer, &rc);
 }
 
-std::string ToString(CampaignType type) {
-  switch (type) {
-    case CampaignType::None:
-      return "ERROR NO CAMPAIGN SET";
-    case CampaignType::Combatris:
-      return "Combatris";
-    case CampaignType::Marathon:
-      return "Marathon";
-    case CampaignType::Sprint:
-      return "Sprint";
-    case CampaignType::Ultra:
-      return "Ultra";
-    case CampaignType::Battle:
-      return "Battle";
-  }
-  return "";
-}
-
 } // namespace
 
 Campaign::Campaign(SDL_Window* window, SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets,

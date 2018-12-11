@@ -178,6 +178,8 @@ void MultiPlayer::GotLeave(uint64_t host_id) {
   if (0 == players_.count(host_id)) {
     return;
   }
+  GotNewState(host_id, GameState::GameOver);
+
   auto it = std::find_if(score_board_.begin(), score_board_.end(), [host_id](const auto& e) { return host_id == e->host_id(); });
 
   score_board_.erase(it);
@@ -208,11 +210,7 @@ void MultiPlayer::GotStartGame() {
     }
   }
   SortScoreBoard();
-  if (1 == players_.size() || CanStartGame()) {
-    events_.Push(Event::Type::NextTetromino);
-  } else {
-    events_.Push(Event::Type::MultiplayerWaitForPlayers);
-  }
+  events_.Push(Event::Type::NextTetromino);
 }
 
 void MultiPlayer::GotNewState(uint64_t host_id, network::GameState state) {
@@ -222,11 +220,10 @@ void MultiPlayer::GotNewState(uint64_t host_id, network::GameState state) {
   auto& player = players_.at(host_id);
 
   player->SetState(state);
-  if (GameState::GameOver == state && CanStartGame()) {
+  if (GameState::GameOver == state && CanPressNewGame()) {
     auto it = std::find_if(score_board_.begin(), score_board_.end(), [this](const auto p) { return IsUs(p->host_id()); });
-    size_t index = std::distance(score_board_.begin(), it);
 
-    events_.Push(Event::Type::CampaignOver, index);
+    events_.Push(Event::Type::MultiplayerCampaignOver, static_cast<size_t>(std::distance(score_board_.begin(), it)));
   }
 }
 

@@ -299,8 +299,8 @@ private:
 // We make this class generic when we have more gifs
 class HourglassAnimation final : public Animation {
  public:
-  HourglassAnimation(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, const std::shared_ptr<MultiPlayer>& multi_player)
-      : Animation(renderer, assets), multi_player_(multi_player), textures_(GetAsset().GetHourGlassTextures()) {
+  HourglassAnimation(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets)
+      : Animation(renderer, assets), textures_(GetAsset().GetHourGlassTextures()) {
     text_ = Texture(*this, GetAsset().GetFont(Normal25), "Waiting for all players", Color::White);
     text_.SetXY(kMatrixStartX + utility::Center(kMatrixWidth, text_.width()), kMatrixStartY + 100);
   }
@@ -321,14 +321,11 @@ class HourglassAnimation final : public Animation {
     }
   }
 
-  virtual std::pair<bool, Event::Type> IsReady() const override {
-    return std::make_pair(multi_player_->CanStartGame(), Event::Type::NextTetromino);
-  }
+  virtual std::pair<bool, Event::Type> IsReady() const override { return std::make_pair(false, Event::Type::None); }
 
  private:
   size_t frame_ = 0;
   double ticks_ = 0.0;
   Texture text_;
-  std::shared_ptr<MultiPlayer> multi_player_;
   std::vector<std::shared_ptr<SDL_Texture>> textures_;
 };
