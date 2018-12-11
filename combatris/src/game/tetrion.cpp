@@ -228,7 +228,7 @@ void Tetrion::EventHandler(Events& events) {
         AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_, text);
       } else {
         if (Event::Type::MultiplayerRejected == event.type()) {
-          AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_, "You where rejected");
+          AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_, "Rejected");
         } else {
           AddAnimation<HourglassAnimation>(renderer_, assets_);
         }
@@ -256,7 +256,7 @@ void Tetrion::EventHandler(Events& events) {
       }
       tetromino_generator_->Put(tetromino_in_play_->tetromino());
       tetromino_in_play_.reset();
-      matrix_->InsertLines(event.value_);
+      matrix_->InsertSolidLines(event.value_);
       events_.Push(Event::Type::BattleNextTetrominoGotLines);
       break;
     default:

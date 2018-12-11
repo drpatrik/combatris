@@ -58,8 +58,8 @@ struct Event {
 
   inline explicit Event(Type type) : type_(type), lines_() {}
 
-  inline Event(Type type, const Lines& lines_cleared, const Position& pos, TSpinType tspin_type)
-    : type_(type), lines_(lines_cleared), pos_(pos), tspin_type_(tspin_type) {}
+  inline Event(Type type, const Lines& lines_cleared, const Position& pos, TSpinType tspin_type, size_t has_solid_lines)
+      : type_(type), lines_(lines_cleared), pos_(pos), tspin_type_(tspin_type), value_(has_solid_lines) {}
 
   inline Event(Type type, const Lines& lines, int lines_to_clear) : type_(type), lines_(lines), value_(lines_to_clear) {}
 

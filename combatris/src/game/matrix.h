@@ -51,7 +51,9 @@ class Matrix final : public PaneInterface {
 
   virtual void Reset() override { Initialize(); }
 
-  bool InsertLines(int lines);
+  bool HasSolidLines() const;
+
+  bool InsertSolidLines(int lines);
 
   void RemoveLines();
 

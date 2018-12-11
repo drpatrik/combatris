@@ -158,13 +158,24 @@ void Matrix::Render(double) {
   }
 }
 
-bool Matrix::InsertLines(int lines) {
+bool Matrix::HasSolidLines() const {
+  for (int row = kVisibleRowEnd - 1; row >= kVisibleRowStart; --row) {
+    const auto& line = master_matrix_[row];
+
+    if (kSolidID == line[kVisibleColStart] || kBombID == line[kVisibleColStart]) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool Matrix::InsertSolidLines(int lines) {
   lines = MoveLinesUp(lines, master_matrix_);
 
   if (lines <= 0) {
     return false;
   }
-  InsertSolidLines(lines, master_matrix_);
+  ::InsertSolidLines(lines, master_matrix_);
   matrix_ = master_matrix_;
 
   return true;
@@ -176,7 +187,7 @@ void Matrix::RemoveLines() {
   for (int row = 0; row < kVisibleRowEnd; ++row) {
     auto& line = master_matrix_[row];
 
-    if (std::count(line.begin() + 2, line.end() - 2, kSolidID) >= kVisibleCols - 1) {
+    if (kSolidID == line[kVisibleColStart] || kBombID == line[kVisibleColStart]) {
       lines.push_back(Line(row, line));
     }
   }

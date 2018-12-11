@@ -235,7 +235,7 @@ void MultiPlayer::GotNewState(uint64_t host_id, network::GameState state) {
   auto& player = players_.at(host_id);
 
   player->SetState(state);
-  if (!IsIdle(game_state_)) {
+  if (!IsIdle(game_state_) && !IsWaiting(game_state_)) {
     if (IsGameOver(state) && CanPressNewGame()) {
       auto it = std::find_if(score_board_.begin(), score_board_.end(), [this](const auto p) { return IsUs(p->host_id()); });
 

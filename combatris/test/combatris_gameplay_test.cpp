@@ -28,16 +28,20 @@ const std::vector<std::vector<int>> kSendLinesBefore {
 TEST_CASE("SendLines") {
   auto matrix = SetupTestHarnessMatrixOnly(kSendLinesBefore);
 
-  matrix->InsertLines(20);
+  REQUIRE(!matrix->HasSolidLines());
+
+  matrix->InsertSolidLines(20);
+  REQUIRE(matrix->HasSolidLines());
+  matrix->RemoveLines();
+  REQUIRE(!matrix->HasSolidLines());
+  REQUIRE(*matrix == kSendLinesBefore);
+  matrix->InsertSolidLines(3);
   matrix->RemoveLines();
   REQUIRE(*matrix == kSendLinesBefore);
-  matrix->InsertLines(3);
-  matrix->RemoveLines();
-  REQUIRE(*matrix == kSendLinesBefore);
-  matrix->InsertLines(1);
-  matrix->InsertLines(1);
-  matrix->InsertLines(18);
-  matrix->InsertLines(1);
+  matrix->InsertSolidLines(1);
+  matrix->InsertSolidLines(1);
+  matrix->InsertSolidLines(18);
+  matrix->InsertSolidLines(1);
   matrix->RemoveLines();
   REQUIRE(*matrix == kSendLinesBefore);
 }
