@@ -63,8 +63,7 @@ Tetrion::Tetrion() : events_() {
   multi_player_ = campaign_->GetMultiPlayerPane();
   tetromino_generator_ = campaign_->GetTetrominoGenerator();
   combatris_menu_ = std::make_shared<CombatrisMenu>(events_);
-  AddAnimation<SplashScreenAnimation>(renderer_, combatris_menu_, assets_);
-
+  events_.Push(Event::Type::ShowSplashScreen);
   events_.Push(Event::Type::MenuSetModeAndCampaign, ModeType::SinglePlayer, CampaignType::Combatris);
 }
 
@@ -165,6 +164,10 @@ void Tetrion::EventHandler(Events& events) {
   auto event = campaign_->PreprocessEvent(events.Pop());
 
   switch (event.type()) {
+    case Event::Type::ShowSplashScreen:
+      animations_.clear();
+      AddAnimation<SplashScreenAnimation>(renderer_, combatris_menu_, assets_);
+      break;
     case Event::Type::Pause:
       campaign_->Pause();
       AddAnimation<PauseAnimation>(renderer_, assets_, unpause_pressed_);

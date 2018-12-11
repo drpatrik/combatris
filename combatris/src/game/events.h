@@ -47,6 +47,7 @@ struct Event {
     MultiplayerRejected,
     MultiplayerStartGame,
     MultiplayerResetCountDown,
+    ShowSplashScreen,
     BattleSendLines,
     BattleGotLines,
     BattleKnockedOut,

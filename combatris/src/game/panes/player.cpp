@@ -25,11 +25,11 @@ const SDL_Rect kLinesCaptionFieldRc = { kX + 98, kY + 136, 122, 24 };
 const SDL_Rect kLinesFieldRc = { kX + 98, kY + 158, 122, 24 };
 const SDL_Rect kTimeCaptionFieldRc = { kX + 98, kY + 182, 122, 24 };
 const SDL_Rect kTimeFieldRc = { kX + 138, kY + 182, 82, 24 };
-const SDL_Rect kCampaignTypeFieldRc = { kX + 98, kY + 206, 122, 18 };
+const SDL_Rect kCampaignFieldRc = { kX + 98, kY + 206, 122, 18 };
 const SDL_Rect kMatrixFieldRc = { kX + kMatrixStartPosX, kY + kMatrixStartPosY, 84 + kPlayerMinoWidth, 166 + kPlayerMinoHeight };
 
 const Font kTextFont(Font::Typeface::Cabin, Font::Emphasis::Bold, 15);
-const Font kCampaignTypeFont(Font::Typeface::Cabin, Font::Emphasis::Bold, 10);
+const Font kCampaignFont(Font::Typeface::Cabin, Font::Emphasis::Bold, 10);
 
 const Player::MatrixType kEmptyMatrix {
   {
@@ -112,7 +112,7 @@ Player::Player(SDL_Renderer* renderer, const std::string& name, uint64_t host_id
   }
   fields_[ID::Name].texture_ = std::make_unique<Texture>(renderer_, assets_->GetFont(kTextFont), name_, Color::Yellow);
   fields_[ID::Name].rc_ = kNameFieldRc;
-  fields_[ID::CurrentCampaignType].rc_ = kCampaignTypeFieldRc;
+  fields_[ID::Campaign].rc_ = kCampaignFieldRc;
   SetCampaignType(campaign_type_);
   matrix_ = kEmptyMatrix;
 }
@@ -171,8 +171,8 @@ void Player::SetTime(uint64_t time) {
 
 void Player::SetCampaignType(CampaignType type) {
   campaign_type_ = type;
-  fields_[ID::CurrentCampaignType].texture_ =
-      std::make_unique<Texture>(renderer_, assets_->GetFont(kCampaignTypeFont), ToString(campaign_type_), Color::Yellow);
+  fields_[ID::Campaign].texture_ =
+      std::make_unique<Texture>(renderer_, assets_->GetFont(kCampaignFont), ToString(campaign_type_), Color::Yellow);
 }
 
 void Player::Reset() {
@@ -211,7 +211,7 @@ void Player::Render(int x_offset, int y_offset, CampaignType type) const {
   SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kLinesCaptionFieldRc)));
   SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kLinesFieldRc)));
   SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kTimeCaptionFieldRc)));
-  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kCampaignTypeFieldRc)));
+  SDL_RenderFillRect(renderer_, AddBorder(tmp, AddOffset(tmp, x_offset, y_offset, kCampaignFieldRc)));
 
   for (const auto& field : fields_) {
     SDL_RenderCopy(renderer_, *field.texture_, nullptr,

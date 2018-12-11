@@ -29,7 +29,7 @@ class Player final {
     LinesSent,
     TimeCaption,
     Time,
-    CurrentCampaignType,
+    Campaign,
     LastEntry
   };
   using Ptr = std::shared_ptr<Player>;

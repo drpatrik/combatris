@@ -71,6 +71,8 @@ class MultiPlayerController {
 
   inline const std::string& our_host_name() const { return our_host_name_; }
 
+  inline uint64_t our_host_id() const { return our_host_id_; }
+
  protected:
   void Run();
 

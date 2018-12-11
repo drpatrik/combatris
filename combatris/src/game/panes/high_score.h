@@ -44,6 +44,7 @@ class HighScore final : public TextPane, public EventListener {
 
  protected:
   void Read();
+
   void Save() const;
 
  private:

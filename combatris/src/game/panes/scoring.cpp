@@ -15,9 +15,6 @@ const std::vector<int> kLinesToClearTSpin = { 4, 8, 12, 16 };
 } // namespace
 
 void Scoring::Update(const Event& event) {
-  if (!IsIn(event, { Event::Type::ClearedLinesScoreData, Event::Type::DropScoreData, Event::Type::PerfectClear, Event::Type::SetCampaign, Event::Type::SetStartLevel, Event::Type::LevelUp })) {
-    return;
-  }
   switch (event) {
     case Event::Type::SetCampaign:
       campaign_type_ = event.campaign_type();
