@@ -16,7 +16,7 @@ class LinesSent final : public TextPane, public EventListener {
     if (!event.Is(Event::Type::BattleSendLines)) {
       return;
     }
-    lines_sent_ += event.value_;
+    lines_sent_ += event.value1_;
     SetCenteredText(lines_sent_);
   }
 

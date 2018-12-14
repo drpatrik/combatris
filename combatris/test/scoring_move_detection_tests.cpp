@@ -3,6 +3,7 @@
 #include "catch.hpp"
 
 const std::vector<std::vector<int>> kPerfectClear {
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 01
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 02
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 03
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 04
@@ -21,8 +22,7 @@ const std::vector<std::vector<int>> kPerfectClear {
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 17
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 18
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 19
-  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 20
-  {1, 1, 1, 0, 0, 0, 0, 1, 1, 1}  // 21
+  {1, 1, 1, 0, 0, 0, 0, 1, 1, 1}  // 20
 };
 
 TEST_CASE("DetectPerfectClear") {
@@ -30,7 +30,7 @@ TEST_CASE("DetectPerfectClear") {
 
   auto tetrominos = assets->GetTetrominos();
 
-  Position insert_pos(20, kVisibleColStart + 3);
+  Position insert_pos((kMatrixFirstRow - 2) + 20, kMatrixFirstCol + 3);
 
   auto[lines_cleared, tspin_type, perfect_clear] =
       matrix->Commit(Tetromino::Type::I, Tetromino::Angle::A0, Tetromino::Move::Down, insert_pos);
@@ -68,7 +68,7 @@ TEST_CASE("DetectTSpin1") {
 
   auto tetrominos = assets->GetTetrominos();
 
-  Position insert_pos(18, kVisibleColStart + 6);
+  Position insert_pos((kMatrixFirstRow - 2) + 18, kMatrixFirstCol + 6);
 
   auto [lines_cleared, tspin_type, perfect_clear] = matrix->Commit(Tetromino::Type::T, Tetromino::Angle::A90, Tetromino::Move::Rotation, insert_pos);
 
@@ -105,7 +105,7 @@ TEST_CASE("DetectTSpin2") {
 
   auto tetrominos = assets->GetTetrominos();
 
-  Position insert_pos(18, kVisibleColStart + 4);
+  Position insert_pos((kMatrixFirstRow - 2) + 18, kMatrixFirstCol + 4);
 
   auto [lines_cleared, tspin_type, perfect_clear] = matrix->Commit(Tetromino::Type::T, Tetromino::Angle::A270, Tetromino::Move::Rotation, insert_pos);
 
@@ -142,7 +142,7 @@ TEST_CASE("DetectTSpin3") {
 
   auto tetrominos = assets->GetTetrominos();
 
-  Position insert_pos(19, kVisibleColStart + 6);
+  Position insert_pos((kMatrixFirstRow - 2) + 19, kMatrixFirstCol + 6);
 
   auto [lines_cleared, tspin_type, perfect_clear] = matrix->Commit(Tetromino::Type::T, Tetromino::Angle::A180, Tetromino::Move::Rotation, insert_pos);
 
@@ -179,7 +179,7 @@ TEST_CASE("DetectTSpinMini") {
 
   auto tetrominos = assets->GetTetrominos();
 
-  Position insert_pos(18, kVisibleColStart + 4);
+  Position insert_pos((kMatrixFirstRow - 2) + 18, kMatrixFirstCol + 4);
 
   auto [lines_cleared, tspin_type, perfect_clear] = matrix->Commit(Tetromino::Type::T, Tetromino::Angle::A270, Tetromino::Move::Rotation, insert_pos);
 

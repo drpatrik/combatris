@@ -47,6 +47,7 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
       return;
     }
     multiplayer_controller_->SendLines(lines);
+    events_.Push(Event::Type::BattleSendLines, lines);
   }
 
   inline const std::string& our_host_name() const {

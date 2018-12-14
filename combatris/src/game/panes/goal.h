@@ -24,17 +24,17 @@ class Goal final : public TextPane, public EventListener {
         goal_ = IsSprintCampaign(campaign_type_) ? kSprintGoal : level_ * 5;
         break;
       case Event::Type::SetStartLevel:
-        level_ = start_level_ = event.value_;
+        level_ = start_level_ = event.value1_;
         goal_ = IsSprintCampaign(campaign_type_) ? kSprintGoal : level_ * 5;
         break;
       case Event::Type::LinesCleared:
-        goal_ = std::max(goal_ - static_cast<int>(event.value_), 0);
+        goal_ = std::max(goal_ - event.value1_, 0);
         if (IsSprintCampaign(campaign_type_) && goal_ == 0) {
           events_.Push(Event::Type::SprintClearedAll);
         }
         break;
       case Event::Type::LevelUp:
-        level_ = event.value_;
+        level_ = event.value1_;
         goal_ = IsSprintCampaign(campaign_type_) ? goal_ : level_ * 5;
         break;
       default:

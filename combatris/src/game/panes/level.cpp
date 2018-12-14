@@ -69,13 +69,13 @@ void Level::Update(const Event& event) {
       campaign_type_ = event.campaign_type();
       break;
     case Event::Type::SetStartLevel:
-      SetLevel(event.value_);
+      SetLevel(event.value1_);
       break;
     case Event::Type::LinesCleared:
       if (IsSprintCampaign(campaign_type_) || IsUltraCampaign(campaign_type_) || IsBattleCampaign(campaign_type_)) {
         return;
       }
-      lines_this_level_ += event.value_;
+      lines_this_level_ += event.value1_;
 
       if (lines_this_level_ >= lines_for_next_level_) {
         lines_this_level_ = 0;

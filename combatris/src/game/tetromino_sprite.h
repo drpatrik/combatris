@@ -13,7 +13,7 @@ namespace opt = std::experimental;
 
 namespace {
 
-const Position kSpawnPosition = Position(0, 5);
+const Position kSpawnPosition = Position(kSkylineStartRow, 5);
 const Tetromino::Angle kSpawnAngle = Tetromino::Angle::A0;
 
 } // namespace
@@ -25,11 +25,10 @@ class TetrominoSprite {
 
   TetrominoSprite(const Tetromino& tetromino, const std::shared_ptr<Level>& level, Events& events,
                   const std::shared_ptr<Matrix>& matrix, bool got_lines = false)
-      : tetromino_(tetromino), level_(level), events_(events), matrix_(matrix) {
-    pos_ = kSpawnPosition;
+      : tetromino_(tetromino), level_(level), events_(events), matrix_(matrix), got_lines_(got_lines) {
     rotation_data_ = tetromino_.GetRotationData(kSpawnAngle);
     if (!matrix_->IsValid(pos_, rotation_data_)) {
-      state_ = (got_lines) ? State::KO : State::GameOver;
+      state_ = (got_lines_) ? State::KO : State::GameOver;
       return;
     }
     matrix_->Insert(pos_, rotation_data_);
@@ -38,7 +37,7 @@ class TetrominoSprite {
   }
 
   void Render(const std::shared_ptr<SDL_Texture>& texture) const {
-    const Position adjusted_pos(pos_.row() - kVisibleRowStart, pos_.col() - kVisibleColStart);
+    const Position adjusted_pos(pos_.row() - kMatrixFirstRow, pos_.col() - kMatrixLastCol);
 
     tetromino_.Render(adjusted_pos.x(), adjusted_pos.y(), texture.get(), angle_);
   }
@@ -79,4 +78,5 @@ class TetrominoSprite {
   Tetromino::Move last_move_ = Tetromino::Move::None;
   int reset_delay_counter_ = 0;
   State state_ = State::GameOver;
+  bool got_lines_ = false;
 };

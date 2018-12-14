@@ -10,7 +10,7 @@ namespace {
 const int kX = kMatrixEndX + kMinoWidth + (kSpace * 4) + TextPane::kBoxWidth;
 const int kY = kMatrixStartY - kMinoHeight;
 
-} // namesapce
+} // namespace
 
 class Player final {
  public:

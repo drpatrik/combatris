@@ -21,12 +21,12 @@ class HighScore final : public TextPane, public EventListener {
       return;
     }
     if (event.Is(Event::Type::NewTime)) {
-      best_time_ = std::min(event.value_, best_time_);
+      best_time_ = std::min(event.value2_, best_time_);
     } else if (event.Is(Event::Type::SetCampaign)) {
       campaign_type_ = event.campaign_type();
     } else {
-      score_ += event.score_;
-      score_ += event.value_; // Lines dropped
+      score_ += event.value1_; // calculated score or lines dropped
+      //score_ += event.value2_as_int(); // Lines dropped
       if (score_ > highscore_) {
         highscore_ = score_;
       }

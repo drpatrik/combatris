@@ -90,6 +90,8 @@ class ScoreAnimation final : public Animation {
 
 class LinesClearedAnimation final : public Animation {
  public:
+  const int kRows = kMatrixLastRow + 3;
+
   LinesClearedAnimation(SDL_Renderer *renderer, const std::shared_ptr<Assets>& assets, const Lines& lines)
       : Animation(renderer, assets), lines_(lines) {
     end_pos_ = ((kRows - lines.at(0).row_) + lines.size() + 1.5) * kMinoHeight;
@@ -104,7 +106,7 @@ class LinesClearedAnimation final : public Animation {
 
       const auto& minos = line.minos_;
 
-      for (int l = kVisibleColStart; l < kVisibleColEnd; ++l) {
+      for (int l = kMatrixFirstCol; l < kMatrixLastCol; ++l) {
         auto x = col_to_pixel_adjusted(l);
 
         const auto& tetromino = GetAsset().GetTetromino(static_cast<Tetromino::Type>(minos[l]));

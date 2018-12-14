@@ -27,8 +27,8 @@ class Matrix final : public PaneInterface {
   void SetTestData(const std::vector<std::vector<int>> &matrix) {
     Initialize();
 
-    for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
-      for (int col = kVisibleColStart; col < kVisibleColEnd; ++col) {
+    for (int row = kMatrixFirstRow; row < kMatrixLastRow; ++row) {
+      for (int col = kMatrixFirstCol; col < kMatrixLastCol; ++col) {
         master_matrix_.at(row).at(col) = matrix.at(row_to_visible(row)).at(col_to_visible(col));
       }
     }
@@ -55,7 +55,9 @@ class Matrix final : public PaneInterface {
 
   bool InsertSolidLines(int lines);
 
-  void RemoveLines();
+  void RemoveSolidLines();
+
+  bool IsAboveSkyline(const Position& pos, const TetrominoRotationData& rotation_data) const;
 
   bool IsValid(const Position& pos, const TetrominoRotationData& rotation_data) const;
 
@@ -92,9 +94,9 @@ class Matrix final : public PaneInterface {
 };
 
 inline bool operator==(const Matrix& rhs, const Matrix::Type& lhs) {
-  for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
+  for (int row = kMatrixFirstRow; row < kMatrixLastRow; ++row) {
     const auto& line = rhs.master_matrix_.at(row);
-    if (!std::equal(line.begin() + kVisibleColStart, line.end() - kVisibleColStart, lhs.at(row - kVisibleRowStart).begin())) {
+    if (!std::equal(line.begin() + kMatrixFirstCol, line.end() - kMatrixFirstCol, lhs.at(row - kMatrixFirstRow).begin())) {
       return false;
     }
   }

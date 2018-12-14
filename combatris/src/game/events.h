@@ -58,20 +58,20 @@ struct Event {
 
   inline explicit Event(Type type) : type_(type), lines_() {}
 
-  inline Event(Type type, const Lines& lines_cleared, const Position& pos, TSpinType tspin_type, size_t has_solid_lines)
-      : type_(type), lines_(lines_cleared), pos_(pos), tspin_type_(tspin_type), value_(has_solid_lines) {}
+  inline Event(Type type, const Lines& lines_cleared, const Position& pos, TSpinType tspin_type, int has_solid_lines)
+      : type_(type), lines_(lines_cleared), pos_(pos), tspin_type_(tspin_type), value1_(has_solid_lines) {}
 
-  inline Event(Type type, const Lines& lines, int lines_to_clear) : type_(type), lines_(lines), value_(lines_to_clear) {}
+  inline Event(Type type, const Lines& lines, int lines_to_clear) : type_(type), lines_(lines), value1_(lines_to_clear) {}
 
-  inline Event(Type type, const Position& pos, int score, int lines_sent) : type_(type), pos_(pos), score_(score), value_(lines_sent) {}
+  inline Event(Type type, const Position& pos, int score, int lines_sent) : type_(type), pos_(pos), value1_(score), value2_(lines_sent) {}
 
-  inline Event(Type type, int value) : type_(type), value_(value) {}
+  inline Event(Type type, int value) : type_(type), value1_(value) {}
 
-  inline Event(Type type, size_t value) : type_(type), value_(value) {}
+  inline Event(Type type, size_t value) : type_(type), value2_(value) {}
 
-  inline Event(Type type, ModeType mode, CampaignType campaign) : type_(type), score_(ToInt(mode)), value_(ToInt(campaign)) {}
+  inline Event(Type type, ModeType mode, CampaignType campaign) : type_(type), value1_(ToInt(mode)), value2_(ToInt(campaign)) {}
 
-  inline Event(Type type, CampaignType campaign_type) : type_(type), value_(ToInt(campaign_type)) {}
+  inline Event(Type type, CampaignType campaign_type) : type_(type), value2_(ToInt(campaign_type)) {}
 
   inline Event(Type type, const Lines& lines_cleared, TSpinType tspin_type, ComboType combo_type, int combo_counter) :
       type_(type), lines_(lines_cleared), tspin_type_(tspin_type), combo_type_(combo_type), combo_counter_(combo_counter) {}
@@ -88,17 +88,23 @@ struct Event {
 
   inline int lines() const { return static_cast<int>(lines_.size()); }
 
-  ModeType mode_type() const { return static_cast<ModeType>(score_); }
+  inline ModeType mode_type() const { return static_cast<ModeType>(value1_); }
 
-  CampaignType campaign_type() const { return static_cast<CampaignType>(value_); }
+  inline CampaignType campaign_type() const { return static_cast<CampaignType>(value2_); }
+
+  inline bool has_solid_lines() const { return value1_ == 1; }
+
+  inline int score() const { return value1_; }
+
+  inline int value2_as_int() const { return static_cast<int>(value2_); }
 
   Type type_;
   Lines lines_;
   Position pos_ = Position(-1, -1);
   TSpinType tspin_type_ = TSpinType::None;
   ComboType combo_type_ = ComboType::None;
-  int score_ = 0;
-  size_t value_ = 0;
+  int value1_ = 0;
+  size_t value2_ = 0;
   int combo_counter_ = 0;
 };
 

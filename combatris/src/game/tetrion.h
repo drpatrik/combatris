@@ -57,7 +57,7 @@ class Tetrion final {
 
   void HandleMenu(Controls control_pressed);
 
-  void HandleNextTetromino(TetrominoSprite::State state, Events& events);
+  void HandleTetrominoStates(TetrominoSprite::State state, Events& events);
 
   void EventHandler(Events& events);
 

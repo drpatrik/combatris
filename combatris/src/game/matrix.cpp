@@ -6,6 +6,9 @@
 
 namespace {
 
+const int kRows = kMatrixLastRow + 1;
+const int kCols = kVisibleCols + 4;
+
 const SDL_Rect kMatrixRc { kMatrixStartX, kMatrixStartY, kMatrixWidth, kMatrixHeight };
 const SDL_Color kGray { 51, 55, 66, 255 };
 
@@ -46,7 +49,7 @@ void RenderGrid(SDL_Renderer* renderer) {
 }
 
 void SetupPlayableArea(Matrix::Type& matrix) {
-  for (int row = 0; row < kVisibleRowEnd; ++row) {
+  for (int row = 0; row < kMatrixLastRow; ++row) {
     matrix[row] = kEmptyRow;
   }
 }
@@ -54,10 +57,10 @@ void SetupPlayableArea(Matrix::Type& matrix) {
 Lines RemoveLinesCleared(Matrix::Type& matrix) {
   Lines lines;
 
-  for (int row = kVisibleRowStart; row < kVisibleRowEnd; ++row) {
+  for (int row = kMatrixFirstRow; row < kMatrixLastRow; ++row) {
     const auto& line = matrix[row];
 
-    if (kEmptyID == line[kVisibleColStart]) {
+    if (kEmptyID == line[kMatrixFirstCol]) {
       continue;
     }
     if (std::find_if(line.begin(), line.end(), [](auto elem) { return kEmptyID == elem || kBombID == elem; }) == line.end()) {
@@ -88,13 +91,13 @@ bool DetectPerfectClear(const Matrix::Type& matrix) { return kEmptyRow == matrix
 int MoveLinesUp(int lines, Matrix::Type& matrix) {
   int first_non_empty_row = 0;
 
-  for (int row = 0; row < kVisibleRowEnd; ++row) {
+  for (int row = 0; row < kMatrixLastRow; ++row) {
     first_non_empty_row = row;
     if (matrix[row] != kEmptyRow) {
       break;
     }
   }
-  if (first_non_empty_row <= 0) {
+  if (first_non_empty_row - lines <= 0)  {
     return 0;
   }
   Matrix::Type tmp;
@@ -103,9 +106,8 @@ int MoveLinesUp(int lines, Matrix::Type& matrix) {
 
   lines = std::min(lines, first_non_empty_row);
 
-  if (lines > 0) {
-    std::copy(tmp.begin(), tmp.end(), matrix.end() - 2 - lines - tmp.size());
-  }
+  std::copy(tmp.begin(), tmp.end(), matrix.end() - 2 - lines - tmp.size());
+
   return lines;
 }
 
@@ -114,12 +116,12 @@ void InsertSolidLines(int lines, Matrix::Type& matrix) {
   int n = 0;
 
   for (int l = lines - 1; l >= 0; --l) {
-    matrix[kVisibleRowEnd - l - 1] = kSolidRow;
+    matrix[kMatrixLastRow - l - 1] = kSolidRow;
     if (i % 2 == 0) {
       n = static_cast<int>(kDistribution(kGenerator));
     }
     i++;
-    matrix[kVisibleRowEnd - l - 1][kVisibleRowStart + n] = kBombID;
+    matrix[kMatrixLastRow - l - 1][kMatrixFirstRow + n] = kBombID;
   }
 }
 
@@ -136,11 +138,11 @@ void Matrix::Initialize() {
 
 void Matrix::Render(double) {
   RenderGrid(renderer_);
-  for (int col = kVisibleColStart - 1; col < kVisibleColEnd + 1; ++col) {
-    tetrominos_[kBorderID - 1]->Render(Position(row_to_visible(kVisibleRowStart - 1), col_to_visible(col)));
+  for (int col = kMatrixFirstCol - 1; col <= kMatrixLastCol; ++col) {
+    tetrominos_[kBorderID - 1]->Render(Position(row_to_visible(kMatrixFirstRow - 1), col_to_visible(col)));
   }
-  for (int row = kVisibleRowStart; row < kVisibleRowEnd + 1; ++row) {
-    for (int col = kVisibleColStart - 1; col < kVisibleColEnd + 1; ++col) {
+  for (int row = kMatrixFirstRow; row <= kMatrixLastRow; ++row) {
+    for (int col = kMatrixFirstCol - 1; col <= kMatrixLastCol; ++col) {
       const int id = matrix_[row][col];
 
       if (kEmptyID == id) {
@@ -159,10 +161,10 @@ void Matrix::Render(double) {
 }
 
 bool Matrix::HasSolidLines() const {
-  for (int row = kVisibleRowEnd - 1; row >= kVisibleRowStart; --row) {
+  for (int row = kMatrixLastRow - 1; row >= kMatrixFirstRow; --row) {
     const auto& line = master_matrix_[row];
 
-    if (kSolidID == line[kVisibleColStart] || kBombID == line[kVisibleColStart]) {
+    if (kSolidID == line[kMatrixFirstCol] || kBombID == line[kMatrixFirstCol]) {
       return true;
     }
   }
@@ -181,18 +183,36 @@ bool Matrix::InsertSolidLines(int lines) {
   return true;
 }
 
-void Matrix::RemoveLines() {
+void Matrix::RemoveSolidLines() {
   Lines lines;
 
-  for (int row = 0; row < kVisibleRowEnd; ++row) {
+  for (int row = 0; row < kMatrixLastRow; ++row) {
     auto& line = master_matrix_[row];
 
-    if (kSolidID == line[kVisibleColStart] || kBombID == line[kVisibleColStart]) {
+    if (kSolidID == line[kMatrixFirstCol] || kBombID == line[kMatrixFirstCol]) {
       lines.push_back(Line(row, line));
     }
   }
   CollapseMatrix(lines, master_matrix_);
   matrix_ = master_matrix_;
+}
+
+bool Matrix::IsAboveSkyline(const Position& pos, const TetrominoRotationData& rotation_data) const {
+  const auto& shape = rotation_data.shape_;
+
+  int last_row = -1;
+
+  for (int row = 0; row < static_cast<int>(shape.size()); ++row) {
+    for (int col  = 0; col < static_cast<int>(shape[row].size()); ++col) {
+
+      if (shape[row][col] == kEmptyID) {
+        continue;
+      }
+      last_row = pos.row() + row;
+    }
+  }
+  assert(last_row != -1);
+  return last_row < kMatrixFirstRow;
 }
 
 bool Matrix::IsValid(const Position& pos, const TetrominoRotationData& rotation_data) const {
@@ -210,6 +230,7 @@ bool Matrix::IsValid(const Position& pos, const TetrominoRotationData& rotation_
       }
     }
   }
+
   return true;
 }
 

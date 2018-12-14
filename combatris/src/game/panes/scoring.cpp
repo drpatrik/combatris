@@ -20,10 +20,10 @@ void Scoring::Update(const Event& event) {
       campaign_type_ = event.campaign_type();
       break;
     case Event::Type::SetStartLevel:
-      start_level_ = event.value_;
+      start_level_ = event.value1_;
       break;
     case Event::Type::LevelUp:
-      level_ = event.value_;
+      level_ = event.value1_;
       break;
     case Event::Type::ClearedLinesScoreData: {
       auto [base_score, combo_score, combo_type, lines_to_send, lines_to_clear] = Calculate(event);
@@ -34,13 +34,16 @@ void Scoring::Update(const Event& event) {
         lines_to_send += 10;
         score += 100000;
       }
+      if (event.has_solid_lines()) {
+        lines_to_send = 0;
+      }
       UpdateEvents(score, combo_type, lines_to_send, lines_to_clear, event);
       score_ += score;
       DisplayScore(score_);
       break;
     }
     case Event::Type::DropScoreData:
-      score_ += event.value_;
+      score_ += event.value1_;
       DisplayScore(score_);
       break;
     default:
@@ -118,7 +121,6 @@ std::tuple<int, int, ComboType, int, int> Scoring::Calculate(const Event& event)
           lines_to_clear += 2;
           base_score = 200;
         } else {
-          b2b_counter_ = 0;
           lines_to_clear += 1;
           base_score =  100;
         }
@@ -137,8 +139,6 @@ std::tuple<int, int, ComboType, int, int> Scoring::Calculate(const Event& event)
   if (combo_counter_ > 1 || b2b_counter_ > 1) {
     lines_to_clear += static_cast<int>(0.5 * lines_to_clear);
   }
-  if (event.value_ == 1) {
-    lines_to_send = 0;
-  }
+
   return std::make_tuple(base_score, combo_score, combo_type, lines_to_send, lines_to_clear);
 }

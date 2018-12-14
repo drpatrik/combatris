@@ -8,13 +8,13 @@ inline int row_to_pixel(int row) { return static_cast<int>((row * kMinoHeight) +
 
 inline int col_to_pixel(int col) { return static_cast<int>((col * kMinoWidth) + kMatrixStartX); }
 
-inline int row_to_pixel_adjusted(int row) { return static_cast<int>((row * kMinoHeight) + (kMatrixStartY - (kVisibleRowStart * kMinoHeight))); }
+inline int row_to_pixel_adjusted(int row) { return static_cast<int>((row * kMinoHeight) + (kMatrixStartY - (kMatrixFirstRow * kMinoHeight))); }
 
-inline int col_to_pixel_adjusted(int col) { return static_cast<int>((col * kMinoWidth) + (kMatrixStartX - (kVisibleColStart  * kMinoWidth))); }
+inline int col_to_pixel_adjusted(int col) { return static_cast<int>((col * kMinoWidth) + (kMatrixStartX - (kMatrixFirstCol * kMinoWidth))); }
 
-inline int row_to_visible(int row) { return row - kVisibleRowStart; }
+inline int row_to_visible(int row) { return row - kMatrixFirstRow; }
 
-inline int col_to_visible(int col) { return col - kVisibleColStart; }
+inline int col_to_visible(int col) { return col - kMatrixFirstCol; }
 
 class Position final {
  public:

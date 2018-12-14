@@ -16,7 +16,7 @@ class TotalLines final : public TextPane, public EventListener {
     if (!event.Is(Event::Type::LinesCleared)) {
       return;
     }
-    total_lines_ += event.value_;
+    total_lines_ += event.value1_;
     SetCenteredText(total_lines_);
   }
 

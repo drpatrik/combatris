@@ -271,7 +271,10 @@ or
 ```bash
 export PATH=/usr/local/clang_6.0.0/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/clang_6.0.0/lib:$LD_LIBRARY_PATH
+export CXX=clang
 ```
+
+If you install a newer version of gcc or clang ensure that you update PATH/LD_LIBRARY/CXX settings accordingly.
 
 **Ubuntu**
 

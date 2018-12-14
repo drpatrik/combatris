@@ -13,6 +13,10 @@ class Knockout final : public Pane, public EventListener {
   Knockout(SDL_Renderer *renderer, const std::shared_ptr<Assets> &assets)
       : Pane(renderer, kX, kY, assets) {
     caption_texture_.SetXY(kX + 15, kY - 20);
+    circle_texture_.SetX(kX);
+    circle_texture_.SetY(kY);
+    caption_texture_.SetX(kX + 15);
+    caption_texture_.SetY(kY - 20);
     plus_one_texture_.SetX(circle_texture_.x() + utility::Center(kCircleDim, plus_one_texture_.width()));
     plus_one_texture_.SetY(circle_texture_.y() + utility::Center(kCircleDim, plus_one_texture_.height()));
   }
@@ -47,10 +51,8 @@ class Knockout final : public Pane, public EventListener {
  protected:
   void Display(int ko) {
     n_ko_texture_ = utility::Texture(renderer_, assets_->GetFont(ObelixPro40), std::to_string(ko), Color::Yellow);
-    n_ko_texture_.SetX(kX + utility::Center(kCircleDim, n_ko_texture_.width()));
-    n_ko_texture_.SetY(kY + utility::Center(kCircleDim, n_ko_texture_.height()));
-    n_ko_texture_.SetWidth(kCircleDim);
-    n_ko_texture_.SetHeight(kCircleDim);
+    n_ko_texture_.SetX(circle_texture_.x() + utility::Center(kCircleDim, n_ko_texture_.width()));
+    n_ko_texture_.SetY(circle_texture_.y() + utility::Center(kCircleDim, n_ko_texture_.height()));
   }
 
  private:

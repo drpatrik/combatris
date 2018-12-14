@@ -89,7 +89,7 @@ void TetrominoSprite::SoftDrop() {
   if (State::OnFloor == state_) {
     return;
   }
-  if (pos_.row() >= kVisibleRowStart - 1) {
+  if (pos_.row() >= kMatrixFirstRow - kSkylineOffset) {
     events_.Push(Event::Type::DropScoreData, 1);
   }
   level_->Release();
@@ -105,8 +105,9 @@ void TetrominoSprite::HardDrop() {
   state_ = State::Commit;
   pos_ = matrix_->GetDropPosition(pos_, rotation_data_);
   level_->Release();
+
   last_move_ = Tetromino::Move::Down;
-  events_.Push(Event::Type::DropScoreData, (kVisibleRows - drop_row) * 2);
+  events_.Push(Event::Type::DropScoreData, (pos_.row() - drop_row) * 2);
 }
 
 void TetrominoSprite::Left() {
@@ -150,6 +151,9 @@ TetrominoSprite::State TetrominoSprite::Down(double delta_time) {
     case State::OnFloor:
       if (level_->WaitForLockDelay(delta_time)) {
         state_ = State::Commit;
+        if (matrix_->IsAboveSkyline(pos_, rotation_data_)) {
+          state_ = (got_lines_) ? State::KO : State::GameOver;
+        }
       } else if (matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
         events_.Push(Event::Type::ClearOnFloor, Events::QueueRule::NoDuplicates);
         state_ = State::Falling;
