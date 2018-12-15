@@ -32,12 +32,12 @@ class TetrominoSprite {
       return;
     }
     matrix_->Insert(pos_, rotation_data_);
-    level_->ResetTime();
+    level_->Release();
     state_ = State::Falling;
   }
 
   void Render(const std::shared_ptr<SDL_Texture>& texture) const {
-    const Position adjusted_pos(pos_.row() - kMatrixFirstRow, pos_.col() - kMatrixLastCol);
+    const Position adjusted_pos(pos_.row() - kMatrixFirstRow, pos_.col() - kMatrixFirstCol);
 
     tetromino_.Render(adjusted_pos.x(), adjusted_pos.y(), texture.get(), angle_);
   }
