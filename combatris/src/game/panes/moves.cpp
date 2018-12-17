@@ -48,7 +48,7 @@ void Moves::Render(double delta_time) {
 
   ticks_ += delta_time;
   if (!box_cleared_ && ticks_ >= kDisplayTime) {
-    ClearBox();
+    ClearLines();
     box_cleared_ = true;
   }
 }

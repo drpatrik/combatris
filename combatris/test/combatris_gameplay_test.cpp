@@ -29,12 +29,8 @@ const std::vector<std::vector<int>> kSendLinesBefore {
 TEST_CASE("SendLines") {
   auto matrix = SetupTestHarnessMatrixOnly(kSendLinesBefore);
 
-  REQUIRE(!matrix->HasSolidLines());
-
   matrix->InsertSolidLines(20);
-  REQUIRE(matrix->HasSolidLines());
   matrix->RemoveSolidLines();
-  REQUIRE(!matrix->HasSolidLines());
   REQUIRE(*matrix == kSendLinesBefore);
   matrix->InsertSolidLines(3);
   matrix->RemoveSolidLines();
@@ -73,11 +69,9 @@ const std::vector<std::vector<int>> kTopOutGameover {
 TEST_CASE("SendLinesTopOutGameover") {
   auto matrix = SetupTestHarnessMatrixOnly(kTopOutGameover);
 
-  REQUIRE(!matrix->HasSolidLines());
   REQUIRE(matrix->InsertSolidLines(20));
   REQUIRE(!matrix->InsertSolidLines(2));
   matrix->RemoveSolidLines();
-  REQUIRE(!matrix->HasSolidLines());
   REQUIRE(*matrix == kTopOutGameover);
 }
 

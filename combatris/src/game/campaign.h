@@ -11,6 +11,7 @@
 #include "game/panes/next_queue.h"
 #include "game/panes/hold_queue.h"
 #include "game/panes/moves.h"
+#include "game/panes/receiving_queue.h"
 
 class Campaign : public EventListener {
  public:
@@ -42,13 +43,15 @@ class Campaign : public EventListener {
 
   inline bool IsSinglePlayer() { return ModeType::SinglePlayer == mode_type_; }
 
-  inline std::shared_ptr<MultiPlayer> GetMultiPlayerPane() { return multi_player_; }
+  inline std::shared_ptr<TetrominoGenerator> GetTetrominoGenerator() { return tetromino_generator_; }
 
   inline std::shared_ptr<Level> GetLevel() { return level_; }
 
   inline std::shared_ptr<HoldQueue> GetHoldQueuePane() { return hold_queue_; }
 
-  inline std::shared_ptr<TetrominoGenerator> GetTetrominoGenerator() { return tetromino_generator_; }
+  inline std::shared_ptr<MultiPlayer> GetMultiPlayerPane() { return multi_player_; }
+
+  inline std::shared_ptr<ReceivingQueue> GetReceivingQueue() { return receiving_queue_; }
 
  protected:
   void AddListener(EventListener* listener) { event_listeners_.push_back(listener); }
@@ -73,6 +76,7 @@ class Campaign : public EventListener {
   std::unique_ptr<TotalLines> total_lines_;
   std::unique_ptr<Moves> moves_;
   std::unique_ptr<Knockout> knockout_;
+  std::shared_ptr<ReceivingQueue> receiving_queue_;
   std::shared_ptr<MultiPlayer> multi_player_;
   std::vector<PaneInterface*> panes_;
   std::vector<EventListener*> event_listeners_;

@@ -131,6 +131,7 @@ void TetrominoSprite::Right() {
 TetrominoSprite::State TetrominoSprite::Down(double delta_time) {
   switch (state_) {
     case State::Falling:
+    case State::Generated:
       last_move_ = Tetromino::Move::Down;
       if (level_->WaitForMoveDown(delta_time)) {
         if (reset_delay_counter_ >= kResetsAllowed) {
@@ -138,6 +139,10 @@ TetrominoSprite::State TetrominoSprite::Down(double delta_time) {
         } else if (matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
           pos_.inc_row();
           matrix_->Insert(pos_, rotation_data_);
+          if (State::Generated == state_) {
+            state_ = State::Falling;
+            events_.Push(Event::Type::BattleNextTetrominoSuccessful);
+          }
           if (!matrix_->IsValid(Position(pos_.row() + 1, pos_.col()), rotation_data_)) {
             events_.Push(Event::Type::OnFloor, Events::QueueRule::NoDuplicates);
             state_ = State::OnFloor;
@@ -160,14 +165,13 @@ TetrominoSprite::State TetrominoSprite::Down(double delta_time) {
       }
       break;
     case State::Commit: {
-      size_t has_solid_lines = matrix_->HasSolidLines() ? 1 : 0;
       auto [lines_cleared, tspin_type, perfect_clear] = matrix_->Commit(tetromino_.type(), last_move_, pos_, rotation_data_);
 
       if (perfect_clear) {
         events_.Push(Event::Type::PerfectClear);
       }
       events_.Push(Event::Type::ClearOnFloor, Events::QueueRule::NoDuplicates);
-      events_.Push(Event::Type::ClearedLinesScoreData, lines_cleared, pos_, tspin_type, has_solid_lines);
+      events_.Push(Event::Type::ClearedLinesScoreData, lines_cleared, pos_, tspin_type);
       state_ = State::Commited;
     }
       break;

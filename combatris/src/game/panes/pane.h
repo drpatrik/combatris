@@ -80,7 +80,12 @@ class TextPane : public Pane {
     line.SetY(line.center_y(kBoxHeight) + caption_texture_.height() + 5);
   }
 
-  inline void ClearBox() { lines_.clear(); }
+  inline void ClearLines() { lines_.clear(); }
+
+  inline void ClearBox() {
+    SetDrawColor(Color::Black);
+    FillRect(5, 10 + caption_texture_.height(), kBoxInteriorWidth, kBoxInteriorHeight);
+  }
 
   void SetCenteredText(const std::string& text1, Color color1, const std::string& text2, Color color2) {
     lines_.resize(2);
@@ -105,8 +110,7 @@ class TextPane : public Pane {
     }
     SetDrawColor(Color::Gray);
     FillRect(0, 5 + caption_texture_.height(), kBoxWidth, kBoxHeight);
-    SetDrawColor(Color::Black);
-    FillRect(5, 10 + caption_texture_.height(), kBoxInteriorWidth, kBoxInteriorHeight);
+    ClearBox();
     for (auto& line : lines_) {
       RenderCopy(line, line.x(), line.y(), line.width(), line.height());
     }

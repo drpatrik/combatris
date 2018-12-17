@@ -160,17 +160,6 @@ void Matrix::Render(double) {
   }
 }
 
-bool Matrix::HasSolidLines() const {
-  for (int row = kMatrixLastRow - 1; row >= kMatrixFirstRow; --row) {
-    const auto& line = master_matrix_[row];
-
-    if (kSolidID == line[kMatrixFirstCol] || kBombID == line[kMatrixFirstCol]) {
-      return true;
-    }
-  }
-  return false;
-}
-
 bool Matrix::InsertSolidLines(int lines) {
   lines = MoveLinesUp(lines, master_matrix_);
 

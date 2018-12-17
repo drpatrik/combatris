@@ -59,7 +59,7 @@ class Tetrion final {
 
   void HandleTetrominoStates(TetrominoSprite::State state, Events& events);
 
-  void EventHandler(Events& events);
+  void EventHandler(Events& events, double delta_time);
 
   void Render(double delta_timer);
 
@@ -76,6 +76,7 @@ class Tetrion final {
   std::shared_ptr<Campaign> campaign_;
   std::shared_ptr<HoldQueue> hold_queue_;
   std::shared_ptr<MultiPlayer> multi_player_;
+  std::shared_ptr<ReceivingQueue> receiving_queue_;
   std::shared_ptr<TetrominoGenerator> tetromino_generator_;
   std::deque<std::shared_ptr<Animation>> animations_;
   std::shared_ptr<CombatrisMenu> combatris_menu_;

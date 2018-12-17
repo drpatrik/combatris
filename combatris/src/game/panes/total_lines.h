@@ -5,10 +5,11 @@
 
 class TotalLines final : public TextPane, public EventListener {
  public:
-  // 578
-  TotalLines(SDL_Renderer* renderer, int offset, const std::shared_ptr<Assets>& assets)
+  static const int kYOffs = 578;
+
+  TotalLines(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets)
        : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace),
-                  (kMatrixStartY - kMinoHeight) + offset, "LINES", assets) { Reset(); }
+                  (kMatrixStartY - kMinoHeight) + kYOffs, "LINES", assets) { Reset(); }
 
   virtual void Reset() override { total_lines_ = 0;  SetCenteredText(std::to_string(0)); }
 

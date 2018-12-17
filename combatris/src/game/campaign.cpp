@@ -36,13 +36,15 @@ Campaign::Campaign(SDL_Window* window, SDL_Renderer* renderer, Events& events, c
   high_score_ = std::make_unique<HighScore>(renderer_, assets_);
   AddListener(high_score_.get());
   next_queue_ = std::make_unique<NextQueue>(renderer_, tetromino_generator_, assets_);
-  hold_queue_ = std::make_unique<HoldQueue>(renderer_, tetromino_generator_, assets_);
+  hold_queue_ = std::make_unique<HoldQueue>(renderer_, assets_);
   AddListener(hold_queue_.get());
-  goal_ = std::make_unique<Goal>(renderer_, 300, assets_, events_);
+  goal_ = std::make_unique<Goal>(renderer_, assets_, events_);
   AddListener(goal_.get());
-  total_lines_ = std::make_unique<TotalLines>(renderer_, 578, assets_);
+  receiving_queue_ = std::make_shared<ReceivingQueue>(renderer_, assets_, events_);
+  AddListener(receiving_queue_.get());
+  total_lines_ = std::make_unique<TotalLines>(renderer_, assets_);
   AddListener(total_lines_.get());
-  lines_sent_ = std::make_unique<LinesSent>(renderer_, 450, assets_);
+  lines_sent_ = std::make_unique<LinesSent>(renderer_, assets_);
   AddListener(lines_sent_.get());
   moves_ = std::make_unique<Moves>(renderer_, assets_);
   AddListener(moves_.get());
@@ -128,8 +130,9 @@ void Campaign::SetupCampaign(CampaignType type) {
       break;
     case CampaignType::Battle:
       panes_.push_back(timer_.get());
-      panes_.push_back(lines_sent_.get());
       panes_.push_back(knockout_.get());
+      panes_.push_back(lines_sent_.get());
+      panes_.push_back(receiving_queue_.get());
       break;
     default:
       break;

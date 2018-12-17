@@ -11,7 +11,7 @@ class Moves final : public TextPane, public EventListener {
   }
 
   virtual void Reset() override {
-    ClearBox();
+    ClearLines();
     box_cleared_ = true;
   }
 

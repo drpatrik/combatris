@@ -22,6 +22,8 @@ class Texture {
     rc_.h = std::get<2>(texture);
   }
 
+  inline void reset() { texture_.reset(); }
+
   inline bool is_null() const { return nullptr == texture_; }
 
   inline operator SDL_Texture*() { return texture_.get(); }

@@ -57,10 +57,9 @@ void MultiPlayer::Update(const Event& event) {
       break;
     case Event::Type::CalculatedScore:
       accumulator_.AddScore(event.score());
-      if (IsBattleCampaign(campaign_type_) && event.value2_ > 0) {
-        multiplayer_controller_->SendLines(event.value2_as_int());
-        events_.Push(Event::Type::BattleSendLines, event.value2_as_int());
-      }
+      break;
+    case Event::Type::BattleSendLines:
+      multiplayer_controller_->SendLines(event.value1_);
       break;
     case Event::Type::DropScoreData:
       accumulator_.AddScore(event.value1_);
@@ -80,20 +79,11 @@ void MultiPlayer::Update(const Event& event) {
     case Event::Type::NewTime:
       multiplayer_controller_->SendTime(event.value2_);
       break;
-    case Event::Type::BattleNextTetrominoSuccessful:
-      if (!IsBattleCampaign(campaign_type_)) {
-        break;
-      }
-      if (!got_lines_from_.empty()) {
-        got_lines_from_.pop_front();
-      }
-      break;
     case Event::Type::BattleKnockedOut:
       if (!IsBattleCampaign(campaign_type_)) {
         break;
       }
-      multiplayer_controller_->SendKnockedoutBy(got_lines_from_.front());
-      got_lines_from_.pop_front();
+      multiplayer_controller_->SendKnockedoutBy(event.value2_);
       break;
     default:
       break;
@@ -270,8 +260,7 @@ void MultiPlayer::GotLines(uint64_t host_id, int lines) {
     return;
   }
   if (!IsUs(host_id)) {
-    got_lines_from_.push_back(host_id);
-    events_.Push(Event::Type::BattleGotLines, lines);
+    events_.Push(Event::Type::BattleGotLines, lines, host_id);
   }
   auto& player = players_.at(host_id);
 

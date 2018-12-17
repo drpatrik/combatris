@@ -4,8 +4,10 @@
 
 class Goal final : public TextPane, public EventListener {
  public:
-  Goal(SDL_Renderer* renderer, int offset, const std::shared_ptr<Assets>& assets, Events& events)
-      : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace), (kMatrixStartY - kMinoHeight) + offset,
+  static const int kYOffs = 300;
+
+  Goal(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, Events& events)
+      : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace), (kMatrixStartY - kMinoHeight) + kYOffs,
                  "GOAL", assets), events_(events) { Reset(); }
 
   virtual void Reset() override {

@@ -34,9 +34,6 @@ void Scoring::Update(const Event& event) {
         lines_to_send += 10;
         score += 100000;
       }
-      if (event.has_solid_lines()) {
-        lines_to_send = 0;
-      }
       UpdateEvents(score, combo_type, lines_to_send, lines_to_clear, event);
       score_ += score;
       DisplayScore(score_);

@@ -5,10 +5,11 @@
 
 class LinesSent final : public TextPane, public EventListener {
  public:
-  // 578
-  LinesSent(SDL_Renderer* renderer, int offset, const std::shared_ptr<Assets>& assets)
+  static const int kYOffs = 450;
+
+  LinesSent(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets)
        : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace),
-                  (kMatrixStartY - kMinoHeight) + offset, "LINES SENT", assets) { Reset(); }
+                  (kMatrixStartY - kMinoHeight) + kYOffs, "LINES SENT", assets) { Reset(); }
 
   virtual void Reset() override { lines_sent_ = 0;  SetCenteredText(std::to_string(0)); }
 

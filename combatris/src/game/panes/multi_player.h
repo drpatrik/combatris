@@ -15,7 +15,7 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
 
   virtual void Update(const Event& event) override;
 
-  virtual void Reset() override { got_lines_from_.clear(); }
+  virtual void Reset() override {}
 
   virtual void Render(double) override;
 
@@ -83,7 +83,6 @@ private:
   Events& events_;
   network::GameState game_state_ = network::GameState::None;
   std::vector<Player::Ptr> score_board_;
-  std::deque<uint64_t> got_lines_from_;
   std::unordered_map<uint64_t, Player::Ptr> players_;
   std::unique_ptr<network::MultiPlayerController> multiplayer_controller_;
   Accumlator accumulator_;

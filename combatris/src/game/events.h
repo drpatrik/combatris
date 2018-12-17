@@ -41,6 +41,7 @@ struct Event {
     PerfectClear,
     SetCampaign,
     NewTime,
+    CanHold,
     SprintClearedAll,
     MenuSetModeAndCampaign,
     MultiplayerCampaignOver,
@@ -52,16 +53,17 @@ struct Event {
     BattleGotLines,
     BattleKnockedOut,
     BattleYouDidKO,
-    BattleNextTetrominoGotLines,
     BattleNextTetrominoSuccessful
   };
 
-  inline explicit Event(Type type) : type_(type), lines_() {}
+  inline explicit Event(Type type, double time = 0.0) : type_(type), lines_(), delay_(time) {}
 
-  inline Event(Type type, const Lines& lines_cleared, const Position& pos, TSpinType tspin_type, int has_solid_lines)
-      : type_(type), lines_(lines_cleared), pos_(pos), tspin_type_(tspin_type), value1_(has_solid_lines) {}
+  inline Event(Type type, const Lines& lines_cleared, const Position& pos, TSpinType tspin_type)
+      : type_(type), lines_(lines_cleared), pos_(pos), tspin_type_(tspin_type) {}
 
   inline Event(Type type, const Lines& lines, int lines_to_clear) : type_(type), lines_(lines), value1_(lines_to_clear) {}
+
+  inline Event(Type type, int got_lines, size_t host_id) : type_(type), value1_(got_lines), value2_(host_id) {}
 
   inline Event(Type type, const Position& pos, int score, int lines_sent) : type_(type), pos_(pos), value1_(score), value2_(lines_sent) {}
 
@@ -92,8 +94,6 @@ struct Event {
 
   inline CampaignType campaign_type() const { return static_cast<CampaignType>(value2_); }
 
-  inline bool has_solid_lines() const { return value1_ == 1; }
-
   inline int score() const { return value1_; }
 
   inline int value2_as_int() const { return static_cast<int>(value2_); }
@@ -106,6 +106,7 @@ struct Event {
   int value1_ = 0;
   size_t value2_ = 0;
   int combo_counter_ = 0;
+  double delay_ = 0.0;
 };
 
 inline bool IsIn(Event::Type type, const std::initializer_list<Event::Type>& list) {
@@ -142,21 +143,45 @@ class Events {
   template<class ...Args>
   void Push(Args&&... args) { events_.emplace_back(std::forward<Args>(args)...); }
 
+  void Push(Event::Type type, double time) { events_with_delay_.emplace_back(type, time); }
+
   inline void PushFront(Event::Type type) { events_.emplace_front(type); }
 
   inline void Remove(Event::Type type) { events_.erase(std::remove(events_.begin(), events_.end(), type), events_.end()); }
 
-  Event Pop() {
+  std::vector<Event> GetEvents(Event::Type type) {
+    std::vector<Event> v;
+
+    std::copy_if(events_.begin(), events_.end(), std::back_inserter(v), [type](const auto& e) { return type == e; });
+
+    return v;
+  }
+
+  Event Pop(double delta) {
+    const Event kEmptyEvent(Event::Type::None);
+
+    for(auto it = events_with_delay_.begin();it != events_with_delay_.end(); ++it) {
+      it->delay_ -= delta;
+      if (it->delay_ <= 0.0) {
+        auto e = *it;
+        events_with_delay_.erase(it);
+        return e;
+      }
+    }
+    if (events_.empty()) {
+      return kEmptyEvent;
+    }
     auto event = events_.front();
 
     events_.pop_front();
     return event;
   }
 
-  inline void Clear() { events_.clear(); }
+  inline void Clear() { events_.clear(); events_with_delay_.clear(); }
 
-  inline bool IsEmpty() const { return events_.empty(); }
+  inline bool IsEmpty() const { return events_.empty() && events_with_delay_.empty(); }
 
  private:
   std::deque<Event> events_;
+  std::vector<Event> events_with_delay_;
 };
