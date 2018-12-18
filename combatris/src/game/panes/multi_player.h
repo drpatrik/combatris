@@ -42,14 +42,6 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
 
   inline void NewGame() { multiplayer_controller_->NewGame(campaign_type_); }
 
-  void DebugSend(int lines) {
-    if (!multiplayer_controller_) {
-      return;
-    }
-    multiplayer_controller_->SendLines(lines);
-    events_.Push(Event::Type::BattleSendLines, lines);
-  }
-
   inline const std::string& our_host_name() const {
     assert(multiplayer_controller_ != nullptr);
     return multiplayer_controller_->our_host_name();

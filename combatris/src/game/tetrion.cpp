@@ -129,7 +129,7 @@ void Tetrion::GameControl(Controls control_pressed, int lines) {
       }
       break;
     case Controls::DebugSendLine:
-      multi_player_->DebugSend(lines);
+      events_.Push(Event::Type::BattleSendLines, lines);
       break;
     default:
       break;
@@ -183,14 +183,12 @@ void Tetrion::EventHandler(Events& events, double delta_time) {
       break;
     case Event::Type::NextTetromino:
       campaign_->ShowNextQueue();
-      if (!receiving_queue_->IsEmpty()) {
-        if (!matrix_->InsertSolidLines(receiving_queue_->lines())) {
-          HandleTetrominoStates(TetrominoSprite::State::KO, events_);
-          break;
-        }
+      if (receiving_queue_->GotNewLines() && !matrix_->InsertSolidLines(receiving_queue_->new_lines())) {
+        HandleTetrominoStates(TetrominoSprite::State::KO, events_);
+        break;
       }
       tetromino_in_play_ = tetromino_generator_->Get();
-      HandleTetrominoStates(tetromino_in_play_->Generate(receiving_queue_->got_lines()), events);
+      HandleTetrominoStates(tetromino_in_play_->Generate(receiving_queue_->GotNewLines()), events);
       receiving_queue_->EmptyQueue();
       break;
     case Event::Type::LevelUp:

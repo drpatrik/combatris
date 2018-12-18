@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/events.h"
+#include "game/matrix.h"
 #include "game/panes/pane.h"
 
 class ReceivingQueue final : public TextPane, public EventListener {
@@ -32,12 +33,11 @@ class ReceivingQueue final : public TextPane, public EventListener {
 
   virtual void Reset() override {
     got_lines_from_ = 0;
+    total_lines_ = 0;
     EmptyQueue();
   }
 
-  inline int lines() const { return lines_; }
-
-  inline bool IsEmpty() const { return lines_ == 0; }
+  inline int new_lines() const { return new_lines_; }
 
   inline size_t got_lines_from() const {
     assert(got_lines_from_);
@@ -45,11 +45,11 @@ class ReceivingQueue final : public TextPane, public EventListener {
   }
 
   inline void EmptyQueue() {
-    lines_ = 0;
-    SetCenteredText(std::to_string(0));
+    new_lines_ = 0;
+    Display();
   }
 
-  inline bool got_lines() const { return lines_ > 0; }
+  inline bool GotNewLines() const { return new_lines_ > 0; }
 
   virtual void Update(const Event& event) override {
     if (Event::Type::SetCampaign == event.type()) {
@@ -64,26 +64,13 @@ class ReceivingQueue final : public TextPane, public EventListener {
         break;
       case Event::Type::BattleGotLines:
         texture_ = Texture(renderer_, assets_->GetFont(ObelixPro40), "+" + std::to_string(event.value1_), Color::Red);
-        lines_ += event.value1_;
+        new_lines_ += event.value1_;
+        total_lines_ += event.value1_;
         got_lines_from_ = event.value2_;
         break;
       case Event::Type::CalculatedScore:
         texture_.reset();
-        if (event.value2_as_int() == 0) {
-          break;
-        }
-        if (lines_ - event.value2_as_int() < 0) {
-          int lines_to_send = std::abs(lines_ - event.value2_as_int());
-
-          events_.Push(Event::Type::BattleSendLines, lines_to_send);
-          if (lines_ != 0) {
-            texture_ = Texture(renderer_, assets_->GetFont(ObelixPro40), "-" + std::to_string(lines_to_send), Color::Green);
-          }
-          lines_ = 0;
-        } else {
-          lines_ -= event.value2_as_int();
-          texture_ = Texture(renderer_, assets_->GetFont(ObelixPro40), "-" + std::to_string(event.value2_as_int()), Color::Green);
-        }
+        CalculateLinesToSend(event);
         break;
       default:
         break;
@@ -92,14 +79,42 @@ class ReceivingQueue final : public TextPane, public EventListener {
       ticks_ = 0.0;
       texture_.SetX(kX + utility::Center(kBoxWidth, texture_.width()));
       texture_.SetY(kY + utility::Center(kBoxHeight, texture_.height()));
-      SetCenteredText(lines_);
+      Display();
     }
   }
+
+ protected:
+  void CalculateLinesToSend(const Event& event) {
+    if (total_lines_ - event.value2_as_int() < 0) {
+      int total_lines_to_send = std::abs(total_lines_ - event.value2_as_int());
+
+      events_.Push(Event::Type::BattleSendLines, total_lines_to_send);
+      if (total_lines_ != 0) {
+        texture_ = Texture(renderer_, assets_->GetFont(ObelixPro40), "-" + std::to_string(total_lines_to_send), Color::Green);
+      }
+      new_lines_ = 0;
+      total_lines_ = 0;
+    } else {
+      int lines = event.value2_as_int();
+
+      for (const auto& line : event.lines_) {
+        lines += static_cast<int>(Matrix::IsSolidLine(line));
+      }
+      total_lines_ = std::max(total_lines_- lines, 0);
+      new_lines_ = std::max(new_lines_ - lines, 0);
+      if (total_lines_ > 0) {
+        texture_ = Texture(renderer_, assets_->GetFont(ObelixPro40), "-" + std::to_string(lines), Color::Green);
+      }
+    }
+  }
+
+  void Display() { SetCenteredText(std::to_string(new_lines_) + "(" + std::to_string(total_lines_) + ")"); }
 
  private:
   Events& events_;
   Texture texture_;
-  int lines_ = 0;
+  int total_lines_ = 0;
+  int new_lines_ = 0;
   size_t got_lines_from_;
   double ticks_ = 0.0;
   CampaignType campaign_type_ = CampaignType::None;

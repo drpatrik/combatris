@@ -260,6 +260,7 @@ void MultiPlayer::GotLines(uint64_t host_id, int lines) {
     return;
   }
   if (!IsUs(host_id)) {
+    std::cout << lines << std::endl;
     events_.Push(Event::Type::BattleGotLines, lines, host_id);
   }
   auto& player = players_.at(host_id);

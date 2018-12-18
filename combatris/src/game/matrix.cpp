@@ -121,7 +121,7 @@ void InsertSolidLines(int lines, Matrix::Type& matrix) {
       n = static_cast<int>(kDistribution(kGenerator));
     }
     i++;
-    matrix[kMatrixLastRow - l - 1][kMatrixFirstRow + n] = kBombID;
+    matrix[kMatrixLastRow - l - 1][kMatrixFirstCol + n] = kBombID;
   }
 }
 

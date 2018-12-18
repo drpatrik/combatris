@@ -1,7 +1,7 @@
 #pragma once
 
 #include "game/panes/pane.h"
-#include "game/tetromino_generator.h"
+#include "game/tetromino_sprite.h"
 
 class HoldQueue final : public TextPane, public EventListener {
  public:
