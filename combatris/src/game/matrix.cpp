@@ -8,13 +8,12 @@ namespace {
 
 const int kRows = kMatrixLastRow + 1;
 const int kCols = kVisibleCols + 4;
-
-const SDL_Rect kMatrixRc { kMatrixStartX, kMatrixStartY, kMatrixWidth, kMatrixHeight };
-const SDL_Color kGray { 51, 55, 66, 255 };
-
+const SDL_Rect kMatrixRc{ kMatrixStartX, kMatrixStartY - kBuffertVisible, kMatrixWidth, kMatrixHeight + kBuffertVisible };
+const SDL_Rect kMatrixClipRc{ kMatrixStartX - kMinoWidth, kMatrixStartY - kBuffertVisible,
+                             kMatrixWidth + (kMinoWidth * 2), kMatrixHeight + kMinoHeight + kBuffertVisible };
+const SDL_Color kGray{ 51, 55, 66, 255 };
 std::mt19937 kGenerator{ std::random_device{}() };
 std::uniform_int_distribution<size_t> kDistribution(0, kVisibleCols - 1);
-
 const std::vector<int> kEmptyRow = { kBorderID, kBorderID, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, kBorderID, kBorderID };
 const std::vector<int> kSolidRow = { kBorderID, kBorderID, kSolidID, kSolidID, kSolidID, kSolidID,  kSolidID,
                                     kSolidID,  kSolidID,  kSolidID, kSolidID, kSolidID, kBorderID, kBorderID };
@@ -36,9 +35,9 @@ void RenderGrid(SDL_Renderer* renderer) {
   SDL_RenderFillRect(renderer, &kMatrixRc);
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 
-  SDL_Rect rc { 0, kMatrixStartY + 1, kMinoWidth - 2, kMinoHeight - 2 };
+  SDL_Rect rc { 0, kMatrixStartY - kMinoHeight, kMinoWidth - 2, kMinoHeight - 2 };
 
-  for (int row = 0; row < kVisibleRows; ++row) {
+  for (int row = 0; row <= kVisibleRows; ++row) {
     rc.x = kMatrixStartX + 1;
     for (int col = 0; col < kVisibleCols; ++col) {
       SDL_RenderFillRect(renderer, &rc);
@@ -137,11 +136,21 @@ void Matrix::Initialize() {
 }
 
 void Matrix::Render(double) {
+  const Position kPosFirst(row_to_visible(kMatrixFirstRow - 1), col_to_visible(kMatrixFirstCol - 1));
+  const Position kPosLast(row_to_visible(kMatrixFirstRow - 1), col_to_visible(kMatrixLastCol));
+
   RenderGrid(renderer_);
-  for (int col = kMatrixFirstCol - 1; col <= kMatrixLastCol; ++col) {
-    tetrominos_[kBorderID - 1]->Render(Position(row_to_visible(kMatrixFirstRow - 1), col_to_visible(col)));
+  tetrominos_[kBorderID - 1]->Render(kPosFirst, kMinoWidth, kMinoHeight);
+  tetrominos_[kBorderID - 1]->Render(kPosLast, kMinoWidth, kMinoHeight);
+
+  for (int col = kMatrixFirstCol; col < kMatrixLastCol; ++col) {
+    const Position pos(row_to_visible(kMatrixFirstRow - 1), col_to_visible(col));
+
+    tetrominos_[kBorderID - 1]->Render(pos, kMinoWidth, kMinoHeight - kBuffertVisible);
   }
-  for (int row = kMatrixFirstRow; row <= kMatrixLastRow; ++row) {
+
+  SDL_RenderSetClipRect(renderer_, &kMatrixClipRc);
+  for (int row = kMatrixFirstRow - 1; row <= kMatrixLastRow; ++row) {
     for (int col = kMatrixFirstCol - 1; col <= kMatrixLastCol; ++col) {
       const int id = matrix_[row][col];
 
@@ -158,6 +167,7 @@ void Matrix::Render(double) {
       }
     }
   }
+  SDL_RenderSetClipRect(renderer_, nullptr);
 }
 
 bool Matrix::InsertSolidLines(int lines) {
@@ -193,7 +203,6 @@ bool Matrix::IsAboveSkyline(const Position& pos, const TetrominoRotationData& ro
 
   for (int row = 0; row < static_cast<int>(shape.size()); ++row) {
     for (int col  = 0; col < static_cast<int>(shape[row].size()); ++col) {
-
       if (shape[row][col] == kEmptyID) {
         continue;
       }
@@ -201,6 +210,7 @@ bool Matrix::IsAboveSkyline(const Position& pos, const TetrominoRotationData& ro
     }
   }
   assert(last_row != -1);
+
   return last_row < kMatrixFirstRow;
 }
 

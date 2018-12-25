@@ -27,6 +27,8 @@ class Tetromino final {
 
   inline void Render(const Position& pos) const { RenderMino(renderer_, pos.x(), pos.y(), texture_.get()); }
 
+  inline void Render(const Position& pos, int w, int h) const { RenderMino(renderer_, pos.x(), pos.y(), w, h, texture_.get()); }
+
   inline void RenderGhost(const Position& pos) const { ::RenderGhost(renderer_, pos.x(), pos.y(), color_); }
 
   const TetrominoRotationData& GetRotationData(Angle angle) const { return rotations_.at(static_cast<size_t>(angle)); }

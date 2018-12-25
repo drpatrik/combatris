@@ -7,7 +7,7 @@
 
 namespace {
 
-const SDL_Rect kMatrixRc = { kMatrixStartX, kMatrixStartY, kMatrixWidth, kMatrixHeight };
+const SDL_Rect kMatrixRc = { kMatrixStartX, kMatrixStartY - kBuffertVisible, kMatrixWidth, kMatrixHeight + kBuffertVisible };
 
 void SetBlackBackground(SDL_Renderer* renderer) {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
@@ -55,7 +55,7 @@ class ScoreAnimation final : public Animation {
  public:
   ScoreAnimation(SDL_Renderer* renderer,  const std::shared_ptr<Assets>& assets,  const Position& pos, int score)
       : Animation(renderer, assets) {
-    texture_ = Texture(*this, GetAsset().GetFont(Bold30), std::to_string(score), Color::Coral);
+    texture_ = Texture(*this, GetAsset().GetFont(Bold30), "+" + std::to_string(score), Color::Coral);
 
     auto x = col_to_pixel_adjusted(pos.col()) + utility::Center(kMinoWidth * 4, texture_.width());
     auto y = row_to_pixel_adjusted(pos.row());
@@ -270,7 +270,7 @@ class GameOverAnimation final : public Animation {
   GameOverAnimation(SDL_Renderer* renderer, const std::shared_ptr<CombatrisMenu>& menu,
                     const std::shared_ptr<Assets>& assets, const std::string text = "Game Over")
       : Animation(renderer, assets),
-        menu_view_(renderer, {kMatrixStartX, 0, kMatrixWidth, kMenuHeight}, assets->fonts(), menu, menu.get()), text_(text) {
+        menu_view_(renderer, { kMatrixStartX, 0, kMatrixWidth, kMenuHeight }, assets->fonts(), menu, menu.get()), text_(text) {
 
     texture_1_ = Texture(*this, GetAsset().GetFont(Normal55), text, Color::White);
     texture_1_.SetXY(kMatrixStartX + utility::Center(kMatrixWidth, texture_1_.width()), kMatrixStartY + 100);

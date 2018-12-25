@@ -186,10 +186,8 @@ B2B T-Spin Triple | 9
 ... Combo | ... (4)
 
 **Progress for new features / improvements**
-- [ ] Refactor out Joystick code into a more reusable component
-- [ ] Move joystick mapping and other settings to a config-file
 - [ ] Change joystick settings to follow the standard
-- [ ] Configure which joystick to use (if many available)
+- [ ] Use SDL_GameControllerDB
 - [ ] Add support for Internet online play
 - [ ] Remove the pane for showing combo/latest move and display combo/last move direct on the frame
 - [ ] Add new animation for combo/last clearing move
