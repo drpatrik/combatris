@@ -28,7 +28,7 @@ const int kMatrixEndX = kMatrixStartX + (kVisibleCols * kMinoWidth);
 const int kMatrixStartY = kUpperBorderHeight;
 const int kMatrixEndY = kMatrixStartY + (kVisibleRows * kMinoHeight);
 const int kSpace = 8;
-const int kBuffertVisible = 10;
+const int kBuffertVisible = 7;
 // Campaign specific constants
 const int kSprintGoal = 40;
 const int kTimesUpSoon = 15;
