@@ -65,7 +65,7 @@ struct Event {
 
   inline Event(Type type, int got_lines, size_t host_id) : type_(type), value1_(got_lines), value2_(host_id) {}
 
-  inline Event(Type type, const Position& pos, int score, int lines_sent) : type_(type), pos_(pos), value1_(score), value2_(lines_sent) {}
+  inline Event(Type type, const Lines& lines, const Position& pos, int score, int lines_sent) : type_(type), lines_(lines), pos_(pos), value1_(score), value2_(lines_sent) {}
 
   inline Event(Type type, int value) : type_(type), value1_(value) {}
 

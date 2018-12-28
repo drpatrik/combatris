@@ -73,11 +73,11 @@ void Scoring::UpdateEvents(int score, ComboType combo_type, int lines_to_send, i
   }
   lines_to_clear = (CampaignType::Marathon == campaign_type_) ?  lines_to_clear : event.lines();
 
+  events_.Push(Event::Type::CalculatedScore, event.lines_, event.pos_, score, lines_to_send);
+  events_.Push(Event::Type::Moves, event.lines_, event.tspin_type_, combo_type, counter);
   if (lines_to_clear > 0) {
     events_.Push(Event::Type::LinesCleared, event.lines_, lines_to_clear);
   }
-  events_.Push(Event::Type::CalculatedScore, event.pos_, score, lines_to_send);
-  events_.Push(Event::Type::Moves, event.lines_, event.tspin_type_, combo_type, counter);
 }
 
 std::tuple<int, int, ComboType, int, int> Scoring::Calculate(const Event& event) {
