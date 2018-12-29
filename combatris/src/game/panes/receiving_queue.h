@@ -32,24 +32,25 @@ class ReceivingQueue final : public TextPane, public EventListener {
   }
 
   virtual void Reset() override {
-    got_lines_from_ = 0;
+    got_lines_from_.clear();
     total_lines_ = 0;
-    EmptyQueue();
+    ResetNewLines();
   }
 
   inline int new_lines() const { return new_lines_; }
 
-  inline size_t got_lines_from() const {
-    assert(got_lines_from_);
-    return got_lines_from_;
-  }
+  inline bool GotNewLines() const { return new_lines_ > 0; }
 
-  inline void EmptyQueue() {
+  void ResetNewLines() {
     new_lines_ = 0;
     Display();
   }
 
-  inline bool GotNewLines() const { return new_lines_ > 0; }
+  void BroadcastKO() {
+    for (const auto& host : got_lines_from_) {
+      events_.Push(Event::Type::BattleKnockedOut, host);
+    }
+  }
 
   virtual void Update(const Event& event) override {
     if (Event::Type::SetCampaign == event.type()) {
@@ -62,17 +63,17 @@ class ReceivingQueue final : public TextPane, public EventListener {
 
     switch (event.type()) {
       case Event::Type::BattleNextTetrominoSuccessful:
-        got_lines_from_ = 0;
+        got_lines_from_.clear();
         break;
       case Event::Type::BattleGotLines:
         texture_ = Texture(renderer_, assets_->GetFont(ObelixPro40), "+" + std::to_string(event.value1_), Color::Red);
         new_lines_ += event.value1_;
         total_lines_ += event.value1_;
-        got_lines_from_ = event.value2_;
+        got_lines_from_.push_back(event.value2_);
         texture_update = true;
         break;
       case Event::Type::CalculatedScore:
-        texture_update = CalculateLinesToSend(event);
+        texture_update = UpdateQueue(event);
         break;
       default:
         break;
@@ -86,7 +87,7 @@ class ReceivingQueue final : public TextPane, public EventListener {
   }
 
  protected:
-  bool CalculateLinesToSend(const Event& event) {
+  bool UpdateQueue(const Event& event) {
     int lines_to_send = 0;
     int delta_lines = 0;
 
@@ -124,14 +125,16 @@ class ReceivingQueue final : public TextPane, public EventListener {
     return (delta_lines > 0);
   }
 
-  void Display() { SetCenteredText(std::to_string(new_lines_) + "(" + std::to_string(total_lines_) + ")"); }
+  inline void Display() {
+    SetCenteredText(std::to_string(new_lines_) + "(" + std::to_string(total_lines_) + ")");
+  }
 
  private:
   Events& events_;
   Texture texture_;
   int total_lines_ = 0;
   int new_lines_ = 0;
-  size_t got_lines_from_;
   double ticks_ = 0.0;
+  std::vector<size_t> got_lines_from_;
   CampaignType campaign_type_ = CampaignType::None;
 };

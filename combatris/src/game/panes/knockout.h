@@ -34,9 +34,6 @@ class Knockout final : public Pane, public EventListener {
   }
 
   virtual void Render(double delta_time) override {
-    if (0 == n_ko_) {
-      return;
-    }
     Pane::RenderCopy(circle_texture_);
     Pane::RenderCopy(caption_texture_);
     if (show_plus_one_)  {

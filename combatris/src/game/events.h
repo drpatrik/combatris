@@ -45,7 +45,7 @@ struct Event {
     SprintClearedAll,
     MenuSetModeAndCampaign,
     MultiplayerCampaignOver,
-    MultiplayerRejected,
+    PlayerRejected,
     MultiplayerStartGame,
     MultiplayerResetCountDown,
     ShowSplashScreen,
@@ -157,29 +157,32 @@ class Events {
     return v;
   }
 
-  Event Pop(double delta) {
-    const Event kEmptyEvent(Event::Type::None);
-
-    for(auto it = events_with_delay_.begin();it != events_with_delay_.end(); ++it) {
-      it->delay_ -= delta;
-      if (it->delay_ <= 0.0) {
-        auto e = *it;
-        events_with_delay_.erase(it);
-        return e;
-      }
-    }
-    if (events_.empty()) {
-      return kEmptyEvent;
-    }
+  Event Pop() {
     auto event = events_.front();
 
     events_.pop_front();
     return event;
   }
 
-  inline void Clear() { events_.clear(); events_with_delay_.clear(); }
+  inline void Clear() {
+    events_.clear();
+    events_with_delay_.clear();
+  }
 
-  inline bool IsEmpty() const { return events_.empty() && events_with_delay_.empty(); }
+  bool IsEmpty() const { return events_.empty(); }
+
+  bool IsEmpty(double delta) {
+    for (auto it = events_with_delay_.begin(); it != events_with_delay_.end();) {
+      it->delay_ -= delta;
+      if (it->delay_ <= 0.0) {
+        events_.push_front(*it);
+        it = events_with_delay_.erase(it);
+      } else {
+        ++it;
+      }
+    }
+    return events_.empty();
+  }
 
  private:
   std::deque<Event> events_;

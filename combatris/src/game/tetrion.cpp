@@ -147,7 +147,7 @@ void Tetrion::HandleTetrominoStates(TetrominoSprite::State state, Events& events
       matrix_->RemoveSolidLines();
       AddAnimation<MessageAnimation>(renderer_, assets_, "Got K.O. :-(", Color::Red, 100.0);
       events_.Push(Event::Type::NextTetromino, 0.2);
-      events.Push(Event::Type::BattleKnockedOut, receiving_queue_->got_lines_from());
+      receiving_queue_->BroadcastKO();
       receiving_queue_->Reset();
       break;
     case TetrominoSprite::State::Commited:
@@ -160,10 +160,10 @@ void Tetrion::HandleTetrominoStates(TetrominoSprite::State state, Events& events
 }
 
 void Tetrion::EventHandler(Events& events, double delta_time) {
-  if (events.IsEmpty()) {
+  if (events.IsEmpty(delta_time)) {
     return;
   }
-  auto event = campaign_->PreprocessEvent(events.Pop(delta_time));
+  auto event = campaign_->PreprocessEvent(events.Pop());
 
   switch (event.type()) {
     case Event::Type::ShowSplashScreen:
@@ -189,7 +189,7 @@ void Tetrion::EventHandler(Events& events, double delta_time) {
       }
       tetromino_in_play_ = tetromino_generator_->Get();
       HandleTetrominoStates(tetromino_in_play_->Generate(receiving_queue_->GotNewLines()), events);
-      receiving_queue_->EmptyQueue();
+      receiving_queue_->ResetNewLines();
       break;
     case Event::Type::LevelUp:
       AddAnimation<MessageAnimation>(renderer_, assets_, "LEVEL UP", Color::SteelGray, 100);
@@ -226,7 +226,7 @@ void Tetrion::EventHandler(Events& events, double delta_time) {
       AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_, RankToText(event.value1_));
       break;
     case Event::Type::GameOver:
-    case Event::Type::MultiplayerRejected:
+    case Event::Type::PlayerRejected:
       events.Clear();
       animations_.clear();
       tetromino_in_play_.reset();
@@ -235,7 +235,7 @@ void Tetrion::EventHandler(Events& events, double delta_time) {
 
         AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_, text);
       } else {
-        if (Event::Type::MultiplayerRejected == event.type()) {
+        if (Event::Type::PlayerRejected == event.type()) {
           AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_, "Rejected");
         } else {
           AddAnimation<HourglassAnimation>(renderer_, assets_);
