@@ -49,9 +49,8 @@ void Scoring::Update(const Event& event) {
 }
 
 void Scoring::DisplayScore(int score) {
-  std::tie(score_texture_, rc_.w, rc_.h) = CreateTextureFromText(renderer_, assets_->GetFont(ObelixPro40), std::to_string(score), Color::Yellow);
-  rc_.x = x_ - rc_.w;
-  rc_.y = y_ - rc_.h;
+  score_texture_ = Texture(renderer_, assets_->GetFont(ObelixPro40), std::to_string(score), Color::Yellow);
+  score_texture_.SetXY(x_ - score_texture_.width(), y_ - score_texture_.height());
 }
 
 void Scoring::UpdateEvents(int score, ComboType combo_type, int lines_to_send, int lines_to_clear, const Event& event) {

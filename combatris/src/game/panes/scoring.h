@@ -4,7 +4,7 @@
 
 class Scoring final : public Pane, public EventListener {
  public:
-  enum class LinesClearedMode { Normal, Marathon };
+  using Texture = utility::Texture;
 
   Scoring(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, Events& events) : Pane(renderer, kMatrixEndX + kMinoWidth, kMatrixStartY - kMinoHeight, assets), events_(events) { Reset(); }
 
@@ -19,7 +19,7 @@ class Scoring final : public Pane, public EventListener {
 
   virtual void Update(const Event& event) override;
 
-  virtual void Render(double) override { RenderCopy(score_texture_.get(), rc_); }
+  virtual void Render(double) override { RenderCopy(score_texture_); }
 
  protected:
   void DisplayScore(int score);
@@ -33,8 +33,7 @@ class Scoring final : public Pane, public EventListener {
   int score_ = 0;
   int combo_counter_ = 0;
   int b2b_counter_ = 0;
-  SDL_Rect rc_;
-  utility::UniqueTexturePtr score_texture_ = nullptr;
+  Texture score_texture_;
   CampaignType campaign_type_ = CampaignType::Combatris;
   int level_ = 1;
   int start_level_ = 1;
