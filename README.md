@@ -1,10 +1,10 @@
-# COMBATRIS - A Tetris clone
+# COMBATRIS - A clone of an old classic
 
 ![screenshots](screenshots/combatris-splash.png)
 ![screenshots](screenshots/combatris-marathon.png)
 ![screenshots](screenshots/combatris-battle.png)
 
-A C++ implementation of Tetris. Combatris has been tested and works under Windows 10 (x64 only),
+A C++17 implementation of and old classic. Combatris has been tested and works under Windows 10 (x64 only),
 OSX 10.12/10.13/10.14, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
 
 Features Combatris, Marathon, Sprint, Ultra Battle campaigns in single and multiplayer mode:
@@ -311,3 +311,4 @@ Some sources has there own license and is not covered by the source codes licens
 * Original FindSDL2_mixer https://github.com/rlsosborne/doom
 * DeltaTimer adapted from http://headerphile.com/sdl2/sdl2-part-9-no-more-delays/
 * https://github.com/philsquared/Catch
+* https://github.com/gabomdq/SDL_GameControllerDB
