@@ -9,18 +9,31 @@ class ReceivingQueue final : public TextPane, public EventListener {
   static const int kYOffs = 578;
   static const int kX = kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace);
   static const int kY = kMatrixStartY + kYOffs + 5;
+  static const int kInteriorWidth = (kBoxInteriorWidth >> 1) - 2;
 
   using Texture = utility::Texture;
 
   ReceivingQueue(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, Events& events)
        : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace),
-                  (kMatrixStartY - kMinoHeight) + kYOffs, "LINES GOT", assets), events_(events) { Reset(); }
+                  (kMatrixStartY - kMinoHeight) + kYOffs, "LINES GOT", assets), events_(events) {
+    lines_.resize(2);
+    Reset();
+  }
 
   virtual void Render(double delta_time) override {
     const auto kDisplayTime = 0.4;
 
-    TextPane::Render(delta_time);
+    TextPane::RenderCaption();
 
+    SetDrawColor(Color::Gray);
+    FillRect(0, 5 + caption_texture_.height(), kBoxWidth, kBoxHeight);
+    SetDrawColor(Color::Black);
+    FillRect(5, 10 + caption_texture_.height(), kInteriorWidth, kBoxInteriorHeight);
+    FillRect(kInteriorWidth + 9, 10 + caption_texture_.height(), kInteriorWidth, kBoxInteriorHeight);
+
+    for (auto& line : lines_) {
+      RenderCopy(line, line.x(), line.y(), line.width(), line.height());
+    }
     ticks_ += delta_time;
     if (!texture_.is_null() && ticks_ >= kDisplayTime) {
       texture_.reset();
@@ -125,8 +138,18 @@ class ReceivingQueue final : public TextPane, public EventListener {
     return (delta_lines > 0);
   }
 
-  inline void Display() {
-    SetCenteredText(std::to_string(new_lines_) + "(" + std::to_string(total_lines_) + ")");
+  void Display() {
+    auto& line1 = lines_[0];
+
+    line1 = Texture(renderer_, assets_->GetFont(Bold45), std::to_string(new_lines_), Color::Red);
+    line1.SetX(5 + line1.center_x(kInteriorWidth));
+    line1.SetY(caption_texture_.height() + line1.center_y(kBoxHeight) + 5);
+
+    auto& line2 = lines_[1];
+
+    line2 = Texture(renderer_, assets_->GetFont(Bold45), std::to_string(total_lines_ - new_lines_), Color::Purple);
+    line2.SetX(kInteriorWidth + 9 + line2.center_x(kInteriorWidth));
+    line2.SetY(caption_texture_.height() + line2.center_y(kBoxHeight) + 5);
   }
 
  private:

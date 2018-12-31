@@ -164,16 +164,17 @@ TetrominoSprite::State TetrominoSprite::Down(double delta_time) {
         state_ = State::Falling;
       }
       break;
-    case State::Commit: {
-      auto [lines_cleared, tspin_type, perfect_clear] = matrix_->Commit(tetromino_.type(), last_move_, pos_, rotation_data_);
+    case State::Commit:
+      {
+        auto [lines_cleared, tspin_type, perfect_clear] = matrix_->Commit(tetromino_.type(), last_move_, pos_, rotation_data_);
 
-      if (perfect_clear) {
-        events_.Push(Event::Type::PerfectClear);
+        if (perfect_clear) {
+          events_.Push(Event::Type::PerfectClear);
+        }
+        events_.Push(Event::Type::ClearOnFloor, Events::QueueRule::NoDuplicates);
+        events_.Push(Event::Type::ClearedLinesScoreData, lines_cleared, pos_, tspin_type);
+        state_ = State::Commited;
       }
-      events_.Push(Event::Type::ClearOnFloor, Events::QueueRule::NoDuplicates);
-      events_.Push(Event::Type::ClearedLinesScoreData, lines_cleared, pos_, tspin_type);
-      state_ = State::Commited;
-    }
       break;
     default:
       break;
