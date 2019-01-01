@@ -6,11 +6,17 @@
 #include <deque>
 #include <random>
 
-class TetrominoGenerator final {
+class TetrominoGenerator final : public EventListener {
  public:
   TetrominoGenerator(std::shared_ptr<Matrix>& matrix, std::shared_ptr<Level>& level, Events& events, const std::shared_ptr<Assets>& assets)
       : matrix_(matrix), level_(level), events_(events), assets_(assets) {
     GenerateTetrominos();
+  }
+
+  virtual void Update(const Event& event) override {
+    if (event.Is(Event::Type::MultiPlayerSetSeed)) {
+      engine_.seed(event.value2_);
+    }
   }
 
   std::shared_ptr<TetrominoSprite> Get() {

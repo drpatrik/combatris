@@ -189,12 +189,8 @@ void Player::Reset() {
   matrix_ = kEmptyMatrix;
 }
 
-void Player::Render(int x_offset, int y_offset, CampaignType type) const {
-  if (is_us_) {
-    Pane::SetDrawColor(renderer_, Color::Green);
-  } else {
-    Pane::SetDrawColor(renderer_, (IsSameCampaignType(type)) ? Color::White : Color::Red);
-  }
+void Player::Render(int x_offset, int y_offset) const {
+  Pane::SetDrawColor(renderer_, is_us_ ? Color::Green : Color::White);
   Pane::FillRect(renderer_, kX + x_offset, kY + y_offset, kBoxWidth, kBoxHeight);
   Pane::SetDrawColor(renderer_, Color::Black);
   SDL_Rect tmp;

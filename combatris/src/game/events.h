@@ -46,6 +46,7 @@ struct Event {
     MenuSetModeAndCampaign,
     MultiplayerCampaignOver,
     PlayerRejected,
+    MultiPlayerSetSeed,
     MultiplayerStartGame,
     MultiplayerResetCountDown,
     ShowSplashScreen,

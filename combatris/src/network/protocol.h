@@ -39,8 +39,9 @@ inline uint64_t ntohll(uint64_t value) {
 #include <string>
 #include <array>
 #include <iostream>
-#include <functional>
+//#include <functional>
 #include <algorithm>
+#include <random>
 #include <limits.h>
 
 namespace network {
@@ -209,22 +210,27 @@ class ProgressPayload final {
 
 class Payload final {
  public:
-  Payload() : value_(0), state_(GameState::None) {}
+  Payload() {}
 
   explicit Payload(GameState state) : state_(state) {}
 
   explicit Payload(uint64_t value) { SetValue(value); }
 
-  inline uint64_t value() const { return ntohll(value_); }
+  inline int value() const { return ntohl(value1_); }
 
-  inline void SetValue(uint64_t value) { value_ = htonll(value); }
+  inline void SetValue(int value) { value1_ = htonl(value); }
+
+  inline uint64_t value2() const { return ntohll(value2_); }
+
+  inline void SetValue(uint64_t value) { value2_ = htonll(value); }
 
   inline GameState state() const { return state_; }
 
   inline void SetState(GameState state) { state_ = state; }
 
  private:
-  uint64_t value_ = 0;
+  int value1_ = 0;
+  uint64_t value2_ = 0;
   GameState state_ = GameState::None;
 };
 
@@ -325,6 +331,7 @@ inline auto CreatePackage(CampaignType type) {
   package.header_ = Header(Request::NewGame);
   package.payload_.SetState(GameState::Waiting);
   package.payload_.SetValue(ToInt(type));
+  package.payload_.SetValue(static_cast<uint64_t>(std::random_device()()));
 
   return package;
 }

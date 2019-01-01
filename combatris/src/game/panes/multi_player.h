@@ -6,6 +6,7 @@
 #include "game/panes/accumlator.h"
 #include "game/panes/player.h"
 #include "game/panes/pane.h"
+#include "game/panes/vote.h"
 
 class MultiPlayer final : public Pane, public EventListener,  public network::ListenerInterface {
  public:
@@ -52,7 +53,7 @@ class MultiPlayer final : public Pane, public EventListener,  public network::Li
 
   virtual void GotLeave(uint64_t host_id) override;
 
-  virtual void GotNewGame(uint64_t host_id, CampaignType type) override;
+  virtual void GotNewGame(uint64_t host_id, CampaignType type, uint64_t seed) override;
 
   virtual void GotStartGame() override;
 
@@ -81,4 +82,5 @@ private:
   double ticks_progess_update_ = 0.0;
   CampaignType campaign_type_ = CampaignType::Combatris;
   int start_level_ = 1;
+  Vote vote_;
 };

@@ -87,7 +87,7 @@ void MultiPlayerController::Dispatch() {
         listener_if_->GotLeave(host_id);
         break;
       case Request::NewGame:
-        listener_if_->GotNewGame(host_id, static_cast<CampaignType>(payload.value()));
+        listener_if_->GotNewGame(host_id, static_cast<CampaignType>(payload.value()), payload.value2());
         listener_if_->GotNewState(host_id, payload.state());
         break;
       case Request::StartGame:

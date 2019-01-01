@@ -29,6 +29,7 @@ Campaign::Campaign(SDL_Window* window, SDL_Renderer* renderer, Events& events, c
   level_ = std::make_shared<Level>(renderer_, 150, events_, assets_);
   AddListener(level_.get());
   tetromino_generator_ = std::make_shared<TetrominoGenerator>(matrix_, level_, events_, assets_);
+  AddListener(tetromino_generator_.get());
   scoring_ = std::make_unique<Scoring>(renderer_, assets_, events_);
   AddListener(scoring_.get());
   timer_ = std::make_unique<::Timer>(renderer_, assets_, events_);

@@ -80,7 +80,7 @@ class Player final {
 
   void Reset();
 
-  void Render(int x_offset, int y_offset, CampaignType type) const;
+  void Render(int x_offset, int y_offset) const;
 
  private:
   struct Field {

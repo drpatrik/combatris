@@ -101,7 +101,7 @@ void MultiPlayer::Render(double delta_time) {
   int y_offset = 0;
 
   for (const auto& player : score_board_) {
-    player->Render(kSpaceingW * x_offset, kSpacingH * y_offset, campaign_type_);
+    player->Render(kSpaceingW * x_offset, kSpacingH * y_offset);
     x_offset++;
     if (x_offset > 1) {
       y_offset++;
@@ -184,7 +184,9 @@ void MultiPlayer::GotLeave(uint64_t host_id) {
   players_.erase(host_id);
 }
 
-void MultiPlayer::GotNewGame(uint64_t host_id, CampaignType type) {
+void MultiPlayer::GotNewGame(uint64_t host_id, CampaignType type, uint64_t seed) {
+  vote_.Add(host_id, type, seed);
+
   if (IsUs(host_id)) {
     accumulator_.Reset(start_level_);
     for (auto& player : score_board_) {
@@ -219,7 +221,15 @@ void MultiPlayer::GotStartGame() {
     }
   }
   SortScoreBoard();
-  events_.Push(Event::Type::NextTetromino);
+  if (score_board_.size() == 1) {
+    events_.Push(Event::Type::NextTetromino);
+  } else if (auto result = vote_.Cast(multiplayer_controller_->our_host_id())) {
+    events_.Push(Event::Type::MultiPlayerSetSeed, *result);
+    events_.Push(Event::Type::NextTetromino);
+  } else {
+    events_.Push(Event::Type::PlayerRejected);
+  }
+  vote_.Clear();
 }
 
 void MultiPlayer::GotNewState(uint64_t host_id, network::GameState state) {
