@@ -225,7 +225,6 @@ void MultiPlayer::GotStartGame() {
   if (score_board_.size() == 1) {
     events_.Push(Event::Type::NextTetromino);
   } else if (auto result = vote_.Cast(multiplayer_controller_->our_host_id())) {
-    std::cout << "Seed: " << *result << std::endl;
     events_.Push(Event::Type::MultiPlayerSetSeed, *result);
     events_.Push(Event::Type::NextTetromino);
   } else {
@@ -272,7 +271,6 @@ void MultiPlayer::GotLines(uint64_t host_id, int lines) {
     return;
   }
   if (!IsUs(host_id)) {
-    std::cout << lines << std::endl;
     events_.Push(Event::Type::BattleGotLines, lines, host_id);
   }
   auto& player = players_.at(host_id);

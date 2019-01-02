@@ -147,9 +147,8 @@ void Tetrion::HandleTetrominoStates(TetrominoSprite::State state, Events& events
       tetromino_in_play_.reset();
       matrix_->RemoveSolidLines();
       AddAnimation<MessageAnimation>(renderer_, assets_, "Got K.O. :-(", Color::Red, 100.0);
-      events_.Push(Event::Type::NextTetromino, 0.2);
       receiving_queue_->BroadcastKO();
-      receiving_queue_->Reset();
+      events_.Push(Event::Type::NextTetromino, 0.2);
       break;
     case TetrominoSprite::State::Commited:
       tetromino_in_play_.reset();

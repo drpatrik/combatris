@@ -4,6 +4,8 @@
 #include "game/matrix.h"
 #include "game/panes/pane.h"
 
+#include <set>
+
 class ReceivingQueue final : public TextPane, public EventListener {
  public:
   static const int kYOffs = 578;
@@ -63,6 +65,7 @@ class ReceivingQueue final : public TextPane, public EventListener {
     for (const auto& host : got_lines_from_) {
       events_.Push(Event::Type::BattleKnockedOut, host);
     }
+    Reset();
   }
 
   virtual void Update(const Event& event) override {
@@ -82,7 +85,7 @@ class ReceivingQueue final : public TextPane, public EventListener {
         texture_ = Texture(renderer_, assets_->GetFont(ObelixPro40), "+" + std::to_string(event.value1_), Color::Red);
         new_lines_ += event.value1_;
         total_lines_ += event.value1_;
-        got_lines_from_.push_back(event.value2_);
+        got_lines_from_.emplace(event.value2_);
         texture_update = true;
         break;
       case Event::Type::CalculatedScore:
@@ -158,6 +161,6 @@ class ReceivingQueue final : public TextPane, public EventListener {
   int total_lines_ = 0;
   int new_lines_ = 0;
   double ticks_ = 0.0;
-  std::vector<size_t> got_lines_from_;
+  std::set<size_t> got_lines_from_;
   CampaignType campaign_type_ = CampaignType::None;
 };
