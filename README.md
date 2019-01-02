@@ -7,16 +7,18 @@
 A C++17 implementation of and old classic. Combatris has been tested and works under Windows 10 (x64 only),
 OSX 10.12/10.13/10.14, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
 
-Features Combatris, Marathon, Sprint, Ultra Battle campaigns in single and multiplayer mode:
+Features Combatris, Marathon, Sprint, Ultra campaigns in single and multiplayer mode and Battle in multiplayer mode:
 
-* Combatris and Marathon: The winner is based on score.
+* Combatris and Marathon: The winner is judged on score.
 * Sprint: The fastest player to clear 40 lines are the winner.
 * Ultra: Clear as many lines as possible within 3 minutes.
 * Battle: Battle is only judged based on number of lines sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
 
-The game supports both keyboard and Gamepads / Joysticks (listed below).
+The multiplayer mode is using a voting mechanism to ensure that everyone is playing the same campaign. The voting rules are simple that campaign
+with the greatest number of players wins and any player that plays another campaign will be rejected. If there is a draw between the number of
+players Battle will be prioritized. Any player that are alone in a specific campaign will be rejected.
 
-**The next version will use the offical mappings for gamepads and joysticks.**
+The game supports both keyboard and Gamepads / Joysticks (listed below).
 
 I have tested the game with up to five players running on a heterogeneous set of computers using both wireless
 and Ethernet based connections. The game works well but there can be lag, since heartbeats are sent
@@ -157,6 +159,12 @@ Back-to-Back Bonus | 0.5 x Total Line Clears
 Finish all 15-levels are considered a win.
 
 **Lines Sent - Battle Campaign**
+
+The “got lines” pane are divided into two sections. The first section shows the number of received lines that has not yet been
+inserted into the matrix. At this point you can perform a counter attack or at least decreased the number of received lines by
+doing a move that sends lines over to your opponent. When the move has been executed any number of lines left in the first
+section will be added to your matrix and to the second section of the panes which show the number of solid lines in the matrix.
+You cannot send any lines to an opponent until you have cleared all the solid lines in the matrix.
 
 Move | Lines Sent (Lines per combo step)
 ---- | ---------------------------------
