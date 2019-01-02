@@ -121,7 +121,7 @@ inline std::string ToString(Request request) {
   return "Unknown";
 }
 
-enum class GameState : uint8_t { None, Idle, Waiting, Playing, GameOver };
+enum class GameState : uint8_t { None, Idle, Waiting, Playing, GameOver, Rejected };
 
 inline std::string ToString(GameState state) {
   switch (state) {
@@ -135,6 +135,8 @@ inline std::string ToString(GameState state) {
       return "Playing";
     case GameState::GameOver:
       return "Game Over";
+    case GameState::Rejected:
+      return "Rejected";
   }
   return "Unknown";
 }

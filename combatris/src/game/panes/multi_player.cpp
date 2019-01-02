@@ -32,7 +32,7 @@ MatrixState GetMatrixState(const std::shared_ptr<Matrix>& m) {
 
 inline bool IsPlaying(GameState state) { return GameState::Playing == state; }
 
-inline bool IsIdle(GameState state) { return GameState::Idle == state; }
+inline bool IsIdle(GameState state) { return GameState::Idle == state || GameState::Rejected == state; }
 
 inline bool IsWaiting(GameState state) { return GameState::Waiting == state; }
 
@@ -71,8 +71,10 @@ void MultiPlayer::Update(const Event& event) {
       accumulator_.SetLevel(event.value1_);
       break;
     case Event::Type::GameOver:
-    case Event::Type::PlayerRejected:
       multiplayer_controller_->SendState(GameState::GameOver);
+      break;
+    case Event::Type::PlayerRejected:
+      multiplayer_controller_->SendState(GameState::Rejected);
       break;
     case Event::Type::MultiplayerStartGame:
       multiplayer_controller_->StartGame();
@@ -245,7 +247,8 @@ void MultiPlayer::GotNewState(uint64_t host_id, network::GameState state) {
   player->SetState(state);
   if (!IsIdle(game_state_) && !IsWaiting(game_state_)) {
     if (IsGameOver(state) && CanPressNewGame()) {
-      auto it = std::find_if(score_board_.begin(), score_board_.end(), [this](const auto p) { return IsUs(p->host_id()); });
+      SortScoreBoard();
+      auto it = std::find_if(score_board_.begin(), score_board_.end(), [this](const auto& p) { return IsUs(p->host_id()); });
 
       events_.Push(Event::Type::MultiplayerCampaignOver, static_cast<size_t>(std::distance(score_board_.begin(), it)));
     }

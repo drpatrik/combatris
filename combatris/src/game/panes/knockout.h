@@ -40,7 +40,7 @@ class Knockout final : public Pane, public EventListener {
       Pane::RenderCopy(plus_one_texture_);
       ticks_ += delta_time;
       show_plus_one_ = (ticks_ < kDisplayTime);
-    } else {
+    } else if (n_ko_ > 0) {
       Pane::RenderCopy(n_ko_texture_);
     }
   }

@@ -32,7 +32,7 @@ bool IsAnimationActive(std::deque<std::shared_ptr<Animation>>& animations) {
     [](const auto& a) { return a->name() == typeid(T).name(); }) != animations.end();
 }
 
-std::string RankToText(int rank) {
+std::string RankToText(size_t rank) {
   const std::vector<std::string> kRanks = { "Winner", "2nd place", "3rd place", "4th place", "5th place", "6th place" };
 
   return kRanks.at(rank);
@@ -223,7 +223,7 @@ void Tetrion::EventHandler(Events& events, double delta_time) {
       break;
     case Event::Type::MultiplayerCampaignOver:
       RemoveAnimation<HourglassAnimation>(animations_);
-      AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_, RankToText(event.value1_));
+      AddAnimation<GameOverAnimation>(renderer_, combatris_menu_, assets_, RankToText(event.value2_));
       break;
     case Event::Type::GameOver:
     case Event::Type::PlayerRejected:
