@@ -1,10 +1,16 @@
 #include "game/panes/vote.h"
 
-#include <assert.h>
+#include <stdexcept>
 
 namespace {
 
-const std::vector<CampaignType> kCampaignTypes = { CampaignType::Combatris, CampaignType::Marathon, CampaignType::Sprint, CampaignType::Ultra, CampaignType::Battle };
+const std::vector<CampaignType> kCampaignTypes = {
+  CampaignType::Combatris,
+  CampaignType::Marathon,
+  CampaignType::Sprint,
+  CampaignType::Ultra,
+  CampaignType::Battle
+};
 
 } // namespace
 
@@ -15,10 +21,10 @@ void Vote::Clear() {
   }
 }
 
-opt::optional<size_t> Vote::Cast(size_t host_id) {
+opt::optional<size_t> Vote::Cast(size_t host_id) const {
   std::vector<std::pair<CampaignType, size_t>> vec;
 
-  for (auto& campaign : campaigns_) {
+  for (const auto& campaign : campaigns_) {
     if (campaign.second.size() == 0) {
       continue;
     }
@@ -28,22 +34,24 @@ opt::optional<size_t> Vote::Cast(size_t host_id) {
       vec.push_back(std::make_pair(campaign.first, campaign.second.size()));
     }
   }
-  auto it = std::max_element(vec.begin(), vec.end(), [](const auto p1, const auto p2) { return p1.second < p2.second; });
+  const auto it = std::max_element(vec.begin(), vec.end(), [](const auto& p1, const auto& p2) { return p1.second < p2.second; });
 
-  assert(it != vec.end());
+  if (it == vec.end()) {
+    throw std::out_of_range("Vote table empty");
+  }
 
   decltype(vec) matches;
 
   std::copy_if(it, vec.end(), std::back_inserter(matches), [&it](const auto& p) { return p.second == it->second; });
 
-  if (matches.size() == 1 && !IsInList(host_id, campaigns_[it->first])) {
+  if (matches.size() == 1 && !IsInList(host_id, campaigns_.at(it->first))) {
     return {};
   }
-  std::sort(matches.begin(), matches.end(), [](const auto p1, const auto p2) { return p1.first > p2.first; });
+  std::sort(matches.begin(), matches.end(), [](const auto& p1, const auto& p2) { return p1.first > p2.first; });
 
-  if (!IsInList(host_id, campaigns_[matches.begin()->first])) {
+  if (!IsInList(host_id, campaigns_.at(matches.begin()->first))) {
     return {};
   }
 
-  return opt::make_optional<size_t>(campaigns_[matches.begin()->first].begin()->seed_);
+  return opt::make_optional<size_t>(campaigns_.at(matches.begin()->first).begin()->seed_);
 }
