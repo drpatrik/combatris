@@ -71,6 +71,7 @@ void MultiPlayer::Update(const Event& event) {
       accumulator_.SetLevel(event.value1_);
       break;
     case Event::Type::GameOver:
+    case Event::Type::PlayerRejected:
       multiplayer_controller_->SendState(GameState::GameOver);
       break;
     case Event::Type::MultiplayerStartGame:

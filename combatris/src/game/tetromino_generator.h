@@ -15,7 +15,9 @@ class TetrominoGenerator final : public EventListener {
 
   virtual void Update(const Event& event) override {
     if (event.Is(Event::Type::MultiPlayerSetSeed)) {
+      std::cout << "Got seed: " << event.value2_ << std::endl;
       engine_.seed(event.value2_);
+      Reset();
     }
   }
 

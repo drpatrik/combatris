@@ -100,13 +100,13 @@ void MultiPlayerController::Dispatch() {
         listener_if_->GotNewState(host_id, payload.state());
         break;
       case Request::SendLines:
-        listener_if_->GotLines(host_id, static_cast<int>(payload.value()));
+        listener_if_->GotLines(host_id, static_cast<int>(payload.value2()));
         break;
       case Request::KnockedOutBy:
-        listener_if_->GotPlayerKnockedOut(payload.value());
+        listener_if_->GotPlayerKnockedOut(payload.value2());
         break;
       case Request::Time:
-        listener_if_->GotTime(host_id, payload.value());
+        listener_if_->GotTime(host_id, payload.value2());
         break;
       case Request::ProgressUpdate:
         listener_if_->GotProgressUpdate(host_id, response.progress_payload_.lines(), response.progress_payload_.score(),
