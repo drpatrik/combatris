@@ -3,6 +3,7 @@
 
 #include <random>
 #include <iomanip>
+#include <assert.h>
 
 namespace {
 

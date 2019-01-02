@@ -129,7 +129,8 @@ void Tetrion::GameControl(Controls control_pressed, int lines) {
       }
       break;
     case Controls::DebugSendLine:
-      events_.Push(Event::Type::BattleGotLines, lines, 100);
+      //events_.Push(Event::Type::BattleGotLines, lines, 100);
+      events_.Push(Event::Type::BattleSendLines, lines);
       break;
     default:
       break;

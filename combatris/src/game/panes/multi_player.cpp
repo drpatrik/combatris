@@ -224,6 +224,7 @@ void MultiPlayer::GotStartGame() {
   if (score_board_.size() == 1) {
     events_.Push(Event::Type::NextTetromino);
   } else if (auto result = vote_.Cast(multiplayer_controller_->our_host_id())) {
+    std::cout << "Seed: " << *result << std::endl;
     events_.Push(Event::Type::MultiPlayerSetSeed, *result);
     events_.Push(Event::Type::NextTetromino);
   } else {
