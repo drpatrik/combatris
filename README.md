@@ -14,8 +14,8 @@ Features Combatris, Marathon, Sprint, Ultra campaigns in single and multiplayer 
 * Ultra: Clear as many lines as possible within 3 minutes.
 * Battle: Battle is only judged based on number of lines sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
 
-The multiplayer mode is using a voting mechanism to ensure that everyone is playing the same campaign. The voting rules are simple that campaign
-with the greatest number of players wins and any player that plays another campaign will be rejected. If there is a draw between the number of
+The multiplayer mode is using a voting mechanism to ensure that everyone is playing the same campaign. The voting rules are simple the campaign
+with the greatest number of players wins and any player that want to play another campaign will be rejected. If there is a draw between the number of
 players Battle will be prioritized. Any player that are alone in a specific campaign will be rejected.
 
 The game supports both keyboard and Gamepads / Joysticks (listed below).
