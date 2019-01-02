@@ -6,6 +6,14 @@ TEST_CASE("TestVoteOnlyOne") {
   Vote vote;
 
   vote.Add(2, CampaignType::Combatris, 2);
+
+  REQUIRE(vote.Cast(1));
+}
+
+TEST_CASE("TestVoteOnlyOneCampaign") {
+  Vote vote;
+
+  vote.Add(2, CampaignType::Combatris, 2);
   vote.Add(1, CampaignType::Combatris, 1);
 
   REQUIRE(vote.Cast(1) == 2);

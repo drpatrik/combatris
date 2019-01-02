@@ -1,6 +1,7 @@
 #include "game/panes/vote.h"
 
 #include <stdexcept>
+#include <random>
 
 namespace {
 
@@ -22,6 +23,11 @@ void Vote::Clear() {
 }
 
 opt::optional<size_t> Vote::Cast(size_t host_id) const {
+  auto n = std::accumulate(campaigns_.begin(), campaigns_.end(), 0, [](int s, const auto& p1) { return s + p1.second.size(); });
+
+  if (n == 1) {
+    return std::random_device()();
+  }
   std::vector<std::pair<CampaignType, size_t>> vec;
 
   for (const auto& campaign : campaigns_) {

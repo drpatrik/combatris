@@ -224,9 +224,7 @@ void MultiPlayer::GotStartGame() {
     }
   }
   SortScoreBoard();
-  if (score_board_.size() == 1) {
-    events_.Push(Event::Type::NextTetromino);
-  } else if (auto result = vote_.Cast(multiplayer_controller_->our_host_id())) {
+  if (auto result = vote_.Cast(multiplayer_controller_->our_host_id())) {
     events_.Push(Event::Type::MultiPlayerSetSeed, *result);
     events_.Push(Event::Type::NextTetromino);
   } else {
