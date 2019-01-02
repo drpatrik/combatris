@@ -1,6 +1,7 @@
 #include "game/panes/vote.h"
 
 #include <stdexcept>
+#include <numeric>
 #include <random>
 
 namespace {
