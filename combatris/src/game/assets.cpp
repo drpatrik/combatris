@@ -99,6 +99,10 @@ Assets::Assets(SDL_Renderer *renderer) : fonts_(std::make_shared<Fonts>()) {
     hourglass_textures_.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, "Hourglass", i), DeleteTexture));
   }
   std::for_each(kFontsToPreload.begin(), kFontsToPreload.end(), [this](const auto& f) { fonts_->Get(f); });
+
+  if (SDL_GameControllerAddMappingsFromFile((kAssetFolder + "gamecontrollerdb.txt").c_str()) == -1) {
+    std::cout << "Warning: Failed to load game controller mappings: " << SDL_GetError() << std::endl;
+  }
 }
 
 std::tuple<std::shared_ptr<SDL_Texture>, int, int> Assets::GetTexture(Type type) const {

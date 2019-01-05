@@ -14,20 +14,6 @@ Features Combatris, Marathon, Sprint, Ultra campaigns in single and multiplayer 
 * Ultra: Clear as many lines as possible within 3 minutes.
 * Battle: Battle is only judged based on number of lines sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
 
-The multiplayer mode is using a voting mechanism to ensure that everyone is playing the same campaign. The voting rules are simple the campaign
-with the greatest number of players wins and any player that want to play another campaign will be rejected. If there is a draw between the number of
-players Battle will be prioritized. Any player that are alone in a specific campaign will be rejected.
-
-The game supports both keyboard and Gamepads / Joysticks (listed below).
-
-I have tested the game with up to five players running on a heterogeneous set of computers using both wireless
-and Ethernet based connections. The game works well but there can be lag, since heartbeats are sent
-every 200 ms and status updates every 250 ms (if something has happened). Heartbeats are suppressed if
-other messages have been sent within the heartbeat interval (to keep network congestion down).
-
-Since its only me playing, and sometimes the family when they feel pity for me, the game most probably
-have many bugs left.
-
 Feature | Support
 --- | ------
 Hold Piece | Yes
@@ -43,84 +29,53 @@ T-Spin recognition | 3-corner with kicks
 Back-to-back Recognition | Combatris / T-spin
 Platforms | PC / OSX / Linux / Raspian
 
+The multiplayer mode is using a voting mechanism to ensure that everyone is playing the same campaign. The voting rules are simple the campaign
+with the greatest number of players wins and any player that want to play another campaign will be rejected. If there is a draw between the number of
+players Battle will be prioritized. Any player that are alone in a specific campaign will be rejected.
+
+The game supports both keyboard and Gamepads. The game has been tested with:
+
+* Logitech F310 Gamepad
+* PS3/PS4 Controller
+* Retroflag Classic USB Gamepad
+* 8Bitdo NES30 Gamepad
+
+I have tested the game with up to five players running on a heterogeneous set of computers using both wireless
+and Ethernet based connections. The game works well but there can be lag, since heartbeats are sent
+every 200 ms and status updates every 250 ms (if something has happened). Heartbeats are suppressed if
+other messages have been sent within the heartbeat interval (to keep network congestion down).
+
+Since its only me playing, and sometimes the family when they feel pity for me, the game most probably
+have many bugs left.
+
 **Keyboard Commands**
 
 Key | Action
 --- | ------
 N  | New game
 P | Pause
-Z | Rotate counter clockwise
+CTRL / Z | Rotate counter clockwise
 Up / X | Rotate clockwise
 Left | Move Left
 Right | Move Right
 Down | Soft Drop
 Space | Hard Drop
-Shift | Hold piece
+Shift / C | Hold piece
 Q | Quit
 
-**Joystick Commands (PS3/PS4 Controller)**
+**Joystick / Game Controller Commands **
 
 Key | Action
 --- | ------
 Start/Trackpad  | New game
-Select/Option | Pause
-Square | Rotate counter clockwise
-Circle | Rotate clockwise
+Select/Option/Back | Pause
+A/X | Rotate counter clockwise
+B/O | Rotate clockwise
 Left | Move Left
 Right | Move Right
+Up | Hard Drop
 Down | Soft Drop
-Triangle | Hold piece
-X | Hard Drop
-
-*Tested on OSX only*
-
-**Joystick Commands (Logitech F310 Gamepad)**
-
-Key | Action
---- | ------
-Start  | New game
-Select | Pause
-X | Rotate counter clockwise
-B | Rotate clockwise
-Left | Move Left
-Right | Move Right
-Down | Soft Drop
-Y | Hold piece
-A | Hard Drop
-
-*Tested on Windows, OSX and Raspian*
-
-**Joystick Commands (Retroflag Classic USB Gamepad)**
-
-Key | Action
---- | ------
-Start  | New game
-Select | Pause
-Y | Rotate counter clockwise
-A | Rotate clockwise
-Left | Move Left
-Right | Move Right
-Down | Soft Drop
-X | Hold piece
-B | Hard Drop
-
-*Tested on Raspian*
-
-**Joystick Commands (8Bitdo NES30 Gamepad)**
-
-Key | Action
---- | ------
-Start  | New game
-Select | Pause
-Y | Rotate counter clockwise
-A | Rotate clockwise
-Left | Move Left
-Right | Move Right
-Down | Soft Drop
-X | Hold piece
-B | Hard Drop
-
-*Tested on Raspian*
+Shoulder Buttons | Hold piece
 
 **Scoring - Combatris Campaign**
 
@@ -194,8 +149,8 @@ B2B T-Spin Triple | 9
 ... Combo | ... (4)
 
 **Progress for new features / improvements**
-- [ ] Change joystick settings to follow the standard
-- [ ] Use SDL_GameControllerDB
+- [X] Change joystick settings to follow the standard
+- [X] Use SDL_GameControllerDB
 - [ ] Add support for Internet online play
 - [ ] Remove the pane for showing combo/latest move and display combo/last move direct on the frame
 - [ ] Add new animation for combo/last clearing move
