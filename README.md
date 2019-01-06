@@ -68,8 +68,6 @@ Q | Quit
 
 ![screenshots](screenshots/gamepad.png)
 
-*The layout of the example gamepad will be true even though the buttons have other labels.*
-
 Key | Action
 --- | ------
 Start | New game
