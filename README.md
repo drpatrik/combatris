@@ -54,7 +54,7 @@ have many bugs left.
 Key | Action
 --- | ------
 N  | New game
-P | Pause
+F1 / P | Pause
 CTRL / Z | Rotate counter clockwise
 Up / X | Rotate clockwise
 Left | Move Left
