@@ -79,6 +79,7 @@ void Tetrion::HandleMenu(Controls control_pressed) {
   }
   switch (control_pressed) {
     case Controls::Up:
+    case Controls::UpKeyBoard:
       combatris_menu_->Previous();
       break;
     case Controls::Down:

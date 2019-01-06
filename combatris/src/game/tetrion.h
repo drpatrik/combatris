@@ -19,6 +19,7 @@ class Tetrion final {
     Quit,
     DebugSendLine,
     Up = HardDrop,
+    UpKeyBoard = RotateClockwise,
     Down = SoftDrop
   };
 
