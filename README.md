@@ -33,7 +33,7 @@ The multiplayer mode is using a voting mechanism to ensure that everyone is play
 with the greatest number of players wins and any player that want to play another campaign will be rejected. If there is a draw between the number of
 players Battle will be prioritized. Any player that are alone in a specific campaign will be rejected.
 
-The game supports both keyboard and gamepad controllers. The game has been tested with:
+Combatris supports both keyboard and gamepads. The game has been tested with:
 
 * Logitech F310 Gamepad
 * PS3/PS4 Controller
@@ -44,9 +44,7 @@ The game supports all gamepads currently included in [SDL_GameControllerDB](http
 A version of the file can be found in the asset folder. Feel free to update it to the latest version.
 
 I have tested the game with up to five players running on a heterogeneous set of computers using both wireless
-and Ethernet based connections. The game works well but there can be lag, since heartbeats are sent
-every 200 ms and status updates every 250 ms (if something has happened). Heartbeats are suppressed if
-other messages have been sent within the heartbeat interval (to keep network congestion down).
+and Ethernet based connections. The game works well but there can be a slight lag.
 
 Since its only me playing, and sometimes the family when they feel pity for me, the game most probably
 have many bugs left.
@@ -76,17 +74,17 @@ Key | Action
 --- | ------
 Start | New game
 Select | Pause
-A | Rotate counter clockwise
-B | Rotate clockwise
+A | Rotate clockwise
+B | Rotate counter clockwise
 Left | Move Left
 Right | Move Right
 Up | Hard Drop
 Down | Soft Drop
 Shoulder Buttons | Hold piece
 
-The layout of the example gamepad will be true even though the buttons are named X and Y.
+The layout of the example gamepad will be true even though the buttons have other lables then the lables depicted.
 You can use [SDL2 Gamepad Tool](http://generalarcade.com/gamepadtool/) to add mappings if you have a gamepad
-that is not currently supported.
+that is currently not supported.
 
 **Scoring - Combatris Campaign**
 
@@ -162,11 +160,11 @@ B2B T-Spin Triple | 9
 **Progress for new features / improvements**
 - [X] Change joystick settings to follow the standard
 - [X] Use SDL_GameControllerDB
-- [ ] Add support for Internet online play
+- [ ] Add support for two players on the same computer
 - [ ] Remove the pane for showing combo/latest move and display combo/last move direct on the frame
-- [ ] Add new animation for combo/last clearing move
 - [ ] Sound
-- [ ] Unit tests for all score combinations
+- [ ] Add new animation for combo/last clearing move
+- [ ] Add support for Internet online play
 
 ## Network Considerations
 
