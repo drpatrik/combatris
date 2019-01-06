@@ -40,8 +40,8 @@ The game supports both keyboard and gamepad controllers. The game has been teste
 * Retroflag Classic USB Gamepad
 * 8Bitdo NES30 Gamepad
 
-The game supports all gamepads currently included in SDL_GameControllerDB. A version of the file can be found
-in the asset folder. Feel free to update it to the latest version: https://github.com/gabomdq/SDL_GameControllerDB
+The game supports all gamepads currently included in [SDL_GameControllerDB](https://github.com/gabomdq/SDL_GameControllerDB).
+A version of the file can be found in the asset folder. Feel free to update it to the latest version.
 
 I have tested the game with up to five players running on a heterogeneous set of computers using both wireless
 and Ethernet based connections. The game works well but there can be lag, since heartbeats are sent
@@ -66,7 +66,7 @@ Space | Hard Drop
 Shift / C | Hold piece
 Q | Quit
 
-**Joystick / Game Controller Commands **
+**Gamepad Commands**
 
 ![screenshots](screenshots/gamepad.png)
 
