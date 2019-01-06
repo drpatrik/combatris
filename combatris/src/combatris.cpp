@@ -26,6 +26,7 @@ class Combatris {
   using RepeatFunc = std::function<void()>;
 
   Combatris() {
+    Assets::LoadGameControllerMappings();
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
       std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
       exit(-1);
@@ -37,6 +38,11 @@ class Combatris {
     SDL_GameControllerEventState(SDL_ENABLE);
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
     tetrion_ = std::make_shared<Tetrion>();
+
+    for (int i = 0; i < SDL_NumJoysticks();++i) {
+      AttachController(i);
+    }
+
   }
 
   ~Combatris() {
@@ -51,7 +57,6 @@ class Combatris {
       return;
     }
     if (SDL_IsGameController(index) == 0) {
-      std::cout << "Warning: Game controller not identified and cannot be used" << std::endl;
       return;
     }
     game_controller_ = SDL_GameControllerOpen(index);
@@ -61,13 +66,14 @@ class Combatris {
     }
     gamecontroller_index_ = index;
     gamecontroller_name_ = SDL_GameControllerNameForIndex(gamecontroller_index_);
-    std::cout << "Game controller found: " << gamecontroller_name_ << std::endl;
+    std::cout << "Game controller attached: " << gamecontroller_name_ << std::endl;
   }
 
   void DetachController(int index) {
     if (nullptr == game_controller_ || index != gamecontroller_index_) {
       return;
     }
+    std::cout << "Game controller detached: " << gamecontroller_name_ << std::endl;
     SDL_GameControllerClose(game_controller_);
     game_controller_ = nullptr;
     gamecontroller_index_ = -1;
