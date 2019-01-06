@@ -33,12 +33,15 @@ The multiplayer mode is using a voting mechanism to ensure that everyone is play
 with the greatest number of players wins and any player that want to play another campaign will be rejected. If there is a draw between the number of
 players Battle will be prioritized. Any player that are alone in a specific campaign will be rejected.
 
-The game supports both keyboard and Gamepads. The game has been tested with:
+The game supports both keyboard and gamepad controllers. The game has been tested with:
 
 * Logitech F310 Gamepad
 * PS3/PS4 Controller
 * Retroflag Classic USB Gamepad
 * 8Bitdo NES30 Gamepad
+
+The game supports all gamepads currently included in SDL_GameControllerDB. A version of the file can be found
+in the asset folder. Feel free to update it to the latest version: https://github.com/gabomdq/SDL_GameControllerDB
 
 I have tested the game with up to five players running on a heterogeneous set of computers using both wireless
 and Ethernet based connections. The game works well but there can be lag, since heartbeats are sent
@@ -65,17 +68,25 @@ Q | Quit
 
 **Joystick / Game Controller Commands **
 
+![screenshots](screenshots/gamepad.png)
+
+*The layout of the example gamepad will be true even though the buttons have other labels.*
+
 Key | Action
 --- | ------
-Start/Trackpad  | New game
-Select/Option/Back | Pause
-A/X | Rotate counter clockwise
-B/O | Rotate clockwise
+Start | New game
+Select | Pause
+A | Rotate counter clockwise
+B | Rotate clockwise
 Left | Move Left
 Right | Move Right
 Up | Hard Drop
 Down | Soft Drop
 Shoulder Buttons | Hold piece
+
+The layout of the example gamepad will be true even though the buttons are named X and Y.
+You can use [SDL2 Gamepad Tool](http://generalarcade.com/gamepadtool/) to add mappings if you have a gamepad
+that is not currently supported.
 
 **Scoring - Combatris Campaign**
 
