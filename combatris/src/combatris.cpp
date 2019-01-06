@@ -26,7 +26,6 @@ class Combatris {
   using RepeatFunc = std::function<void()>;
 
   Combatris() {
-    Assets::LoadGameControllerMappings();
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
       std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
       exit(-1);
@@ -35,14 +34,11 @@ class Combatris {
       std::cout << "TTF_Init Error: " << TTF_GetError() << std::endl;
       exit(-1);
     }
+    Assets::LoadGameControllerMappings();
+    SDL_JoystickEventState(SDL_ENABLE);
     SDL_GameControllerEventState(SDL_ENABLE);
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
     tetrion_ = std::make_shared<Tetrion>();
-
-    for (int i = 0; i < SDL_NumJoysticks();++i) {
-      AttachController(i);
-    }
-
   }
 
   ~Combatris() {
@@ -187,9 +183,11 @@ class Combatris {
             function_to_repeat = nullptr;
             previous_control = Tetrion::Controls::None;
             break;
+          case SDL_JOYDEVICEADDED:
           case SDL_CONTROLLERDEVICEADDED:
             AttachController(event.jbutton.which);
             break;
+          case SDL_JOYDEVICEREMOVED:
           case SDL_CONTROLLERDEVICEREMOVED:
             DetachController(event.jbutton.which);
             break;
