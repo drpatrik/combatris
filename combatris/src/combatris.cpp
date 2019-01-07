@@ -1,9 +1,8 @@
 #include "utility/timer.h"
 #include "game/tetrion.h"
 
-#include <set>
 #include <functional>
-#include <unordered_map>
+#include <set>
 
 namespace {
 
