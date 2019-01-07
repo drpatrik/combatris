@@ -6,13 +6,6 @@
 
 Combatris has been tested and works under Windows 10 (x64 only), OSX 10.12/10.13/10.14, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
 
-Features Combatris, Marathon, Sprint, Ultra campaigns in single and multiplayer mode and Battle campaign in multiplayer mode:
-
-* Combatris and Marathon: The winner is judged on score.
-* Sprint: The fastest player to clear 40 lines are the winner.
-* Ultra: Clear as many lines as possible within 3 minutes.
-* Battle: Battle is only judged based on number of lines sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
-
 Feature | Support
 --- | ------
 Hold Piece | Yes
@@ -27,6 +20,13 @@ Level advancement | 10 lines / 5 * level Marathon
 T-Spin recognition | 3-corner with kicks
 Back-to-back Recognition | Combatris / T-spin
 
+Features Combatris, Marathon, Sprint, Ultra campaigns in single and multiplayer mode and Battle campaign in multiplayer mode:
+
+* Combatris and Marathon: The winner is judged on score.
+* Sprint: The fastest player to clear 40 lines are the winner.
+* Ultra: Clear as many lines as possible within 3 minutes.
+* Battle: Battle is only judged based on number of lines sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
+
 The multiplayer mode is using a voting mechanism to ensure that all participants are playing the same campaign. The voting rules are simple; the campaign
 with the greatest number of players wins and any player that want to play another campaign will be rejected. If there is a draw between the number of
 players Battle will be prioritized. Any player that are alone in a specific campaign will be rejected.
@@ -39,7 +39,7 @@ Combatris supports both keyboard and gamepads. The game has been tested with:
 * 8Bitdo NES30 Gamepad
 
 The game supports all gamepads currently included in [SDL_GameControllerDB](https://github.com/gabomdq/SDL_GameControllerDB).
-A version of the file can be found in the asset folder. Feel free to update it to the latest version.
+A version of the file can be found in the assets folder. Feel free to update it to the latest version.
 
 I have tested the game with up to five players running on a heterogeneous set of computers using both wifi and Ethernet based connections.
 The game works well but there can be a slight lag.
