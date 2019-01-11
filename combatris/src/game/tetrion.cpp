@@ -122,10 +122,11 @@ void Tetrion::GameControl(Controls control_pressed, int lines) {
       break;
     case Controls::Hold:
       if (hold_queue_->CanHold()) {
-        RemoveAnimation<OnFloorAnimation>(animations_);
         if (auto tetromino_type = hold_queue_->Hold(tetromino_in_play_); Tetromino::Type::Empty != tetromino_type) {
           tetromino_generator_->Put(tetromino_type);
         }
+        tetromino_in_play_.reset();
+        RemoveAnimation<OnFloorAnimation>(animations_);
         events_.Push(Event::Type::NextTetromino, 0.2);
       }
       break;
@@ -247,7 +248,9 @@ void Tetrion::EventHandler(Events& events, double delta_time) {
       }
       break;
     case Event::Type::OnFloor:
-      AddAnimation<OnFloorAnimation>(renderer_, assets_, tetromino_in_play_);
+      if (tetromino_in_play_) {
+        AddAnimation<OnFloorAnimation>(renderer_, assets_, tetromino_in_play_);
+      }
       break;
     case Event::Type::ClearOnFloor:
       RemoveAnimation<OnFloorAnimation>(animations_);
@@ -271,7 +274,6 @@ void Tetrion::Render(double delta_time) {
   SDL_RenderClear(renderer_);
   campaign_->Render(delta_time);
   RenderAnimations(animations_, delta_time, events_);
-
   SDL_RenderPresent(renderer_);
 }
 

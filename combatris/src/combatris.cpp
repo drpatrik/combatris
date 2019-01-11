@@ -34,7 +34,6 @@ class Combatris {
       exit(-1);
     }
     Assets::LoadGameControllerMappings();
-    SDL_JoystickEventState(SDL_ENABLE);
     SDL_GameControllerEventState(SDL_ENABLE);
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
     tetrion_ = std::make_shared<Tetrion>();
@@ -47,11 +46,13 @@ class Combatris {
     TTF_Quit();
   }
 
+  inline void ResetAutoRepeat() {
+    function_to_repeat_ = nullptr;
+    previous_control_ = Tetrion::Controls::None;
+  }
+
   void AttachController(int index) {
-    if (nullptr != game_controller_) {
-      return;
-    }
-    if (SDL_IsGameController(index) == 0) {
+    if (nullptr != game_controller_ || SDL_IsGameController(index) == 0) {
       return;
     }
     game_controller_ = SDL_GameControllerOpen(index);
@@ -110,7 +111,7 @@ class Combatris {
   }
 
   Tetrion::Controls TranslateControllerCommands(const SDL_Event& event) const {
-    if (event.jbutton.which != gamecontroller_index_) {
+    if (event.cbutton.which != gamecontroller_index_) {
       return Tetrion::Controls::None;
     }
     switch (event.cbutton.button) {
@@ -130,10 +131,8 @@ class Combatris {
         return Tetrion::Controls::HardDrop;
       case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
         return Tetrion::Controls::SoftDrop;
-      case SDL_CONTROLLER_BUTTON_LEFTSTICK:
       case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
         return Tetrion::Controls::Left;
-      case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
       case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
         return Tetrion::Controls::Right;
     }
@@ -141,13 +140,13 @@ class Combatris {
   }
 
   template <Tetrion::Controls control>
-  void Repeatable(Tetrion::Controls& previous_control, RepeatFunc& func, int& repeat_count, int64_t& time_since_last_auto_repeat) {
-    if (control == previous_control) {
+  void Repeatable(int& repeat_count, int64_t& time_since_last_auto_repeat) {
+    if (control == previous_control_) {
       return;
     }
     repeat_count = 0;
-    previous_control = control;
-    func = [this]() { tetrion_->GameControl(control); };
+    previous_control_ = control;
+    function_to_repeat_ = [&tetrion = tetrion_]() { tetrion->GameControl(control); };
     time_since_last_auto_repeat = kAutoRepeatInitialDelay;
   }
 
@@ -157,8 +156,6 @@ class Combatris {
     int repeat_count = 0;
     int64_t time_since_last_auto_repeat = 0;
     int64_t auto_repeat_threshold = kAutoRepeatInitialDelay;
-    std::function<void()> function_to_repeat;
-    Tetrion::Controls previous_control = Tetrion::Controls::None;
     SDL_Event event;
 
     while (!quit) {
@@ -176,19 +173,19 @@ class Combatris {
           case SDL_CONTROLLERBUTTONDOWN:
             current_control = TranslateControllerCommands(event);
             break;
-          case SDL_CONTROLLERBUTTONUP:
           case SDL_KEYUP:
-            repeat_count = 0;
-            function_to_repeat = nullptr;
-            previous_control = Tetrion::Controls::None;
+          case SDL_CONTROLLERBUTTONUP:
+            ResetAutoRepeat();
             break;
           case SDL_JOYDEVICEADDED:
+            event.cbutton.which = event.jbutton.which;
           case SDL_CONTROLLERDEVICEADDED:
-            AttachController(event.jbutton.which);
+            AttachController(event.cbutton.which);
             break;
           case SDL_JOYDEVICEREMOVED:
+            event.cbutton.which = event.jbutton.which;
           case SDL_CONTROLLERDEVICEREMOVED:
-            DetachController(event.jbutton.which);
+            DetachController(event.cbutton.which);
             break;
         }
         if (Tetrion::Controls::None == current_control) {
@@ -196,13 +193,13 @@ class Combatris {
         }
         switch (current_control) {
           case Tetrion::Controls::Left:
-            Repeatable<Tetrion::Controls::Left>(previous_control, function_to_repeat, repeat_count, time_since_last_auto_repeat);
+            Repeatable<Tetrion::Controls::Left>(repeat_count, time_since_last_auto_repeat);
             break;
           case Tetrion::Controls::Right:
-            Repeatable<Tetrion::Controls::Right>(previous_control, function_to_repeat, repeat_count, time_since_last_auto_repeat);
+            Repeatable<Tetrion::Controls::Right>(repeat_count, time_since_last_auto_repeat);
             break;
           case Tetrion::Controls::SoftDrop:
-            Repeatable<Tetrion::Controls::SoftDrop>(previous_control, function_to_repeat, repeat_count, time_since_last_auto_repeat);
+            Repeatable<Tetrion::Controls::SoftDrop>(repeat_count, time_since_last_auto_repeat);
             break;
           case Tetrion::Controls::Start:
             tetrion_->NewGame();
@@ -222,17 +219,12 @@ class Combatris {
             tetrion_->GameControl(current_control);
             break;
         }
-        if (kAutoRepeatControls.count(current_control) == 0) {
-          repeat_count = 0;
-          function_to_repeat = nullptr;
-          previous_control = Tetrion::Controls::None;
+        if (!kAutoRepeatControls.count(current_control)) {
+          ResetAutoRepeat();
         }
       }
-      if (previous_control != Tetrion::Controls::None &&
-          (time_in_ms() - time_since_last_auto_repeat) >= auto_repeat_threshold) {
-        if (function_to_repeat) {
-          function_to_repeat();
-        }
+      if (kAutoRepeatControls.count(previous_control_) && (time_in_ms() - time_since_last_auto_repeat) >= auto_repeat_threshold) {
+        function_to_repeat_();
         auto_repeat_threshold = (0 == repeat_count) ? kAutoRepeatInitialDelay : kAutoRepeatSubsequentDelay;
         repeat_count++;
         time_since_last_auto_repeat = time_in_ms();
@@ -244,6 +236,8 @@ class Combatris {
  private:
   int gamecontroller_index_ = -1;
   std::string gamecontroller_name_;
+  std::function<void()> function_to_repeat_;
+  Tetrion::Controls previous_control_ = Tetrion::Controls::None;
   SDL_GameController* game_controller_ = nullptr;
   std::shared_ptr<Tetrion> tetrion_ = nullptr;
 };

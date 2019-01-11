@@ -144,33 +144,26 @@ class Events {
   template<class ...Args>
   void Push(Args&&... args) { events_.emplace_back(std::forward<Args>(args)...); }
 
-  void Push(Event::Type type, double time) { events_with_delay_.emplace_back(type, time); }
+  inline void Push(Event::Type type, double time) { events_with_delay_.emplace_back(type, time); }
 
   inline void PushFront(Event::Type type) { events_.emplace_front(type); }
 
   inline void Remove(Event::Type type) { events_.erase(std::remove(events_.begin(), events_.end(), type), events_.end()); }
 
-  std::vector<Event> GetEvents(Event::Type type) {
-    std::vector<Event> v;
-
-    std::copy_if(events_.begin(), events_.end(), std::back_inserter(v), [type](const auto& e) { return type == e; });
-
-    return v;
-  }
-
   Event Pop() {
     auto event = events_.front();
 
     events_.pop_front();
+
     return event;
   }
 
-  inline void Clear() {
+  void Clear() {
     events_.clear();
     events_with_delay_.clear();
   }
 
-  bool IsEmpty() const { return events_.empty(); }
+  inline bool IsEmpty() const { return events_.empty(); }
 
   bool IsEmpty(double delta) {
     for (auto it = events_with_delay_.begin(); it != events_with_delay_.end();) {
