@@ -141,10 +141,12 @@ void Tetrion::GameControl(Controls control_pressed, int lines) {
 void Tetrion::HandleTetrominoStates(TetrominoSprite::State state, Events& events) {
   switch (state) {
     case TetrominoSprite::State::GameOver:
+      RemoveAnimation<OnFloorAnimation>(animations_);
       tetromino_in_play_.reset();
       events.PushFront(Event::Type::GameOver);
       break;
     case TetrominoSprite::State::KO:
+      RemoveAnimation<OnFloorAnimation>(animations_);
       tetromino_in_play_.reset();
       matrix_->RemoveSolidLines();
       AddAnimation<MessageAnimation>(renderer_, assets_, "Got K.O. :-(", Color::Red, 100.0);
@@ -152,6 +154,7 @@ void Tetrion::HandleTetrominoStates(TetrominoSprite::State state, Events& events
       events_.Push(Event::Type::NextTetromino, 0.2);
       break;
     case TetrominoSprite::State::Commited:
+      RemoveAnimation<OnFloorAnimation>(animations_);
       tetromino_in_play_.reset();
       events_.Push(Event::Type::CanHold);
       events_.Push(Event::Type::NextTetromino, 0.2);
