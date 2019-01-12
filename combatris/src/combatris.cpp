@@ -46,13 +46,8 @@ class Combatris {
     TTF_Quit();
   }
 
-  inline void ResetAutoRepeat() {
-    function_to_repeat_ = nullptr;
-    previous_control_ = Tetrion::Controls::None;
-  }
-
   void DisplayJoystickInfo(int index) {
-    SDL_Joystick* js = SDL_JoystickOpen(index);
+    auto js = SDL_JoystickOpen(index);
 
     if (nullptr == js) {
       std::cout << "Unknown joystick - unable to find information: " << SDL_GetError() << std::endl;
@@ -60,7 +55,7 @@ class Combatris {
     char guid_str[1024];
     SDL_JoystickGetGUIDString(SDL_JoystickGetGUID(js), guid_str, sizeof(guid_str));
 
-    const char* name = SDL_JoystickName(js);
+    const auto name = SDL_JoystickName(js);
 
     std::cout << guid_str << ", " << name << " - not found in database" << std::endl;;
 
@@ -69,7 +64,9 @@ class Combatris {
 
   void AttachController(int index) {
     if (nullptr != game_controller_ || SDL_IsGameController(index) == 0) {
-      DisplayJoystickInfo(index);
+      if (nullptr == game_controller_) {
+        DisplayJoystickInfo(index);
+      }
       return;
     }
     game_controller_ = SDL_GameControllerOpen(index);
@@ -94,37 +91,35 @@ class Combatris {
   }
 
   Tetrion::Controls TranslateKeyboardCommands(const SDL_Event& event) const {
-    auto current_control = Tetrion::Controls::None;
-
-    if (SDL_SCANCODE_LEFT == event.key.keysym.scancode) {
-      current_control = Tetrion::Controls::Left;
-    } else if (SDL_SCANCODE_RIGHT == event.key.keysym.scancode) {
-      current_control = Tetrion::Controls::Right;
-    } if (SDL_SCANCODE_DOWN == event.key.keysym.scancode) {
-      current_control = Tetrion::Controls::SoftDrop;
+    if (event.key.repeat > 0) {
+      return Tetrion::Controls::None;
     }
-    if (0 == event.key.repeat) {
-      const auto code = event.key.keysym.scancode;
+    const auto code = event.key.keysym.scancode;
 
-      if (code == SDL_SCANCODE_LCTRL || code == SDL_SCANCODE_RCTRL || code == SDL_SCANCODE_Z) {
-        current_control = Tetrion::Controls::RotateCounterClockwise;
-      } else if (SDL_SCANCODE_UP == code || SDL_SCANCODE_X == code) {
-        current_control = Tetrion::Controls::RotateClockwise;
-      } else if (SDL_SCANCODE_LSHIFT == code || SDL_SCANCODE_RSHIFT == code || SDL_SCANCODE_C == code) {
-        current_control = Tetrion::Controls::Hold;
-      } else if (SDL_SCANCODE_SPACE == code) {
-        current_control = Tetrion::Controls::HardDrop;
-      } else if (SDL_SCANCODE_N == code) {
-        current_control = Tetrion::Controls::Start;
-      } else if (SDL_SCANCODE_P == code || SDL_SCANCODE_F1 == code) {
-        current_control = Tetrion::Controls::Pause;
-      } else if (SDL_SCANCODE_Q == code) {
-        current_control = Tetrion::Controls::Quit;
-      } else if (code >=  SDL_SCANCODE_1 && code <=  SDL_SCANCODE_9) {
-        current_control = Tetrion::Controls::DebugSendLine;
-      }
+    if (SDL_SCANCODE_LEFT == code) {
+      return Tetrion::Controls::Left;
+    } else if (SDL_SCANCODE_RIGHT == code) {
+      return Tetrion::Controls::Right;
+    } if (SDL_SCANCODE_DOWN == code) {
+      return Tetrion::Controls::SoftDrop;
+    } else if (code == SDL_SCANCODE_LCTRL || code == SDL_SCANCODE_RCTRL || code == SDL_SCANCODE_Z) {
+      return Tetrion::Controls::RotateCounterClockwise;
+    } else if (SDL_SCANCODE_UP == code || SDL_SCANCODE_X == code) {
+      return Tetrion::Controls::RotateClockwise;
+    } else if (SDL_SCANCODE_LSHIFT == code || SDL_SCANCODE_RSHIFT == code || SDL_SCANCODE_C == code) {
+      return Tetrion::Controls::Hold;
+    } else if (SDL_SCANCODE_SPACE == code) {
+      return Tetrion::Controls::HardDrop;
+    } else if (SDL_SCANCODE_N == code) {
+      return Tetrion::Controls::Start;
+    } else if (SDL_SCANCODE_P == code || SDL_SCANCODE_F1 == code) {
+      return Tetrion::Controls::Pause;
+    } else if (SDL_SCANCODE_Q == code) {
+      return Tetrion::Controls::Quit;
+    } else if (code >=  SDL_SCANCODE_1 && code <=  SDL_SCANCODE_9) {
+      return Tetrion::Controls::DebugSendLine;
     }
-    return current_control;
+    return Tetrion::Controls::None;
   }
 
   Tetrion::Controls TranslateControllerCommands(const SDL_Event& event) const {
@@ -157,14 +152,10 @@ class Combatris {
   }
 
   template <Tetrion::Controls control>
-  void Repeatable(int& repeat_count, int64_t& time_since_last_auto_repeat) {
-    if (control == previous_control_) {
-      return;
-    }
+  std::pair<Tetrion::Controls, std::function<void()>> Repeatable(int& repeat_count, int64_t& time_since_last_auto_repeat) {
     repeat_count = 0;
-    previous_control_ = control;
-    function_to_repeat_ = [&tetrion = tetrion_]() { tetrion->GameControl(control); };
     time_since_last_auto_repeat = kAutoRepeatInitialDelay;
+    return std::make_pair(control, [&tetrion = tetrion_]() { tetrion->GameControl(control); });
   }
 
   void Play() {
@@ -173,6 +164,8 @@ class Combatris {
     int repeat_count = 0;
     int64_t time_since_last_auto_repeat = 0;
     int64_t auto_repeat_threshold = kAutoRepeatInitialDelay;
+    std::function<void()> function_to_repeat;
+    Tetrion::Controls previous_control = Tetrion::Controls::None;
     SDL_Event event;
 
     while (!quit) {
@@ -192,13 +185,13 @@ class Combatris {
             break;
           case SDL_CONTROLLERBUTTONUP:
           case SDL_KEYUP:
-            ResetAutoRepeat();
+            previous_control = Tetrion::Controls::None;
             break;
           case SDL_JOYDEVICEADDED:
             if (SDL_IsGameController(event.jbutton.which) == 0) {
               DisplayJoystickInfo(event.jbutton.which);
+              break;
             }
-            break;
           case SDL_CONTROLLERDEVICEADDED:
             AttachController(event.cbutton.which);
             break;
@@ -210,20 +203,27 @@ class Combatris {
         }
       }
       switch (control) {
+        case Tetrion::Controls::None:
+          break;
         case Tetrion::Controls::Left:
-          Repeatable<Tetrion::Controls::Left>(repeat_count, time_since_last_auto_repeat);
+          std::tie(previous_control, function_to_repeat) =
+              Repeatable<Tetrion::Controls::Left>(repeat_count, time_since_last_auto_repeat);
           break;
         case Tetrion::Controls::Right:
-          Repeatable<Tetrion::Controls::Right>(repeat_count, time_since_last_auto_repeat);
+          std::tie(previous_control, function_to_repeat) =
+              Repeatable<Tetrion::Controls::Right>(repeat_count, time_since_last_auto_repeat);
           break;
         case Tetrion::Controls::SoftDrop:
-          Repeatable<Tetrion::Controls::SoftDrop>(repeat_count, time_since_last_auto_repeat);
+          std::tie(previous_control, function_to_repeat) =
+              Repeatable<Tetrion::Controls::SoftDrop>(repeat_count, time_since_last_auto_repeat);
           break;
         case Tetrion::Controls::Start:
           tetrion_->NewGame();
+          previous_control = control;
           break;
         case Tetrion::Controls::Pause:
           tetrion_->Pause();
+          previous_control = control;
           break;
         case Tetrion::Controls::Quit:
           quit = true;
@@ -231,14 +231,16 @@ class Combatris {
         case Tetrion::Controls::DebugSendLine:
 #if !defined(NDEBUG)
           tetrion_->GameControl(Tetrion::Controls::DebugSendLine, 9 - (SDL_SCANCODE_9 - event.key.keysym.scancode));
+          previous_control = control;
 #endif
           break;
         default:
           tetrion_->GameControl(control);
+          previous_control = control;
           break;
       }
-      if (kAutoRepeatControls.count(previous_control_) && (time_in_ms() - time_since_last_auto_repeat) >= auto_repeat_threshold) {
-        function_to_repeat_();
+      if (kAutoRepeatControls.count(previous_control) && (time_in_ms() - time_since_last_auto_repeat) >= auto_repeat_threshold) {
+        function_to_repeat();
         auto_repeat_threshold = (0 == repeat_count) ? kAutoRepeatInitialDelay : kAutoRepeatSubsequentDelay;
         repeat_count++;
         time_since_last_auto_repeat = time_in_ms();
@@ -250,8 +252,6 @@ class Combatris {
  private:
   int gamecontroller_index_ = -1;
   std::string gamecontroller_name_;
-  std::function<void()> function_to_repeat_;
-  Tetrion::Controls previous_control_ = Tetrion::Controls::None;
   SDL_GameController* game_controller_ = nullptr;
   std::shared_ptr<Tetrion> tetrion_ = nullptr;
 };
