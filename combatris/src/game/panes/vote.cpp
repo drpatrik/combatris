@@ -23,7 +23,7 @@ void Vote::Clear() {
   }
 }
 
-opt::optional<size_t> Vote::Cast(size_t host_id) const {
+std::optional<size_t> Vote::Cast(size_t host_id) const {
   auto n = std::accumulate(campaigns_.begin(), campaigns_.end(), 0, [](int s, const auto& p1) { return s + p1.second.size(); });
 
   if (n == 1) {
@@ -60,5 +60,5 @@ opt::optional<size_t> Vote::Cast(size_t host_id) const {
     return {};
   }
 
-  return opt::make_optional<size_t>(campaigns_.at(matches.begin()->first).begin()->seed_);
+  return std::make_optional<size_t>(campaigns_.at(matches.begin()->first).begin()->seed_);
 }

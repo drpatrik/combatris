@@ -3,13 +3,7 @@
 #include "game/matrix.h"
 #include "game/panes/level.h"
 
-#if __has_include(<optional>)
 #include <optional>
-namespace opt = std;
-#else
-#include <experimental/optional>
-namespace opt = std::experimental;
-#endif
 
 namespace {
 
@@ -69,7 +63,7 @@ class TetrominoSprite {
  protected:
   void ResetDelayCounter();
 
-  opt::optional<std::pair<Position, Tetromino::Angle>> TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate);
+  std::optional<std::pair<Position, Tetromino::Angle>> TryRotation(Tetromino::Type type, const Position& current_pos, Tetromino::Angle current_angle, Rotation rotate);
 
  private:
   const Tetromino& tetromino_;

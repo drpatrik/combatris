@@ -51,8 +51,25 @@ class Combatris {
     previous_control_ = Tetrion::Controls::None;
   }
 
+  void DisplayJoystickInfo(int index) {
+    SDL_Joystick* js = SDL_JoystickOpen(index);
+
+    if (nullptr == js) {
+      std::cout << "Unknown joystick - unable to find information: " << SDL_GetError() << std::endl;
+    }
+    char guid_str[1024];
+    SDL_JoystickGetGUIDString(SDL_JoystickGetGUID(js), guid_str, sizeof(guid_str));
+
+    const char* name = SDL_JoystickName(js);
+
+    std::cout << guid_str << ", " << name << " - not found in database" << std::endl;;
+
+    SDL_JoystickClose(js);
+  }
+
   void AttachController(int index) {
     if (nullptr != game_controller_ || SDL_IsGameController(index) == 0) {
+      DisplayJoystickInfo(index);
       return;
     }
     game_controller_ = SDL_GameControllerOpen(index);
@@ -159,26 +176,29 @@ class Combatris {
     SDL_Event event;
 
     while (!quit) {
+      auto control = Tetrion::Controls::None;
+
       while (SDL_PollEvent(&event)) {
         if (SDL_QUIT == event.type) {
           quit = true;
           break;
         }
-        auto current_control = Tetrion::Controls::None;
-
         switch (event.type) {
           case SDL_KEYDOWN:
-            current_control = TranslateKeyboardCommands(event);
+            control = TranslateKeyboardCommands(event);
             break;
           case SDL_CONTROLLERBUTTONDOWN:
-            current_control = TranslateControllerCommands(event);
+            control = TranslateControllerCommands(event);
             break;
-          case SDL_KEYUP:
           case SDL_CONTROLLERBUTTONUP:
+          case SDL_KEYUP:
             ResetAutoRepeat();
             break;
           case SDL_JOYDEVICEADDED:
-            event.cbutton.which = event.jbutton.which;
+            if (SDL_IsGameController(event.jbutton.which) == 0) {
+              DisplayJoystickInfo(event.jbutton.which);
+            }
+            break;
           case SDL_CONTROLLERDEVICEADDED:
             AttachController(event.cbutton.which);
             break;
@@ -188,40 +208,34 @@ class Combatris {
             DetachController(event.cbutton.which);
             break;
         }
-        if (Tetrion::Controls::None == current_control) {
-          continue;
-        }
-        switch (current_control) {
-          case Tetrion::Controls::Left:
-            Repeatable<Tetrion::Controls::Left>(repeat_count, time_since_last_auto_repeat);
-            break;
-          case Tetrion::Controls::Right:
-            Repeatable<Tetrion::Controls::Right>(repeat_count, time_since_last_auto_repeat);
-            break;
-          case Tetrion::Controls::SoftDrop:
-            Repeatable<Tetrion::Controls::SoftDrop>(repeat_count, time_since_last_auto_repeat);
-            break;
-          case Tetrion::Controls::Start:
-            tetrion_->NewGame();
-            break;
-          case Tetrion::Controls::Pause:
-            tetrion_->Pause();
-            break;
-          case Tetrion::Controls::Quit:
-            quit = true;
-            break;
-          case Tetrion::Controls::DebugSendLine:
+      }
+      switch (control) {
+        case Tetrion::Controls::Left:
+          Repeatable<Tetrion::Controls::Left>(repeat_count, time_since_last_auto_repeat);
+          break;
+        case Tetrion::Controls::Right:
+          Repeatable<Tetrion::Controls::Right>(repeat_count, time_since_last_auto_repeat);
+          break;
+        case Tetrion::Controls::SoftDrop:
+          Repeatable<Tetrion::Controls::SoftDrop>(repeat_count, time_since_last_auto_repeat);
+          break;
+        case Tetrion::Controls::Start:
+          tetrion_->NewGame();
+          break;
+        case Tetrion::Controls::Pause:
+          tetrion_->Pause();
+          break;
+        case Tetrion::Controls::Quit:
+          quit = true;
+          break;
+        case Tetrion::Controls::DebugSendLine:
 #if !defined(NDEBUG)
-            tetrion_->GameControl(Tetrion::Controls::DebugSendLine, 9 - (SDL_SCANCODE_9 - event.key.keysym.scancode));
+          tetrion_->GameControl(Tetrion::Controls::DebugSendLine, 9 - (SDL_SCANCODE_9 - event.key.keysym.scancode));
 #endif
-            break;
-          default:
-            tetrion_->GameControl(current_control);
-            break;
-        }
-        if (!kAutoRepeatControls.count(current_control)) {
-          ResetAutoRepeat();
-        }
+          break;
+        default:
+          tetrion_->GameControl(control);
+          break;
       }
       if (kAutoRepeatControls.count(previous_control_) && (time_in_ms() - time_since_last_auto_repeat) >= auto_repeat_threshold) {
         function_to_repeat_();

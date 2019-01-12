@@ -2,14 +2,7 @@
 
 #include "game/events.h"
 
-#if __has_include(<optional>)
 #include <optional>
-namespace opt = std;
-#else
-#include <experimental/optional>
-namespace opt = std::experimental;
-#endif
-
 #include <map>
 
 class Vote {
@@ -25,7 +18,7 @@ class Vote {
 
   void Clear();
 
-  opt::optional<size_t> Cast(size_t host_id) const;
+  std::optional<size_t> Cast(size_t host_id) const;
 
  private:
   struct PlayerInfo {
