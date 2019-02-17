@@ -13,3 +13,5 @@ inline bool IsBattleCampaign(CampaignType type) { return CampaignType::Battle ==
 inline bool IsSprintCampaign(CampaignType type) { return CampaignType::Sprint == type; }
 
 inline bool IsUltraCampaign(CampaignType type) { return CampaignType::Ultra == type; }
+
+inline bool IsMarathonCampaign(CampaignType type) { return CampaignType::Marathon == type; }

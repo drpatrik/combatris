@@ -35,7 +35,7 @@ void Level::SetThresholds() {
 
   wait_time_ = (1.0 / kLevelData.at(index).gravity_) / 60.0;
   lock_delay_ = kLevelData.at(index).lock_delay_;
-  lines_for_next_level_ = (CampaignType::Marathon == campaign_type_) ? level_ * 5 : 10;
+  lines_for_next_level_ = IsMarathonCampaign(campaign_type_) ? level_ * 5 : 10;
 }
 
 void Level::SetLevel(int lvl) {
@@ -81,7 +81,11 @@ void Level::Update(const Event& event) {
         lines_this_level_ = 0;
         level_++;
         if (level_ > static_cast<int>(kLevelData.size())) {
-          events_.Push(Event::Type::GameOver, 1);
+          if (IsMarathonCampaign(campaign_type_)) {
+            events_.Push(Event::Type::GameOver, 1);
+          } else {
+            level_ = static_cast<int>(kLevelData.size());
+          }
         } else {
           SetThresholds();
           SetCenteredText(level());

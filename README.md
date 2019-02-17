@@ -25,11 +25,11 @@ Features Combatris, Marathon, Sprint, Ultra campaigns in single and multiplayer 
 * Combatris and Marathon: The winner is judged on score.
 * Sprint: The fastest player to clear 40 lines are the winner.
 * Ultra: Clear as many lines as possible within 3 minutes.
-* Battle: Battle is only judged based on number of lines sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
+* Battle: Judged based on number of lines sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
 
 The multiplayer mode is using a voting mechanism to ensure that all participants are playing the same campaign. The voting rules are simple; the campaign
-with the greatest number of players wins and any player that want to play another campaign will be rejected. If there is a draw between the number of
-players Battle will be prioritized. Any player that are alone in a specific campaign will be rejected.
+with the greatest number of players wins and any player that wanted to play another campaign is rejected. If there is a draw between the number of
+players Battle will be prioritized. Any player alone in a campaign will be rejected.
 
 Combatris supports both keyboard and gamepads. The game has been tested with:
 
@@ -41,7 +41,7 @@ Combatris supports both keyboard and gamepads. The game has been tested with:
 The game supports all gamepads currently included in [SDL_GameControllerDB](https://github.com/gabomdq/SDL_GameControllerDB).
 A version of the file can be found in the assets folder. Feel free to update it to the latest version.
 
-I have tested the game with up to five players running on a heterogeneous set of computers using both wifi and Ethernet based connections.
+I have tested the game with up to five players running on a heterogeneous set of computers using both wifi and tethered connections.
 The game works well but there can be a slight lag.
 
 Since its only me playing, and sometimes the family when they feel pity for me, the game most probably have many bugs left.
@@ -77,7 +77,7 @@ Up | Hard Drop
 Down | Soft Drop
 Shoulder Buttons | Hold piece
 
-The layout of the example gamepad will be true even though the buttons have other label's then the label's depicted.
+The layout of the example gamepad will be true even if the buttons have other label's then the label's depicted.
 You can use [SDL2 Gamepad Tool](http://generalarcade.com/gamepadtool/) to add mappings if you have a gamepad
 that is currently not supported.
 
@@ -119,11 +119,11 @@ Finish all 15-levels are considered a win.
 
 **Lines Sent - Battle Campaign**
 
-The “got lines” pane are divided into two sections. The first section shows the number of received lines that has not yet been
-inserted into the matrix. At this point you can perform a counter attack or at least decreased the number of received lines by
-doing a move that sends lines over to your opponent. When the move has been executed any number of lines left in the first
+The “got lines” pane are divided into two sections. The first section shows the number of received lines that has not been
+inserted into the matrix. At this point you can perform a counter attack to decrease the number of received lines by
+performing a move that sends lines over to your opponents. When the move has been commited any number of lines left in the first
 section will be added to your matrix and to the second section of the panes which show the number of solid lines in the matrix.
-You cannot send any lines to an opponent until you have cleared all the solid lines in the matrix.
+You cannot send any lines until you have cleared all the solid lines in the matrix.
 
 Move | Lines Sent (Lines per combo step)
 ---- | ---------------------------------
@@ -218,7 +218,7 @@ make cppcheck
 
 You need to activate the OpenGL driver otherwise the game will be far to slow.
 
-The code builds cleanly and has been tested with GCC 7.3.0 and Clang 6.0.0, instructions how
+The code builds cleanly and has been tested with GCC 7.3.0 (with some warnings) and Clang 6.0.0, instructions how
 to install the compilers can be found here:
 
 https://solarianprogrammer.com/2017/12/08/raspberry-pi-raspbian-install-gcc-compile-cpp-17-programs/

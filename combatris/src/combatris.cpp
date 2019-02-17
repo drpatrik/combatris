@@ -98,7 +98,6 @@ class Combatris {
     const auto code = event.key.keysym.scancode;
 
     if (SDL_SCANCODE_LEFT == code) {
-      std::cout << "L" << std::endl;
       return Tetrion::Controls::Left;
     } else if (SDL_SCANCODE_RIGHT == code) {
       return Tetrion::Controls::Right;
