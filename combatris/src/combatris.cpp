@@ -98,6 +98,7 @@ class Combatris {
     const auto code = event.key.keysym.scancode;
 
     if (SDL_SCANCODE_LEFT == code) {
+      std::cout << "L" << std::endl;
       return Tetrion::Controls::Left;
     } else if (SDL_SCANCODE_RIGHT == code) {
       return Tetrion::Controls::Right;
@@ -184,9 +185,15 @@ class Combatris {
           case SDL_CONTROLLERBUTTONDOWN:
             control = TranslateControllerCommands(event);
             break;
-          case SDL_CONTROLLERBUTTONUP:
           case SDL_KEYUP:
-            active_control = Tetrion::Controls::None;
+            if (TranslateKeyboardCommands(event) == active_control) {
+              active_control = Tetrion::Controls::None;
+            }
+            break;
+          case SDL_CONTROLLERBUTTONUP:
+            if (TranslateControllerCommands(event) == active_control) {
+              active_control = Tetrion::Controls::None;
+            }
             break;
           case SDL_JOYDEVICEADDED:
             if (SDL_IsGameController(event.jbutton.which) == 0) {
