@@ -23,13 +23,13 @@ void Vote::Clear() {
   }
 }
 
-std::optional<size_t> Vote::Cast(size_t host_id) const {
+std::optional<uint64_t> Vote::Cast(uint64_t host_id) const {
   auto n = std::accumulate(campaigns_.begin(), campaigns_.end(), 0, [](int s, const auto& p1) { return s + p1.second.size(); });
 
   if (n == 1) {
     return std::random_device()();
   }
-  std::vector<std::pair<CampaignType, size_t>> vec;
+  std::vector<std::pair<CampaignType, uint64_t>> vec;
 
   for (const auto& campaign : campaigns_) {
     if (campaign.second.size() == 0) {
@@ -59,6 +59,13 @@ std::optional<size_t> Vote::Cast(size_t host_id) const {
   if (!IsInList(host_id, campaigns_.at(matches.begin()->first))) {
     return {};
   }
+  const auto& foo = campaigns_.at(matches.begin()->first);
 
-  return std::make_optional<size_t>(campaigns_.at(matches.begin()->first).begin()->seed_);
+
+  for (const auto& f : foo) {
+    std::cout << f.host_id_ << " : " << f.seed_ << std::endl;
+
+  }
+
+  return std::make_optional<uint64_t>(campaigns_.at(matches.begin()->first).begin()->seed_);
 }

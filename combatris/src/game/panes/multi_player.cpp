@@ -225,7 +225,7 @@ void MultiPlayer::GotStartGame() {
   }
   SortScoreBoard();
   if (auto result = vote_.Cast(multiplayer_controller_->our_host_id())) {
-    events_.Push(Event::Type::MultiPlayerSetSeed, *result);
+    events_.Push(Event::Type::MultiPlayerSetSeed, static_cast<size_t>(*result));
     events_.Push(Event::Type::NextTetromino);
   } else {
     events_.Push(Event::Type::PlayerRejected);
