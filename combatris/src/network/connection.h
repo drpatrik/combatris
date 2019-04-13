@@ -37,7 +37,7 @@ class Connection final {
     IsAlive();
   }
 
-  void IsAlive() { timestamp_ = utility::time_in_ms(); }
+  inline void IsAlive() { timestamp_ = utility::time_in_ms(); }
 
   int64_t VerifySequenceNumber(Channel channel, const Header& header) {
     if (Channel::Unreliable == channel) {
@@ -71,11 +71,11 @@ class Connection final {
     return time_since_last_update >= kConnectionTimeOut;
   }
 
-  bool has_joined() const { return has_joined_; }
+  inline bool has_joined() const { return has_joined_; }
 
-  void SetHasJoined() { has_joined_ = true; }
+  inline void SetHasJoined() { has_joined_ = true; }
 
-  const std::string& name() const { return name_; }
+  inline const std::string& name() const { return name_; }
 
  private:
   std::string name_;
