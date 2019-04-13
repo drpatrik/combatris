@@ -59,13 +59,6 @@ std::optional<uint64_t> Vote::Cast(uint64_t host_id) const {
   if (!IsInList(host_id, campaigns_.at(matches.begin()->first))) {
     return {};
   }
-  const auto& foo = campaigns_.at(matches.begin()->first);
-
-
-  for (const auto& f : foo) {
-    std::cout << f.host_id_ << " : " << f.seed_ << std::endl;
-
-  }
 
   return std::make_optional<uint64_t>(campaigns_.at(matches.begin()->first).begin()->seed_);
 }
