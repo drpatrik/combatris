@@ -39,7 +39,6 @@ inline uint64_t ntohll(uint64_t value) {
 #include <string>
 #include <array>
 #include <iostream>
-//#include <functional>
 #include <algorithm>
 #include <random>
 #include <limits.h>
@@ -143,6 +142,12 @@ inline std::string ToString(GameState state) {
 
 enum class Channel : uint8_t { None, Unreliable, Reliable };
 
+constexpr uint32_t PadTo32(uint32_t size) {
+  const auto bits = sizeof(size) * 8;
+
+  return size + (bits  - (size % bits));
+}
+
 #pragma pack(push, 1)
 
 class Header final {
@@ -173,7 +178,10 @@ class Header final {
 
 class ProgressPayload final {
  public:
-  ProgressPayload() : score_(0), lines_(0), level_(0) {}
+  ProgressPayload() : score_(0), lines_(0), level_(0) {
+    static_assert(sizeof(matrix_state_) % 32 == 0);
+    static_assert(sizeof(MatrixState::value_type) == 1);
+  }
 
   ProgressPayload(uint16_t lines, uint32_t score, uint8_t level) {
     lines_ = htons(lines);
@@ -197,17 +205,16 @@ class ProgressPayload final {
   MatrixState matrix_state() const {
     MatrixState matrix_state;
 
-    static_assert(sizeof(MatrixState::value_type) == 1);
     std::copy(matrix_state_, matrix_state_ + kMatrixStateSize, matrix_state.begin());
 
     return matrix_state;
   }
 
  private:
+  MatrixState::value_type matrix_state_[PadTo32(kMatrixStateSize)];
   uint32_t score_;
   uint16_t lines_;
   uint8_t level_;
-  MatrixState::value_type matrix_state_[kMatrixStateSize];
 };
 
 class Payload final {
@@ -231,18 +238,20 @@ class Payload final {
   inline void SetState(GameState state) { state_ = state; }
 
  private:
-  int value1_ = 0;
   uint64_t value2_ = 0;
+  int value1_ = 0;
   GameState state_ = GameState::None;
 };
 
 class PackageHeader final {
  public:
   PackageHeader() : signature_(htonl(kSignature)), host_id_(0), channel_(Channel::None) {
+    static_assert(sizeof(host_name_) % 32 == 0);
     host_name_[0] = '\0';
   }
 
   explicit PackageHeader(Channel channel) : signature_(htonl(kSignature)), host_id_(0), channel_(channel) {
+    static_assert(sizeof(host_name_) % 32 == 0);
     host_name_[0] = '\0';
   }
 
@@ -257,9 +266,9 @@ class PackageHeader final {
   inline Channel channel() const { return channel_; }
 
  private:
-  uint32_t signature_;
-  char host_name_[kHostNameMax + 1];
+  uint64_t signature_;
   uint64_t host_id_;
+  char host_name_[PadTo32(kHostNameMax + 1)];
   Channel channel_;
 };
 
@@ -290,7 +299,7 @@ struct PackageArray {
 
   int size() const { return size_; }
 
-  Package packages_[kWindowSize];
+  Package packages_[PadTo32(kWindowSize)];
   uint8_t size_;
 };
 

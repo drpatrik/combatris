@@ -28,9 +28,8 @@ void Listener::HandleReliableChannel(ssize_t size, char* buffer) {
     std::cout << "incomplete package - " << size << std::endl;
     return;
   }
-  auto [package_header, package_array] = CastBuffer<ReliablePackage, PackageHeader, PackageArray>(buffer);
-
-  const uint64_t host_id = package_header.host_id();
+  const auto [package_header, package_array] = CastBuffer<ReliablePackage, PackageHeader, PackageArray>(buffer);
+  const auto host_id = package_header.host_id();
   const auto& host_name = package_header.host_name();
 
   if (connections_.count(host_id) == 0) {
@@ -94,14 +93,8 @@ void Listener::HandleUnreliableChannel(ssize_t size, char* buffer) {
     std::cout << "UnreliableChannel - package - " << size << std::endl;
     return;
   }
-  auto [package_header, progress_package] = CastBuffer<UnreliablePackage, PackageHeader, ProgressPackage>(buffer);
-
-  if (!package_header.Verify()) {
-    std::cout << "UnreliableChannel - Unknown package signature - package ignored" << std::endl;
-    return;
-  }
-
-  const uint64_t host_id = package_header.host_id();
+  const auto [package_header, progress_package] = CastBuffer<UnreliablePackage, PackageHeader, ProgressPackage>(buffer);
+  const auto host_id = package_header.host_id();
 
   if (connections_.count(host_id) == 0) {
     return;
@@ -151,6 +144,10 @@ void Listener::Run() {
     if (size < static_cast<ssize_t>(sizeof(PackageHeader))) {
       std::cout << "incomplete package header - " << size << std::endl;
       return;
+    }
+    if (!header->Verify()) {
+      std::cout << "Unknown package signature - package ignored" << std::endl;
+      continue;
     }
     switch (header->channel()) {
       case Channel::Unreliable:

@@ -103,7 +103,7 @@ class Combatris {
       return Tetrion::Controls::Right;
     } if (SDL_SCANCODE_DOWN == code) {
       return Tetrion::Controls::SoftDrop;
-    } else if (code == SDL_SCANCODE_LCTRL || code == SDL_SCANCODE_RCTRL || code == SDL_SCANCODE_Z) {
+    } else if (SDL_SCANCODE_LCTRL == code || SDL_SCANCODE_RCTRL == code || SDL_SCANCODE_Z == code) {
       return Tetrion::Controls::RotateCounterClockwise;
     } else if (SDL_SCANCODE_UP == code || SDL_SCANCODE_X == code) {
       return Tetrion::Controls::RotateClockwise;
