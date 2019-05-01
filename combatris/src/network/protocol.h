@@ -85,7 +85,7 @@ inline std::string ToString(CampaignType type) {
     case CampaignType::Ultra:
       return "Ultra";
     case CampaignType::Royal:
-      return "Battle Royal";
+      return "Royal";
     case CampaignType::Battle:
       return "Battle";
   }
