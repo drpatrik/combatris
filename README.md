@@ -20,11 +20,12 @@ Level advancement | 10 lines / 5 * level Marathon
 T-Spin recognition | 3-corner with kicks
 Back-to-back Recognition | Combatris / T-spin
 
-Features Combatris, Marathon, Sprint, Ultra campaigns in single and multiplayer mode and Battle campaign in multiplayer mode:
+Features Combatris, Marathon, Sprint, Ultra, Royal campaigns in single and multiplayer mode and Battle campaign in multiplayer mode:
 
 * Combatris and Marathon: The winner is judged on score.
 * Sprint: The fastest player to clear 40 lines are the winner.
 * Ultra: Clear as many lines as possible within 3 minutes.
+* Royal: A new line is spawned every 6 second survive for 2.5 minutes and score as much as possible
 * Battle: Judged based on number of lines sent and knockouts (you send so many lines that the opponent cannot perform a valid move).
 
 The multiplayer mode is using a voting mechanism to ensure that all participants are playing the same campaign. The voting rules are simple; the campaign
@@ -218,7 +219,7 @@ make cppcheck
 
 You need to activate the OpenGL driver otherwise the game will be far to slow.
 
-The code builds cleanly and has been tested with GCC 7.3.0 (with some warnings) and Clang 6.0.0, instructions how
+The code builds cleanly and has been tested with GCC 7.3.0 (with some warnings) and Clang 6.0.0 and Clang 8.0.0, instructions how
 to install the compilers can be found here:
 
 https://solarianprogrammer.com/2017/12/08/raspberry-pi-raspbian-install-gcc-compile-cpp-17-programs/
@@ -247,7 +248,7 @@ The code builds cleanly and has been tested with Clang 5.0.0 and Clang 6.0.0
 
 **64-bit Windows 10**
 
-The code has been tested with Visual Studio Community Edition 15.x.x. Using the following settings:
+The code has been tested with Visual Studio Community Edition 15.x.x and 16.x.x Using the following settings:
 
 Download the latest versions of the development libraries at https://www.libsdl.org.
 

@@ -68,7 +68,7 @@ inline uint64_t SetHostName(const std::string& from, char *to) {
   return std::hash<std::string>{}(from);
 }
 
-enum class CampaignType { None, Combatris, Marathon, Sprint, Ultra, Battle };
+enum class CampaignType { None, Combatris, Marathon, Sprint, Ultra, Royal, Battle };
 
 constexpr int ToInt(CampaignType type) { return static_cast<int>(type); }
 
@@ -84,6 +84,8 @@ inline std::string ToString(CampaignType type) {
       return "Sprint";
     case CampaignType::Ultra:
       return "Ultra";
+    case CampaignType::Royal:
+      return "Battle Royal";
     case CampaignType::Battle:
       return "Battle";
   }

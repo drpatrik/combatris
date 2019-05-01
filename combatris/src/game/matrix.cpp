@@ -171,15 +171,17 @@ void Matrix::Render(double) {
   SDL_RenderSetClipRect(renderer_, nullptr);
 }
 
-bool Matrix::InsertSolidLines(int lines) {
+bool Matrix::InsertSolidLines(int lines, bool update_matrix) {
   lines = MoveLinesUp(lines, master_matrix_);
 
   if (lines <= 0) {
     return false;
   }
   ::InsertSolidLines(lines, master_matrix_);
-  matrix_ = master_matrix_;
 
+  if (update_matrix) {
+    matrix_ = master_matrix_;
+  }
   return true;
 }
 

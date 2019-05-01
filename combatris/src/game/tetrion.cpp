@@ -261,6 +261,14 @@ void Tetrion::EventHandler(Events& events, double delta_time) {
     case Event::Type::BattleSendLines:
       AddAnimation<MessageAnimation>(renderer_, assets_, "Sent " + std::to_string(event.value1_) + " lines", Color::SteelGray, 200.0);
       break;
+    case Event::Type::RoyalNewLine:
+      if (!matrix_->InsertSolidLines(1, false)) {
+        HandleTetrominoStates(TetrominoSprite::State::GameOver, events_);
+      }
+      if (tetromino_in_play_ && !tetromino_in_play_->Update()) {
+        HandleTetrominoStates(TetrominoSprite::State::GameOver, events_);
+      }
+      break;
     case Event::Type::MultiplayerResetCountDown:
       RemoveAnimation<CountDownAnimation>(animations_);
       AddAnimation<CountDownAnimation>(renderer_, assets_, kMultiPlayerCountDown, Event::Type::MultiplayerStartGame);

@@ -32,5 +32,7 @@ const int kBuffertVisible = 7;
 // Campaign specific constants
 const int kSprintGoal = 40;
 const int kTimesUpSoon = 15;
+const int kGameTimeRoyal = 150;
 const int kGameTimeBattle = 120;
 const int kGameTimeUltra = 180;
+const int RoyalSpawnSolidLineInterval = 6;

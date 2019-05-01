@@ -4,6 +4,7 @@
 #include <chrono>
 #include <algorithm>
 #include <iostream>
+#include <optional>
 
 namespace utility {
 
@@ -19,7 +20,9 @@ class TimerInterface {
  public:
   virtual ~TimerInterface() {};
 
-  virtual std::pair<bool, size_t> GetTime() = 0;
+  virtual std::optional<size_t> time_update() = 0;
+
+  virtual size_t time() const = 0;
 
   virtual void Set(int value) = 0;
 
@@ -33,7 +36,7 @@ class TimerInterface {
 
   virtual void Reset() = 0;
 
-  virtual bool IsZero() = 0;
+  virtual bool IsZero() const = 0;
 
   virtual std::string FormatTime(size_t t) const = 0;
 };
@@ -45,18 +48,20 @@ class Timer final : public TimerInterface {
 
   explicit Timer(int value) : initial_value_(value), count_down_(value), start_(SystemClock::now()) {}
 
-  virtual std::pair<bool, size_t> GetTime() override {
+  virtual std::optional<size_t> time_update() override {
     if (paused_) {
-      return std::make_pair(false, count_down_);
+      return {};
     }
     if (std::chrono::duration_cast<std::chrono::milliseconds>(SystemClock::now() - start_).count() >= 1000) {
       start_ = SystemClock::now();
       --count_down_;
       count_down_ = std::max(count_down_, 0);
-      return std::make_pair(true, count_down_);
+      return std::make_optional(count_down_);
     }
-    return std::make_pair(false, count_down_);
+    return {};
   }
+
+  virtual size_t time() const override { return count_down_; };
 
   virtual void Set(int value) override {
     Stop();
@@ -86,7 +91,7 @@ class Timer final : public TimerInterface {
     start_ = SystemClock::now();
   }
 
-  virtual bool IsZero() override { return GetTime().second == 0; }
+  virtual bool IsZero() const override { return count_down_ == 0; }
 
   virtual std::string FormatTime(size_t t) const override;
 
@@ -105,19 +110,21 @@ class Clock final : public TimerInterface {
 
   Clock() : ms_(0), start_(SystemClock::now()) {}
 
-  virtual std::pair<bool, size_t> GetTime() override {
+  virtual std::optional<size_t> time_update() override {
     if (paused_ || !timer_started_) {
-      return std::make_pair(false, ms_);
+      return {};
     }
     auto d = std::chrono::duration_cast<std::chrono::milliseconds>(SystemClock::now() - start_).count();
 
     if (d >= 10) {
       ms_ += d;
       start_ = SystemClock::now();
-      return std::make_pair(true, ms_);
+      return std::make_optional(ms_);
     }
-    return std::make_pair(false, ms_);
+    return {};
   }
+
+  virtual size_t time() const override { return ms_; };
 
   virtual void Set(int) override {}
 
@@ -144,7 +151,7 @@ class Clock final : public TimerInterface {
     start_ = SystemClock::now();
   }
 
-  virtual bool IsZero() override { return false; }
+  virtual bool IsZero() const override { return false; }
 
   virtual std::string FormatTime(size_t t) const override;
 
