@@ -5,6 +5,7 @@
 
 class HoldQueue final : public TextPane, public EventListener {
  public:
+  static constexpr auto kCheckmarkDisplayTime = 0.4;
   static const int kX = kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace);
   static const int kY = kMatrixStartY - kMinoHeight;
 
@@ -15,12 +16,11 @@ class HoldQueue final : public TextPane, public EventListener {
   }
 
   Tetromino::Type Hold(const std::shared_ptr<TetrominoSprite>& old_tetromino_sprite) {
-    Tetromino::Type type = tetromino_;
+    auto type = tetromino_;
 
     tetromino_ = old_tetromino_sprite->tetromino().type();
     ticks_ = 0.0;
-    wait_for_lock_ = true;
-    display_checkmark_ = true;
+    can_hold_ = false;
 
     return type;
   }
@@ -29,37 +29,33 @@ class HoldQueue final : public TextPane, public EventListener {
     if (!event.Is(Event::Type::CanHold)) {
       return;
     }
-    wait_for_lock_ = false;
+    can_hold_ = true;
   }
 
   virtual void Render(double delta_time) override {
-    const auto kDisplayTime = 0.4;
-
     TextPane::Render(delta_time);
 
-    if (Tetromino::Type::Empty != tetromino_) {
-      assets_->GetTetromino(tetromino_)->RenderTetromino(x_ + 10, y_ + caption_texture_.height() + 15);
+    if (Tetromino::Type::Empty == tetromino_) {
+      return;
     }
+    assets_->GetTetromino(tetromino_)->RenderTetromino(x_ + 10, y_ + caption_texture_.height() + 15);
     ticks_ += delta_time;
-    if (ticks_ >= kDisplayTime) {
-      display_checkmark_ = false;
-    }
-    if (display_checkmark_) {
+    if (ticks_ <= kCheckmarkDisplayTime) {
       Pane::RenderCopy(checkmark_texture_, checkmark_texture_);
     }
   }
 
   virtual void Reset() override {
-    wait_for_lock_ = false;
+    ticks_ = 1.0;
+    can_hold_ = true;
     tetromino_ = Tetromino::Type::Empty;
   }
 
-  inline bool CanHold() const { return !wait_for_lock_; }
+  inline bool CanHold() const { return can_hold_; }
 
  private:
-  double ticks_ = 0.0;
-  bool wait_for_lock_ = false;
-  bool display_checkmark_ = false;
-  Tetromino::Type tetromino_ = Tetromino::Type::Empty;
+  double ticks_ = 1.0;
+  bool can_hold_ = false;
   utility::Texture checkmark_texture_;
+  Tetromino::Type tetromino_ = Tetromino::Type::Empty;
 };
