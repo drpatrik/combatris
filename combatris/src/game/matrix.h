@@ -51,9 +51,11 @@ class Matrix final : public PaneInterface {
 
   virtual void Reset() override { Initialize(); }
 
-  static bool IsSolidLine(const Line& l) { return (kSolidID == l.minos_[kMatrixFirstCol] || kBombID == l.minos_[kMatrixFirstCol]); }
+  static bool IsSolidLine(const Line& l) {
+    return (kSolidID == l.minos_[kMatrixFirstCol] || kBombID == l.minos_[kMatrixFirstCol]);
+  }
 
-  bool InsertSolidLines(int lines);
+  bool InsertSolidLines(int lines, bool update_matrix = true);
 
   void RemoveSolidLines();
 

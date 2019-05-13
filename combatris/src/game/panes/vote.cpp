@@ -11,6 +11,7 @@ const std::vector<CampaignType> kCampaignTypes = {
   CampaignType::Marathon,
   CampaignType::Sprint,
   CampaignType::Ultra,
+  CampaignType::Royal,
   CampaignType::Battle
 };
 

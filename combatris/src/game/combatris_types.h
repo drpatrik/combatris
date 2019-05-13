@@ -14,4 +14,10 @@ inline bool IsSprintCampaign(CampaignType type) { return CampaignType::Sprint ==
 
 inline bool IsUltraCampaign(CampaignType type) { return CampaignType::Ultra == type; }
 
+inline bool IsRoyalCampaign(CampaignType type) { return CampaignType::Royal == type; }
+
 inline bool IsMarathonCampaign(CampaignType type) { return CampaignType::Marathon == type; }
+
+inline bool IsIn(CampaignType type, const std::initializer_list<CampaignType>& list) {
+  return std::find(list.begin(), list.end(), type) != list.end();
+}

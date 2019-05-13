@@ -60,6 +60,15 @@ class TetrominoSprite {
 
   State Down(double delta_time);
 
+  bool Update() {
+    if (!matrix_->IsValid(pos_, rotation_data_)) {
+      return false;
+    }
+    matrix_->Insert(pos_, rotation_data_);
+
+    return true;
+  }
+
  protected:
   void ResetDelayCounter();
 

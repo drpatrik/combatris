@@ -123,7 +123,9 @@ void Campaign::SetupCampaign(CampaignType type) {
       panes_.push_back(goal_.get());
       panes_.push_back(high_score_.get());
       break;
+
     case CampaignType::Ultra:
+    case CampaignType::Royal:
       panes_.push_back(timer_.get());
       panes_.push_back(scoring_.get());
       panes_.push_back(high_score_.get());

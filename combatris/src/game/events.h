@@ -50,6 +50,7 @@ struct Event {
     MultiplayerStartGame,
     MultiplayerResetCountDown,
     ShowSplashScreen,
+    RoyalNewLine,
     BattleSendLines,
     BattleGotLines,
     BattleKnockedOut,
