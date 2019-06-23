@@ -217,7 +217,7 @@ make cppcheck
 
 **Raspian GNU/Linux**
 
-You need to activate the OpenGL driver otherwise the game will be far to slow.
+You need to activate the OpenGL driver otherwise the game will be far too slow.
 
 The code builds cleanly and has been tested with GCC 7.3.0 (with some warnings) and Clang 6.0.0 and Clang 8.0.0, instructions how
 to install the compilers can be found here:
