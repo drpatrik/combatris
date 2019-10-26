@@ -44,7 +44,7 @@ TTF_Font* Fonts::Get(const Font& font) const {
 
   try {
      file_name = kFonts.at(font.typeface_).at(font.emphasis_);
-  } catch (std::out_of_range) {
+  } catch (const std::out_of_range&) {
     std::cout << "Font: \"" + ToString(font.typeface_) + "\" \"" + ToString(font.emphasis_) + "\" not found" << std::endl;
     exit(-1);
   }
