@@ -199,6 +199,7 @@ class Combatris {
               DisplayJoystickInfo(event.jbutton.which);
               break;
             }
+            event.cbutton.which = event.jbutton.which;
             [[fallthrough]];
           case SDL_CONTROLLERDEVICEADDED:
             AttachController(event.cbutton.which);
