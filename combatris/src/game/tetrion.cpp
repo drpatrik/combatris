@@ -1,6 +1,7 @@
 #include "game/tetrion.h"
 
 #include <iostream>
+#include <array>
 
 namespace {
 
@@ -38,11 +39,40 @@ std::string RankToText(size_t rank) {
   return kRanks.at(rank);
 }
 
+void DisplayRenderingDriversCapabilites() {
+  const std::array<std::string, 2> kYesNo = { "No", "Yes" };
+
+  auto n = SDL_GetNumRenderDrivers();
+
+  std::cout << n << " Render drivers available:" << std::endl;
+
+  for (auto i = 0; i < n; ++i) {
+    SDL_RendererInfo renderer_info;
+
+    SDL_GetRenderDriverInfo(i, &renderer_info);
+
+    std::bitset<sizeof(uint32_t) * 8> bits(renderer_info.flags);
+
+    std::cout << "  " << i << ": \"" << renderer_info.name << "\" supports accelerated rendering: " <<
+        kYesNo[bits.test(SDL_RENDERER_ACCELERATED)] << std::endl;
+  }
+}
+
+void DisplayUsedRenderer(SDL_Renderer* renderer) {
+  SDL_RendererInfo renderer_info;
+
+  SDL_GetRendererInfo(renderer, &renderer_info);
+
+  std::cout << "Using renderer: " << renderer_info.name << std::endl;
+}
+
 } // namespace
 
 using namespace utility;
 
 Tetrion::Tetrion() : events_() {
+  DisplayRenderingDriversCapabilites();
+
   window_ = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED, kWidth, kHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
   if (nullptr == window_) {
@@ -54,6 +84,8 @@ Tetrion::Tetrion() : events_() {
     std::cout << "Failed to create renderer : " << SDL_GetError() << std::endl;
     exit(-1);
   }
+  DisplayUsedRenderer(renderer_);
+
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
   SDL_RaiseWindow(window_);
   assets_ = std::make_shared<Assets>(renderer_);
