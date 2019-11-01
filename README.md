@@ -4,7 +4,7 @@
 ![screenshots](screenshots/combatris-marathon.png)
 ![screenshots](screenshots/combatris-battle.png)
 
-Combatris has been tested and works under Windows 10 (x64 only), OSX 10.12/10.13/10.14/10.15, Raspian GNU/Linux 9 (stretch) and Ubuntu 16.04
+Combatris has been tested and works under Windows 10 (x64 only), OSX 10.12/10.13/10.14/10.15, Raspian GNU/Linux 9/10 (stretch/buster) and Ubuntu 16.04
 
 Feature | Support
 --- | ------
@@ -179,7 +179,7 @@ packages.
 ## Build Combatris
 
 **Dependencies:**
-* C++17 compliant compiler (tested with clang 5/6/8, AppleClang-10.x.0 or later, Visual Studio 15/16.x.x, GCC 7.x.x and 9.2.x)
+* C++17 compliant compiler (tested with clang 5/6/8/9, AppleClang-10.x.0 or later, Visual Studio 15/16.x.x, GCC 7.x.x and 9.2.x)
 * cmake 3.10.0 or later (Windows) or 3.5.0 or later (OSX/Linux)
 * git
 * SDL2 (x64 only)
@@ -190,7 +190,7 @@ as part of the build process
 
 **OSX / Linux**
 
-Install the required libraries with apt/brew or any other package manager.
+Install the required libraries with apt/brew or any other package manager. Under Linux / Raspian install libsdl2-dev and libsdl2-ttf-dev
 
 Builds the project, default is a release build. Ninja is used if available:
 
@@ -219,7 +219,7 @@ make cppcheck
 
 You need to activate the OpenGL driver otherwise the game will be far too slow.
 
-The code builds cleanly and has been tested with GCC 7.3.0 (with some warnings) and Clang 6.0.0 and Clang 8.0.0, instructions how
+The code builds cleanly and has been tested with GCC 7.3 (with some warnings) 9.2  and Clang 6 / 8 / 9.  instructions how
 to install the compilers can be found here:
 
 https://solarianprogrammer.com/2017/12/08/raspberry-pi-raspbian-install-gcc-compile-cpp-17-programs/
