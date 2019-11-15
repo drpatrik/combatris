@@ -8,7 +8,7 @@ namespace {
 const int kSinglePlayerCountDown = 3;
 const int kMultiPlayerCountDown = 9;
 
-bool RenderAnimations(std::deque<std::shared_ptr<Animation>>& animations, double delta_time, Events& events) {
+void RenderAnimations(std::deque<std::shared_ptr<Animation>>& animations, double delta_time, Events& events) {
   for (auto it = animations.begin(); it != animations.end();) {
     (*it)->Render(delta_time);
     if (auto [status, event] = (*it)->IsReady(); status) {
@@ -18,7 +18,6 @@ bool RenderAnimations(std::deque<std::shared_ptr<Animation>>& animations, double
       ++it;
     }
   }
-  return (animations.size() == 0);
 }
 
 template <class T>
@@ -87,7 +86,6 @@ Tetrion::Tetrion() : events_() {
   DisplayUsedRenderer(renderer_);
 
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
-  SDL_RaiseWindow(window_);
   assets_ = std::make_shared<Assets>(renderer_);
   matrix_ = std::make_shared<Matrix>(renderer_, assets_->GetTetrominos());
   campaign_ = std::make_shared<Campaign>(window_, renderer_, events_, assets_, matrix_);
@@ -98,6 +96,7 @@ Tetrion::Tetrion() : events_() {
   combatris_menu_ = std::make_shared<CombatrisMenu>(events_);
   events_.Push(Event::Type::ShowSplashScreen);
   events_.Push(Event::Type::MenuSetModeAndCampaign, ModeType::SinglePlayer, CampaignType::Combatris);
+  SDL_RaiseWindow(window_);
 }
 
 Tetrion::~Tetrion() noexcept {
