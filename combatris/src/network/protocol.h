@@ -19,17 +19,19 @@
 #include <endian.h>
 
 inline uint64_t htonll(uint64_t value) {
-  if (__BYTE_ORDER == __BIG_ENDIAN) {
+  if constexpr(__BYTE_ORDER == __BIG_ENDIAN) {
     return value;
+  } else {
+    return (static_cast<uint64_t>(htonl(value)) << 32) | htonl(value >> 32);
   }
-  return (static_cast<uint64_t>(htonl(value)) << 32) | htonl(value >> 32);
 }
 
 inline uint64_t ntohll(uint64_t value) {
-  if (__BYTE_ORDER == __BIG_ENDIAN) {
+  if constexpr(__BYTE_ORDER == __BIG_ENDIAN) {
     return value;
+  } else {
+    return (static_cast<uint64_t>(ntohl(value)) << 32) | ntohl(value >> 32);
   }
-  return (static_cast<uint64_t>(ntohl(value)) << 32) | ntohl(value >> 32);
 }
 
 #endif // !__APPLE__
