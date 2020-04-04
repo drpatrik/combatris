@@ -43,7 +43,7 @@ class MultiPlayerController {
     Channel channel_;
   };
 
-  MultiPlayerController(ListenerInterface* listener);
+  explicit MultiPlayerController(ListenerInterface* listener);
 
   ~MultiPlayerController() noexcept;
 

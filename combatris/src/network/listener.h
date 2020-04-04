@@ -18,16 +18,14 @@ class Listener final {
 
     Response(Request request, uint64_t host_id) : request_(request), host_id_(host_id) {}
 
-    Response(const PackageHeader& package_header, const Package& package) {
-      request_ = package.header_.request();
-      host_name_ = package_header.host_name();
+    Response(const PackageHeader& package_header, const Package& package) :
+        request_(package.header_.request()), host_name_(package_header.host_name()) {
       host_id_ = package_header.host_id();
       payload_ = package.payload_;
     }
 
-    Response(const PackageHeader& package_header, const ProgressPackage& package) {
-      request_ = Request::ProgressUpdate;
-      host_name_ = package_header.host_name();
+    Response(const PackageHeader& package_header, const ProgressPackage& package) :
+        request_(Request::ProgressUpdate), host_name_(package_header.host_name()) {
       host_id_ = package_header.host_id();
       progress_payload_ = package.payload_;
     }

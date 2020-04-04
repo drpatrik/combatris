@@ -158,7 +158,7 @@ class Header final {
  public:
   Header() : signature_(htonl(kSignature)), sequence_nr_(htonl(0)), request_(static_cast<Request>(htons(Request::Empty))) {}
 
-  Header(Request request) : signature_(htonl(kSignature)), sequence_nr_(htonl(0)), request_(request) {}
+  explicit Header(Request request) : signature_(htonl(kSignature)), sequence_nr_(htonl(0)), request_(request) {}
 
   Header(Request request, uint32_t sequence_nr) : signature_(htonl(kSignature)), sequence_nr_(htonl(sequence_nr)), request_(request) {}
 
@@ -299,7 +299,7 @@ struct Package {
 struct PackageArray {
   PackageArray() : size_(0) {}
 
-  PackageArray(uint8_t size) : size_(size) {}
+  explicit PackageArray(uint8_t size) : size_(size) {}
 
   int size() const { return size_; }
 

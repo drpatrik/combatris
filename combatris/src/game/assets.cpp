@@ -92,9 +92,8 @@ Assets::Assets(SDL_Renderer *renderer) : fonts_(std::make_shared<Fonts>()) {
         std::shared_ptr<SDL_Texture>(LoadTexture(renderer, data.image_name_), DeleteTexture)));
     alpha_textures_.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, data.image_name_), DeleteTexture));
   }
-  for (const auto& data : kTextures) {
-    textures_.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, data.name_, data.transparent_color_), DeleteTexture));
-  }
+  std::transform(kTextures.begin(), kTextures.end(), std::back_inserter(textures_),
+      [&renderer](const auto& d) { return std::shared_ptr<SDL_Texture>(LoadTexture(renderer, d.name_, d.transparent_color_), DeleteTexture); });
   for (int i = 1; i <=24; ++i) {
     hourglass_textures_.push_back(std::shared_ptr<SDL_Texture>(LoadTexture(renderer, "Hourglass", i), DeleteTexture));
   }

@@ -10,7 +10,7 @@ namespace network {
 
 class Connection final {
  public:
-  Connection(const std::string host_name, const PackageArray& package_array) {
+  Connection(const std::string& host_name, const PackageArray& package_array) {
     for (int index = 0; index < package_array.size(); ++index) {
       if (package_array.packages_[index].header_.request() == Request::Join) {
         start_with_package_ = index;
