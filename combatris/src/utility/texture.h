@@ -16,8 +16,8 @@ class Texture {
     std::tie(texture_, rc_.w, rc_.h) = CreateTextureFromFramedText(renderer, font, text, text_color, background_color);
   }
 
-  Texture(std::tuple<std::shared_ptr<SDL_Texture>, int, int> texture) {
-    texture_= UniqueTexturePtr{ std::get<0>(texture).get() };
+  explicit Texture(std::tuple<std::shared_ptr<SDL_Texture>, int, int> texture) :
+      texture_(UniqueTexturePtr{ std::get<0>(texture).get() })  {
     rc_.w = std::get<1>(texture);
     rc_.h = std::get<2>(texture);
   }

@@ -256,7 +256,7 @@ ssize_t UDPServer::Receive(void* buff, size_t max_size, int max_wait_ms) {
   timeval timeout{};
   timeout.tv_sec = max_wait_ms / 1000;
   timeout.tv_usec = (max_wait_ms % 1000) * 1000;
-  const auto ret_val(select(socket_ + 1, &fds, nullptr, &fds, &timeout));
+  const auto ret_val(select(socket_ + 1, &fds, nullptr, nullptr, &timeout));
 
   if (ret_val == SOCKET_ERROR) {
     std::cout << "UDPServer::Receive error message - " << get_error_string(get_last_error()) << std::endl;
@@ -282,7 +282,7 @@ ssize_t UDPServer::Receive(void* buff, size_t max_size, sockaddr_in& from_addr, 
   timeval timeout{};
   timeout.tv_sec = max_wait_ms / 1000;
   timeout.tv_usec = (max_wait_ms % 1000) * 1000;
-  const auto ret_val(select(socket_ + 1, &fds, nullptr, &fds, &timeout));
+  const auto ret_val(select(socket_ + 1, &fds, nullptr, nullptr, &timeout));
 
   if (ret_val == SOCKET_ERROR) {
     std::cout << "UDPServer::Receive error message - " << get_error_string(get_last_error()) << std::endl;

@@ -6,7 +6,7 @@ class Scoring final : public Pane, public EventListener {
  public:
   using Texture = utility::Texture;
 
-  Scoring(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, Events& events) : Pane(renderer, kMatrixEndX + kMinoWidth, kMatrixStartY - kMinoHeight, assets), events_(events) { Reset(); }
+  Scoring(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, Events& events) : Pane(renderer, kMatrixEndX + kMinoWidth, kMatrixStartY - kMinoHeight, assets), events_(events) { Scoring::Reset(); }
 
   virtual void Reset() override {
     level_ = start_level_;

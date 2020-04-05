@@ -23,9 +23,7 @@ void RenderWindowBackground(SDL_Renderer* renderer, const SDL_Rect& rc) {
 
 } // namespace
 
-Campaign::Campaign(SDL_Window* window, SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets,
-                   const std::shared_ptr<Matrix>& matrix)
-    : window_(window), renderer_(renderer), events_(events), assets_(assets), matrix_(matrix) {
+Campaign::Campaign(SDL_Window* window, SDL_Renderer* renderer, Events& events, const std::shared_ptr<Assets>& assets, const std::shared_ptr<Matrix>& matrix) : window_(window), renderer_(renderer), events_(events), assets_(assets), matrix_(matrix) {
   level_ = std::make_shared<Level>(renderer_, 150, events_, assets_);
   AddListener(level_.get());
   tetromino_generator_ = std::make_shared<TetrominoGenerator>(matrix_, level_, events_, assets_);

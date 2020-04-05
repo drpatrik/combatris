@@ -19,17 +19,19 @@
 #include <endian.h>
 
 inline uint64_t htonll(uint64_t value) {
-  if (__BYTE_ORDER == __BIG_ENDIAN) {
+  if constexpr(__BYTE_ORDER == __BIG_ENDIAN) {
     return value;
+  } else {
+    return (static_cast<uint64_t>(htonl(value)) << 32) | htonl(value >> 32);
   }
-  return (static_cast<uint64_t>(htonl(value)) << 32) | htonl(value >> 32);
 }
 
 inline uint64_t ntohll(uint64_t value) {
-  if (__BYTE_ORDER == __BIG_ENDIAN) {
+  if constexpr(__BYTE_ORDER == __BIG_ENDIAN) {
     return value;
+  } else {
+    return (static_cast<uint64_t>(ntohl(value)) << 32) | ntohl(value >> 32);
   }
-  return (static_cast<uint64_t>(ntohl(value)) << 32) | ntohl(value >> 32);
 }
 
 #endif // !__APPLE__
@@ -156,7 +158,7 @@ class Header final {
  public:
   Header() : signature_(htonl(kSignature)), sequence_nr_(htonl(0)), request_(static_cast<Request>(htons(Request::Empty))) {}
 
-  Header(Request request) : signature_(htonl(kSignature)), sequence_nr_(htonl(0)), request_(request) {}
+  explicit Header(Request request) : signature_(htonl(kSignature)), sequence_nr_(htonl(0)), request_(request) {}
 
   Header(Request request, uint32_t sequence_nr) : signature_(htonl(kSignature)), sequence_nr_(htonl(sequence_nr)), request_(request) {}
 
@@ -297,7 +299,7 @@ struct Package {
 struct PackageArray {
   PackageArray() : size_(0) {}
 
-  PackageArray(uint8_t size) : size_(size) {}
+  explicit PackageArray(uint8_t size) : size_(size) {}
 
   int size() const { return size_; }
 

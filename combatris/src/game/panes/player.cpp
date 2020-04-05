@@ -214,12 +214,10 @@ void Player::Render(int x_offset, int y_offset) const {
                    &AddOffset(tmp, x_offset, y_offset,
                               *InsideBox(tmp, field.rc_, field.texture_->width(), field.texture_->height())));
   }
-
   int y_pos = 0;
-  int x_pos = 0;
 
   for (int row = 0; row < static_cast<int>(matrix_.size()); ++row) {
-    x_pos = 0;
+    int x_pos = 0;
 
     for (int col = 0; col < static_cast<int>(matrix_[row].size()); ++col) {
       const auto id = matrix_[row][col];
