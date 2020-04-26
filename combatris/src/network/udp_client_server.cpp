@@ -138,6 +138,7 @@ std::string FindBroadcastAddress() {
         }
         GetAddressAsUnsigned(sockaddr_ipv4->sin_addr) = htonl(ip | 0xFF);
         address = inet_ntoa(sockaddr_ipv4->sin_addr);
+        break; // Use first valid IP address
       }
     }
   }
