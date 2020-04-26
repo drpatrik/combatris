@@ -1,6 +1,7 @@
 #include "game/tetrion.h"
 
 #include <iostream>
+#include <bitset>
 #include <array>
 
 namespace {
