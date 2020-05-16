@@ -28,8 +28,6 @@ const std::vector<std::vector<int>> kPerfectClear {
 TEST_CASE("DetectPerfectClear") {
   auto [assets, matrix] = SetupTestHarness(kPerfectClear);
 
-  auto tetrominos = assets->GetTetrominos();
-
   Position insert_pos((kMatrixFirstRow - 2) + 20, kMatrixFirstCol + 3);
 
   auto[lines_cleared, tspin_type, perfect_clear] =
@@ -65,9 +63,6 @@ const std::vector<std::vector<int>> kTSpinMatrix {
 
 TEST_CASE("DetectTSpin1") {
   auto [assets, matrix] = SetupTestHarness(kTSpinMatrix);
-
-  auto tetrominos = assets->GetTetrominos();
-
   Position insert_pos((kMatrixFirstRow - 2) + 18, kMatrixFirstCol + 6);
 
   auto [lines_cleared, tspin_type, perfect_clear] = matrix->Commit(Tetromino::Type::T, Tetromino::Angle::A90, Tetromino::Move::Rotation, insert_pos);
@@ -102,9 +97,6 @@ const std::vector<std::vector<int>> kTSpinMatrix2 {
 
 TEST_CASE("DetectTSpin2") {
   auto [assets, matrix] = SetupTestHarness(kTSpinMatrix2);
-
-  auto tetrominos = assets->GetTetrominos();
-
   Position insert_pos((kMatrixFirstRow - 2) + 18, kMatrixFirstCol + 4);
 
   auto [lines_cleared, tspin_type, perfect_clear] = matrix->Commit(Tetromino::Type::T, Tetromino::Angle::A270, Tetromino::Move::Rotation, insert_pos);
@@ -140,8 +132,6 @@ const std::vector<std::vector<int>> kTSpinMatrix3 {
 TEST_CASE("DetectTSpin3") {
   auto [assets, matrix] = SetupTestHarness(kTSpinMatrix3);
 
-  auto tetrominos = assets->GetTetrominos();
-
   Position insert_pos((kMatrixFirstRow - 2) + 19, kMatrixFirstCol + 6);
 
   auto [lines_cleared, tspin_type, perfect_clear] = matrix->Commit(Tetromino::Type::T, Tetromino::Angle::A180, Tetromino::Move::Rotation, insert_pos);
@@ -176,9 +166,6 @@ const std::vector<std::vector<int>> kTSpinMiniMatrix {
 
 TEST_CASE("DetectTSpinMini") {
   auto [assets, matrix] = SetupTestHarness(kTSpinMiniMatrix);
-
-  auto tetrominos = assets->GetTetrominos();
-
   Position insert_pos((kMatrixFirstRow - 2) + 18, kMatrixFirstCol + 4);
 
   auto [lines_cleared, tspin_type, perfect_clear] = matrix->Commit(Tetromino::Type::T, Tetromino::Angle::A270, Tetromino::Move::Rotation, insert_pos);

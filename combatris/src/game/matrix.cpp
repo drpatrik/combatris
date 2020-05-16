@@ -75,8 +75,8 @@ Lines RemoveLinesCleared(Matrix::Type& matrix) {
 void MoveLineDown(int end_row, Matrix::Type& matrix) {
   Matrix::Type tmp;
 
-  std::copy(matrix.begin(), matrix.begin() + end_row, std::back_inserter(tmp));
-  std::copy(tmp.begin(), tmp.end(), matrix.begin() + 1);
+  std::copy(matrix.begin(), std::next(matrix.begin(), end_row), std::back_inserter(tmp));
+  std::copy(tmp.begin(), tmp.end(), std::next(matrix.begin()));
   matrix[0] = kEmptyRow;
 }
 
@@ -102,11 +102,11 @@ int MoveLinesUp(int lines, Matrix::Type& matrix) {
   }
   Matrix::Type tmp;
 
-  std::copy(matrix.begin() + first_non_empty_row, matrix.end() - 2, std::back_inserter(tmp));
+  std::copy(std::next(matrix.begin(), first_non_empty_row), std::prev(matrix.end(), 2), std::back_inserter(tmp));
 
   lines = std::min(lines, first_non_empty_row);
 
-  std::copy(tmp.begin(), tmp.end(), matrix.end() - 2 - lines - tmp.size());
+  std::copy(tmp.begin(), tmp.end(), std::prev(matrix.end(), 2 + lines + tmp.size()));
 
   return lines;
 }

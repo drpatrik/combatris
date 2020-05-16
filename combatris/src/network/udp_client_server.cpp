@@ -197,7 +197,7 @@ UDPClient::~UDPClient() noexcept {
 ssize_t UDPClient::Send(void* buff, size_t size) {
   auto ret_value = sendto(socket_, static_cast<char*>(buff), size, 0, addr_info_->ai_addr, addr_info_->ai_addrlen);
 
-  if (ret_value == -1) {
+  if (-1 == ret_value) {
     std::cout << "UDPClient::Send error message: " << get_error_string(get_last_error()) << std::endl;
   }
 
@@ -223,7 +223,7 @@ UDPServer::UDPServer(int port) {
   }
   socket_ = socket(addr_info_->ai_family, addr_info_->ai_socktype, addr_info_->ai_protocol);
 
-  if (socket_ == INVALID_SOCKET) {
+  if (INVALID_SOCKET == socket_) {
     std::cout << "UDPServer: could not create socket for - \"" << kBroadcastAddress << ":" << port << "\"" << std::endl;
     std::cout << "UDPServer: error message: - " << get_error_string(get_last_error()) << std::endl;
     Exit();
@@ -259,14 +259,14 @@ ssize_t UDPServer::Receive(void* buff, size_t max_size, int max_wait_ms) {
   timeout.tv_usec = (max_wait_ms % 1000) * 1000;
   const auto ret_val(select(socket_ + 1, &fds, nullptr, nullptr, &timeout));
 
-  if (ret_val == SOCKET_ERROR) {
+  if (SOCKET_ERROR == ret_val) {
     std::cout << "UDPServer::Receive error message - " << get_error_string(get_last_error()) << std::endl;
     return SOCKET_ERROR;
   }
   if (ret_val > 0) {
     auto size = recv(socket_, static_cast<char*>(buff), max_size, 0);
 
-    if (size == SOCKET_ERROR) {
+    if (SOCKET_ERROR == size) {
       std::cout << "UDPServer::Receive error message - " << get_error_string(get_last_error()) << std::endl;
     }
 
@@ -285,7 +285,7 @@ ssize_t UDPServer::Receive(void* buff, size_t max_size, sockaddr_in& from_addr, 
   timeout.tv_usec = (max_wait_ms % 1000) * 1000;
   const auto ret_val(select(socket_ + 1, &fds, nullptr, nullptr, &timeout));
 
-  if (ret_val == SOCKET_ERROR) {
+  if (SOCKET_ERROR == ret_val) {
     std::cout << "UDPServer::Receive error message - " << get_error_string(get_last_error()) << std::endl;
     return SOCKET_ERROR;
   }
@@ -294,7 +294,7 @@ ssize_t UDPServer::Receive(void* buff, size_t max_size, sockaddr_in& from_addr, 
 
     auto size = recvfrom(socket_, static_cast<char*>(buff), max_size, 0, reinterpret_cast<sockaddr*>(&from_addr), &out_size);
 
-    if (size == SOCKET_ERROR) {
+    if (SOCKET_ERROR == size) {
       std::cout << "UDPServer::Receive error message - " << get_error_string(get_last_error()) << std::endl;
     }
     return size;

@@ -124,8 +124,6 @@ const std::vector<std::vector<int>> kClearTopRowAfter {
 TEST_CASE("ClearLinesAtTop") {
   auto [assets, matrix] = SetupTestHarness(kClearTopRowBefore);
 
-  auto tetrominos = assets->GetTetrominos();
-
   Position insert_pos(0, kMatrixFirstCol);
 
   auto [lines_cleared, tspin_type, perfect_clear] =
@@ -185,8 +183,6 @@ const std::vector<std::vector<int>> kClearedLineWithGarbageBetweenAfter {
 
 TEST_CASE("ClearedLineWithGarbageBetween") {
   auto [assets, matrix] = SetupTestHarness(kClearedLineWithGarbageBetweenBefore);
-
-  auto tetrominos = assets->GetTetrominos();
 
   Position insert_pos(kMatrixFirstRow + 15, kMatrixFirstCol - 1);
 

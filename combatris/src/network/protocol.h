@@ -172,7 +172,7 @@ class Header final {
 
   void SetRequest(Request r) { request_ = r; }
 
-  bool operator==(Request r) const { return r == request(); }
+  bool operator==(Request r) const { return request() == r; }
 
  private:
   uint32_t signature_;
