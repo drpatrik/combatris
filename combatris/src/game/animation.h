@@ -20,7 +20,6 @@ class Animation {
 public:
   using Color = utility::Color;
   using Texture = utility::Texture;
-  using UniqueTexturePtr = utility::UniqueTexturePtr;
 
   Animation(SDL_Renderer *renderer,  const std::shared_ptr<Assets>& assets) : renderer_(renderer), assets_(assets) {}
 
@@ -42,7 +41,7 @@ protected:
   double x_ = 0.0;
   double y_ = 0.0;
 
-  inline void RenderCopy(SDL_Texture *texture, const SDL_Rect& rc) { SDL_RenderCopy(*this, texture, nullptr, &rc); }
+  inline void RenderCopy(SDL_Texture* texture, const SDL_Rect& rc) { SDL_RenderCopy(*this, texture, nullptr, &rc); }
 
   inline void RenderCopy(Texture& texture) { SDL_RenderCopy(*this, texture, nullptr, texture); }
 
@@ -92,7 +91,7 @@ class LinesClearedAnimation final : public Animation {
  public:
   const int kRows = kMatrixLastRow + 3;
 
-  LinesClearedAnimation(SDL_Renderer *renderer, const std::shared_ptr<Assets>& assets, const Lines& lines)
+  LinesClearedAnimation(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, const Lines& lines)
       : Animation(renderer, assets), lines_(lines) {
     end_pos_ = ((kRows - lines.at(0).row_) + lines.size() + 1.5) * kMinoHeight;
   }
@@ -102,16 +101,13 @@ class LinesClearedAnimation final : public Animation {
     const double direction = (abs_y_ < kMinoHeight) ? -1 : 1;
 
     for (const auto& line : lines_) {
-      auto y = row_to_pixel_adjusted(line.row_) + y_;
-
+      const auto y = row_to_pixel_adjusted(line.row_) + y_;
       const auto& minos = line.minos_;
 
-      for (int l = kMatrixFirstCol; l < kMatrixLastCol; ++l) {
-        auto x = col_to_pixel_adjusted(l);
+      for (int col = kMatrixFirstCol; col < kMatrixLastCol; ++col) {
+        const auto& tetromino = GetAsset().GetTetromino(static_cast<Tetromino::Type>(minos[col]));
 
-        const auto& tetromino = GetAsset().GetTetromino(static_cast<Tetromino::Type>(minos[l]));
-
-        tetromino->Render(x, static_cast<int>(y));
+        tetromino->Render(col_to_pixel_adjusted(col), static_cast<int>(y));
       }
     }
     y_ += (kIncY * direction);
@@ -185,7 +181,7 @@ class MessageAnimation final : public Animation {
 private:
   double alpha_ = 255.0;
   double display_speed_;
-  UniqueTexturePtr texture_;
+  utility::UniqueTexturePtr texture_;
   SDL_Rect rc_;
   double end_pos_;
 };
@@ -268,7 +264,7 @@ private:
 class GameOverAnimation final : public Animation {
  public:
   GameOverAnimation(SDL_Renderer* renderer, const std::shared_ptr<CombatrisMenu>& menu,
-                    const std::shared_ptr<Assets>& assets, const std::string text = "Game Over")
+                    const std::shared_ptr<Assets>& assets, const std::string& text = "Game Over")
       : Animation(renderer, assets),
         menu_view_(renderer, { kMatrixStartX, 0, kMatrixWidth, kMenuHeight }, assets->fonts(), menu, menu.get()), text_(text) {
 
@@ -315,10 +311,7 @@ class HourglassAnimation final : public Animation {
     RenderCopy(text_);
     ticks_ += delta;
     if (ticks_ >= 0.07) {
-      frame_++;
-      if (textures_.size() == frame_) {
-        frame_ = 0;
-      }
+      frame_ =  (textures_.size() == frame_) ? 0 : frame_ + 1;
       ticks_ = 0.0;
     }
   }

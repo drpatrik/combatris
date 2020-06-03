@@ -33,9 +33,8 @@ class ReceivingQueue final : public TextPane, public EventListener {
     FillRect(5, 10 + caption_texture_.height(), kInteriorWidth, kBoxInteriorHeight);
     FillRect(kInteriorWidth + 9, 10 + caption_texture_.height(), kInteriorWidth, kBoxInteriorHeight);
 
-    for (auto& line : lines_) {
-      RenderCopy(line, line.x(), line.y(), line.width(), line.height());
-    }
+    std::for_each(std::begin(lines_), std::end(lines_),
+                  [&](auto& line) { RenderCopy(line, line.x(), line.y(), line.width(), line.height()); });
     ticks_ += delta_time;
     if (!texture_.is_null() && ticks_ >= kDisplayTime) {
       texture_.reset();
@@ -62,9 +61,8 @@ class ReceivingQueue final : public TextPane, public EventListener {
   }
 
   void BroadcastKO() {
-    for (const auto& host : got_lines_from_) {
-      events_.Push(Event::Type::BattleKnockedOut, host);
-    }
+    std::for_each(std::begin(got_lines_from_), std::end(got_lines_from_),
+                  [&](const auto& host) { events_.Push(Event::Type::BattleKnockedOut, host); });
     Reset();
   }
 
@@ -115,11 +113,9 @@ class ReceivingQueue final : public TextPane, public EventListener {
       new_lines_ = std::max(new_lines_ - event.value2_as_int(), 0);
       total_lines_ = std::max(total_lines_- event.value2_as_int(), 0);
     } else if (total_lines_ > 0) {
-      int lines = 0;
+      auto lines = std::accumulate(std::begin(event.lines_), std::end(event.lines_), 0,
+                     [](int v, const auto& line) { return v + static_cast<int>(Matrix::IsSolidLine(line)); });
 
-      for (const auto& line : event.lines_) {
-        lines += static_cast<int>(Matrix::IsSolidLine(line));
-      }
       if (lines == 0) {
         return false;
       }

@@ -10,8 +10,7 @@ class HoldQueue final : public TextPane, public EventListener {
   static const int kY = kMatrixStartY - kMinoHeight;
 
   HoldQueue(SDL_Renderer *renderer, const std::shared_ptr<Assets> &assets)
-      : TextPane(renderer, kX, kY, "HOLD", assets) {
-    checkmark_texture_ = utility::Texture(assets_->GetTexture(Assets::Type::Checkmark));
+      : TextPane(renderer, kX, kY, "HOLD", assets), checkmark_texture_(utility::Texture(assets_->GetTexture(Assets::Type::Checkmark))) {
     checkmark_texture_.SetXY(kX + 90, kY - 10);
   }
 

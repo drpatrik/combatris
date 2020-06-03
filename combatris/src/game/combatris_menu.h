@@ -12,7 +12,7 @@ class CombatrisMenu : public utility::MenuModel, public utility::MenuAction {
   const std::vector<std::string> kSinglePlayerCampaigns = { "Combatris", "Marathon", "Sprint", "Ultra", "Royal" };
   const std::vector<std::string> kMultiPlayerCampaigns =  {"Combatris", "Marathon", "Sprint", "Ultra", "Royal", "Battle"};
 
-  CombatrisMenu(Events& events) : MenuModel(), events_(events) {
+  explicit CombatrisMenu(Events& events) : MenuModel(), events_(events) {
     MenuModel::Add(MenuItemType::Name, "Mode:");
     MenuModel::Add(MenuItemType::SubMenu, kModes);
     MenuModel::Add(MenuItemType::Name, "Campaign:");
