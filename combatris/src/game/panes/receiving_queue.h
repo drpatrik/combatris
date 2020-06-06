@@ -5,6 +5,7 @@
 #include "game/panes/pane.h"
 
 #include <set>
+#include <numeric>
 
 class ReceivingQueue final : public TextPane, public EventListener {
  public:
