@@ -28,7 +28,7 @@ build: cmake-setup
 
 cppcheck:
 	@mkdir -p $(BUILD_DIR) && cd $(BUILD_DIR);$(CMAKE) -G $(CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
-	cppcheck --enable=all --language=c++ -UASSETS_FOLDER -UNDEBUG --project=build/compile_commands.json
+	cppcheck --enable=all --language=c++ -UNDEBUG --project=build/compile_commands.json
 
 clean:
 	rm -rf $(BUILD_DIR)/

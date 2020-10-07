@@ -1,7 +1,5 @@
 project(combatris)
 
-add_definitions(-DASSETS_FOLDER="${combatris_SOURCE_DIR}/assets/" )
-
 include_directories(${SDL2_INCLUDE_DIR} ${SDL2_TTF_INCLUDE_DIR})
 include_directories(combatris src/)
 
