@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 3.0.0)
 project(catch_builder CXX)
 include(ExternalProject)
 find_package(Git REQUIRED)
@@ -6,9 +6,9 @@ find_package(Git REQUIRED)
 ExternalProject_Add(
     catch
     PREFIX ${combatris_SOURCE_DIR}/external/catch/
-    GIT_REPOSITORY https://github.com/philsquared/Catch.git
+    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+    GIT_TAG v2.13.3
     TIMEOUT 10
-    UPDATE_COMMAND ${GIT_EXECUTABLE} pull --no-rebase
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND ""

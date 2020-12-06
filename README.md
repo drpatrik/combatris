@@ -186,7 +186,8 @@ packages.
 * SDL2_ttf (x64 only)
 
 The test suit requires catch - Catch will be automatically downloaded and installed
-as part of the build process
+as part of the build process. Catch2 version is set to v2.13.3 and can be changed by
+editing CMakeList-Catch.txt
 
 **OSX / Linux**
 
