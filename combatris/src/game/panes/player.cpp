@@ -121,7 +121,7 @@ int Player::Update(Player::TextureID id, int new_value, int old_value, Function 
   if (!set_to_zero && (0 == new_value || new_value == old_value)) {
     return old_value;
   }
-  auto txt = (-1 == new_value) ? "-" : to_string(new_value);
+  const auto& txt = (-1 == new_value) ? "-" : to_string(new_value);
 
   fields_[id].texture_ = std::make_unique<Texture>(renderer_, assets_->GetFont(kTextFont), txt, Color::Yellow);
 
