@@ -26,7 +26,6 @@ class HighScore final : public TextPane, public EventListener {
       campaign_type_ = event.campaign_type();
     } else {
       score_ += event.value1_; // calculated score or lines dropped
-      //score_ += event.value2_as_int(); // Lines dropped
       if (score_ > highscore_) {
         highscore_ = score_;
       }

@@ -8,7 +8,7 @@ class Goal final : public TextPane, public EventListener {
 
   Goal(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets, Events& events)
       : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace), (kMatrixStartY - kMinoHeight) + kYOffs,
-                 "GOAL", assets), events_(events) { Reset(); }
+                 "GOAL", assets), events_(events) { SetCenteredText(goal_); }
 
   virtual void Reset() override {
     level_ = start_level_;
@@ -46,7 +46,7 @@ class Goal final : public TextPane, public EventListener {
   }
 
  private:
-  int goal_ = 0;
+  int goal_ = 5;
   int level_ = 1;
   int start_level_ = 1;
   Events& events_;

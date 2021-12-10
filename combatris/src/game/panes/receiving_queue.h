@@ -20,7 +20,7 @@ class ReceivingQueue final : public TextPane, public EventListener {
        : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace),
                   (kMatrixStartY - kMinoHeight) + kYOffs, "LINES GOT", assets), events_(events) {
     lines_.resize(2);
-    Reset();
+    ResetNewLines();
   }
 
   virtual void Render(double delta_time) override {

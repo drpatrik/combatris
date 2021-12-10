@@ -9,7 +9,7 @@ class TotalLines final : public TextPane, public EventListener {
 
   TotalLines(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets)
        : TextPane(renderer, kMatrixStartX - kMinoWidth - (kBoxWidth + kSpace),
-                  (kMatrixStartY - kMinoHeight) + kYOffs, "LINES", assets) { Reset(); }
+                  (kMatrixStartY - kMinoHeight) + kYOffs, "LINES", assets) { SetCenteredText(std::to_string(0)); }
 
   virtual void Reset() override { total_lines_ = 0;  SetCenteredText(std::to_string(0)); }
 
