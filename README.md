@@ -4,7 +4,7 @@
 ![screenshots](screenshots/combatris-marathon.png)
 ![screenshots](screenshots/combatris-battle.png)
 
-Combatris has been tested and works under Windows 10 (x64 only), OSX 10.12/10.13/10.14/10.15, Raspian GNU/Linux 9/10 (stretch/buster) and Ubuntu 16.04
+Combatris has been tested and works under Windows 10 (x64 only), OSX 10.13 - 12.1, Raspian GNU/Linux 9/10 (stretch/buster) and Ubuntu 16 / 20.
 
 Feature | Support
 --- | ------
@@ -179,7 +179,7 @@ packages.
 ## Build Combatris
 
 **Dependencies:**
-* C++17 compliant compiler (tested with clang 5/6/8/9, AppleClang-10.x.0 or later, Visual Studio 15/16.x.x, GCC 7.x.x and 9.2.x)
+* C++17 compliant compiler (tested with clang 5/6/8/9, AppleClang-10.x.0 or later, Visual Studio 15/16.x.x/17.x.x, GCC 7.x.x and 9.2.x)
 * cmake 3.10.0 or later (Windows) or 3.5.0 or later (OSX/Linux)
 * git
 * SDL2 (x64 only)
