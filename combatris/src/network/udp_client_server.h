@@ -27,7 +27,9 @@ const int SOCKET_TIMEOUT = -2;
 
 class UDPClient {
  public:
-  UDPClient(const std::string& broadcast_address, int port);
+  UDPClient(const std::string& host_name, const std::string& broadcast_address, int port);
+
+  UDPClient(const std::string& broadcast_address, int port) : UDPClient("", broadcast_address, port) {}
 
   UDPClient(const UDPClient&) = delete;
 
@@ -57,17 +59,16 @@ class UDPServer {
 
   ssize_t Receive(void* buff, size_t max_size, sockaddr_in& from_addr, int max_wait_ms);
 
-  const std::string& host_name() const { return host_name_; }
-
  private:
   SOCKET socket_ = INVALID_SOCKET;
   addrinfo* addr_info_ = nullptr;
-  std::string host_name_;
 };
 
 std::string GetHostName();
 
 std::string GetBroadcastAddress();
+
+bool IsAddressInUse(int port);
 
 int GetPort();
 
