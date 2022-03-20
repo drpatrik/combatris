@@ -29,8 +29,6 @@ std::string GetHostName();
 
 std::string GetBroadcastAddress();
 
-bool IsAddressInUse(int port);
-
 int GetPort();
 
 void Startup();
@@ -39,9 +37,7 @@ void Cleanup();
 
 class UDPClient {
  public:
-  UDPClient(const std::string& host_name, const std::string& broadcast_address, int port);
-
-  UDPClient(const std::string& broadcast_address, int port) : UDPClient(GetHostName(), broadcast_address, port) {}
+  UDPClient(const std::string& broadcast_address, int port);
 
   UDPClient(const UDPClient&) = delete;
 

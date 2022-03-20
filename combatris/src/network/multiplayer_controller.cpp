@@ -5,8 +5,6 @@
 
 namespace network {
 
-std::string MultiPlayerController::host_name_postfix_ = "";
-
 namespace {
 
 void HeartbeatController(std::atomic<bool>& quit, std::shared_ptr<ThreadSafeQueue<MultiPlayerController::OutgoingPackage>> queue) {
@@ -23,12 +21,9 @@ void HeartbeatController(std::atomic<bool>& quit, std::shared_ptr<ThreadSafeQueu
 } // namespace
 
 MultiPlayerController::MultiPlayerController(ListenerInterface* listener_if) : listener_if_(listener_if) {
-  if (IsAddressInUse(GetPort())) {
-    host_name_postfix_ = "(2)";
-  }
   Startup();
-  our_host_name_ = GetHostName() + host_name_postfix_;
-  our_host_id_ = std::hash<std::string>{}(our_host_name_);
+  our_host_name_ = GetHostName();
+  our_host_id_ = std::hash<std::string>{}(our_host_name_ + std::to_string(GetPID()));
   cancelled_.store(false, std::memory_order_release);
   send_queue_ = std::make_shared<ThreadSafeQueue<OutgoingPackage>>();
   listener_ = std::make_unique<Listener>();
@@ -128,7 +123,7 @@ void MultiPlayerController::Run() {
   uint32_t sequence_nr_reliable = 0;
   uint32_t sequence_nr_unreliable = 0;
   std::deque<Package> sliding_window;
-  UDPClient client(our_host_name_, broadcast_address, GetPort());
+  UDPClient client(broadcast_address, GetPort());
   auto time_since_last_package = utility::time_in_ms();
 
   std::cout << "Broadcast IP: " << broadcast_address << ", Port: " << GetPort() << std::endl;

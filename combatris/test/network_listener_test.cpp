@@ -38,7 +38,7 @@ void CheckResponse(Listener& listener, const std::string& expected_host_name, Re
   REQUIRE(WaitForPackage(listener));
   auto rsp = listener.NextPackage();
 
-  REQUIRE(std::hash<std::string>{}(expected_host_name) == rsp.host_id_);
+  REQUIRE(std::hash<std::string>{}(expected_host_name + std::to_string(GetPID())) == rsp.host_id_);
   REQUIRE(expected_request == rsp.request_);
 }
 

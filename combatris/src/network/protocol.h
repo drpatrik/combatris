@@ -9,10 +9,20 @@
 
 #include <winsock2.h>
 #include <iterator>
+#include <process.h>
+
+inline int GetPID() {
+  return _getpid();
+}
 
 #else
 
 #include <arpa/inet.h>
+#include <unistd.h>
+
+inline int GetPID() {
+  return getpid();
+}
 
 #if !defined(__APPLE__)
 
@@ -67,7 +77,7 @@ inline uint64_t SetHostName(const std::string& from, char *to) {
 
   to[tmp.size()] = '\0';
 
-  return std::hash<std::string>{}(from);
+  return std::hash<std::string>{}(from + std::to_string(GetPID()));
 }
 
 enum class CampaignType { None, Combatris, Marathon, Sprint, Ultra, Royal, Battle };

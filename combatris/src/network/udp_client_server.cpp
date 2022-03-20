@@ -167,7 +167,7 @@ std::string FindBroadcastAddress() {
 
 namespace network {
 
-UDPClient::UDPClient(const std::string& host_name, const std::string& broadcast_address, int port) {
+UDPClient::UDPClient(const std::string& broadcast_address, int port) {
   VerifyAddressAndPort(broadcast_address, port);
 
   addrinfo hints{};
@@ -196,7 +196,7 @@ UDPClient::UDPClient(const std::string& host_name, const std::string& broadcast_
   SetCloseOnExit("UDPClient", socket_);
   EnableSocketOptions("UDPClient", socket_);
 
-  host_name_ = host_name;
+  host_name_ = GetHostName();
 }
 
 UDPClient::~UDPClient() noexcept {
@@ -339,37 +339,6 @@ int GetPort() {
     return kDefaultPort;
   }
   return std::stoi(env);
-}
-
-bool IsAddressInUse(int port) {
-  bool in_use = false;
-  addrinfo hints{};
-
-  hints.ai_family = AF_UNSPEC;
-  hints.ai_socktype = SOCK_DGRAM;
-  hints.ai_protocol = IPPROTO_UDP;
-
-  addrinfo* addr_info = nullptr;
-
-  auto ret_value(getaddrinfo(kBroadcastAddress.c_str(), std::to_string(port).c_str(), &hints, &addr_info));
-
-  if (ret_value != 0 || nullptr == addr_info) {
-    std::cout << "IsAddressInUse: "
-              << "invalid address or port - \"" <<kBroadcastAddress << ":" << port << "\"" << std::endl;
-    std::cout << "IsAddressInUse: error message - " << get_error_string(get_last_error()) << std::endl;
-    Exit();
-  }
-  SOCKET soc = socket(addr_info->ai_family, addr_info->ai_socktype, addr_info->ai_protocol);
-
-  if (INVALID_SOCKET != soc) {
-    ret_value = bind(soc, addr_info->ai_addr, addr_info->ai_addrlen);
-    in_use = (ret_value != 0);
-  }
-  freeaddrinfo(addr_info);
-  if (soc != -1) {
-    close(soc);
-  }
-  return in_use;
 }
 
 #if defined(_WIN64)
