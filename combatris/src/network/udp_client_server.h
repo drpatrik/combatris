@@ -25,11 +25,23 @@ namespace network {
 
 const int SOCKET_TIMEOUT = -2;
 
+std::string GetHostName();
+
+std::string GetBroadcastAddress();
+
+bool IsAddressInUse(int port);
+
+int GetPort();
+
+void Startup();
+
+void Cleanup();
+
 class UDPClient {
  public:
   UDPClient(const std::string& host_name, const std::string& broadcast_address, int port);
 
-  UDPClient(const std::string& broadcast_address, int port) : UDPClient("", broadcast_address, port) {}
+  UDPClient(const std::string& broadcast_address, int port) : UDPClient(GetHostName(), broadcast_address, port) {}
 
   UDPClient(const UDPClient&) = delete;
 
@@ -63,17 +75,5 @@ class UDPServer {
   SOCKET socket_ = INVALID_SOCKET;
   addrinfo* addr_info_ = nullptr;
 };
-
-std::string GetHostName();
-
-std::string GetBroadcastAddress();
-
-bool IsAddressInUse(int port);
-
-int GetPort();
-
-void Startup();
-
-void Cleanup();
 
 }  // namespace network

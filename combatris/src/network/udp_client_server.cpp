@@ -75,7 +75,7 @@ void Exit() {
   exit(-1);
 }
 
-void EnableBroadcast(const std::string& name, SOCKET socket) {
+void EnableSocketOptions(const std::string& name, SOCKET socket) {
   int enable_broadcast = 1;
 
   if (setsockopt(socket, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<char*>(&enable_broadcast), sizeof(enable_broadcast)) < 0) {
@@ -194,7 +194,7 @@ UDPClient::UDPClient(const std::string& host_name, const std::string& broadcast_
     Exit();
   }
   SetCloseOnExit("UDPClient", socket_);
-  EnableBroadcast("UDPClient", socket_);
+  EnableSocketOptions("UDPClient", socket_);
 
   host_name_ = host_name;
 }
@@ -241,7 +241,7 @@ UDPServer::UDPServer(int port) {
     Exit();
   }
   SetCloseOnExit("UDPServer", socket_);
-  EnableBroadcast("UDPServer", socket_);
+  EnableSocketOptions("UDPServer", socket_);
 
   ret_value = bind(socket_, addr_info_->ai_addr, addr_info_->ai_addrlen);
 
