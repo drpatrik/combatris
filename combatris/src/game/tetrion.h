@@ -2,6 +2,7 @@
 
 #include "game/campaign.h"
 #include "game/animation.h"
+#include "utility/game_controller.h"
 
 class Tetrion final {
  public:
@@ -50,6 +51,8 @@ class Tetrion final {
 
   void GameControl(Controls control_pressed, int lines = 0);
 
+  void HandleGameControllerEvents(SDL_Event& event) { game_controller_->HandleEvents(event); }
+
   void Update(double delta_timer);
 
  protected:
@@ -81,4 +84,5 @@ class Tetrion final {
   std::shared_ptr<TetrominoGenerator> tetromino_generator_;
   std::deque<std::shared_ptr<Animation>> animations_;
   std::shared_ptr<CombatrisMenu> combatris_menu_;
+  std::shared_ptr<utility::GameController> game_controller_;
 };

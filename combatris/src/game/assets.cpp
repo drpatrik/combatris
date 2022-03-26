@@ -8,12 +8,6 @@ using namespace utility;
 
 namespace {
 
-#if defined(__linux__)
-const std::string kAssetFolder = "assets/";
-#else
-const std::string kAssetFolder = "../../assets/";
-#endif
-
 void DeleteTexture(SDL_Texture* texture) {
   if (texture != nullptr) {
     SDL_DestroyTexture(texture);
@@ -24,7 +18,7 @@ SDL_Texture* LoadTexture(SDL_Renderer *renderer, const std::string& name, Color 
   if (SDL_WasInit(SDL_INIT_EVERYTHING) == 0 || nullptr == renderer) {
     return nullptr;
   }
-  auto full_path =  kAssetFolder + "art/" + name;
+  auto full_path =  ::kAssetFolder + "art/" + name;
   auto surface = SDL_LoadBMP(full_path.c_str());
 
   if (nullptr == surface) {
@@ -107,10 +101,4 @@ std::tuple<std::shared_ptr<SDL_Texture>, int, int> Assets::GetTexture(Type type)
   SDL_QueryTexture(texture.get(), nullptr, nullptr, &w, &h);
 
   return std::make_tuple(texture, w, h);
-}
-
-void Assets::LoadGameControllerMappings() {
-  if (SDL_GameControllerAddMappingsFromFile((kAssetFolder + "gamecontrollerdb.txt").c_str()) == -1) {
-    std::cout << "Warning: Failed to load game controller mappings: " << SDL_GetError() << std::endl;
-  }
 }

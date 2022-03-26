@@ -5,6 +5,12 @@
 #include "utility/function_caller.h"
 #include "game/tetromino.h"
 
+#if defined(__linux__)
+const std::string kAssetFolder = "assets/";
+#else
+const std::string kAssetFolder = "../../assets/";
+#endif
+
 class Assets final {
  public:
   enum class Type { Checkmark, Circle };
@@ -32,8 +38,6 @@ class Assets final {
   std::shared_ptr<SDL_Texture> GetAlphaTextures(Tetromino::Type type) const { return alpha_textures_.at(static_cast<int>(type) - 1); }
 
   std::vector<std::shared_ptr<SDL_Texture>> GetHourGlassTextures() const { return hourglass_textures_; }
-
-  static void LoadGameControllerMappings();
 
  private:
   using UniqueFontPtr = std::unique_ptr<TTF_Font, utility::function_caller<void(TTF_Font*), &TTF_CloseFont>>;

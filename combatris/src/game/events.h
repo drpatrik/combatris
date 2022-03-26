@@ -55,7 +55,7 @@ struct Event {
     BattleGotLines,
     BattleKnockedOut,
     BattleYouDidKO,
-    BattleNextTetrominoSuccessful
+    BattleNextTetrominoSuccessful,
   };
 
   inline explicit Event(Type type, double time = 0.0) : type_(type), lines_(), delay_(time) {}
@@ -65,7 +65,7 @@ struct Event {
 
   inline Event(Type type, const Lines& lines, int lines_to_clear) : type_(type), lines_(lines), value1_(lines_to_clear) {}
 
-  inline Event(Type type, int got_lines, size_t host_id) : type_(type), value1_(got_lines), value2_(host_id) {}
+  inline Event(Type type, int value1, size_t value2) : type_(type), value1_(value1), value2_(value2) {}
 
   inline Event(Type type, const Lines& lines, const Position& pos, int score, int lines_sent) : type_(type), lines_(lines), pos_(pos), value1_(score), value2_(lines_sent) {}
 

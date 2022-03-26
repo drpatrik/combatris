@@ -94,7 +94,8 @@ Tetrion::Tetrion() : events_() {
   multi_player_ = campaign_->GetMultiPlayerPane();
   receiving_queue_ = campaign_->GetReceivingQueue();
   tetromino_generator_ = campaign_->GetTetrominoGenerator();
-  combatris_menu_ = std::make_shared<CombatrisMenu>(events_);
+  game_controller_ = std::make_shared<utility::GameController>(kAssetFolder);
+  combatris_menu_ = std::make_shared<CombatrisMenu>(events_, game_controller_);
   events_.Push(Event::Type::ShowSplashScreen);
   events_.Push(Event::Type::MenuSetModeAndCampaign, ModeType::SinglePlayer, CampaignType::Combatris);
   SDL_RaiseWindow(window_);
@@ -163,7 +164,6 @@ void Tetrion::GameControl(Controls control_pressed, int lines) {
       }
       break;
     case Controls::DebugSendLine:
-      //events_.Push(Event::Type::BattleGotLines, lines, 100);
       events_.Push(Event::Type::BattleSendLines, lines);
       break;
     default:

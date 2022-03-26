@@ -32,62 +32,13 @@ class Combatris {
       std::cout << "TTF_Init Error: " << TTF_GetError() << std::endl;
       exit(-1);
     }
-    Assets::LoadGameControllerMappings();
-    SDL_GameControllerEventState(SDL_ENABLE);
-    SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
     tetrion_ = std::make_shared<Tetrion>();
   }
 
   ~Combatris() {
     tetrion_.reset();
-    DetachController(gamecontroller_index_);
     SDL_Quit();
     TTF_Quit();
-  }
-
-  void DisplayJoystickInfo(int index) {
-    auto js = SDL_JoystickOpen(index);
-
-    if (nullptr == js) {
-      std::cout << "Unknown joystick - unable to find information: " << SDL_GetError() << std::endl;
-      return;
-    }
-    char guid_str[1024];
-    SDL_JoystickGetGUIDString(SDL_JoystickGetGUID(js), guid_str, sizeof(guid_str));
-
-    const auto name = SDL_JoystickName(js);
-
-    std::cout << guid_str << ", " << name << " - not found in database" << std::endl;;
-
-    SDL_JoystickClose(js);
-  }
-
-  void AttachController(int index) {
-    if (nullptr != game_controller_ || SDL_IsGameController(index) == 0) {
-      if (nullptr == game_controller_) {
-        DisplayJoystickInfo(index);
-      }
-      return;
-    }
-    game_controller_ = SDL_GameControllerOpen(index);
-    if (nullptr == game_controller_) {
-      std::cout << "Warning: Unable to open game controller! SDL Error: " << SDL_GetError() << std::endl;
-      exit(-1);
-    }
-    gamecontroller_index_ = index;
-    gamecontroller_name_ = SDL_GameControllerNameForIndex(gamecontroller_index_);
-    std::cout << "Game controller attached: " << gamecontroller_name_ << std::endl;
-  }
-
-  void DetachController(int index) {
-    if (nullptr == game_controller_ || index != gamecontroller_index_) {
-      return;
-    }
-    std::cout << "Game controller detached: " << gamecontroller_name_ << std::endl;
-    SDL_GameControllerClose(game_controller_);
-    game_controller_ = nullptr;
-    gamecontroller_index_ = -1;
-    gamecontroller_name_ = "";
   }
 
   Tetrion::Controls TranslateKeyboardCommands(const SDL_Event& event) const {
@@ -123,9 +74,9 @@ class Combatris {
   }
 
   Tetrion::Controls TranslateControllerCommands(const SDL_Event& event) const {
-    if (event.cbutton.which != gamecontroller_index_) {
+    /*if (event.cbutton.which != gamecontroller_index_) {
       return Tetrion::Controls::None;
-    }
+      }*/
     switch (event.cbutton.button) {
       case SDL_CONTROLLER_BUTTON_A:
         return Tetrion::Controls::RotateCounterClockwise;
@@ -194,20 +145,10 @@ class Combatris {
             }
             break;
           case SDL_JOYDEVICEADDED:
-            if (SDL_IsGameController(event.jbutton.which) == 0) {
-              DisplayJoystickInfo(event.jbutton.which);
-              break;
-            }
-            event.cbutton.which = event.jbutton.which;
-            [[fallthrough]];
           case SDL_CONTROLLERDEVICEADDED:
-            AttachController(event.cbutton.which);
-            break;
           case SDL_JOYDEVICEREMOVED:
-            event.cbutton.which = event.jbutton.which;
-            [[fallthrough]];
           case SDL_CONTROLLERDEVICEREMOVED:
-            DetachController(event.cbutton.which);
+            tetrion_->HandleGameControllerEvents(event);
             break;
         }
       }
@@ -259,9 +200,6 @@ class Combatris {
   }
 
  private:
-  int gamecontroller_index_ = -1;
-  std::string gamecontroller_name_;
-  SDL_GameController* game_controller_ = nullptr;
   std::shared_ptr<Tetrion> tetrion_ = nullptr;
 };
 

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <tuple>
+#include <iostream>
 
 namespace utility {
 
@@ -66,7 +67,10 @@ class MenuModel {
 
     std::get<1>(e) = 0;
     std::get<2>(e) = items;
-    menu_action_->ItemChanged(item);
+
+    if (nullptr != menu_action_) {
+      menu_action_->ItemChanged(item);
+    }
   }
 
  private:
