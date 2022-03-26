@@ -5,7 +5,8 @@
 ![screenshots](screenshots/combatris-battle-samehost.png)
 ![screenshots](screenshots/combatris-battle.png)
 
-Combatris has been tested and works under Windows 10 (x64 only), OSX 10.13 - 12.3, Raspian GNU/Linux 9/10 (stretch/buster) and Ubuntu 16 / 20.
+Combatris has been tested and works under Windows 10 and 11 (x64 only), OSX 10.13 - 12.3, Raspian GNU/Linux 9/10 (stretch/buster) and Ubuntu 16 / 20. Multiplayer on the
+same host has been tested on Windows 11 and OSX 12.
 
 Feature | Support
 --- | ------
