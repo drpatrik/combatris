@@ -49,6 +49,9 @@ void MultiPlayer::Update(const Event& event) {
     return;
   }
   switch (event.type()) {
+    case Event::Type::HideMultiPlayerPanel:
+      is_multiplayer_panel_hidden_ = !is_multiplayer_panel_hidden_;
+      break;
     case Event::Type::SetStartLevel:
       start_level_ = event.value1_;
       break;
@@ -97,18 +100,20 @@ void MultiPlayer::Render(double delta_time) {
   if (!multiplayer_controller_) {
     return;
   }
-  Pane::SetDrawColor(renderer_, Color::Black);
-  Pane::FillRect(renderer_, kX, kY, kMultiPlayerPaneWidth, kMultiPlayerPaneHeight);
+  if (!is_multiplayer_panel_hidden_) {
+    Pane::SetDrawColor(renderer_, Color::Black);
+    Pane::FillRect(renderer_, kX, kY, kMultiPlayerPaneWidth, kMultiPlayerPaneHeight);
 
-  int x_offset = 0;
-  int y_offset = 0;
+    int x_offset = 0;
+    int y_offset = 0;
 
-  for (const auto& player : score_board_) {
-    player->Render(kSpaceingW * x_offset, kSpacingH * y_offset);
-    x_offset++;
-    if (x_offset > 1) {
-      y_offset++;
-      x_offset = 0;
+    for (const auto& player : score_board_) {
+      player->Render(kSpaceingW * x_offset, kSpacingH * y_offset);
+      x_offset++;
+      if (x_offset > 1) {
+        y_offset++;
+        x_offset = 0;
+      }
     }
   }
   ticks_progess_update_ += delta_time;

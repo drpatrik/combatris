@@ -17,6 +17,7 @@ class Tetrion final {
     Hold,
     Pause,
     Start,
+    HideMultiplayerPanel,
     Quit,
     DebugSendLine,
     Up = HardDrop,

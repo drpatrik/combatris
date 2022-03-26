@@ -65,6 +65,8 @@ class Combatris {
       return Tetrion::Controls::Start;
     } else if (SDL_SCANCODE_P == code || SDL_SCANCODE_F1 == code) {
       return Tetrion::Controls::Pause;
+    } else if (SDL_SCANCODE_H == code) {
+      return Tetrion::Controls::HideMultiplayerPanel;
     } else if (SDL_SCANCODE_Q == code) {
       return Tetrion::Controls::Quit;
     } else if (code >=  SDL_SCANCODE_1 && code <=  SDL_SCANCODE_9) {
@@ -74,14 +76,13 @@ class Combatris {
   }
 
   Tetrion::Controls TranslateControllerCommands(const SDL_Event& event) const {
-    /*if (event.cbutton.which != gamecontroller_index_) {
-      return Tetrion::Controls::None;
-      }*/
     switch (event.cbutton.button) {
       case SDL_CONTROLLER_BUTTON_A:
         return Tetrion::Controls::RotateCounterClockwise;
       case SDL_CONTROLLER_BUTTON_B:
         return Tetrion::Controls::RotateClockwise;
+      case SDL_CONTROLLER_BUTTON_Y:
+        return Tetrion::Controls::HideMultiplayerPanel;
       case SDL_CONTROLLER_BUTTON_BACK:
         return Tetrion::Controls::Pause;
       case SDL_CONTROLLER_BUTTON_START:

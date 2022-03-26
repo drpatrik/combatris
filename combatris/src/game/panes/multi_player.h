@@ -83,4 +83,5 @@ private:
   CampaignType campaign_type_ = CampaignType::Combatris;
   int start_level_ = 1;
   Vote vote_;
+  bool is_multiplayer_panel_hidden_ = false;
 };

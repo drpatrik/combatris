@@ -124,6 +124,9 @@ void Tetrion::HandleMenu(Controls control_pressed) {
     case Controls::Right:
       combatris_menu_->NextSubItem();
       break;
+    case Controls::HideMultiplayerPanel:
+      events_.Push(Event::Type::HideMultiPlayerPanel);
+      break;
     default:
       break;
   }

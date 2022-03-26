@@ -2,9 +2,10 @@
 
 ![screenshots](screenshots/combatris-splash.png)
 ![screenshots](screenshots/combatris-marathon.png)
+![screenshots](screenshots/combatris-battle-samehost.png)
 ![screenshots](screenshots/combatris-battle.png)
 
-Combatris has been tested and works under Windows 10 (x64 only), OSX 10.13 - 12.1, Raspian GNU/Linux 9/10 (stretch/buster) and Ubuntu 16 / 20.
+Combatris has been tested and works under Windows 10 (x64 only), OSX 10.13 - 12.3, Raspian GNU/Linux 9/10 (stretch/buster) and Ubuntu 16 / 20.
 
 Feature | Support
 --- | ------
@@ -31,6 +32,10 @@ Features Combatris, Marathon, Sprint, Ultra, Royal campaigns in single and multi
 The multiplayer mode is using a voting mechanism to ensure that all participants are playing the same campaign. The voting rules are simple; the campaign
 with the greatest number of players wins and any player that wanted to play another campaign is rejected. If there is a draw between the number of
 players Battle will be prioritized. Any player alone in a campaign will be rejected.
+
+Combatris now supports multiplayer on the same computer. Where one player play using keyboard while the other play with an gamepad. In theory there is no
+limitations on the number of players except for screen estate. When several players share the same computer the multiplayer pane can be removed to save
+screen estate.
 
 Combatris supports both keyboard and gamepads. The game has been tested with:
 
@@ -60,6 +65,7 @@ Right | Move Right
 Down | Soft Drop
 Space | Hard Drop
 Shift / C | Hold piece
+H | Hide multiplayer pane
 Q | Quit
 
 **Gamepad Commands**
@@ -70,6 +76,7 @@ Key | Action
 --- | ------
 Start | New game
 Select | Pause
+Y | Hide multiplayer pane
 A | Rotate clockwise
 B | Rotate counter clockwise
 Left | Move Left
@@ -156,7 +163,7 @@ B2B T-Spin Triple | 9
 **Progress for new features / improvements**
 - [X] Change joystick settings to follow the standard
 - [X] Use SDL_GameControllerDB
-- [ ] Add support for two players on the same computer
+- [X] Add support for several players on the same computer
 - [ ] Remove the pane for showing combo/latest move and display combo/last move direct on the frame
 - [ ] Sound
 - [ ] Add new animation for combo/last clearing move

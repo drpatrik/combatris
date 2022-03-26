@@ -55,7 +55,14 @@ Campaign::Campaign(SDL_Window* window, SDL_Renderer* renderer, Events& events, c
 }
 
 void Campaign::Update(const Event& event) {
-  if (!event.Is(Event::Type::MenuSetModeAndCampaign)) {
+  if (!IsIn(event, { Event::Type::MenuSetModeAndCampaign, Event::Type::HideMultiPlayerPanel })) {
+    return;
+  }
+  if (event.Is(Event::Type::HideMultiPlayerPanel)) {
+    is_multiplayer_panel_hidden_ = !is_multiplayer_panel_hidden_;
+    if (!IsSinglePlayer()) {
+      SetupCampaignWindow(window_, renderer_, is_multiplayer_panel_hidden_);
+    }
     return;
   }
   auto title = ToString(event.campaign_type());
@@ -76,7 +83,7 @@ void Campaign::Update(const Event& event) {
   if (ModeType::MultiPlayer == mode_type_) {
     title = "Multiplayer - " + title + " (" + multi_player_->our_host_name() + " )";
   }
-  SetupCampaignWindow(window_, renderer_, IsSinglePlayer());
+  SetupCampaignWindow(window_, renderer_, (IsSinglePlayer() || is_multiplayer_panel_hidden_));
   SDL_SetWindowTitle(window_, title.c_str());
   SetupCampaign(event.campaign_type());
 

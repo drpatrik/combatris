@@ -4,8 +4,6 @@
 #include "utility/menu_model.h"
 #include "utility/game_controller.h"
 
-#include <map>
-
 class CombatrisMenu : public utility::MenuModel, public utility::MenuAction, public utility::GameController::Callback {
  public:
   const size_t kSelectMode = 1;
@@ -49,14 +47,9 @@ class CombatrisMenu : public utility::MenuModel, public utility::MenuAction, pub
       Set(kSelectCampaign, (sub_item == 0) ? kSinglePlayerCampaigns : kMultiPlayerCampaigns);
       events_.Push(Event::Type::MenuSetModeAndCampaign, mode_, campaign_);
     } else if (kSelectInput == item) {
-      if (0 == sub_item) {
-
-        return;
-      }
-      int new_input = map_item_to_controller[sub_item];
-      // Prev, current
-
-      current_input_ = new_input;
+      game_controller_->Detach(current_game_controller_);
+      current_game_controller_ = map_item_to_controller.at(sub_item);
+      game_controller_->Attach(current_game_controller_);
     } else if (kSelectCampaign == item) {
       campaign_ = static_cast<CampaignType>(sub_item + 1);
       events_.Push(Event::Type::MenuSetModeAndCampaign, mode_, campaign_);
@@ -72,17 +65,16 @@ class CombatrisMenu : public utility::MenuModel, public utility::MenuAction, pub
   virtual void RemoveGameController(int) override { UpdateInputItems(); }
 
   void UpdateInputItems() {
+    map_item_to_controller.clear();
+    map_item_to_controller.push_back(-1);
+    auto game_controllers = game_controller_->GetGameControllers();
+
+    std::transform(game_controllers.begin(), game_controllers.end(), std::back_inserter(map_item_to_controller),
+                   [](const auto& p) { return p.first; } );
+
     auto items = game_controller_->GetGameControllersAsList();
 
     items.insert(items.begin(), kDefaultInput[0]);
-    map_item_to_controller.clear();
-    int item = 1;
-
-    auto game_controllers = game_controller_->GetGameControllers();
-
-    std::transform(game_controllers.begin(), game_controllers.end(), std::inserter(map_item_to_controller, map_item_to_controller.end()),
-                   [&item](const auto& p) { return std::make_pair(p.first, item); ++item; } );
-
     Set(kSelectInput, items);
   }
 
@@ -90,7 +82,7 @@ class CombatrisMenu : public utility::MenuModel, public utility::MenuAction, pub
   ModeType mode_ = ModeType::SinglePlayer;
   CampaignType campaign_ = CampaignType::Combatris;
   Events& events_;
-  int current_input_ = -1; // Keyboard
-  std::map<int, int> map_item_to_controller;
+  int current_game_controller_ = -1; // Keyboard
+  std::vector<int> map_item_to_controller;
   std::shared_ptr<utility::GameController> game_controller_;
 };

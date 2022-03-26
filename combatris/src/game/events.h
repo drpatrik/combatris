@@ -56,6 +56,7 @@ struct Event {
     BattleKnockedOut,
     BattleYouDidKO,
     BattleNextTetrominoSuccessful,
+    HideMultiPlayerPanel
   };
 
   inline explicit Event(Type type, double time = 0.0) : type_(type), lines_(), delay_(time) {}

@@ -9,6 +9,8 @@
 
 namespace utility {
 
+const int kNoController = -1;
+
 class GameController final {
  public:
   class Callback {
@@ -31,10 +33,7 @@ class GameController final {
   void AddCallback(Callback* callback) { callback_ = callback; }
 
   void Attach(int index) {
-    if (nullptr != game_controller_ || SDL_IsGameController(index) == 0) {
-      if (nullptr == game_controller_) {
-        DisplayJoystickInfo(index);
-      }
+    if (nullptr != game_controller_ || kNoController == index || SDL_IsGameController(index) == 0) {
       return;
     }
     game_controller_ = SDL_GameControllerOpen(index);
@@ -48,13 +47,13 @@ class GameController final {
   }
 
   void Detach(int index) {
-    if (nullptr == game_controller_ || index != gamecontroller_index_) {
+    if (nullptr == game_controller_ || kNoController == index || index != gamecontroller_index_) {
       return;
     }
     std::cout << "Game controller detached: " << gamecontroller_name_ << std::endl;
     SDL_GameControllerClose(game_controller_);
     game_controller_ = nullptr;
-    gamecontroller_index_ = -1;
+    gamecontroller_index_ = kNoController;
     gamecontroller_name_ = "";
   }
 
@@ -121,7 +120,7 @@ class GameController final {
   }
 
  private:
-  int gamecontroller_index_ = -1;
+  int gamecontroller_index_ = kNoController;
   std::string gamecontroller_name_;
   SDL_GameController* game_controller_ = nullptr;
   Callback* callback_;

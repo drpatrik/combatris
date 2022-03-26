@@ -82,4 +82,5 @@ class Campaign : public EventListener {
   std::vector<EventListener*> event_listeners_;
   ModeType mode_type_ = ModeType::None;
   CampaignType campaign_type_ = CampaignType::None;
+  bool is_multiplayer_panel_hidden_ = false;
 };
