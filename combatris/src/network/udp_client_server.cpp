@@ -88,12 +88,14 @@ void EnableSocketOptions(const std::string& name, SOCKET socket) {
     std::cout << name << ": setsockopt failed - " << get_error_string(get_last_error()) << std::endl;
     Exit();
   }
+#if !defined(_WIN64)
   int enable_reuseport = 1;
 
   if (setsockopt(socket, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<char*>(&enable_reuseport), sizeof(enable_reuseport)) < 0) {
     std::cout << name << ": setsockopt failed - " << get_error_string(get_last_error()) << std::endl;
     Exit();
   }
+  #endif
 }
 
 void SetCloseOnExit(const std::string& name, SOCKET socket) {

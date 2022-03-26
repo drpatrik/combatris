@@ -254,9 +254,9 @@ If you install a newer version of gcc or clang ensure that you update PATH/LD_LI
 
 The code builds cleanly and has been tested with Clang 5.0.0 and Clang 6.0.0
 
-**64-bit Windows 10**
+**64-bit Windows 10 and Windows 11**
 
-The code has been tested with Visual Studio Community Edition 15.x.x and 16.x.x Using the following settings:
+The code has been tested with Visual Studio Community Edition 15.x.x, 16.x.x and 17.x.x. Using the following settings:
 
 Download the latest versions of the development libraries at https://www.libsdl.org.
 
