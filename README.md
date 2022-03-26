@@ -281,3 +281,4 @@ Some sources has there own license and is not covered by the source codes licens
 * DeltaTimer adapted from http://headerphile.com/sdl2/sdl2-part-9-no-more-delays/
 * https://github.com/philsquared/Catch
 * https://github.com/gabomdq/SDL_GameControllerDB
+* ds3activate https://github.com/libsdl-org/SDL/issues/4923#issuecomment-966722634
