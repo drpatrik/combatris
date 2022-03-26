@@ -76,7 +76,7 @@ Key | Action
 --- | ------
 Start | New game
 Select | Pause
-Y | Hide multiplayer pane
+X | Hide multiplayer pane
 A | Rotate clockwise
 B | Rotate counter clockwise
 Left | Move Left
