@@ -28,7 +28,11 @@ class GameController final {
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
   }
 
-  ~GameController() { Detach(gamecontroller_index_); }
+  GameController(const GameController&) = delete;
+
+  GameController(const GameController&&) = delete;
+
+  ~GameController() noexcept { Detach(gamecontroller_index_); }
 
   void AddCallback(Callback* callback) { callback_ = callback; }
 
@@ -102,7 +106,7 @@ class GameController final {
   }
 
  protected:
-  void DisplayJoystickInfo(int index) {
+  void DisplayJoystickInfo(int index) const {
     auto js = SDL_JoystickOpen(index);
 
     if (nullptr == js) {
