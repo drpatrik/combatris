@@ -253,7 +253,7 @@ If you install a newer version of gcc or clang ensure that you update PATH/LD_LI
 
 **Ubuntu**
 
-The code builds cleanly and has been tested with Clang 5.0.0 and Clang 6.0.0
+The code builds cleanly and has been tested with Clang 5.0.0, 6.0.0 and 9.0.0
 
 **64-bit Windows 10 and Windows 11**
 
