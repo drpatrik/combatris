@@ -22,8 +22,6 @@ void HeartbeatController(std::atomic<bool>& quit, std::shared_ptr<ThreadSafeQueu
 
 MultiPlayerController::MultiPlayerController(ListenerInterface* listener_if) : listener_if_(listener_if) {
   Startup();
-  our_host_name_ = GetHostName();
-  our_host_id_ = std::hash<std::string>{}(our_host_name_ + std::to_string(GetPID()));
   cancelled_.store(false, std::memory_order_release);
   send_queue_ = std::make_shared<ThreadSafeQueue<OutgoingPackage>>();
   listener_ = std::make_unique<Listener>();
@@ -155,7 +153,7 @@ void MultiPlayerController::Run() {
       }
       sliding_window.push_front(package);
 
-      ReliablePackage reliable_package(client.host_name(), sliding_window.size());
+      ReliablePackage reliable_package(client.host_name(), client.host_id(), sliding_window.size());
 
       std::copy(std::begin(sliding_window), std::end(sliding_window), reliable_package.package_.packages_);
       client.Send(&reliable_package, sizeof(reliable_package));
@@ -165,7 +163,7 @@ void MultiPlayerController::Run() {
       package.header_.SetSeqenceNr(sequence_nr_unreliable);
       sequence_nr_unreliable++;
 
-      UnreliablePackage unreliable_package(client.host_name(), package);
+      UnreliablePackage unreliable_package(client.host_name(), client.host_id(), package);
 
       client.Send(&unreliable_package, sizeof(unreliable_package));
     }

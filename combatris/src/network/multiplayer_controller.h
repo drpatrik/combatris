@@ -67,11 +67,11 @@ class MultiPlayerController {
 
   void Dispatch();
 
-  inline bool IsUs(uint64_t host_id) const { return host_id == our_host_id_; }
+  inline bool IsUs(uint64_t host_id) const { return host_id == kHostID; }
 
-  inline const std::string& our_host_name() const { return our_host_name_; }
+  inline const std::string& our_host_name() const { return kHostName; }
 
-  inline uint64_t our_host_id() const { return our_host_id_; }
+  inline uint64_t our_host_id() const { return kHostID; }
 
  protected:
   void Run();
@@ -101,8 +101,6 @@ class MultiPlayerController {
   }
 
  private:
-  uint64_t our_host_id_;
-  std::string our_host_name_;
   std::atomic<bool> cancelled_;
   ListenerInterface* listener_if_;
   std::unique_ptr<Listener> listener_;

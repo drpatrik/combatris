@@ -22,7 +22,7 @@ struct TestPackage {
 
   TestPackage(const std::string& host_name, network::Request request) {
     header_ = network::Header(request);
-    package_header_.SetHostName(host_name);
+    package_header_.SetHostName(host_name, network::CreateUniqueID(host_name));
   }
 
   std::string host_name() const { return package_header_.host_name(); }

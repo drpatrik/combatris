@@ -9,20 +9,10 @@
 
 #include <winsock2.h>
 #include <iterator>
-#include <process.h>
-
-inline int GetPID() {
-  return _getpid();
-}
 
 #else
 
 #include <arpa/inet.h>
-#include <unistd.h>
-
-inline int GetPID() {
-  return getpid();
-}
 
 #if !defined(__APPLE__)
 
@@ -65,7 +55,7 @@ const int kWindowSize = 14;
 const int kMatrixStateSize = 20 * 5;
 using MatrixState = std::array<uint8_t, kMatrixStateSize>;
 
-inline uint64_t SetHostName(const std::string& from, char *to) {
+inline void SetHostName(const std::string& from, char *to) {
   auto tmp(from);
 
   tmp.erase(std::min(kHostNameMax, tmp.size()), std::string::npos);
@@ -76,8 +66,6 @@ inline uint64_t SetHostName(const std::string& from, char *to) {
 #endif
 
   to[tmp.size()] = '\0';
-
-  return std::hash<std::string>{}(from + std::to_string(GetPID()));
 }
 
 enum class CampaignType { None, Combatris, Marathon, Sprint, Ultra, Royal, Battle };
@@ -271,7 +259,10 @@ class PackageHeader final {
 
   inline std::string host_name() const { return host_name_; }
 
-  inline void SetHostName(const std::string& name) { host_id_ = network::SetHostName(name, host_name_); }
+  inline void SetHostName(const std::string& name, uint64_t id) {
+    host_id_ = id;
+    network::SetHostName(name, host_name_);
+  }
 
   inline int64_t host_id() const  { return host_id_; }
 
@@ -292,9 +283,9 @@ struct ProgressPackage {
 };
 
 struct UnreliablePackage {
-  UnreliablePackage(const std::string& host_name, const ProgressPackage& package) : package_(package) {
+  UnreliablePackage(const std::string& host_name, uint64_t id, const ProgressPackage& package) : package_(package) {
     static_assert(sizeof(UnreliablePackage) <= kMTU);
-    header_.SetHostName(host_name);
+    header_.SetHostName(host_name, id);
   }
 
   PackageHeader header_ = PackageHeader(Channel::Unreliable);
@@ -320,9 +311,9 @@ struct PackageArray {
 struct ReliablePackage {
   ReliablePackage() : package_(0) {}
 
-  ReliablePackage(const std::string& host_name, uint8_t size) : package_(size) {
+  ReliablePackage(const std::string& host_name, uint64_t id, uint8_t size) : package_(size) {
     static_assert(sizeof(ReliablePackage) <= kMTU);
-    header_.SetHostName(host_name);
+    header_.SetHostName(host_name, id);
   }
 
   inline int size() const { return package_.size_; }

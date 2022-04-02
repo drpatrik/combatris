@@ -32,10 +32,13 @@ const std::string kDefaultBroadcastIP = "192.168.1.255";
 const std::string kBroadcastAddress = "0.0.0.0";
 const int kDefaultPort = 11000;
 
-
 #if defined(_WIN64)
 
+#include <mutex>
+
 #pragma comment(lib, "ws2_32.lib")
+
+std::once_flag call_once_flag;
 
 int get_last_error() { return WSAGetLastError();  }
 
@@ -197,8 +200,6 @@ UDPClient::UDPClient(const std::string& broadcast_address, int port) {
   }
   SetCloseOnExit("UDPClient", socket_);
   EnableSocketOptions("UDPClient", socket_);
-
-  host_name_ = GetHostName();
 }
 
 UDPClient::~UDPClient() noexcept {
@@ -318,6 +319,8 @@ ssize_t UDPServer::Receive(void* buff, size_t max_size, sockaddr_in& from_addr, 
 std::string GetHostName() {
   char host_name[network::kHostNameMax + 1];
 
+  Startup();
+
   if (gethostname(host_name, sizeof(host_name)) < 0) {
     std::cout << "Failed to retrieve host name" << std::endl;
   }
@@ -345,7 +348,7 @@ int GetPort() {
 
 #if defined(_WIN64)
 
-void Startup() {
+void StartupImpl() {
   WSADATA wsaData;
 
   auto error_code = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -355,6 +358,8 @@ void Startup() {
     Exit();
   }
 }
+
+void Startup() { std::call_once(call_once_flag, [] { StartupImp(); }); }
 
 void Cleanup() { WSACleanup(); }
 

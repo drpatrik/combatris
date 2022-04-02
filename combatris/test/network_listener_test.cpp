@@ -17,7 +17,7 @@ Package PreparePackage(uint32_t sn, Request request, GameState state = GameState
 }
 
 void Send(const std::deque<Package>& sliding_window, UDPClient& client) {
-  ReliablePackage reliable_package(client.host_name(), sliding_window.size());
+  ReliablePackage reliable_package(client.host_name(), client.host_id(), sliding_window.size());
 
   std::copy(std::begin(sliding_window), std::end(sliding_window), reliable_package.package_.packages_);
   client.Send(&reliable_package, sizeof(reliable_package));
@@ -166,7 +166,7 @@ TEST_CASE("TestJoinOutOfOrder") {
 void SendPackage(UDPClient& client, std::deque<Package>& sliding_window, const Package& package) {
   sliding_window.push_front(package);
 
-  ReliablePackage packages("TestClient", sliding_window.size());
+  ReliablePackage packages("TestClient", 0, sliding_window.size());
 
   std::copy(std::begin(sliding_window), std::end(sliding_window), packages.package_.packages_);
 
