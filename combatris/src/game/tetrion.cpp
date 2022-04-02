@@ -194,6 +194,7 @@ void Tetrion::HandleTetrominoStates(TetrominoSprite::State state, Events& events
       RemoveAnimation<OnFloorAnimation>(animations_);
       events_.Push(Event::Type::CanHold);
       events_.Push(Event::Type::NextTetromino, 0.2);
+      break;
     default:
       break;
   }

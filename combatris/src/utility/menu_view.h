@@ -25,7 +25,7 @@ class MenuView : protected MenuAction {
   virtual void ItemChanged(size_t item) override;
 
   struct MenuItem {
-    explicit MenuItem(MenuModel::MenuItemType type) : type_(type) {}
+    explicit MenuItem(MenuModel::MenuItemType type) : type_(type), rc_{} {}
     MenuModel::MenuItemType type_;
     UniqueTexturePtr texture_;
     SDL_Rect rc_;

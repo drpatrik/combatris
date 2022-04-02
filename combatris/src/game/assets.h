@@ -31,11 +31,11 @@ class Assets final {
 
   std::tuple<std::shared_ptr<SDL_Texture>, int, int> GetTexture(Type type) const;
 
-  std::shared_ptr<const Tetromino> GetTetromino(Tetromino::Type type) const { return tetrominos_.at(static_cast<int>(type) - 1); }
+  std::shared_ptr<const Tetromino> GetTetromino(Tetromino::Type type) const { return tetrominos_.at(static_cast<int64_t>(type) - 1); }
 
   const std::vector<std::shared_ptr<const Tetromino>>& GetTetrominos() const { return tetrominos_; }
 
-  std::shared_ptr<SDL_Texture> GetAlphaTextures(Tetromino::Type type) const { return alpha_textures_.at(static_cast<int>(type) - 1); }
+  std::shared_ptr<SDL_Texture> GetAlphaTextures(Tetromino::Type type) const { return alpha_textures_.at(static_cast<int64_t>(type) - 1); }
 
   std::vector<std::shared_ptr<SDL_Texture>> GetHourGlassTextures() const { return hourglass_textures_; }
 

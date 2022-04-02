@@ -1,6 +1,14 @@
 #include "network/protocol.h"
 #include "network/udp_client_server.h"
 
+#include <fcntl.h>
+#include <errno.h>
+#include <string.h>
+#include <limits.h>
+#include <sys/types.h>
+#include <string>
+#include <iostream>
+
 #if defined(_WIN64)
 
 #pragma warning(disable:4267) // conversion from size_t to int
@@ -8,6 +16,7 @@
 #pragma warning(disable:4244) // SOCKET to int
 
 #include <ws2tcpip.h>
+#include <mutex>
 
 #else
 
@@ -15,14 +24,6 @@
 #include <unistd.h>
 
 #endif
-
-#include <fcntl.h>
-#include <errno.h>
-#include <string.h>
-#include <limits.h>
-#include <sys/types.h>
-
-#include <iostream>
 
 namespace {
 
@@ -33,8 +34,6 @@ const std::string kBroadcastAddress = "0.0.0.0";
 const int kDefaultPort = 11000;
 
 #if defined(_WIN64)
-
-#include <mutex>
 
 #pragma comment(lib, "ws2_32.lib")
 
@@ -359,7 +358,7 @@ void StartupImpl() {
   }
 }
 
-void Startup() { std::call_once(call_once_flag, [] { StartupImp(); }); }
+void Startup() { std::call_once(call_once_flag, [] { StartupImpl(); }); }
 
 void Cleanup() { WSACleanup(); }
 

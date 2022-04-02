@@ -6,6 +6,8 @@
 #define WIN32_LEAN_AND_MEAN
 #pragma warning(disable:4996) // _CRT_SECURE_NO_WARNINGS
 #pragma warning(disable:4267) // conversion from size_t to int
+#pragma warning(disable:26495) // always initialize a member variable in constructor
+#pragma warning(disable: 26812) // unscoped enum
 
 #include <winsock2.h>
 #include <iterator>
@@ -189,6 +191,7 @@ class ProgressPayload final {
     lines_ = htons(lines);
     score_ = htonl(score);
     level_ = level;
+    matrix_state_[0] = 0;
   }
 
   ProgressPayload(uint16_t lines, uint32_t score, uint8_t level, const MatrixState& matrix_state) {
