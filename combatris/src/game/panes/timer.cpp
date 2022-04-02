@@ -94,7 +94,7 @@ void ::Timer::Render(double) {
     return;
   }
   if (auto t = timer_->time_update()) {
-    if (IsSprintCampaign(campaign_type_) || IsBattleCampaign(campaign_type_)) {
+    if (IsSprintCampaign(campaign_type_)) {
       std::tie(timer_texture_, timer_texture_rc_) = CreateTimerTexture(renderer_, *assets_, timer_->FormatTime(*t), Color::White);
     } else {
       auto color = (t <= kTimesUpSoon) ? Color::Red : Color::White;

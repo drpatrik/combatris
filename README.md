@@ -59,6 +59,8 @@ Key | Action
 --- | ------
 N  | New game
 F1 / P | Pause
+H | Hide multiplayer pane
+Q | Quit
 CTRL / Z | Rotate counter clockwise
 Up / X | Rotate clockwise
 Left | Move Left
@@ -66,8 +68,6 @@ Right | Move Right
 Down | Soft Drop
 Space | Hard Drop
 Shift / C | Hold piece
-H | Hide multiplayer pane
-Q | Quit
 
 **Gamepad Commands**
 
@@ -119,7 +119,8 @@ T-Spin Mini Single | 2
 Double | 3
 T-Spin | 4
 Triple | 5
-Combatris | T-Spin Single | 8
+Combatris | 8
+T-Spin Single | 8
 T-Spin Double | 12
 T-Spin Triple | 16
 Back-to-Back Bonus | 0.5 x Total Line Clears

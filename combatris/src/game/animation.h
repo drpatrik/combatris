@@ -299,7 +299,7 @@ class HourglassAnimation final : public Animation {
  public:
   HourglassAnimation(SDL_Renderer* renderer, const std::shared_ptr<Assets>& assets)
       : Animation(renderer, assets), textures_(GetAsset().GetHourGlassTextures()) {
-    text_ = Texture(*this, GetAsset().GetFont(Normal25), "Waiting for all players", Color::White);
+    text_ = Texture(*this, GetAsset().GetFont(Bold30), "Waiting for all players", Color::White);
     text_.SetXY(kMatrixStartX + utility::Center(kMatrixWidth, text_.width()), kMatrixStartY + 100);
   }
 
@@ -311,7 +311,7 @@ class HourglassAnimation final : public Animation {
     RenderCopy(text_);
     ticks_ += delta;
     if (ticks_ >= 0.07) {
-      frame_ =  (textures_.size() == frame_) ? 0 : frame_ + 1;
+      frame_ =  (textures_.size() == frame_ + 1) ? 0 : frame_ + 1;
       ticks_ = 0.0;
     }
   }
