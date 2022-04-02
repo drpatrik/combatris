@@ -37,12 +37,10 @@ void ::Timer::Update(const Event& event) {
   switch (event.type()) {
     case Event::Type::SetCampaign:
       campaign_type_ = event.campaign_type();
-      timer_in_use_ = false;
+      timer_.reset();
       if (IsIn(campaign_type_, { CampaignType::Ultra, CampaignType::Royal, CampaignType::Battle })) {
-        timer_in_use_ = true;
         timer_ = std::make_unique<utility::Timer>(0);
       } else if (IsSprintCampaign(campaign_type_)) {
-        timer_in_use_ = true;
         timer_ = std::make_unique<utility::Clock>();
       }
       Reset();
@@ -63,7 +61,7 @@ void ::Timer::Update(const Event& event) {
       events_.Push(Event::Type::GameOver, 1);
       break;
     case Event::Type::NextTetromino:
-      if (timer_in_use_ && !timer_->IsStarted()) {
+      if (timer_ && !timer_->IsStarted()) {
         timer_->Start();
       }
       break;
@@ -76,7 +74,7 @@ void ::Timer::Update(const Event& event) {
 }
 
 void ::Timer::Reset() {
-  if (!timer_in_use_) {
+  if (!timer_) {
     return;
   }
   const auto t = GetGameTime(campaign_type_);
@@ -86,7 +84,7 @@ void ::Timer::Reset() {
 }
 
 void ::Timer::Render(double) {
-  if (!timer_in_use_) {
+  if (!timer_) {
     return;
   }
   if (!timer_->IsStarted()) {
