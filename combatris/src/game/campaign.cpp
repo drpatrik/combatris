@@ -30,6 +30,7 @@ Campaign::Campaign(SDL_Window* window, SDL_Renderer* renderer, Events& events, c
   AddListener(tetromino_generator_.get());
   scoring_ = std::make_unique<Scoring>(renderer_, assets_, events_);
   AddListener(scoring_.get());
+  scoring_reset_counters_ = std::make_unique<ScoringResetCounters>(scoring_.get());
   timer_ = std::make_unique<::Timer>(renderer_, assets_, events_);
   AddListener(timer_.get());
   high_score_ = std::make_unique<HighScore>(renderer_, assets_);
@@ -137,6 +138,7 @@ void Campaign::SetupCampaign(CampaignType type) {
       panes_.push_back(total_lines_.get());
       break;
     case CampaignType::Battle:
+      panes_.push_back(scoring_reset_counters_.get());
       panes_.push_back(timer_.get());
       panes_.push_back(knockout_.get());
       panes_.push_back(lines_sent_.get());

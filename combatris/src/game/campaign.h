@@ -67,6 +67,7 @@ class Campaign : public EventListener {
   std::shared_ptr<Matrix> matrix_;
   std::shared_ptr<Level> level_;
   std::unique_ptr<Scoring> scoring_;
+  std::unique_ptr<ScoringResetCounters> scoring_reset_counters_;
   std::unique_ptr<Timer> timer_;
   std::unique_ptr<HighScore> high_score_;
   std::unique_ptr<NextQueue> next_queue_;

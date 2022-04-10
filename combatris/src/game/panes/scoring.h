@@ -38,3 +38,13 @@ class Scoring final : public Pane, public EventListener {
   int level_ = 1;
   int start_level_ = 1;
 };
+
+class ScoringResetCounters : public PaneInterface {
+ public:
+  explicit ScoringResetCounters(Scoring* scoring) : scoring_(scoring) {}
+  virtual void Render(double) override {}
+  virtual void Reset() override { scoring_->ClearCounters(); }
+
+ private:
+  Scoring* scoring_;
+};
