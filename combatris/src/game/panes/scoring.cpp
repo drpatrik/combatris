@@ -7,7 +7,7 @@ const std::vector<int> kLinesToSendForLines =  { 0, 0, 1, 2, 4 };
 const std::vector<int> kScoreForTSpin = { 400, 800, 1200, 1600 };
 const std::vector<int> kLinesToSendTSpin =  { 0, 0, 2, 4, 6 };
 const std::vector<int> kB2BScoreForTSpin = { 0, 1200, 1800, 2700 };
-const std::vector<int> kB2BSLinesToSendForTSprin = { 0, 2, 3, 6, 9 };
+const std::vector<int> kB2BSLinesToSendForTSpin = { 0, 2, 3, 6, 9 };
 const std::vector<int> kLinesToSendForCombo = { 0, 1, 2, 4, 6, 9, 12, 16, 20, 24, 28, 32 };
 const std::vector<int> kLinesToClear = { 0, 1, 3, 5, 8 };
 const std::vector<int> kLinesToClearTSpin = { 4, 8, 12, 16 };
@@ -128,7 +128,7 @@ std::tuple<int, int, ComboType, int, int> Scoring::Calculate(const Event& event)
       if (event.lines() > 0 && ++b2b_counter_ > 1) {
         combo_score = kB2BScoreForTSpin.at(event.lines());
         combo_type = ComboType::B2BTSpin;
-        lines_to_send += kB2BSLinesToSendForTSprin.at(event.lines());
+        lines_to_send += kB2BSLinesToSendForTSpin.at(event.lines());
       }
       break;
   }
