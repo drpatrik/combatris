@@ -32,7 +32,7 @@ class Listener final {
 
     Request request_ = Request::Empty;
     std::string host_name_;
-    uint64_t host_id_;
+    uint64_t host_id_ = 0;
     Payload payload_;
     ProgressPayload progress_payload_;
   };

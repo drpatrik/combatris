@@ -20,7 +20,7 @@ class GameController final {
     virtual void RemoveGameController(int index) = 0;
   };
 
-  GameController(const std::string& path, Callback* callback = nullptr) : callback_(callback) {
+  explicit GameController(const std::string& path, Callback* callback = nullptr) : callback_(callback) {
     if (SDL_GameControllerAddMappingsFromFile((path + "gamecontrollerdb.txt").c_str()) == -1) {
       std::cout << "Warning: Failed to load game controller mappings: " << SDL_GetError() << std::endl;
     }

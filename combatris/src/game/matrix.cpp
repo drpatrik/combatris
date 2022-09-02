@@ -189,7 +189,7 @@ void Matrix::RemoveSolidLines() {
   Lines lines;
 
   for (int row = 0; row < kMatrixLastRow; ++row) {
-    auto& line = master_matrix_[row];
+    const auto& line = master_matrix_[row];
 
     if (kSolidID == line[kMatrixFirstCol] || kBombID == line[kMatrixFirstCol]) {
       lines.push_back(Line(row, line));
