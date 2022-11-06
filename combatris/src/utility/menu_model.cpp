@@ -54,7 +54,7 @@ void MenuModel::Next() {
       accept = true;
       break;
     }
-    if (new_selection >= model_.size()) {
+    if (new_selection == model_.size() - 1) {
       break;
     }
   }
