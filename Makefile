@@ -21,7 +21,7 @@ MAKE_COMMAND := cd $(BUILD_DIR) && $(MAKE_PROG)
 all: build
 
 cmake-setup:
-	@mkdir -p $(BUILD_DIR) && cd $(BUILD_DIR);$(CMAKE) -G $(CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) ..
+	@mkdir -p $(BUILD_DIR) && cd $(BUILD_DIR);$(CMAKE) -G $(CMAKE_GENERATOR) -Wno-dev -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) ..
 
 build: cmake-setup
 	$(MAKE_COMMAND) all
