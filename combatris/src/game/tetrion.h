@@ -43,7 +43,7 @@ class Tetrion final {
       unpause_pressed_ = false;
       game_paused_ = true;
       events_.Push(Event::Type::Pause);
-    } else if (!unpause_pressed_) {
+    } else {
       unpause_pressed_ = true;
     }
   }
