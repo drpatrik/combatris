@@ -9,6 +9,9 @@ else()
   cmake_minimum_required(VERSION 3.5.0)
 endif()
 
+# Set C++ standard version
+set(CMAKE_CXX_STANDARD 20)
+
 # 3rdparty Libraries
 include(CMakeLists-Catch.txt)
 
